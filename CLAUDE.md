@@ -4,26 +4,58 @@
 
 Offline, dependency-free Swedish pension and salary calculators built as standalone HTML files. Each file is self-contained — no build step, no server, no external dependencies beyond fonts and charting libraries loaded via CDN where needed.
 
-## Key 2026 constants
+## Tax constants (verify EVERY December for the following year)
 
-| Constant | Value |
-|---|---|
-| IBB (Inkomstbasbelopp) | 83,400 kr |
+### Single national values
+- IBB (Inkomstbasbelopp) — 2026: 83,400 kr
+- PBB (Prisbasbelopp) — 2026: 59,200 kr
+  ⚠ IBB and PBB are DIFFERENT numbers and move independently — don't
+  assume one tracks the other
+- SKIKT (skiktgräns) — 2026: 643,000 kr
+  → threshold on BESKATTNINGSBAR förvärvsinkomst (income AFTER grundavdrag)
+  → used directly in the state tax calculation
+  → only appears in Net_Salary_2026.html — confirmed not duplicated
+- BRYT_UNDER (brytpunkt) — 2026: 660,400 kr/year
+  → threshold on GROSS salary (BEFORE grundavdrag) — the figure usually
+    quoted in media/Ekonomifakta
+  → display-facing only in Net_Salary_2026.html, NOT used in the tax calc
+  → relationship: BRYT_UNDER = SKIKT + grundavdrag (gap ≈17,400 kr in 2026)
+  → ⚠ DO NOT confuse SKIKT and BRYT_UNDER — check which one a source is
+    quoting before editing either constant
 
-Add further constants here as they come up (e.g. PBB, takbelopp, skiktgräns).
+### Kommunalskatt (municipal tax) — NOT a single number
+- Full ~290-municipality lookup table, sourced from SCB (published
+  mid-December each year)
+- Update each December: replace the ENTIRE table, not a single value
+- Calculation rule: kommunal = floor(bfi × ki) — truncate, do not round
+  (Skatteverket rule)
 
-**Note:** not all tax inputs are simple constants. IBB and brytpunkt are single national values you can swap each year. Kommunalskatt and jobbskatteavdrag are different in kind — they vary by municipality and income respectively, and the underlying formula or table must be re-verified each January, not just updated with a new number.
+### Jobbskatteavdrag — NOT a flat number where implemented in full
+- Full version: two age-banded piecewise formulas
+  - Under 66 (jobbavdragUnder): 4 income bands, depends on ki
+    (kommunalskatt) and ga (grundavdrag)
+  - Over 66 (jobbavdragOver): 3 income bands, flat coefficients, no
+    kommunalskatt dependency
+  - Band thresholds expressed as PBB multiples (0.91×, 3.24×, 8.08×,
+    1.75×, 5.24×) — if PBB changes, kr values shift automatically, but
+    the multiplier coefficients themselves (0.3874, 0.251, 0.22, 0.07,
+    etc.) can ALSO change in Skatteverket's yearly spec — verify the
+    whole function each December, not just constants
+  - Source: Skatteverket, published ~December each year
 
-## Tax constants (change annually — verify each January)
+### Cross-file consistency — annual update scope differs per file
 
-- **IBB (Inkomstbasbelopp):** single national value — see constants table
-- **Brytpunkt (state tax threshold):** single national value — see constants table
-- **Kommunalskatt:** varies by municipality (28.93%–35.65% in 2026, avg 32.38%)
-  → Net_Salary file uses [a lookup table / a single average / user-input field — confirm which]
-  → Source: ekonomifakta.se or skatteverket.se, published ~Dec each year
-- **Jobbskatteavdrag:** NOT a flat number — income-dependent curve, also depends on kommunalskatt and age (under/over 66)
-  → Do not hardcode a single jobbskatteavdrag value; verify the formula/table is re-implemented each year
-  → Source: skatteverket.se, "jobbskatteavdrag" tables, published ~Dec each year
+| What | Net_Salary_2026.html | Salary_Exchange.html | Salary_Exchange_Consumer.html |
+|---|---|---|---|
+| Kommun lookup table | full table | full table (duplicate) | single default (KOMMUNAL_DEFAULT) |
+| Jobbskatteavdrag | full piecewise formula | simplified (brytpunkt check + flat 20% state tax above it) | simplified, same as Salary_Exchange |
+| Brytpunkt constant | BRYT_UNDER = 660,400 (annual) | LIMIT_BRYTPUNKT = 55,033 (monthly, confirmed ≈ matches) | not used |
+| SKIKT (skiktgräns) | yes | not used | not used |
+| Annual update needed | full re-verify of all tax logic | replace kommun table; verify LIMIT_BRYTPUNKT | update KOMMUNAL_DEFAULT only |
+
+⚠ Updating Net_Salary_2026.html's kommun table does NOT automatically
+update Salary_Exchange.html's copy — both must be replaced separately
+each December, or the two calculators will disagree.
 
 ## Source of truth for formulas
 
