@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRE Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0c1020; --surface: #111827; --border: #1e2840;
+  --gold: #f0c040; --green: #22c55e; --red: #f87171; --blue: #60a5fa; --purple: #a78bfa;
+  --text: #dde2ee; --muted: #6b7280; --dim: #4a5270;
+  --mono: 'IBM Plex Mono', monospace; --serif: 'Fraunces', serif; --sans: 'DM Sans', system-ui, sans-serif;
+}
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); }
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #252d45; border-radius: 2px; }
+
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; background: #252d45; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px #f0c04066; }
+input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--gold); }
+
+/* ── Desktop layout ── */
+.page { padding: 28px 28px 32px; max-width: 1200px; margin: 0 auto; }
+.header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.title { font-family: var(--serif); font-weight: 700; font-size: 36px; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
+.subtitle { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 20px; color: #8a94a8; }
+.tagline { color: var(--muted); font-size: 12px; letter-spacing: 0.03em; margin-bottom: 22px; margin-top: 4px; }
+
+.main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 22px; }
+.left-panel { display: flex; flex-direction: column; gap: 14px; }
+.right-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+.card + .card { margin-top: 0; }
+.card-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.slider-group { margin-bottom: 16px; }
+.slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.slider-label { font-family: var(--mono); font-size: 11px; color: #9ca3b0; letter-spacing: 0.07em; text-transform: uppercase; }
+.slider-value { font-family: var(--mono); font-size: 14px; color: var(--gold); font-weight: 600; }
+.slider-hint { font-size: 10px; color: #6b7280; margin-top: 2px; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.kpi-card.fire { background: #0d1f12; border-color: #22c55e55; }
+.kpi-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-family: var(--serif); font-size: 28px; line-height: 1; margin-bottom: 4px; }
+.kpi-sub { font-size: 11px; color: var(--muted); }
+
+.milestones { display: flex; gap: 6px; }
+.milestone { flex: 1; border-radius: 8px; padding: 9px 6px; text-align: center; border: 1px solid var(--border); background: var(--bg); }
+.milestone.reached { background: #0d2010; border-color: #22c55e44; }
+.milestone-pct { font-family: var(--serif); font-size: 15px; color: #4a5270; }
+.milestone.reached .milestone-pct { color: var(--green); }
+.milestone-age { font-family: var(--mono); font-size: 10px; color: #4a5270; margin-top: 2px; }
+.milestone.reached .milestone-age { color: #4a7260; }
+
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.chart-legend { display: flex; gap: 14px; font-family: var(--mono); font-size: 11px; flex-wrap: wrap; }
+
+.return-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.return-label { font-family: var(--mono); font-size: 11px; color: #6b7280; }
+.return-val { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+
+.table-header-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.table-toggle { background: none; border: none; cursor: pointer; color: #6b7280; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.dl-btns { display: flex; gap: 7px; }
+.dl-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); font-family: var(--mono); font-size: 11px; cursor: pointer; }
+.dl-btn:hover { border-color: var(--gold); }
+.dl-btn.csv { color: #4ade80; } .dl-btn.xlsx { color: #60a5fa; }
+.table-wrap { overflow-x: auto; max-height: 380px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; }
+th { background: #131827; color: #6b7280; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; padding: 7px 9px; font-family: var(--mono); font-weight: 400; text-align: right; position: sticky; top: 0; z-index: 1; }
+th:first-child { text-align: left; }
+td { padding: 6px 9px; font-size: 11px; font-family: var(--mono); border-bottom: 1px solid #181f33; text-align: right; color: #b0b8cc; }
+td:first-child { text-align: left; color: var(--text); }
+tr.fire-row td { background: #0d2010; color: var(--green); }
+tr:hover td { background: #141c30; }
+
+@keyframes pulse { 0%,100%{box-shadow:0 0 20px #22c55e44} 50%{box-shadow:0 0 40px #22c55e88} }
+.fire-pulse { animation: pulse 2s ease-in-out infinite; }
+.footer { text-align: center; padding: 14px 0 8px; color: var(--muted); font-size: 10px; font-family: var(--mono); }
+
+/* ── Mobile tab bar ── */
+.tab-bar { display: none; gap: 6px; padding: 0 0 14px; }
+.tab-btn { flex: 1; padding: 10px 6px; border: none; cursor: pointer; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--mono); border-radius: 8px; background: transparent; color: var(--muted); }
+.tab-btn.active { background: #1e2840; color: var(--gold); }
+.mob-hidden { display: none !important; }
+
+/* ── Breakpoint: ≤ 620px → tab layout ── */
+@media (max-width: 620px) {
+  .page { padding: 16px 14px 28px; }
+  .title { font-size: 26px; }
+  .subtitle { font-size: 15px; }
+  .tagline { font-size: 11px; margin-bottom: 12px; }
+  .tab-bar { display: flex; }
+  .main-grid { grid-template-columns: 1fr; gap: 0; }
+  .right-col.mob-hidden { display: none !important; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi-value { font-size: 20px; }
+  .kpi-card { padding: 12px; }
+  .card { padding: 14px; border-radius: 10px; }
+  input[type=range]::-webkit-slider-thumb { width: 22px; height: 22px; }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; }
+  input[type=range] { height: 4px; }
+  .slider-value { font-size: 14px; }
+  th, td { font-size: 10px; padding: 5px 7px; }
+  .dl-btn { font-size: 10px; padding: 4px 8px; }
+}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <div class="header">
+    <span class="title">FIRE Calculator</span>
+    <span class="subtitle">Financial Independence, Retire Early</span>
+  </div>
+  <p class="tagline">Adjust the parameters below to project your path to financial freedom</p>
+
+  <!-- Tab bar (mobile only) -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="mobTab('inputs',this)">⚙ Inputs</button>
+    <button class="tab-btn" onclick="mobTab('results',this)">◈ Results</button>
+    <button class="tab-btn" onclick="mobTab('table',this)">≡ Table</button>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- LEFT -->
+    <div class="left-panel" id="mob-inputs">
+      <div class="card">
+        <div class="card-label">◈ Parameters</div>
+        <div id="sliders"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">◈ Return Summary</div>
+        <div class="return-row"><span class="return-label">Gross Return</span><span class="return-val" id="ret-gross" style="color:#60a5fa"></span></div>
+        <div class="return-row"><span class="return-label">− Yield Tax</span><span class="return-val" id="ret-tax" style="color:#f87171"></span></div>
+        <div class="return-row"><span class="return-label">− Portfolio Fees</span><span class="return-val" id="ret-fees" style="color:#f87171"></span></div>
+        <div class="return-row"><span class="return-label">= Net Return</span><span class="return-val" id="ret-net" style="color:#4ade80"></span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-col" id="mob-results">
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpiFireCard">
+          <div class="kpi-label" id="kpiFireLabel">FIRE Age</div>
+          <div class="kpi-value" id="kpiFireVal" style="color:#4ade80">—</div>
+          <div class="kpi-sub" id="kpiFireSub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">FIRE Target</div>
+          <div class="kpi-value" id="kpiTarget" style="color:#f0c040">—</div>
+          <div class="kpi-sub" id="kpiTargetSub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Monthly Savings</div>
+          <div class="kpi-value" id="kpiSavings" style="color:#a78bfa">—</div>
+          <div class="kpi-sub" id="kpiSavingsSub"></div>
+        </div>
+      </div>
+
+      <div class="card" id="milestonesCard" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Portfolio Progress to FIRE</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--gold)" id="progressLabel"></span>
+        </div>
+        <div class="milestones" id="milestones"></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">◈ Portfolio Growth Projection</span>
+          <div class="chart-legend">
+            <span style="color:#f0c040">● Nominal</span>
+            <span style="color:#f87171">● FIRE Target</span>
+            <span style="color:#22c55e">┊ FIRE Age</span>
+          </div>
+        </div>
+        <div style="position:relative;height:240px;width:100%">
+          <canvas id="fireChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-header-row">
+          <button class="table-toggle" onclick="toggleTable()">
+            <span id="tableToggleLabel">◈ Year-by-Year Projection</span>
+            <span id="tableChevron" style="font-size:15px">▼</span>
+          </button>
+          <div class="dl-btns">
+            <button class="dl-btn csv" onclick="downloadCSV()">↓ CSV</button>
+            <button class="dl-btn xlsx" onclick="downloadXLSX()">↓ Excel</button>
+          </div>
+        </div>
+        <div class="table-wrap" id="tableWrap" style="display:none">
+          <table>
+            <thead><tr>
+              <th>Year</th><th>Age</th><th>Monthly Salary</th><th>Monthly Savings</th>
+              <th>Yearly Savings</th><th>Portfolio (Open)</th><th>ROI</th>
+              <th>Taxes</th><th>Fees</th><th>Portfolio (Close)</th><th>FIRE Target</th><th>Gap</th>
+            </tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">Projections are estimates and do not constitute financial advice · Returns are not guaranteed</div>
+</div>
+
+<script>
+const params = {
+  currentAge:20, monthlySalary:40000, savingsRatio:0.5,
+  savingsGoalMultiple:25, portfolioReturn:0.061,
+  initialPortfolio:0, yieldTaxK:0.0105, portfolioFees:0.0025,
+};
+function fmtN(n){return new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(n);}
+function fmtP(n){return`${(n*100).toFixed(2)}%`;}
+
+const SLIDERS=[
+  {key:'currentAge',        label:'Current Age',               min:15,   max:60,    step:1,     fmt:v=>`${v} yrs`},
+  {key:'monthlySalary',     label:'Monthly Salary (after tax)',min:5000, max:200000,step:1000,  fmt:v=>fmtN(v), hint:()=>`Save ${fmtN(params.monthlySalary*params.savingsRatio)}/mo · Spend ${fmtN(params.monthlySalary*(1-params.savingsRatio))}/mo`},
+  {key:'savingsRatio',      label:'Savings Ratio',             min:0.05, max:0.95,  step:0.01,  fmt:fmtP},
+  {key:'savingsGoalMultiple',label:'FIRE Multiple',            min:10,   max:50,    step:1,     fmt:v=>`${v}×`, hint:()=>'25× = 4% withdrawal rule'},
+  null,
+  {key:'portfolioReturn',   label:'Portfolio Return p.a.',     min:0.01, max:0.15,  step:0.001, fmt:fmtP},
+  {key:'portfolioFees',     label:'Portfolio Fees p.a.',       min:0,    max:0.02,  step:0.0005,fmt:fmtP},
+  {key:'yieldTaxK',         label:'ISK Yield Tax p.a.',        min:0,    max:0.03,  step:0.0005,fmt:fmtP, hint:()=>'Swedish K-insurance tax'},
+  {key:'initialPortfolio',  label:'Initial Portfolio',         min:0,    max:2000000,step:10000,fmt:v=>fmtN(v), hint:()=>'Current savings/investments'},
+];
+const slidersEl=document.getElementById('sliders');
+SLIDERS.forEach(s=>{
+  if(!s){const d=document.createElement('div');d.style.cssText='height:1px;background:#1e2840;margin:14px 0';slidersEl.appendChild(d);return;}
+  const w=document.createElement('div');w.className='slider-group';
+  w.innerHTML=`<div class="slider-header"><label class="slider-label">${s.label}</label><span class="slider-value" id="val-${s.key}">${s.fmt(params[s.key])}</span></div><input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${params[s.key]}" id="sl-${s.key}">${s.hint?`<div class="slider-hint" id="hint-${s.key}">${s.hint()}</div>`:''}`;
+  slidersEl.appendChild(w);
+  document.getElementById(`sl-${s.key}`).addEventListener('input',e=>{
+    params[s.key]=parseFloat(e.target.value);
+    document.getElementById(`val-${s.key}`).textContent=s.fmt(params[s.key]);
+    if(s.hint)document.getElementById(`hint-${s.key}`).textContent=s.hint();
+    update();
+  });
+});
+
+function computeProjection(){
+  const{currentAge,monthlySalary,savingsRatio,savingsGoalMultiple,portfolioReturn,initialPortfolio,yieldTaxK,portfolioFees}=params;
+  const mr=Math.pow(1+portfolioReturn,1/12)-1;
+  const rows=[];let opening=initialPortfolio,fireYear=null;
+  for(let yr=1;yr<=70;yr++){
+    const age=currentAge+yr,ms=monthlySalary*savingsRatio,me=monthlySalary*(1-savingsRatio);
+    const ys=ms*12,nt=me*12*savingsGoalMultiple;
+    const fvO=opening*Math.pow(1+mr,12),fvS=ms*((Math.pow(1+mr,12)-1)/mr),fvY=fvO+fvS;
+    const t=yieldTaxK*fvY,f=portfolioFees*fvY,cl=fvY-t-f,roi=fvY-opening-ys,gap=nt-cl;
+    if(gap<=0&&fireYear===null)fireYear=yr;
+    rows.push({yr,age,salary:Math.round(monthlySalary),ms:Math.round(ms),ys:Math.round(ys),nt:Math.round(nt),opening:Math.round(opening),roi:Math.round(roi),taxes:Math.round(t),fees:Math.round(f),closing:Math.round(cl),gap:Math.round(gap)});
+    opening=cl;
+  }
+  return{rows,fireYear};
+}
+
+let chart=null;
+function buildChart(rows,fireAge){
+  const maxAge=Math.min(fireAge?fireAge+15:90,90);
+  const data=rows.filter(r=>r.age<=maxAge);
+  const ctx=document.getElementById('fireChart').getContext('2d');
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels:data.map(r=>r.age),datasets:[
+      {label:'FIRE Target',data:data.map(r=>r.nt),borderColor:'#f87171',borderWidth:1.5,borderDash:[5,3],backgroundColor:'rgba(248,113,113,0.07)',fill:true,pointRadius:0,tension:0.4},
+      {label:'Portfolio',data:data.map(r=>r.closing),borderColor:'#f0c040',borderWidth:2,backgroundColor:'rgba(240,192,64,0.15)',fill:true,pointRadius:0,tension:0.4},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#13182a',borderColor:'#2a3050',borderWidth:1,titleColor:'#9ca3b0',bodyColor:'#dde2ee',titleFont:{family:"'IBM Plex Mono'"},bodyFont:{family:"'IBM Plex Mono'"},callbacks:{label:c=>`${c.dataset.label}: ${fmtN(c.parsed.y)}`}}},
+      scales:{
+        x:{grid:{color:'#1a2035'},ticks:{color:'#6b7280',font:{family:"'IBM Plex Mono'",size:10}}},
+        y:{grid:{color:'#1a2035'},ticks:{color:'#6b7280',font:{family:"'IBM Plex Mono'",size:10},callback:v=>v>=1e6?`${(v/1e6).toFixed(1)}M`:v>=1e3?`${(v/1e3).toFixed(0)}k`:v}}
+      }
+    }
+  });
+  if(fireAge){
+    const orig=chart.draw.bind(chart);
+    chart.draw=function(){
+      orig();
+      const x=chart.scales.x.getPixelForValue(fireAge);
+      if(x&&x>chart.chartArea.left&&x<chart.chartArea.right){
+        const c=chart.ctx;
+        c.save();c.setLineDash([4,4]);c.strokeStyle='#22c55e';c.lineWidth=1.5;
+        c.beginPath();c.moveTo(x,chart.chartArea.top);c.lineTo(x,chart.chartArea.bottom);c.stroke();
+        c.setLineDash([]);c.fillStyle='#22c55e';c.font="10px 'IBM Plex Mono'";
+        c.fillText(`FIRE ${fireAge}`,x+4,chart.chartArea.top+12);c.restore();
+      }
+    };chart.draw();
+  }
+}
+
+let tableOpen=false,cachedRows=[];
+const TABLE_HEADERS=['Year','Age','Monthly Salary','Monthly Savings','Yearly Savings','Portfolio (Open)','ROI','Taxes','Fees','Portfolio (Close)','FIRE Target','Gap'];
+function rowToArray(r){return[r.yr,r.age,r.salary,r.ms,r.ys,r.opening,r.roi,r.taxes,r.fees,r.closing,r.nt,r.gap];}
+
+function toggleTable(){
+  tableOpen=!tableOpen;
+  document.getElementById('tableWrap').style.display=tableOpen?'block':'none';
+  document.getElementById('tableChevron').textContent=tableOpen?'▲':'▼';
+  if(chart)setTimeout(()=>chart.resize(),0);
+}
+function downloadCSV(){
+  const lines=[TABLE_HEADERS.join(',')];
+  cachedRows.forEach(r=>lines.push(rowToArray(r).join(',')));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download='fire-projection.csv';a.click();
+}
+function downloadXLSX(){
+  const ws=XLSX.utils.aoa_to_sheet([TABLE_HEADERS,...cachedRows.map(rowToArray)]);
+  ws['!cols']=TABLE_HEADERS.map((_,i)=>({wch:i<=1?6:16}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'FIRE Projection');XLSX.writeFile(wb,'fire-projection.xlsx');
+}
+function buildTable(rows){
+  cachedRows=rows;
+  const tbody=document.getElementById('tableBody');tbody.innerHTML='';
+  rows.forEach((r,i)=>{
+    const isFire=r.gap<=0,isFireMoment=isFire&&(rows[i-1]?.gap??1)>0;
+    const tr=document.createElement('tr');if(isFire)tr.className='fire-row';
+    tr.innerHTML=`<td>${r.yr}</td><td style="color:${isFire?'#4ade80':'#dde2ee'}">${r.age}${isFireMoment?' 🔥':''}</td><td>${fmtN(r.salary)}</td><td>${fmtN(r.ms)}</td><td>${fmtN(r.ys)}</td><td>${fmtN(r.opening)}</td><td style="color:#4ade80">${fmtN(r.roi)}</td><td style="color:#f87171">${fmtN(r.taxes)}</td><td style="color:#f87171">${fmtN(r.fees)}</td><td style="color:#f0c040;font-weight:600">${fmtN(r.closing)}</td><td>${fmtN(r.nt)}</td><td style="color:${r.gap<=0?'#4ade80':'#f87171'}">${fmtN(r.gap)}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('tableToggleLabel').textContent=`◈ Year-by-Year Projection (${rows.length} years)`;
+}
+
+function update(){
+  const{rows,fireYear}=computeProjection();
+  const fireAge=fireYear?params.currentAge+fireYear:null;
+  const fireRow=fireYear?rows[fireYear-1]:rows[rows.length-1];
+  const fireTarget=fireRow?.nt??0,firePortfolio=fireRow?.closing??0;
+  const netReturn=params.portfolioReturn-params.yieldTaxK-params.portfolioFees;
+  const monthlyExpenses=params.monthlySalary*(1-params.savingsRatio);
+
+  const kpiCard=document.getElementById('kpiFireCard');
+  if(fireAge){
+    kpiCard.className='kpi-card fire fire-pulse';
+    document.getElementById('kpiFireLabel').textContent='✦ FIRE Age';
+    document.getElementById('kpiFireVal').innerHTML=`<span style="font-size:44px">${fireAge}</span>`;
+    document.getElementById('kpiFireSub').textContent=`In ${fireYear} years`;
+  }else{
+    kpiCard.className='kpi-card';
+    document.getElementById('kpiFireLabel').textContent='FIRE Age';
+    document.getElementById('kpiFireVal').innerHTML=`<span style="font-size:18px;color:#4a5270">Not reached in 70 yrs</span>`;
+    document.getElementById('kpiFireSub').textContent='';
+  }
+  document.getElementById('kpiTarget').textContent=fmtN(fireAge?fireTarget:rows[0]?.nt);
+  document.getElementById('kpiTargetSub').textContent=`${fmtN(monthlyExpenses)}/mo × 12 × ${params.savingsGoalMultiple}×`;
+  document.getElementById('kpiSavings').textContent=fmtN(params.monthlySalary*params.savingsRatio);
+  document.getElementById('kpiSavingsSub').textContent=`${fmtN(params.monthlySalary*params.savingsRatio*12)}/yr · ${fmtP(params.savingsRatio)} ratio`;
+
+  const msCard=document.getElementById('milestonesCard');
+  msCard.style.display=fireAge?'':'none';
+  if(fireAge){
+    document.getElementById('progressLabel').textContent=`${fmtN(firePortfolio)} / ${fmtN(fireTarget)}`;
+    const ms=document.getElementById('milestones');ms.innerHTML='';
+    [25,50,75,100].forEach(m=>{
+      const row=rows.find(r=>r.closing/r.nt*100>=m);
+      const div=document.createElement('div');div.className='milestone'+(row?' reached':'');
+      div.innerHTML=`<div class="milestone-pct">${m}%</div><div class="milestone-age">${row?`Age ${row.age}`:'—'}</div>`;
+      ms.appendChild(div);
+    });
+  }
+  document.getElementById('ret-gross').textContent=fmtP(params.portfolioReturn);
+  document.getElementById('ret-tax').textContent=fmtP(params.yieldTaxK);
+  document.getElementById('ret-fees').textContent=fmtP(params.portfolioFees);
+  document.getElementById('ret-net').textContent=fmtP(netReturn);
+  buildChart(rows,fireAge);
+  buildTable(rows);
+}
+update();
+
+// ── Tab switching (mobile only) ──
+let mobActive='inputs';
+function mobTab(name,btn){
+  mobActive=name;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const inp=document.getElementById('mob-inputs'),res=document.getElementById('mob-results');
+  if(name==='inputs'){inp.classList.remove('mob-hidden');res.classList.add('mob-hidden');}
+  else if(name==='results'){
+    inp.classList.add('mob-hidden');res.classList.remove('mob-hidden');
+    const tw=document.getElementById('tableWrap');
+    if(tw){tw.style.display='none';tableOpen=false;document.getElementById('tableChevron').textContent='▼';}
+    setTimeout(()=>{const{rows,fireYear}=computeProjection();buildChart(rows,fireYear?params.currentAge+fireYear:null);},60);
+  } else {
+    inp.classList.add('mob-hidden');res.classList.remove('mob-hidden');
+    const tw=document.getElementById('tableWrap');
+    if(tw&&!tableOpen){tw.style.display='block';tableOpen=true;document.getElementById('tableChevron').textContent='▲';}
+    setTimeout(()=>tw?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  }
+}
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>620){
+    document.getElementById('mob-inputs').classList.remove('mob-hidden');
+    document.getElementById('mob-results').classList.remove('mob-hidden');
+  }
+});
+</script>
+</body>
+</html>

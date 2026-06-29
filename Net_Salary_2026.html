@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nettolön 2026 – beräkningsmodell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F4ED;
+    --paper-2:#FEFDFA;
+    --ink:#1B1A16;
+    --ink-soft:#5A574C;
+    --ink-faint:#928E80;
+    --line:#E2DDD0;
+    --line-2:#D2CBB8;
+    --green:#1F4A3A;
+    --green-bright:#2C7A5C;
+    --red:#A03A2B;
+    --gold:#9A7B2E;
+    --shadow:rgba(40,36,24,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    font-size:15px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 12% 0%,rgba(44,122,92,.05),transparent 45%),
+                     radial-gradient(circle at 92% 100%,rgba(154,123,46,.05),transparent 42%);
+    min-height:100vh;
+  }
+  .wrap{max-width:1140px;margin:0 auto;padding:48px 28px 80px}
+  .num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+  header{margin-bottom:38px;border-bottom:1px solid var(--line-2);padding-bottom:26px}
+  .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--green-bright);font-weight:600;margin-bottom:14px}
+  h1{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(34px,5.4vw,56px);line-height:1.02;letter-spacing:-.015em}
+  h1 em{font-style:italic;color:var(--green)}
+  .sub{margin-top:14px;color:var(--ink-soft);max-width:60ch;font-size:14.5px}
+
+  .grid{display:grid;grid-template-columns:355px 1fr;gap:34px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr;gap:26px}}
+
+  /* ---- inputs ---- */
+  .panel{
+    background:var(--paper-2);border:1px solid var(--line);border-radius:14px;
+    padding:26px 24px;box-shadow:0 1px 0 var(--shadow),0 14px 30px -22px var(--shadow);
+    position:sticky;top:24px;
+  }
+  @media(max-width:880px){.panel{position:static}}
+  .panel h2{font-family:"Fraunces",serif;font-weight:500;font-size:19px;margin-bottom:4px}
+  .panel .ph{color:var(--ink-faint);font-size:12.5px;margin-bottom:22px}
+
+  .field{margin-bottom:19px}
+  .field label{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px}
+  .inputline{position:relative;display:flex;align-items:center}
+  .inputline input{
+    width:100%;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+    font-size:19px;font-weight:500;color:var(--ink);
+    background:var(--paper);border:1px solid var(--line-2);border-radius:9px;
+    padding:11px 46px 11px 14px;outline:none;transition:border-color .15s,box-shadow .15s;
+  }
+  .inputline input:focus{border-color:var(--green-bright);box-shadow:0 0 0 3px rgba(44,122,92,.13)}
+  .inputline .unit{position:absolute;right:14px;font-size:13px;color:var(--ink-faint);font-family:"IBM Plex Sans";pointer-events:none}
+
+  .seg{display:flex;background:var(--paper);border:1px solid var(--line-2);border-radius:9px;padding:3px;gap:3px}
+  .seg button{
+    flex:1;border:0;background:transparent;cursor:pointer;font-family:inherit;
+    font-size:13px;font-weight:500;color:var(--ink-soft);padding:8px 6px;border-radius:6px;transition:.15s;
+  }
+  .seg button.on{background:var(--green);color:#fff;box-shadow:0 2px 6px -2px rgba(31,74,58,.5)}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+  .toggle-row .lbl{font-size:13.5px;font-weight:500}
+  .toggle-row .lbl small{display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:1px;text-transform:none;letter-spacing:0}
+  .switch{position:relative;width:42px;height:24px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--line-2);border-radius:24px;cursor:pointer;transition:.18s}
+  .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked + .slider{background:var(--green-bright)}
+  .switch input:checked + .slider:before{transform:translateX(18px)}
+  .mini{display:flex;align-items:center;gap:8px;margin-top:10px;opacity:.55;transition:opacity .18s,margin .18s;max-height:0;overflow:hidden}
+  .mini.show{opacity:1;max-height:240px;margin-top:12px;overflow:visible}
+  .mini label{font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .mini .inputline{width:118px}
+  .mini input{font-size:14px;padding:7px 34px 7px 10px}
+  .mini .unit{font-size:11px}
+
+  .reset{margin-top:18px;width:100%;background:transparent;border:1px solid var(--line-2);color:var(--ink-soft);
+    font-family:inherit;font-size:12.5px;font-weight:500;padding:9px;border-radius:8px;cursor:pointer;transition:.15s}
+  .reset:hover{border-color:var(--ink-faint);color:var(--ink)}
+
+  /* ---- result ---- */
+  .hero{
+    background:var(--green);color:#F2EEDF;border-radius:14px;padding:30px 32px;
+    position:relative;overflow:hidden;box-shadow:0 18px 40px -26px rgba(31,74,58,.7);
+  }
+  .hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;
+    background:radial-gradient(circle,rgba(255,255,255,.07),transparent 68%);border-radius:50%}
+  .hero .hl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.62;font-weight:600}
+  .hero .big{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(44px,7.5vw,68px);line-height:1;margin:9px 0 4px;letter-spacing:-.02em}
+  .hero .big .kr{font-size:.42em;opacity:.62;font-family:"IBM Plex Sans";font-weight:500;letter-spacing:0;margin-left:6px}
+  .hero .yr{opacity:.7;font-size:13.5px}
+  .hero .yr b{font-family:"IBM Plex Mono";font-weight:500}
+  .hero .chips{display:flex;gap:22px;margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.14);flex-wrap:wrap}
+  .chip .v{font-family:"Fraunces",serif;font-size:23px;font-weight:500}
+  .chip .k{font-size:11px;opacity:.6;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+  .bar{display:flex;height:13px;border-radius:7px;overflow:hidden;margin:24px 0 8px;background:var(--line)}
+  .bar span{display:block;height:100%;transition:width .35s ease}
+  .bar .s-net{background:var(--green-bright)}
+  .bar .s-tax{background:var(--red);opacity:.85}
+  .bar .s-vax{background:var(--gold);opacity:.8}
+  .legend{display:flex;gap:20px;font-size:12px;color:var(--ink-soft);flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+  .steps{margin-top:30px;background:var(--paper-2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .steps>summary.sh{display:flex;align-items:baseline;justify-content:space-between;padding:20px 26px 0;cursor:pointer;list-style:none}
+  .steps>summary.sh::-webkit-details-marker{display:none}
+  details.steps:not([open])>summary.sh{padding-bottom:20px}
+  .steps .sh h3{font-family:"Fraunces",serif;font-weight:500;font-size:20px}
+  .steps .sh .sh-r{font-size:12px;color:var(--ink-faint);display:inline-flex;align-items:center;gap:10px}
+  .steps .sh .caret{font-family:"IBM Plex Mono";font-weight:600;font-size:17px;color:var(--green-bright);line-height:1}
+  .steps .sh .caret::before{content:"+"}
+  details.steps[open] .sh .caret::before{content:"–"}
+  table{width:100%;border-collapse:collapse;margin-top:14px}
+  th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;
+    text-align:right;padding:8px 26px;border-bottom:1px solid var(--line)}
+  th:first-child{text-align:left}
+  td{padding:11px 26px;border-bottom:1px solid var(--line);font-size:14px}
+  td:not(:first-child){text-align:right;font-family:"IBM Plex Mono";font-variant-numeric:tabular-nums;font-size:14px}
+  tr:last-child td{border-bottom:0}
+  .st-no{color:var(--ink-faint);font-family:"IBM Plex Mono";font-size:12px;width:26px}
+  .st-name{font-weight:500}
+  .st-name small{display:block;color:var(--ink-faint);font-weight:400;font-size:11.5px;font-family:"IBM Plex Mono";margin-top:2px}
+  tr.minus td:not(:first-child):not(.st-no){color:var(--red)}
+  tr.sumrow td{background:#F1EEE2;font-weight:600}
+  tr.sumrow .st-name{font-family:"Fraunces",serif;font-size:15px}
+  tr.netrow td{background:var(--green);color:#F2EEDF}
+  tr.netrow .st-name{font-family:"Fraunces",serif;font-size:16px;color:#fff}
+  tr.netrow td:not(:first-child){color:#fff;font-weight:600;font-size:15px}
+  tr.gross td{background:#FBF9F1}
+  .pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    background:rgba(44,122,92,.13);color:var(--green);padding:2px 7px;border-radius:5px;margin-left:7px;vertical-align:1px}
+
+  details.notes{margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2);overflow:hidden}
+  details.notes summary{cursor:pointer;padding:16px 24px;font-weight:600;font-size:13.5px;list-style:none;display:flex;align-items:center;gap:9px}
+  details.notes summary::-webkit-details-marker{display:none}
+  details.notes summary:before{content:"+";font-family:"IBM Plex Mono";color:var(--green-bright);font-size:18px;font-weight:600}
+  details.notes[open] summary:before{content:"–"}
+  .notes-body{padding:0 24px 22px;color:var(--ink-soft);font-size:13px;line-height:1.62}
+  .notes-body h4{font-family:"Fraunces",serif;color:var(--ink);font-size:14.5px;font-weight:600;margin:18px 0 6px}
+  .notes-body code{font-family:"IBM Plex Mono";background:var(--paper);padding:1px 6px;border-radius:4px;font-size:12px;color:var(--green)}
+  .notes-body ul{margin:6px 0 6px 18px}
+  .notes-body li{margin:4px 0}
+  .src{margin-top:22px;font-size:11.5px;color:var(--ink-faint);line-height:1.6}
+  .src a{color:var(--green-bright)}
+
+  /* ---------- mobil ---------- */
+  @media (max-width:560px){
+    .wrap{padding:24px 15px 52px}
+    header{margin-bottom:24px;padding-bottom:18px}
+    h1{font-size:clamp(30px,8.5vw,40px)}
+    .sub{font-size:13.5px}
+    .grid{gap:20px}
+    .panel{padding:18px 15px;border-radius:12px}
+    .panel h2{font-size:18px}
+    .field{margin-bottom:17px}
+    /* iOS: formfält ≥16px så vyn inte auto-zoomar vid fokus */
+    .mini input{font-size:16px}
+    .inputline input{font-size:17px;padding:12px 42px 12px 13px}
+    .seg button{padding:13px 6px;font-size:14px}
+    .toggle-row{padding:13px 0}
+    .switch{width:46px;height:26px}
+    .slider:before{height:20px;width:20px}
+    .switch input:checked + .slider:before{transform:translateX(20px)}
+    .mini{flex-wrap:wrap;row-gap:8px;gap:10px}
+    .mini .inputline{width:108px}
+    .mini a{margin-left:0!important}
+    .hero{padding:24px 19px;border-radius:12px}
+    .hero .big{font-size:clamp(38px,12.5vw,54px)}
+    .hero .chips{gap:15px}
+    .chip .v{font-size:20px}
+    .bar{margin:20px 0 8px}
+    .legend{gap:14px;font-size:11.5px}
+    .steps{margin-top:24px}
+    .steps>summary.sh{padding:18px 16px 0}
+    details.steps:not([open])>summary.sh{padding-bottom:18px}
+    .steps .sh h3{font-size:17px}
+    th{padding:8px 13px;font-size:9.5px}
+    td{padding:10px 13px;font-size:13px}
+    td:not(:first-child){font-size:12.5px}
+    .st-no{width:20px;font-size:11px}
+    .st-name small{font-size:10.5px}
+    tr.netrow .st-name,tr.sumrow .st-name{font-size:14px}
+    details.notes summary{padding:14px 16px}
+    .notes-body{padding:0 16px 18px}
+    .notes-body h4{font-size:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Inkomstår 2026 · Skatteverket SKVFS 2025:20</div>
+    <h1>Nettolön efter <em>skatt</em></h1>
+    <p class="sub">Beräkningsmodell för en privatperson i Sverige 2026. Ange bruttolön, kommunalskattesats och eventuellt bruttolöneavdrag — modellen följer Skatteverkets exakta formler, steg för steg, inklusive jobbskatteavdraget.</p>
+  </header>
+
+  <div class="grid">
+    <!-- ---------- INPUTS ---------- -->
+    <div class="panel">
+      <h2>Indata</h2>
+      <p class="ph">Justera värdena — allt räknas om direkt.</p>
+
+      <div class="field">
+        <label for="lon">Bruttolön per månad</label>
+        <div class="inputline">
+          <input id="lon" class="num" type="number" inputmode="numeric" value="40000" min="0" step="500">
+          <span class="unit">kr/mån</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="kommun" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span>Kommunal skattesats</span>
+          <a href="https://www.scb.se/hitta-statistik/statistik-efter-amne/offentlig-ekonomi/finanser-for-den-kommunala-sektorn/kommunalskatterna/pong/tabell-och-diagram/totala-kommunala-skattesatser-2026-kommunvis/" target="_blank" rel="noopener" style="font-weight:400;font-size:11px;text-transform:none;letter-spacing:0;color:var(--green-bright);text-decoration:none">SCB:s lista ↗</a>
+        </label>
+        <select id="kommunSelect" style="width:100%;font-family:'IBM Plex Sans';font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line-2);border-radius:9px;padding:10px 12px;outline:none;margin-bottom:8px;cursor:pointer">
+          <option value="">— Välj kommun (fyller i 2026 års sats) —</option>
+        </select>
+        <div class="inputline">
+          <input id="kommun" class="num" type="number" inputmode="decimal" value="32.40" min="0" max="60" step="0.01">
+          <span class="unit">%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="vaxling">Bruttolöneavdrag<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">löneväxling, bil, cykel etc.</small></label>
+        <div class="inputline">
+          <input id="vaxling" class="num" type="number" inputmode="numeric" value="0" min="0" step="500">
+          <span class="unit">kr/mån</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pension">Pensionsinkomst</label>
+        <div class="inputline">
+          <input id="pension" class="num" type="number" inputmode="numeric" value="0" min="0" step="500">
+          <span class="unit">kr/mån</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ålder vid årets ingång</label>
+        <div class="seg" id="age">
+          <button data-age="under" class="on">Under 66 år</button>
+          <button data-age="over">66 år +</button>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="lbl">Kyrkoavgift
+          <small>Medlem i Svenska kyrkan / trossamfund</small>
+        </div>
+        <label class="switch"><input type="checkbox" id="kyrkaOn" checked><span class="slider"></span></label>
+      </div>
+      <div class="mini show" id="kyrkaMini">
+        <label>Avgift</label>
+        <div class="inputline"><input id="kyrkaPct" class="num" type="number" value="1" min="0" max="3" step="0.01"><span class="unit">%</span></div>
+        <a href="https://www.svenskakyrkan.se/medlem/kyrkoavgiften" target="_blank" rel="noopener" style="font-size:11px;color:var(--green-bright);text-decoration:none;white-space:nowrap;margin-left:auto">Hitta din församling ↗</a>
+      </div>
+
+      <div class="toggle-row" style="border-bottom:1px solid var(--line)">
+        <div class="lbl">Begravningsavgift
+          <small>tre regimer i Sverige – välj nedan</small>
+        </div>
+        <label class="switch"><input type="checkbox" id="begrOn" checked><span class="slider"></span></label>
+      </div>
+      <div class="mini show" id="begrMini" style="flex-wrap:wrap">
+        <select id="begrSelect" style="width:100%;font-family:'IBM Plex Sans';font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;outline:none;cursor:pointer;margin-bottom:8px">
+          <option value="0.292">Övriga Sverige (Svenska kyrkan) — 0,292 %</option>
+          <option value="0.07">Stockholms stad — 0,07 %</option>
+          <option value="0.285">Tranås kommun — 0,285 %</option>
+          <option value="">— Egen sats —</option>
+        </select>
+        <label>Avgift</label>
+        <div class="inputline"><input id="begrPct" class="num" type="number" value="0.292" min="0" max="2" step="0.001"><span class="unit">%</span></div>
+        <a href="https://www.svenskakyrkan.se/begravning/begravningsavgiften" target="_blank" rel="noopener" style="font-size:11px;color:var(--green-bright);text-decoration:none;white-space:nowrap;margin-left:auto">Om avgiften ↗</a>
+      </div>
+
+      <details id="advBox" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--green-bright);list-style:none;display:flex;align-items:center;gap:8px">
+          <span id="advCaret" style="font-family:'IBM Plex Mono';font-size:15px">+</span> Kapital, ränteavdrag &amp; ROT/RUT
+        </summary>
+        <div style="margin-top:18px">
+          <div class="field">
+            <label for="kapInk">Ränta &amp; utdelning<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">ränteinkomst, aktieutdelning</small></label>
+            <div class="inputline"><input id="kapInk" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="iskUnderlag">Kapitalunderlag ISK / Kapitalförsäkring<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">fribelopp 300 000 kr, schablonränta 3,55 %</small></label>
+            <div class="inputline"><input id="iskUnderlag" class="num" type="number" inputmode="numeric" value="0" min="0" step="10000"><span class="unit">kr</span></div>
+          </div>
+          <div class="field">
+            <label for="aktievinst">Aktievinst (marknadsnoterad)<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">realiserad vinst, aktier/fonder</small></label>
+            <div class="inputline"><input id="aktievinst" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="aktieforlust">Aktieförlust (marknadsnoterad)<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">kvittas mot vinst, rest kvoteras 70 %</small></label>
+            <div class="inputline"><input id="aktieforlust" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="rantUtg">Ränteutgifter / övriga avdrag<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">avdragsgill ränta (100 %)</small></label>
+            <div class="inputline"><input id="rantUtg" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="rotArb">ROT-arbete (arbetskostnad)<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">30 %, max 50 000 kr reduktion</small></label>
+            <div class="inputline"><input id="rotArb" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="rutArb">RUT-arbete (arbetskostnad)<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">50 %, gemensamt tak 75 000 kr</small></label>
+            <div class="inputline"><input id="rutArb" class="num" type="number" inputmode="numeric" value="0" min="0" step="1000"><span class="unit">kr/år</span></div>
+          </div>
+          <div class="field">
+            <label for="taxvarde">Taxeringsvärde (småhus)<small style="display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;margin-top:2px;text-transform:none;letter-spacing:0">0,75 %, takbelopp 10 425 kr</small></label>
+            <div class="inputline"><input id="taxvarde" class="num" type="number" inputmode="numeric" value="0" min="0" step="10000"><span class="unit">kr</span></div>
+          </div>
+          <div class="toggle-row" style="border-top:1px solid var(--line);margin-bottom:0">
+            <div class="lbl">Nybyggt hus
+              <small>värdeår 2012+, avgiftsfritt i 15 år</small>
+            </div>
+            <label class="switch"><input type="checkbox" id="nybyggt"><span class="slider"></span></label>
+          </div>
+        </div>
+      </details>
+
+      <button class="reset" id="reset">Återställ till exempel</button>
+    </div>
+
+    <!-- ---------- RESULT ---------- -->
+    <div>
+      <div class="hero">
+        <div class="hl">Netto i handen efter skatt</div>
+        <div class="big"><span id="netMonth" class="num">41 230</span><span class="kr">kr/mån</span></div>
+        <div class="yr">≈ <b id="netYear" class="num">494 760</b> kr/år &nbsp;·&nbsp; bruttolöneavdrag: <b id="vaxYear" class="num">0</b> kr/år</div>
+        <div class="chips">
+          <div class="chip"><div class="v num" id="effRate">29,5&nbsp;%</div><div class="k">Effektiv skatt</div></div>
+          <div class="chip"><div class="v num" id="margRate">—</div><div class="k">Marginalskatt</div></div>
+          <div class="chip"><div class="v num" id="totTax">—</div><div class="k">Skatt & avgift / mån</div></div>
+        </div>
+      </div>
+
+      <div class="bar" id="bar">
+        <span class="s-net" style="width:70%"></span>
+        <span class="s-tax" style="width:30%"></span>
+        <span class="s-vax" style="width:0%"></span>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--green-bright)"></i>Netto</span>
+        <span><i style="background:var(--red);opacity:.85"></i>Skatt &amp; avgifter</span>
+        <span><i style="background:var(--gold);opacity:.8"></i>Bruttolöneavdrag</span>
+      </div>
+      <div id="brytNote" style="margin-top:14px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--paper-2);padding:11px 15px;border-radius:9px">
+        <span id="brytDot" style="width:8px;height:8px;border-radius:50%;flex:none;background:var(--green-bright)"></span>
+        <span id="brytTxt"></span>
+      </div>
+
+      <details class="steps" id="stepsBox">
+        <summary class="sh">
+          <h3>Beräkning steg för steg</h3>
+          <span class="sh-r">Belopp i kr <i class="caret"></i></span>
+        </summary>
+        <table>
+          <thead><tr><th></th><th>Faktor</th><th>Per månad</th><th>Per år</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </details>
+
+      <details class="notes">
+        <summary>Formler, antaganden och 2026 års parametrar</summary>
+        <div class="notes-body">
+          <p>Modellen replikerar Skatteverkets tekniska beskrivning för inkomstår 2026 (skattetabell, kolumn&nbsp;1 för anställda under 66&nbsp;år). Allt beräknas på årsbasis och divideras med 12.</p>
+
+          <h4>1–5 · Underlag</h4>
+          <ul>
+            <li>Årsinkomst = bruttolön × 12. Bruttolöneavdrag (löneväxling till pension, förmånsbil, cykel m.m.) dras av <em>före</em> skatt och sänker även underlaget för jobbskatteavdrag och allmän pensionsavgift.</li>
+            <li>Pensionsinkomst beskattas som förvärvsinkomst men ger inget jobbskatteavdrag och bär ingen allmän pensionsavgift.</li>
+            <li>Fastställd förvärvsinkomst (FFI) = årslön − bruttolöneavdrag + pensionsinkomst.</li>
+            <li>Grundavdrag (under 66, baserat på FFI), avrundas <em>uppåt</em> till hela 100&nbsp;kr:
+              <br><code>≤58 608: 25 041,60</code>
+              <br><code>≤161 024: 25 041,60 + 20% × (FFI−58 608)</code>
+              <br><code>≤184 112: 45 584</code>
+              <br><code>≤466 496: 45 584 − 10% × (FFI−184 112)</code>
+              <br><code>&gt;466 496: 17 345,60</code></li>
+            <li>För 66+ används förhöjt grundavdrag enligt Skatteverkets 11-stegstabell.</li>
+            <li>Beskattningsbar förvärvsinkomst (BFI) = FFI − grundavdrag.</li>
+          </ul>
+
+          <h4>6–7 · Inkomstskatt</h4>
+          <ul>
+            <li>Kommunalskatt = BFI × kommunalskattesats.</li>
+            <li>Statlig skatt = 20 % × (BFI − 643&nbsp;000). <b>Skiktgränsen</b> 643&nbsp;000&nbsp;kr gäller den <em>beskattningsbara</em> inkomsten (efter grundavdrag). Eftersom bruttolönen är <em>före</em> grundavdrag kommuniceras i stället <b>brytpunkten</b> = skiktgräns + grundavdrag, dvs. den bruttolön där statlig skatt börjar:</li>
+            <li>Under 66 år: 643&nbsp;000 + 17&nbsp;400 = <code>660 400 kr/år</code> (≈ 55&nbsp;033 kr/mån).</li>
+            <li>66 år + : 643&nbsp;000 + 117&nbsp;500 = <code>760 500 kr/år</code> (≈ 63&nbsp;375 kr/mån) — högre grundavdrag ger högre brytpunkt.</li>
+          </ul>
+
+          <h4>8 · Jobbskatteavdrag <span class="pill">saknades i ditt exempel</span></h4>
+          <p>Skattereduktion för arbetsinkomst, under 66 år. <code>AI</code> = arbetsinkomst (≈ FFI, avrundad nedåt till 100), <code>GA</code> = grundavdrag, <code>KI</code> = kommunalskattesats. Reduktionen kan endast räknas av mot kommunalskatten.</p>
+          <ul>
+            <li><code>AI ≤ 53 872</code>: (AI − GA) × KI</li>
+            <li><code>≤ 191 808</code>: (53 872 + 38,74% × (AI − 53 872) − GA) × KI</li>
+            <li><code>≤ 478 336</code>: (107 329,60 + 25,10% × (AI − 191 808) − GA) × KI</li>
+            <li><code>&gt; 478 336</code>: (179 198,40 − GA) × KI</li>
+          </ul>
+          <p>För 66+: 22% av AI upp till 103&nbsp;600, därefter 0,2635&nbsp;PBB + 7% av AI, max 37&nbsp;254,56&nbsp;kr.</p>
+
+          <h4>9–11 · Avgifter & övriga reduktioner</h4>
+          <ul>
+            <li>Kyrkoavgift = BFI × avgift (endast medlemmar). Begravningsavgift = BFI × avgift (alla).</li>
+            <li>Allmän pensionsavgift = 7% × min(arbetsinkomst, 673&nbsp;038). Pensionsinkomst bär ingen avgift. Motsvaras av en <em>skattereduktion på 100%</em>, så nettoeffekten är 0&nbsp;kr för normala löner.</li>
+            <li>Skattereduktion för förvärvsinkomst: 0,75% × (BFI − 40&nbsp;000), max 1&nbsp;500&nbsp;kr/år.</li>
+            <li>Public service-avgift = 1% × BFI, max 1&nbsp;184&nbsp;kr/år.</li>
+          </ul>
+
+          <h4>Kapital, ISK/KF, aktieförluster & ROT/RUT</h4>
+          <ul>
+            <li>ISK/Kapitalförsäkring: schablonintäkt = (kapitalunderlag − fribelopp 300&nbsp;000&nbsp;kr) × schablonräntan <code>3,55 %</code> (statslåneräntan 30 nov 2025, 2,55 % + 1 procentenhet; golv 1,25 %). Fribeloppet gäller per person, samlat för alla ISK och kapitalförsäkringar. Schablonintäkten räknas som vanlig kapitalinkomst och kan kvittas mot ränteutgifter och kvoterade aktieförluster.</li>
+            <li>Aktievinster och -förluster kvittas först fullt mot varandra i aktiefållan. En <em>okvittad</em> aktieförlust kvoteras till <code>70 %</code> innan den förs in i kapital.</li>
+            <li>Överskott av kapital (ränta + utdelning + ISK/KF-schablonintäkt + nettad aktievinst − ränteutgifter) beskattas med <code>30 %</code>.</li>
+            <li>Underskott av kapital ger skattereduktion: <code>30 %</code> upp till 100&nbsp;000&nbsp;kr, <code>21 %</code> på den del som överstiger 100&nbsp;000&nbsp;kr.</li>
+            <li>ROT = 30 % av arbetskostnad (max 50&nbsp;000&nbsp;kr). RUT = 50 % (max 75&nbsp;000&nbsp;kr). Gemensamt tak 75&nbsp;000&nbsp;kr/år, varav högst 50&nbsp;000&nbsp;kr ROT.</li>
+          </ul>
+
+          <h4>Kommunal fastighetsavgift</h4>
+          <ul>
+            <li>Småhus: <code>0,75 %</code> av taxeringsvärdet, max takbelopp <code>10&nbsp;425&nbsp;kr</code> (inkomstår 2026). Taket slår in vid taxeringsvärde 1&nbsp;390&nbsp;000&nbsp;kr.</li>
+            <li>Nybyggt med värdeår 2012 eller senare: ingen avgift de första 15 åren.</li>
+            <li>Pensionärsbegränsning (66 år +): avgiften begränsas till <code>4 %</code> av (BFI + kapitalöverskott), dock lägst spärrbeloppet <code>4&nbsp;042&nbsp;kr</code>. Reduktionen beräknas före övriga skattereduktioner.</li>
+            <li>Avräkningsordning: fastighetsavgiftsred. (pensionär) → pensionsavgift → jobbskatteavdrag → förvärvsinkomst → underskott av kapital → ROT/RUT. Fastighetsavgiften ingår i potten som de två sista får kvittas mot; begravnings-/kyrkoavgift och allmän pensionsavgift gör det inte. Aldrig mer än kvarvarande skatt.</li>
+            <li>Modellen visar <em>skatteeffekten</em>. Räntekostnaden (kassautflödet) dras inte från nettot — som i Skatteverkets tjänst.</li>
+          </ul>
+
+          <h4>2026 års parametrar</h4>
+          <ul>
+            <li>Prisbasbelopp 59&nbsp;200&nbsp;kr · Inkomstbasbelopp 83&nbsp;400&nbsp;kr</li>
+            <li>Skiktgräns statlig skatt 643&nbsp;000&nbsp;kr (brytpunkt 660&nbsp;400&nbsp;kr / 760&nbsp;500&nbsp;kr för 66+)</li>
+            <li>Genomsnittlig kommunalskatt ≈ 32,41% (kan variera 28–35% beroende på kommun)</li>
+          </ul>
+
+          <div class="src">
+            Källa: Skatteverket, <em>Teknisk beskrivning … inkomstår 2026</em> (SKV 433, 2025-12-10), <a href="https://www.skatteverket.se/privat/skatter/beloppochprocent/2026" target="_blank" rel="noopener">Belopp och procent 2026</a> samt reglerna för rot-/rutavdrag och kommunal fastighetsavgift.
+            Förenklingar: onoterade aktieförluster (5/6-kvotering) hanteras ej, fastighetsavgift endast för helägt småhus hela året (ej ofri grund/halvt takbelopp), ingen sjöinkomst eller regional reduktion, jämn inkomst hela året. Resultatet motsvarar slutlig skatt; preliminärskatten på lönebeskedet kan avvika något. Beräkningsstöd, inte skatterådgivning.
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const PBB = 59200, IBB = 83400;
+const SKIKT = 643000;            // statlig skatt-gräns
+const PENS_TAK = 673038;         // tak allmän pensionsavgift-underlag
+const PENS_FRI = 25042;          // under detta tas ingen pensionsavgift
+const PS_BASE = 1.42*IBB;        // 118 428
+const PS_MAX  = Math.floor(0.01*PS_BASE); // 1 184
+const BRYT_UNDER = 660400;       // brytpunkt = skiktgräns + grundavdrag (under 66)
+const BRYT_OVER  = 760500;       // brytpunkt = skiktgräns + förhöjt grundavdrag (66+)
+const KAP_SKATT  = 0.30;         // skatt på överskott av kapital
+const KAP_RED1   = 0.30;         // skattered. underskott kapital, upp till 100 000
+const KAP_RED2   = 0.21;         // skattered. underskott kapital, över 100 000
+const KAP_BRYT   = 100000;
+const ROT_SATS   = 0.30;         // ROT 30 % av arbetskostnad (2026)
+const RUT_SATS   = 0.50;         // RUT 50 % av arbetskostnad
+const ROT_MAX    = 50000;        // ROT max per person/år
+const RUT_MAX    = 75000;        // RUT max per person/år
+const HUS_MAX    = 75000;        // gemensamt tak ROT+RUT, varav max 50 000 ROT
+const AKT_KVOT   = 0.70;         // okvittad aktieförlust kvoteras till 70 %
+const ISK_FRI    = 300000;       // fribelopp ISK/KF 2026 (per person, samlat)
+const ISK_SCHABLON = 0.0355;     // schablonränta 2026: SLR 30 nov 2025 (2,55%) + 1 pp
+const ISK_GOLV   = 0.0125;       // golv för schablonräntan
+const FAST_SATS  = 0.0075;       // kommunal fastighetsavgift 0,75 %
+const FAST_TAK   = 10425;        // takbelopp småhus, inkomstår 2026
+const FAST_SPARR = 4042;         // lägsta spärrbelopp 2026 (pensionärsbegränsning)
+
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString("sv-SE");
+const ceil100  = n => Math.ceil(n/100)*100;
+const floor100 = n => Math.floor(n/100)*100;
+// avrundning till hela 100, men .50 nedåt (allmän pensionsavgift)
+function round100pens(n){ const h=n/100; const f=Math.floor(h); return (h-f<=0.5? f : f+1)*100; }
+
+let age = "under";
+
+// Totala kommunala skattesatser 2026 (kommun + region), SCB 2025-12-15
+const KOMMUNSKATT = {
+"Ale":32.80,"Alingsås":32.84,"Alvesta":33.42,"Aneby":33.85,"Arboga":33.29,"Arjeplog":34.84,"Arvidsjaur":34.14,"Arvika":34.03,"Askersund":34.15,"Avesta":33.95,"Bengtsfors":34.40,"Berg":34.22,"Bjurholm":35.00,"Bjuv":32.17,"Boden":33.94,"Bollebygd":33.07,"Bollnäs":33.37,"Borgholm":33.44,"Borlänge":34.40,"Borås":32.79,"Botkyrka":32.23,"Boxholm":33.37,"Bromölla":33.74,"Bräcke":35.09,"Burlöv":31.27,"Båstad":31.41,"Dals-Ed":34.69,"Danderyd":30.58,"Degerfors":35.30,"Dorotea":35.65,"Eda":34.55,"Ekerö":31.45,"Eksjö":34.02,"Emmaboda":33.82,"Enköping":33.05,"Eskilstuna":32.85,"Eslöv":31.72,"Essunga":33.05,"Fagersta":32.99,"Falkenberg":32.50,"Falköping":33.43,"Falun":34.05,"Filipstad":34.55,"Finspång":33.70,"Flen":33.10,"Forshaga":34.63,"Färgelanda":34.39,"Gagnef":34.27,"Gislaved":33.75,"Gnesta":32.95,"Gnosjö":34.00,"Gotland":33.60,"Grums":34.78,"Grästorp":33.47,"Gullspång":33.97,"Gällivare":33.89,"Gävle":33.77,"Göteborg":32.60,"Götene":33.60,"Habo":33.93,"Hagfors":34.30,"Hallsberg":33.85,"Hallstahammar":32.69,"Halmstad":32.38,"Hammarö":35.05,"Haninge":31.28,"Haparanda":33.84,"Heby":34.21,"Hedemora":34.15,"Helsingborg":31.39,"Herrljunga":33.62,"Hjo":33.48,"Hofors":34.37,"Huddinge":31.71,"Hudiksvall":33.12,"Hultsfred":33.77,"Hylte":33.85,"Håbo":33.30,"Hällefors":34.35,"Härjedalen":34.17,"Härnösand":34.63,"Härryda":31.98,"Hässleholm":32.38,"Höganäs":30.91,"Högsby":34.07,"Hörby":32.26,"Höör":32.63,"Jokkmokk":34.29,"Järfälla":31.52,"Jönköping":33.40,"Kalix":33.89,"Kalmar":33.67,"Karlsborg":32.80,"Karlshamn":33.80,"Karlskoga":34.30,"Karlskrona":33.69,"Karlstad":33.55,"Katrineholm":32.95,"Kil":34.63,"Kinda":33.00,"Kiruna":34.39,"Klippan":31.93,"Knivsta":32.62,"Kramfors":34.43,"Kristianstad":32.64,"Kristinehamn":34.25,"Krokom":33.87,"Kumla":33.84,"Kungsbacka":32.58,"Kungsör":32.91,"Kungälv":32.92,"Kävlinge":29.59,"Köping":33.04,"Laholm":32.80,"Landskrona":31.42,"Laxå":35.00,"Lekeberg":33.73,"Leksand":33.80,"Lerum":32.03,"Lessebo":33.81,"Lidingö":29.67,"Lidköping":32.74,"Lilla Edet":33.85,"Lindesberg":34.60,"Linköping":31.75,"Ljungby":33.07,"Ljusdal":33.87,"Ljusnarsberg":33.80,"Lomma":30.72,"Ludvika":34.05,"Luleå":33.84,"Lund":32.42,"Lycksele":34.90,"Lysekil":33.94,"Malmö":32.42,"Malung-Sälen":34.45,"Malå":35.20,"Mariestad":32.74,"Mark":32.99,"Markaryd":33.31,"Mellerud":34.08,"Mjölby":33.45,"Mora":34.32,"Motala":33.25,"Mullsjö":34.10,"Munkedal":34.86,"Munkfors":34.30,"Mölndal":31.99,"Mönsterås":34.07,"Mörbylånga":34.07,"Nacka":30.11,"Nora":34.55,"Norberg":33.54,"Nordanstig":34.02,"Nordmaling":35.10,"Norrköping":33.30,"Norrtälje":32.05,"Norsjö":35.20,"Nybro":34.19,"Nykvarn":32.30,"Nyköping":32.25,"Nynäshamn":32.18,"Nässjö":34.30,"Ockelbo":34.27,"Olofström":33.75,"Orsa":34.30,"Orust":33.69,"Osby":33.99,"Oskarshamn":34.21,"Ovanåker":33.37,"Oxelösund":33.05,"Pajala":34.74,"Partille":31.36,"Perstorp":31.99,"Piteå":33.59,"Ragunda":34.92,"Robertsfors":35.00,"Ronneby":33.68,"Rättvik":33.80,"Sala":33.19,"Salem":32.00,"Sandviken":33.12,"Sigtuna":31.83,"Simrishamn":31.69,"Sjöbo":32.10,"Skara":33.38,"Skellefteå":34.45,"Skinnskatteberg":33.34,"Skurup":31.60,"Skövde":33.09,"Smedjebacken":34.44,"Sollefteå":34.68,"Sollentuna":30.45,"Solna":29.70,"Sorsele":35.45,"Sotenäs":33.47,"Staffanstorp":30.12,"Stenungsund":33.12,"Stockholm":30.55,"Storfors":34.98,"Storuman":34.95,"Strängnäs":32.50,"Strömstad":33.39,"Strömsund":34.92,"Sundbyberg":31.58,"Sundsvall":33.88,"Sunne":33.75,"Surahammar":33.19,"Svalöv":31.92,"Svedala":31.42,"Svenljunga":33.53,"Säffle":33.80,"Säter":34.30,"Sävsjö":33.68,"Söderhamn":33.17,"Söderköping":33.53,"Södertälje":32.38,"Sölvesborg":33.86,"Tanum":33.04,"Tibro":33.19,"Tidaholm":33.55,"Tierp":33.00,"Timrå":34.38,"Tingsryd":34.00,"Tjörn":33.19,"Tomelilla":31.79,"Torsby":34.30,"Torsås":33.79,"Tranemo":32.98,"Tranås":33.77,"Trelleborg":31.58,"Trollhättan":33.84,"Trosa":32.03,"Tyresö":31.83,"Täby":29.88,"Töreboda":33.20,"Uddevalla":33.64,"Ulricehamn":32.53,"Umeå":34.65,"Upplands Väsby":31.75,"Upplands-Bro":31.73,"Uppsala":32.85,"Uppvidinge":33.80,"Vadstena":34.35,"Vaggeryd":33.25,"Valdemarsvik":34.03,"Vallentuna":31.23,"Vansbro":34.28,"Vara":33.25,"Varberg":31.73,"Vaxholm":31.63,"Vellinge":29.68,"Vetlanda":33.77,"Vilhelmina":35.50,"Vimmerby":34.22,"Vindeln":35.20,"Vingåker":33.50,"Vårgårda":33.09,"Vänersborg":33.69,"Vännäs":35.20,"Värmdö":31.31,"Värnamo":33.28,"Västervik":33.02,"Västerås":31.24,"Växjö":32.19,"Ydre":34.10,"Ystad":31.29,"Åmål":33.94,"Ånge":34.62,"Åre":33.92,"Årjäng":34.25,"Åsele":35.45,"Åstorp":31.47,"Åtvidaberg":33.94,"Älmhult":33.86,"Älvdalen":34.77,"Älvkarleby":34.40,"Älvsbyn":33.79,"Ängelholm":31.35,"Öckerö":33.04,"Ödeshög":33.95,"Örebro":33.65,"Örkelljunga":30.24,"Örnsköldsvik":33.85,"Östersund":33.72,"Österåker":28.93,"Östhammar":33.30,"Östra Göinge":32.17,"Överkalix":34.14,"Övertorneå":33.84
+};
+
+function grundavdragUnder(ffi){
+  let ga;
+  if(ffi <= 0.99*PBB)       ga = 0.423*PBB;
+  else if(ffi <= 2.72*PBB)  ga = 0.423*PBB + 0.20*(ffi - 0.99*PBB);
+  else if(ffi <= 3.11*PBB)  ga = 0.77*PBB;
+  else if(ffi <= 7.88*PBB)  ga = 0.77*PBB - 0.10*(ffi - 3.11*PBB);
+  else                      ga = 0.293*PBB;
+  return ceil100(Math.min(ga, ffi));
+}
+function grundavdragOver(ffi){
+  // förhöjt grundavdrag = ordinarie grundavdrag + förhöjd del (summa avrundas upp till 100)
+  let ord;
+  if(ffi <= 0.99*PBB)       ord = 0.423*PBB;
+  else if(ffi <= 2.72*PBB)  ord = 0.423*PBB + 0.20*(ffi - 0.99*PBB);
+  else if(ffi <= 3.11*PBB)  ord = 0.77*PBB;
+  else if(ffi <= 7.88*PBB)  ord = 0.77*PBB - 0.10*(ffi - 3.11*PBB);
+  else                      ord = 0.293*PBB;
+  let f;
+  if(ffi <= 0.91*PBB)       f = 0.687*PBB;
+  else if(ffi <= 1.11*PBB)  f = 0.885*PBB - ffi*0.20;
+  else if(ffi <= 1.965*PBB) f = 0.600*PBB + ffi*0.057;
+  else if(ffi <= 2.72*PBB)  f = 0.333*PBB + ffi*0.1949;
+  else if(ffi <= 3.11*PBB)  f = ffi*0.3949 - 0.212*PBB;
+  else if(ffi <= 3.24*PBB)  f = ffi*0.4949 - 0.523*PBB;
+  else if(ffi <= 5.00*PBB)  f = ffi*0.356  - 0.073*PBB;
+  else if(ffi <= 7.88*PBB)  f = 0.017*PBB  + ffi*0.338;
+  else if(ffi <= 8.08*PBB)  f = 0.703*PBB  + ffi*0.251;
+  else if(ffi <= 11.16*PBB) f = 2.732*PBB;
+  else if(ffi <= 12.84*PBB) f = 9.651*PBB - ffi*0.62;
+  else                      f = 1.691*PBB;
+  return ceil100(Math.min(ord + f, ffi));
+}
+
+function jobbavdragUnder(ai, ga, ki){
+  let r;
+  if(ai <= 0.91*PBB)        r = (ai - ga)*ki;
+  else if(ai <= 3.24*PBB)   r = (0.91*PBB + 0.3874*(ai - 0.91*PBB) - ga)*ki;
+  else if(ai <= 8.08*PBB)   r = (1.813*PBB + 0.251*(ai - 3.24*PBB) - ga)*ki;
+  else                      r = (3.027*PBB - ga)*ki;
+  return Math.max(0, Math.floor(r));
+}
+function jobbavdragOver(ai, ki){
+  let r;
+  if(ai <= 1.75*PBB)        r = ai*0.22;
+  else if(ai <= 5.24*PBB)   r = 0.2635*PBB + 0.07*ai;
+  else                      r = 0.6293*PBB;
+  return Math.max(0, Math.floor(r));
+}
+
+function compute(monthly){
+  const lon   = Math.max(0, +$("lon").value || 0);
+  const vaxM  = Math.max(0, +$("vaxling").value || 0);
+  const pensM = Math.max(0, +$("pension").value || 0);
+  const ki    = Math.max(0, (+$("kommun").value || 0))/100;
+  const kyrka = $("kyrkaOn").checked ? Math.max(0,(+$("kyrkaPct").value||0))/100 : 0;
+  const begr  = $("begrOn").checked  ? Math.max(0,(+$("begrPct").value||0))/100  : 0;
+
+  const arslon  = lon*12;
+  const vaxAr   = vaxM*12;
+  const pensAr  = pensM*12;
+  const arbInk  = Math.max(0, arslon - vaxAr);            // arbetsinkomst efter löneväxling
+  const ffi     = Math.max(0, arbInk + pensAr);           // fastställd förvärvsinkomst (lön + pension)
+  const ga      = age==="under" ? grundavdragUnder(ffi) : grundavdragOver(ffi);
+  const bfi     = Math.max(0, ffi - ga);                   // beskattningsbar förvärvsinkomst
+
+  // Skatteverket: öretal bortfaller (floor) på kommunalskatt; statlig är exakt
+  const kommunal = Math.floor(bfi*ki);
+  const statlig  = bfi > SKIKT ? Math.floor(0.20*(bfi - SKIKT)) : 0;
+
+  // allmän pensionsavgift: 7 % av ARBETSINKOMSTEN (ej pension), + 100 % skattereduktion
+  let pensAvg = 0;
+  if(arbInk >= PENS_FRI){
+    pensAvg = round100pens(0.07*Math.min(arbInk, PENS_TAK));
+  }
+  const pensRed = Math.min(pensAvg, statlig + kommunal);
+
+  // jobbskatteavdrag: bas = ARBETSINKOMSTEN (ej pension), men med totala grundavdraget
+  const ai = floor100(arbInk);
+  const jobb = arbInk<=0 ? 0
+             : (age==="under" ? jobbavdragUnder(ai, ga, ki) : jobbavdragOver(ai, ki));
+
+  // ordning: kommunalskatt minskas av pensionsred-andel, sedan jobbavdrag, sedan förvärvsred
+  let kommKvar = kommunal - Math.max(0, pensRed - statlig);
+  const jobbAnv = Math.min(jobb, Math.max(0, kommKvar));
+  kommKvar -= jobbAnv;
+
+  // skattereduktion för förvärvsinkomst
+  let forvRed = 0;
+  if(bfi > 40000) forvRed = bfi >= 240000 ? 1500 : Math.floor((bfi-40000)*0.0075);
+  const forvAnv = Math.min(forvRed, Math.max(0, kommKvar));
+
+  // public service-avgift
+  const ps = Math.min(Math.floor(0.01*bfi), PS_MAX);
+
+  const kyrkaKr = Math.floor(bfi*kyrka);
+  const begrKr  = Math.floor(bfi*begr);
+
+  // ---- inkomst av kapital (aktiefålla + 70 %-kvotering) ----
+  const kapInk   = Math.max(0, +$("kapInk").value || 0);          // ränta + utdelning (100 %)
+  const iskUnd   = Math.max(0, +$("iskUnderlag").value || 0);     // kapitalunderlag ISK/KF
+  const aktieV   = Math.max(0, +$("aktievinst").value || 0);
+  const aktieF   = Math.max(0, +$("aktieforlust").value || 0);
+  const rantUtg  = Math.max(0, +$("rantUtg").value || 0);
+  // ISK/KF schablonintäkt: (underlag − fribelopp) × max(schablonränta, golv), öretal bortfaller
+  const iskSchablon = Math.floor(Math.max(0, iskUnd - ISK_FRI) * Math.max(ISK_SCHABLON, ISK_GOLV) + 1e-6);
+  const aktieNet = aktieV - aktieF;                                // kvittning i aktiefållan
+  const aktieKap = aktieNet >= 0 ? aktieNet : -AKT_KVOT*(-aktieNet); // okvittad förlust → 70 %
+  const aktieKvoterad = aktieNet < 0 ? Math.round(AKT_KVOT*(-aktieNet)) : 0;
+  const netKap   = kapInk + iskSchablon + aktieKap - rantUtg;
+  const kapOver  = Math.max(0, netKap);
+  let kapSkatt = 0, kapRed = 0;
+  if(netKap >= 0){
+    kapSkatt = Math.floor(KAP_SKATT*netKap);                       // 30 % på överskott
+  }else{
+    const u = -netKap;                                             // underskott av kapital
+    kapRed = Math.floor(KAP_RED1*Math.min(u,KAP_BRYT) + KAP_RED2*Math.max(0,u-KAP_BRYT));
+  }
+
+  // ---- ROT/RUT (skattereduktion för hushållsarbete) ----
+  const rotArb = Math.max(0, +$("rotArb").value || 0);
+  const rutArb = Math.max(0, +$("rutArb").value || 0);
+  const rotRaw = Math.min(Math.floor(ROT_SATS*rotArb), ROT_MAX);
+  const rutRaw = Math.min(Math.floor(RUT_SATS*rutArb), RUT_MAX);
+  const rotCap = Math.min(rotRaw, ROT_MAX);
+  const rutCap = Math.min(rutRaw, Math.max(0, HUS_MAX - rotCap)); // gemensamt tak 75 000
+  const husCap = rotCap + rutCap;
+
+  // ---- kommunal fastighetsavgift ----
+  const taxv     = Math.max(0, +$("taxvarde").value || 0);
+  const nybyggt  = $("nybyggt").checked;
+  const fastBrutto = (taxv<=0 || nybyggt) ? 0 : Math.min(Math.floor(FAST_SATS*taxv), FAST_TAK);
+  // pensionärsbegränsning: avgiften ≤ max(4 % av (BFI + kapitalöverskott), spärrbelopp)
+  let fastPensRed = 0;
+  if(age==="over" && fastBrutto>0){
+    const sparr = Math.max(Math.floor(0.04*(bfi + kapOver)), FAST_SPARR);
+    fastPensRed = Math.max(0, fastBrutto - sparr);
+  }
+  const fastNet = fastBrutto - fastPensRed;
+
+  // ---- avräkningsordning (Skatteverket) ----
+  // 1 fastighetsavgiftsred. (pensionär) – ovan, mot själva avgiften
+  // 2 pensionsavgift, 3 jobbavdrag, 4 förvärvsinkomst – gjort ovan mot förvärvsskatt
+  const statligKvar = Math.max(0, statlig - pensRed);
+  let pool = statligKvar + Math.max(0, kommKvar) + kapSkatt + fastNet; // fastighetsavgift ingår i potten
+  // 5 underskott av kapital
+  const kapRedAnv = Math.min(kapRed, pool);
+  pool -= kapRedAnv;
+  // 6 ROT/RUT – ej mot begravnings-/kyrkoavgift eller allmän pensionsavgift
+  const husAnv = Math.min(husCap, Math.max(0, pool));
+  let rotShow = rotCap, rutShow = rutCap;
+  if(husCap > 0 && husAnv < husCap){                          // skala ned proportionellt
+    rotShow = Math.round(rotCap*husAnv/husCap);
+    rutShow = husAnv - rotShow;
+  }
+
+  const totalSkatt = statlig + kommunal + kapSkatt + pensAvg + kyrkaKr + begrKr + ps + fastNet
+                     - pensRed - jobbAnv - forvAnv - kapRedAnv - husAnv;
+  const brutto = ffi + kapOver;
+  const netto  = brutto - totalSkatt;
+
+  return {arslon,vaxAr,pensAr,arbInk,ffi,ga,bfi,kommunal,statlig,jobb:jobbAnv,
+          kyrkaKr,begrKr,ps,forvAnv,pensAvg,pensRed,totalSkatt,netto,lon,vaxM,pensM,
+          kapInk,rantUtg,aktieV,aktieF,aktieKvoterad,netKap,kapOver,kapSkatt,kapRed:kapRedAnv,
+          iskUnd,iskSchablon,
+          rotShow,rutShow,hus:husAnv,brutto,
+          fastBrutto,fastPensRed,fastNet,taxv,nybyggt};
+}
+
+function render(){
+  const r = compute();
+  const M = v => fmt(v/12);
+  const Y = v => fmt(v);
+
+  $("netMonth").textContent = M(r.netto);
+  $("netYear").textContent  = Y(r.netto);
+  $("vaxYear").textContent  = Y(r.vaxAr);
+  $("totTax").textContent   = M(r.totalSkatt) + " kr";
+
+  const eff = r.brutto>0 ? (r.totalSkatt/r.brutto*100) : 0;
+  $("effRate").innerHTML = eff.toFixed(1).replace(".",",") + "&nbsp;%";
+
+  // marginalskatt: skillnad i nettoskatt vid +1000 kr/mån brutto
+  const baseLon = +$("lon").value;
+  $("lon").value = baseLon + 1000;
+  const r2 = compute();
+  $("lon").value = baseLon;
+  const dGross = (r2.arslon - r.arslon);
+  const marg = dGross>0 ? ((r2.totalSkatt - r.totalSkatt)/dGross*100) : 0;
+  $("margRate").innerHTML = marg.toFixed(1).replace(".",",") + "&nbsp;%";
+
+  // sammansättningsbar (av total inkomst: lön + pension)
+  const gross = (r.arslon + r.pensAr) || 1;
+  const wNet = Math.max(0, r.netto/gross*100);
+  const wVax = Math.max(0, r.vaxAr/gross*100);
+  const wTax = Math.max(0, 100 - wNet - wVax);
+  const b = $("bar").children;
+  b[0].style.width = wNet+"%"; b[1].style.width = wTax+"%"; b[2].style.width = wVax+"%";
+
+  // brytpunkt statlig skatt — gäller förvärvsinkomsten (lön efter växling + pension)
+  const bryt   = age==="under" ? BRYT_UNDER : BRYT_OVER;
+  const brytM  = Math.round(bryt/12);
+  const fviY   = r.ffi;               // fastställd förvärvsinkomst jämförs mot brytpunkten
+  const dot = $("brytDot"), txt = $("brytTxt");
+  if(r.statlig > 0){
+    dot.style.background = "var(--red)";
+    txt.innerHTML = `Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
+      `Din förvärvsinkomst ligger <b>${fmt((fviY-bryt)/12)} kr/mån</b> över — 20 % statlig skatt på den delen.`;
+  }else{
+    dot.style.background = "var(--green-bright)";
+    txt.innerHTML = `Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
+      `Du ligger <b>${fmt((bryt-fviY)/12)} kr/mån</b> under — ingen statlig skatt.`;
+  }
+
+  const pensNote = r.pensAvg>0 ? ` (avgift ${fmt(r.pensAvg/12)} − reduktion ${fmt(r.pensRed/12)})` : "";
+  const hasKap  = (r.kapInk>0 || r.rantUtg>0 || r.aktieV>0 || r.aktieF>0 || r.iskUnd>0);
+  const hasHus  = (r.rotShow>0 || r.rutShow>0);
+  const hasFast = (r.fastBrutto>0 || (r.taxv>0));
+  const kapSub  = r.aktieKvoterad>0
+    ? `okvittad aktieförlust kvoterad till 70 % (${fmt(r.aktieKvoterad)} kr)`
+    : (r.iskSchablon>0 ? `inkl. ISK/KF-schablonintäkt` : `ränta, utdelning, aktievinst`);
+  let rows = [
+    {name:"Brutto månadslön", sub:"Indata", m:r.lon, y:r.arslon, cls:"gross"},
+    {name:"Årsinkomst lön", sub:"bruttolön × 12", m:r.arslon/12, y:r.arslon},
+    {name:"Bruttolöneavdrag", sub:"löneväxling, bil m.m. – före skatt", m:-r.vaxM, y:-r.vaxAr, cls:"minus"},
+    {name:"Pensionsinkomst", sub:"skattepliktig, utbetald pension", m:r.pensAr/12, y:r.pensAr},
+    {name:"Fastställd förvärvsinkomst", sub:"FFI = lön − bruttolöneavdrag + pension", m:r.ffi/12, y:r.ffi, cls:"sumrow"},
+    {name:"Grundavdrag", sub:age==="under"?"ordinarie, baserat på FFI":"förhöjt grundavdrag (66+)", m:-r.ga/12, y:-r.ga, cls:"minus"},
+    {name:"Beskattningsbar inkomst", sub:"BFI = FFI − grundavdrag", m:r.bfi/12, y:r.bfi, cls:"sumrow"},
+    {name:"Kommunalskatt", sub:`BFI × ${$("kommun").value} % (öretal bortfaller)`, m:-r.kommunal/12, y:-r.kommunal, cls:"minus"},
+    {name:"Statlig skatt", sub:`20 % över brytpunkt ${fmt(bryt)} kr/år`, m:-r.statlig/12, y:-r.statlig, cls:"minus"},
+  ];
+  if(r.iskUnd>0)
+    rows.push({name:"ISK/KF schablonintäkt", sub:`(${fmt(r.iskUnd)} − 300 000) × 3,55 % → kapitalinkomst`, m:r.iskSchablon/12, y:r.iskSchablon});
+  if(hasKap && r.netKap>0)
+    rows.push({name:"Skatt på kapitalöverskott", sub:`30 % av ${fmt(r.netKap)} kr — ${kapSub}`, m:-r.kapSkatt/12, y:-r.kapSkatt, cls:"minus"});
+  if(hasFast)
+    rows.push({name:"Fastighetsavgift", sub:r.nybyggt?"nybyggt – avgiftsfritt i 15 år":(r.fastBrutto>=FAST_TAK?`takbelopp 10 425 kr (0,75 % > tak)`:`0,75 % av ${fmt(r.taxv)} kr`), m:-r.fastBrutto/12, y:-r.fastBrutto, cls:r.fastBrutto?"minus":""});
+  rows.push(
+    {name:"Jobbskatteavdrag", sub:"endast på arbetsinkomst, ej pension", m:r.jobb/12, y:r.jobb},
+    {name:"Skattereduktion förvärvsinkomst", sub:"0,75 % över 40 000, max 1 500", m:r.forvAnv/12, y:r.forvAnv},
+    {name:"Allmän pensionsavgift", sub:"7 % av arbetsinkomst − 100 % red."+pensNote, m:-(r.pensAvg-r.pensRed)/12, y:-(r.pensAvg-r.pensRed), cls:(r.pensAvg-r.pensRed)>0?"minus":""}
+  );
+  if(r.fastPensRed>0)
+    rows.push({name:"Skattered. fastighetsavgift", sub:"pensionärsspärr: 4 % av inkomst, min 4 042", m:r.fastPensRed/12, y:r.fastPensRed});
+  if(hasKap && r.netKap<0)
+    rows.push({name:"Skattered. underskott kapital", sub:`30 % ≤100 000, 21 % däröver (underskott ${fmt(-r.netKap)} kr)`, m:r.kapRed/12, y:r.kapRed});
+  if(hasHus)
+    rows.push({name:"ROT-/RUT-avdrag", sub:`hushållsarbete – tak 75 000 kr (ROT max 50 000)`, m:(r.rotShow+r.rutShow)/12, y:(r.rotShow+r.rutShow)});
+  rows.push(
+    {name:"Kyrkoavgift", sub:$("kyrkaOn").checked?`BFI × ${$("kyrkaPct").value} %`:"ej medlem", m:-r.kyrkaKr/12, y:-r.kyrkaKr, cls:r.kyrkaKr?"minus":""},
+    {name:"Begravningsavgift", sub:$("begrOn").checked?`BFI × ${$("begrPct").value} %`:"—", m:-r.begrKr/12, y:-r.begrKr, cls:r.begrKr?"minus":""},
+    {name:"Public service-avgift", sub:"1 % av BFI, max 1 184", m:-r.ps/12, y:-r.ps, cls:"minus"},
+    {name:"Netto i handen", sub:(hasKap||hasFast)?"inkomst − total skatt & avgift":"lön + pension efter skatt", m:r.netto/12, y:r.netto, cls:"netrow"}
+  );
+  // sekventiell numrering (tom etikett för sammanfattnings-/netto-rad)
+  let c=0;
+  rows.forEach(x=>{ x.n = (x.cls==="netrow") ? "" : (++c); });
+
+  const sign = v => (v>0?"+":v<0?"−":"") ;
+  $("rows").innerHTML = rows.map(x=>`
+    <tr class="${x.cls||""}">
+      <td class="st-no">${x.n}</td>
+      <td class="st-name">${x.name}<small>${x.sub}</small></td>
+      <td>${x.cls==="gross"||x.cls==="sumrow"||x.cls==="netrow"? fmt(Math.abs(x.m)) : sign(x.m)+fmt(Math.abs(x.m))}</td>
+      <td>${x.cls==="gross"||x.cls==="sumrow"||x.cls==="netrow"? fmt(Math.abs(x.y)) : sign(x.y)+fmt(Math.abs(x.y))}</td>
+    </tr>`).join("");
+}
+
+// ---- kommunväljare ----
+(function(){
+  const sel = $("kommunSelect");
+  Object.keys(KOMMUNSKATT).sort((a,b)=>a.localeCompare(b,"sv"))
+    .forEach(k=>{ const o=document.createElement("option"); o.value=k;
+      o.textContent = k+" — "+KOMMUNSKATT[k].toFixed(2).replace(".",",")+" %"; sel.appendChild(o); });
+  sel.value = "";
+  sel.addEventListener("change",()=>{
+    if(sel.value && KOMMUNSKATT[sel.value]!=null){ $("kommun").value = KOMMUNSKATT[sel.value]; render(); }
+  });
+})();
+
+// ---- begravningsavgiftsväljare (3 regimer) ----
+$("begrSelect").addEventListener("change",()=>{
+  const v = $("begrSelect").value;
+  if(v!==""){ $("begrPct").value = v; render(); }
+});
+
+// ---- events ----
+["lon","kommun","vaxling","pension","kyrkaPct","begrPct","kapInk","iskUnderlag","aktievinst","aktieforlust","rantUtg","rotArb","rutArb","taxvarde"]
+  .forEach(id=>$(id).addEventListener("input",render));
+// vid manuell ändring av %: nollställ kommunvalet om satsen inte matchar vald kommun
+$("kommun").addEventListener("input",()=>{
+  const sel=$("kommunSelect"), v=parseFloat($("kommun").value);
+  if(!sel.value || Math.abs(KOMMUNSKATT[sel.value]-v) > 0.001) sel.value = "";
+});
+$("begrPct").addEventListener("input",()=>{
+  const bs=$("begrSelect"), v=$("begrPct").value;
+  bs.value = (["0.292","0.07","0.285"].includes(String(parseFloat(v)))) ? String(parseFloat(v)) : "";
+});
+$("kyrkaOn").addEventListener("change",e=>{$("kyrkaMini").classList.toggle("show",e.target.checked);render();});
+$("begrOn").addEventListener("change",e=>{$("begrMini").classList.toggle("show",e.target.checked);render();});
+$("nybyggt").addEventListener("change",render);
+$("advBox").addEventListener("toggle",e=>{$("advCaret").textContent = e.target.open ? "–" : "+";});
+document.querySelectorAll("#age button").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("#age button").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on"); age = btn.dataset.age; render();
+}));
+$("reset").addEventListener("click",()=>{
+  // standardvärden
+  $("lon").value=40000; $("kommun").value=32.40; $("vaxling").value=0; $("pension").value=0;
+  $("kommunSelect").value="";
+  $("kyrkaOn").checked=true;  $("kyrkaMini").classList.add("show"); $("kyrkaPct").value=1;
+  $("begrOn").checked=true;  $("begrMini").classList.add("show"); $("begrPct").value=0.292; $("begrSelect").value="0.292";
+  $("kapInk").value=0; $("rantUtg").value=0; $("rotArb").value=0; $("rutArb").value=0;
+  $("iskUnderlag").value=0;
+  $("aktievinst").value=0; $("aktieforlust").value=0; $("taxvarde").value=0; $("nybyggt").checked=false;
+  document.querySelectorAll("#age button").forEach(b=>b.classList.remove("on"));
+  document.querySelector('#age [data-age="under"]').classList.add("on"); age="under";
+  render();
+});
+render();
+</script>
+</body>
+</html>
