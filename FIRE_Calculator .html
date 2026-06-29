@@ -12,7 +12,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #0c1020; --surface: #111827; --border: #1e2840;
-  --gold: #f0c040; --green: #22c55e; --red: #f87171; --blue: #60a5fa; --purple: #a78bfa;
+  --gold: #FF00FF; --green: #22c55e; --red: #f87171; --blue: #60a5fa; --purple: #a78bfa;
   --text: #dde2ee; --muted: #6b7280; --dim: #4a5270;
   --mono: 'IBM Plex Mono', monospace; --serif: 'Fraunces', serif; --sans: 'DM Sans', system-ui, sans-serif;
 }
@@ -20,7 +20,7 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--sans)
 ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #252d45; border-radius: 2px; }
 
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; background: #252d45; outline: none; cursor: pointer; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px #f0c04066; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px #FF00FF66; }
 input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: none; border-radius: 50%; background: var(--gold); }
 
 /* ── Desktop layout ── */
@@ -157,7 +157,7 @@ tr:hover td { background: #141c30; }
         </div>
         <div class="kpi-card">
           <div class="kpi-label">FIRE Target</div>
-          <div class="kpi-value" id="kpiTarget" style="color:#f0c040">—</div>
+          <div class="kpi-value" id="kpiTarget" style="color:#FF00FF">—</div>
           <div class="kpi-sub" id="kpiTargetSub"></div>
         </div>
         <div class="kpi-card">
@@ -179,7 +179,7 @@ tr:hover td { background: #141c30; }
         <div class="chart-header">
           <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">◈ Portfolio Growth Projection</span>
           <div class="chart-legend">
-            <span style="color:#f0c040">● Nominal</span>
+            <span style="color:#FF00FF">● Nominal</span>
             <span style="color:#f87171">● FIRE Target</span>
             <span style="color:#22c55e">┊ FIRE Age</span>
           </div>
@@ -277,7 +277,7 @@ function buildChart(rows,fireAge){
     type:'line',
     data:{labels:data.map(r=>r.age),datasets:[
       {label:'FIRE Target',data:data.map(r=>r.nt),borderColor:'#f87171',borderWidth:1.5,borderDash:[5,3],backgroundColor:'rgba(248,113,113,0.07)',fill:true,pointRadius:0,tension:0.4},
-      {label:'Portfolio',data:data.map(r=>r.closing),borderColor:'#f0c040',borderWidth:2,backgroundColor:'rgba(240,192,64,0.15)',fill:true,pointRadius:0,tension:0.4},
+      {label:'Portfolio',data:data.map(r=>r.closing),borderColor:'#FF00FF',borderWidth:2,backgroundColor:'rgba(255,0,255,0.15)',fill:true,pointRadius:0,tension:0.4},
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
@@ -331,7 +331,7 @@ function buildTable(rows){
   rows.forEach((r,i)=>{
     const isFire=r.gap<=0,isFireMoment=isFire&&(rows[i-1]?.gap??1)>0;
     const tr=document.createElement('tr');if(isFire)tr.className='fire-row';
-    tr.innerHTML=`<td>${r.yr}</td><td style="color:${isFire?'#4ade80':'#dde2ee'}">${r.age}${isFireMoment?' 🔥':''}</td><td>${fmtN(r.salary)}</td><td>${fmtN(r.ms)}</td><td>${fmtN(r.ys)}</td><td>${fmtN(r.opening)}</td><td style="color:#4ade80">${fmtN(r.roi)}</td><td style="color:#f87171">${fmtN(r.taxes)}</td><td style="color:#f87171">${fmtN(r.fees)}</td><td style="color:#f0c040;font-weight:600">${fmtN(r.closing)}</td><td>${fmtN(r.nt)}</td><td style="color:${r.gap<=0?'#4ade80':'#f87171'}">${fmtN(r.gap)}</td>`;
+    tr.innerHTML=`<td>${r.yr}</td><td style="color:${isFire?'#4ade80':'#dde2ee'}">${r.age}${isFireMoment?' 🔥':''}</td><td>${fmtN(r.salary)}</td><td>${fmtN(r.ms)}</td><td>${fmtN(r.ys)}</td><td>${fmtN(r.opening)}</td><td style="color:#4ade80">${fmtN(r.roi)}</td><td style="color:#f87171">${fmtN(r.taxes)}</td><td style="color:#f87171">${fmtN(r.fees)}</td><td style="color:#FF00FF;font-weight:600">${fmtN(r.closing)}</td><td>${fmtN(r.nt)}</td><td style="color:${r.gap<=0?'#4ade80':'#f87171'}">${fmtN(r.gap)}</td>`;
     tbody.appendChild(tr);
   });
   document.getElementById('tableToggleLabel').textContent=`◈ Year-by-Year Projection (${rows.length} years)`;
