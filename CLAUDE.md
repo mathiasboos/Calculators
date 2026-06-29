@@ -12,6 +12,8 @@ Offline, dependency-free Swedish pension and salary calculators built as standal
 
 Add further constants here as they come up (e.g. PBB, takbelopp, skiktgräns).
 
+**Note:** not all tax inputs are simple constants. IBB and brytpunkt are single national values you can swap each year. Kommunalskatt and jobbskatteavdrag are different in kind — they vary by municipality and income respectively, and the underlying formula or table must be re-verified each January, not just updated with a new number.
+
 ## Tax constants (change annually — verify each January)
 
 - **IBB (Inkomstbasbelopp):** single national value — see constants table
