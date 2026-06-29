@@ -43,6 +43,43 @@ Offline, dependency-free Swedish pension and salary calculators built as standal
     whole function each December, not just constants
   - Source: Skatteverket, published ~December each year
 
+### Grundavdrag — NOT a flat number, two piecewise formulas (most complex constant in this project)
+
+- Input: ffi (fastställd förvärvsinkomst — gross income after any salary
+  sacrifice, before grundavdrag itself is applied)
+- Rounding: ceil100 — rounds UP to nearest 100 kr
+  ⚠ opposite direction from kommunalskatt, which floors — don't assume a
+  consistent rounding rule across this file
+- Cap: Math.min(ga, ffi) — grundavdrag can never exceed actual income
+
+- Under 66 (grundavdragUnder): 5 income bands (flat floor → rising →
+  flat peak → falling → flat floor), thresholds at 0.99×, 2.72×, 3.11×,
+  7.88× PBB
+
+- Over 66 (grundavdragOver): ordinary 5-band formula above PLUS an
+  additional "förhöjt grundavdrag" top-up with 11 MORE bands of its own
+  (thresholds from 0.91× up to 12.84× PBB) — this is the single most
+  complex piece of tax logic in the project
+
+- All thresholds expressed as PBB multiples — if PBB changes, kr
+  breakpoints shift automatically, but the coefficients themselves
+  (0.423, 0.77, 0.293, 0.687, 0.20, 0.057, etc. — 15+ distinct constants
+  across both functions) come from Skatteverket's spec and can ALSO
+  change each year. Verify the full function, every band, every
+  December — do not assume only PBB moved.
+
+- Source: Skatteverket, published ~December each year
+
+### Updated cross-file consistency — grundavdrag scope
+
+| What | Net_Salary_2026.html | Salary_Exchange.html | Salary_Exchange_Consumer.html |
+|---|---|---|---|
+| Grundavdrag | full piecewise (both age formulas) | not used — file works purely with marginal rates, never computes gross-to-net | not used — same reason |
+
+Annual update scope for grundavdrag: Net_Salary_2026.html ONLY. The two
+salary exchange calculators don't compute tax from gross income up, so
+they have no grundavdrag dependency at all.
+
 ### Cross-file consistency — annual update scope differs per file
 
 | What | Net_Salary_2026.html | Salary_Exchange.html | Salary_Exchange_Consumer.html |
