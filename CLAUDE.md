@@ -70,22 +70,13 @@ Offline, dependency-free Swedish pension and salary calculators built as standal
 
 - Source: Skatteverket, published ~December each year
 
-### Updated cross-file consistency — grundavdrag scope
-
-| What | Net_Salary_2026.html | Salary_Exchange.html | Salary_Exchange_Consumer.html |
-|---|---|---|---|
-| Grundavdrag | full piecewise (both age formulas) | not used — file works purely with marginal rates, never computes gross-to-net | not used — same reason |
-
-Annual update scope for grundavdrag: Net_Salary_2026.html ONLY. The two
-salary exchange calculators don't compute tax from gross income up, so
-they have no grundavdrag dependency at all.
-
 ### Cross-file consistency — annual update scope differs per file
 
 | What | Net_Salary_2026.html | Salary_Exchange.html | Salary_Exchange_Consumer.html |
 |---|---|---|---|
 | Kommun lookup table | full table | full table (duplicate) | single default (KOMMUNAL_DEFAULT) |
 | Jobbskatteavdrag | full piecewise formula | simplified (brytpunkt check + flat 20% state tax above it) | simplified, same as Salary_Exchange |
+| Grundavdrag | full piecewise (both age formulas) | not used — works with marginal rates only, never computes gross-to-net | not used — same reason |
 | Brytpunkt constant | BRYT_UNDER = 660,400 (annual) | LIMIT_BRYTPUNKT = 55,033 (monthly, confirmed ≈ matches) | not used |
 | SKIKT (skiktgräns) | yes | not used | not used |
 | Annual update needed | full re-verify of all tax logic | replace kommun table; verify LIMIT_BRYTPUNKT | update KOMMUNAL_DEFAULT only |
