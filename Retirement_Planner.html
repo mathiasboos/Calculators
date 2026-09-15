@@ -675,6 +675,15 @@ input[type="number"]::-webkit-outer-spin-button {
   <div class="section-sub fade-up-2" data-i18n="summary.overview">All metrics computed at retirement year</div>
 
   <div class="grid-4 fade-up-3" style="margin-bottom:20px" id="tiles-top"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+    <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)" data-i18n="pp.hdr">Pension by Retirement Phase</span>
+    <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+      <button id="pp-btn-gross" onclick="setPpTaxMode('gross')" data-i18n="acc.before.tax"
+        style="padding:3px 12px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer">Before Tax</button>
+      <button id="pp-btn-net" onclick="setPpTaxMode('net')" data-i18n="acc.after.tax"
+        style="padding:3px 12px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer">After Tax</button>
+    </div>
+  </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px" id="tiles-mid"></div>
 
   <div class="grid-2" style="margin-bottom:16px;gap:16px">
@@ -1927,10 +1936,12 @@ en:{
   'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.wdrlRate':'Calculation: Annual withdrawal ÷ Portfolio at retirement × 100\n\n🟢 ≤ 4% — Sustainable (classic 4% rule)\n🟡 4–6% — Moderate risk of depletion\n🔴 > 6% — High risk of depleting portfolio early','tip.depletion':'Year when the portfolio reaches zero under constant-return assumptions.\n\n🟢 Never — Portfolio generates enough return to sustain withdrawals indefinitely\n🔴 Year shown — Portfolio depletes before life expectancy','tip.repRate':'Calculation: Avg retirement income ÷ Pre-retirement net salary × 100\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
   'summary.at.ret':'At retirement · ',
   'tile.phasePension':'Monthly Pension · Age {from}–{to}',
-  'tile.phase.gogo':'Go-go years · after tax',
-  'tile.phase.slowgo':'Slow-go years · after tax',
-  'tile.phase.nogo':'No-go years · after tax',
-  'tip.phasePension':'Distributes your entire tax-adjusted portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nSpending is front-loaded — Go-go 100%, Slow-go 90%, No-go 80% of the first-phase amount. Each year\'s draw is discounted at that year\'s blended real return, so the glide path is respected.\n\nMonthly, after tax, in today\'s money. Informational — no colour threshold.',
+  'tile.phase.gogo':'Go-go years',
+  'tile.phase.slowgo':'Slow-go years',
+  'tile.phase.nogo':'No-go years',
+  'pp.hdr':'Pension by Retirement Phase',
+  'pp.weight':'Weight',
+  'tip.phasePension':'Distributes your entire portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nThe weights set the shape of the plan: each phase draws in proportion to its weight, so the default 100 / 90 / 80 front-loads spending into the Go-go years. Only the ratios matter — 10 / 9 / 8 gives the same result.\n\nEach year\'s draw is discounted at that year\'s blended real return, so the equity glide path is respected. Before Tax is the gross withdrawal; After Tax deducts kommunalskatt from the pension portion.\n\nMonthly, in today\'s money. Informational — no colour threshold.',
 
 
 
@@ -2354,10 +2365,12 @@ sv:{
   'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.wdrlRate':'Beräkning: Årsuttag ÷ Portfölj vid pension × 100\n\n🟢 ≤ 4% — Hållbart (klassiska 4%-regeln)\n🟡 4–6% — Måttlig risk för att portföljen tar slut\n🔴 > 6% — Hög risk för förtida uttömning av portföljen','tip.depletion':'År då portföljen når noll med antaganden om konstant avkastning.\n\n🟢 Aldrig — Avkastningen täcker uttagen i all framtid\n🔴 År visas — Portföljen tar slut före förväntad livslängd','tip.repRate':'Beräkning: Genomsnittlig pensionsinkomst ÷ Nettolön före pension × 100\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
   'summary.at.ret':'Vid pension · ',
   'tile.phasePension':'Månadspension · Ålder {from}–{to}',
-  'tile.phase.gogo':'Aktiva år (go-go) · efter skatt',
-  'tile.phase.slowgo':'Lugnare år (slow-go) · efter skatt',
-  'tile.phase.nogo':'Stillsamma år (no-go) · efter skatt',
-  'tip.phasePension':'Fördelar hela din skattejusterade portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nUttagen är frontladdade — go-go 100%, slow-go 90%, no-go 80% av första periodens belopp. Varje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen.\n\nBelopp per månad, efter skatt, i dagens penningvärde. Informativ — ingen färgtröskel.',
+  'tile.phase.gogo':'Aktiva år (go-go)',
+  'tile.phase.slowgo':'Lugnare år (slow-go)',
+  'tile.phase.nogo':'Stillsamma år (no-go)',
+  'pp.hdr':'Pension per pensionsfas',
+  'pp.weight':'Vikt',
+  'tip.phasePension':'Fördelar hela din portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nVikterna bestämmer planens form: varje period tar ut i proportion till sin vikt, så standardvärdet 100 / 90 / 80 frontladdar uttagen till de aktiva åren. Bara förhållandet spelar roll — 10 / 9 / 8 ger samma resultat.\n\nVarje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen. Före skatt är bruttouttaget; Efter skatt drar av kommunalskatt på pensionsdelen.\n\nBelopp per månad, i dagens penningvärde. Informativ — ingen färgtröskel.',
 
 
 
@@ -4791,13 +4804,47 @@ function fmtPct(v){ return isNaN(v)?'—':((v*100).toFixed(1).replace('.',','))+
 function fmtX(v){ return isNaN(v)?'—':v.toFixed(2).replace('.',',')+'×'; }
 
 // ── MONTHLY PENSION BY RETIREMENT PHASE (Go-go / Slow-go / No-go) ──
-// The whole tax-adjusted portfolio is distributed across the three age
-// brackets so that it is fully spent by life expectancy, front-loaded:
-// phase 1 (Go-go) highest, phase 2 (Slow-go) second, phase 3 (No-go) lowest.
-// Each phase steps down 10 % of the first-phase amount — the classic
-// retirement spending smile (50 000 / 45 000 / 40 000 kr).
-var PHASE_WEIGHTS = [1.00, 0.90, 0.80];
-var PHASE_KEYS    = ['gogo', 'slowgo', 'nogo'];
+// The whole portfolio at retirement is distributed across the three age
+// brackets so that it is fully spent by life expectancy. The Before/After
+// Tax toggle picks the basis: gross (portAfterTax + portBeforeTax) or
+// tax-adjusted (kommunalskatt deducted from the pension portion).
+// The relative spending weights are set by the user on the dashboard;
+// only their ratios matter, so 100/90/80 and 10/9/8 give the same plan.
+// The default steps each phase down 10 % of the first-phase amount — the
+// classic retirement spending smile (50 000 / 45 000 / 40 000 kr).
+var PHASE_KEYS     = ['gogo', 'slowgo', 'nogo'];
+var _phaseWeights  = [100, 90, 80];
+var _ppTaxMode     = 'gross';   // 'gross' = before tax, 'net' = after tax
+
+// Sanitised weights. All-zero is left as-is: computePensionPhases() then
+// finds no positive factor and returns null, so the tiles show em dashes
+// rather than figures that contradict the weights shown on screen.
+function getPhaseWeights(){
+  return _phaseWeights.map(function(v){
+    var n = parseFloat(String(v).replace(',', '.'));
+    return (isFinite(n) && n > 0) ? n : 0;
+  });
+}
+
+// Unparseable input keeps the current weight; the re-render restores it.
+function applyPhaseWeight(i, val){
+  var n = parseFloat(String(val).replace(',', '.'));
+  if(isFinite(n) && n >= 0) _phaseWeights[i] = n;
+  recalc();
+}
+
+function setPpTaxMode(mode){
+  _ppTaxMode = mode;
+  var bg = document.getElementById('pp-btn-gross');
+  var bn = document.getElementById('pp-btn-net');
+  if(bg){ bg.style.background = mode==='gross' ? '#48B866' : 'transparent';
+          bg.style.color      = mode==='gross' ? '#0f1f3d' : 'var(--muted)';
+          bg.style.fontWeight = mode==='gross' ? '600' : '500'; }
+  if(bn){ bn.style.background = mode==='net'   ? '#48B866' : 'transparent';
+          bn.style.color      = mode==='net'   ? '#0f1f3d' : 'var(--muted)';
+          bn.style.fontWeight = mode==='net'   ? '600' : '500'; }
+  recalc();
+}
 
 // Three contiguous age brackets covering retirement → life expectancy.
 // Mirrors the Withdrawals tab's AGE-BASED EXPENSE INTERVALS when that
@@ -4840,6 +4887,7 @@ function computePensionPhases(data, portfolio){
   const brackets = getPensionPhaseBrackets(params);
   if(!brackets || !(portfolio > 0)) return null;
 
+  const weights = getPhaseWeights();
   const eqR = getParam('eqReturn') / 100;
   const bdR = getParam('bdReturn') / 100;
   const retAge  = brackets[0].from;
@@ -4861,18 +4909,19 @@ function computePensionPhases(data, portfolio){
   let factor = 0, cum = 1;
   for(let age = retAge; age <= lifeAge; age++){
     const r = returnAt(age);
-    factor += PHASE_WEIGHTS[phaseOf(age)] * cum / Math.pow(1 + r, 0.5);
+    factor += weights[phaseOf(age)] * cum / Math.pow(1 + r, 0.5);
     cum /= (1 + r);
   }
   if(!(factor > 0)) return null;
 
-  const base = portfolio / factor;   // annual SEK at weight 1.00
+  const base = portfolio / factor;   // annual SEK at one unit of weight
   return brackets.map(function(b, i){
     return {
       from:    b.from,
       to:      b.to,
       key:     PHASE_KEYS[i],
-      monthly: base * PHASE_WEIGHTS[i] / 12
+      weight:  weights[i],
+      monthly: base * weights[i] / 12
     };
   });
 }
@@ -4893,6 +4942,7 @@ function updateDashboard(data){
   // Tax-adjusted portfolio: After-Tax + Before-Tax × (1 − kommunalskatt)
   const munR         = getParam('munTax')/100;
   const taxAdjPort   = retRow ? (retRow.portAfterTax||0) + (retRow.portBeforeTax||0)*(1-munR) : 0;
+  const grossPort    = retRow ? (retRow.portAfterTax||0) + (retRow.portBeforeTax||0) : 0;
   const maxSpend     = taxAdjPort * 0.04;
   // Avg annual withdrawal over retirement ÷ portfolio at retirement start
   const avgAnnWdrl  = retYears.length>0
@@ -4925,16 +4975,26 @@ const top = [
      cls:depYear===null?'good':'bad',tile:depYear===null?'emerald':'rose',tip:t('tip.depletion')},
     {label:t('tile.repRate'),val:fmtPct(repRate),sub:t('tile.repRate.sub'),cls:repRate>=0.7?'good':repRate>=0.5?'warn':'bad',tile:'emerald',tip:t('tip.repRate')},
   ];
-  const phases = computePensionPhases(data, taxAdjPort);
+  const ppPort   = _ppTaxMode==='net' ? taxAdjPort : grossPort;
+  const ppTaxLbl = t(_ppTaxMode==='net' ? 'acc.after.tax' : 'acc.before.tax');
+  const phases   = computePensionPhases(data, ppPort);
   const mid = (phases || [{},{},{}]).map(function(ph, i){
     const has = !!(phases && isFinite(ph.monthly));
     return {
       label: t('tile.phasePension', {from: has?ph.from:'—', to: has?ph.to:'—'}),
       val:   has ? 'SEK '+fmt(ph.monthly) : '—',
-      sub:   t('tile.phase.'+PHASE_KEYS[i]),
+      sub:   t('tile.phase.'+PHASE_KEYS[i]) + ' · ' + ppTaxLbl,
       cls:   '',
       tile:  ['emerald','sky',''][i],
-      tip:   t('tip.phasePension')
+      tip:   t('tip.phasePension'),
+      extra: '<div style="display:flex;align-items:center;gap:6px;margin-top:10px">'
+           +   '<span style="font-size:11px;color:var(--muted)">'+t('pp.weight')+'</span>'
+           +   '<input id="pp-w'+i+'" type="text" inputmode="decimal" value="'+fmt(_phaseWeights[i], Number.isInteger(_phaseWeights[i])?0:1)+'"'
+           +     ' style="width:56px;text-align:right;font-family:var(--font-m);font-size:13px;color:var(--gold);'
+           +     'background:var(--s3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;outline:none"'
+           +     ' onchange="applyPhaseWeight('+i+',this.value)">'
+           +   '<span style="font-size:11px;color:var(--muted)">%</span>'
+           + '</div>'
     };
   });
 
@@ -8472,11 +8532,13 @@ function collectPlanState(){
     expenses: JSON.parse(JSON.stringify(expenses)),
     accounts: JSON.parse(JSON.stringify(accounts)),
     expAgeIntervals: JSON.parse(JSON.stringify(expAgeIntervals)),
+    phaseWeights: _phaseWeights.slice(),
     modes: {
       expTaxMode:   window._expTaxMode   || 'after',
       assetTaxMode: window._assetTaxMode || 'before',
       incExpMode:   window._incExpMode   || 'annual',
       ilsMode:      window._ilsMode      || 'gross',
+      ppTaxMode:    _ppTaxMode           || 'gross',
       lang: (document.documentElement.lang || 'en')
     }
   };
@@ -8515,6 +8577,9 @@ function applyPlanState(state){
     state.expAgeIntervals.forEach(function(iv){ expAgeIntervals.push(iv); });
     buildExpIntervals();
   }
+  if(Array.isArray(state.phaseWeights) && state.phaseWeights.length === 3){
+    _phaseWeights = state.phaseWeights.slice();
+  }
 
   // 3. Restore toggle modes
   var m = state.modes || {};
@@ -8522,6 +8587,7 @@ function applyPlanState(state){
   if(m.assetTaxMode && typeof setAssetTaxMode   === 'function') setAssetTaxMode(m.assetTaxMode);
   if(m.incExpMode   && typeof setIncExpMode      === 'function') setIncExpMode(m.incExpMode);
   if(m.ilsMode      && typeof setILSMode         === 'function') setILSMode(m.ilsMode);
+  if(m.ppTaxMode    && typeof setPpTaxMode       === 'function') setPpTaxMode(m.ppTaxMode);
   if(m.lang         && typeof setLang            === 'function') setLang(m.lang);
 
   // 4. Handle exp-iv-master checkbox visual state
