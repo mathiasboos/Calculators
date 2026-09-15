@@ -675,7 +675,16 @@ input[type="number"]::-webkit-outer-spin-button {
   <div class="section-sub fade-up-2" data-i18n="summary.overview">All metrics computed at retirement year</div>
 
   <div class="grid-4 fade-up-3" style="margin-bottom:20px" id="tiles-top"></div>
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px" id="tiles-mid"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+    <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)" data-i18n="pp.hdr">Pension by Retirement Phase</span>
+    <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+      <button id="pp-btn-gross" onclick="setPpTaxMode('gross')" data-i18n="acc.before.tax"
+        style="padding:3px 12px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer">Before Tax</button>
+      <button id="pp-btn-net" onclick="setPpTaxMode('net')" data-i18n="acc.after.tax"
+        style="padding:3px 12px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer">After Tax</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px" id="tiles-mid"></div>
 
   <div class="grid-2" style="margin-bottom:16px;gap:16px">
     <div class="chart-wrap">
@@ -1558,20 +1567,13 @@ en:{
   'hdr.subtitle':'Constant prices · Swedish tax rules · All amounts in SEK',
   'tile.goalFulfil':'Saving Goal Fulfillment',
   'tile.goalFulfil.sub':'Portfolio after tax at retirement ÷ ({mult}× expenses)',
-  'tile.savingGoal':'Saving Goal (Target Portfolio)',
   'tile.wdrlRate':'Withdrawal Rate',
   'tile.wdrlRate.sub':'% of portfolio (after-tax + P-Ins tax-adj.) · fixed annual withdrawal',
   'tile.depletion':'Portfolio Depletion',
   'tile.depletion.never':'Survives to life expectancy',
   'tile.depletion.age':'Age {age} · portfolio depleted',
-  'tile.coverage':'Income / Expenses Avg',
-  'tile.coverage.sub':'Average coverage ratio in retirement',
-  'tile.equity':'Equity Allocation (Retirement)',
-  'tile.equity.sub':'Stock share of portfolio at retirement',
   'tile.maxSpend':'Max Sustainable Spending',
   'tile.maxSpend.sub':'4% rule applied at retirement',
-  'tile.funded':'Avg Withdrawal Income',
-  'tile.funded.sub':'Annual avg after-tax · retirement to life exp.',
   'tile.totalTax':'Total Taxes (Retirement)',
   'tile.totalTax.sub':'Municipal + state tax, entire retirement',
   'tile.munTax':'Municipal Tax (Total)','tile.munTax.sub':'Kommunalskatt over full retirement',
@@ -1760,9 +1762,6 @@ en:{
   // ── Tile labels ──
   'tile.repRate':'Replacement Rate',
   'tile.repRate.sub':'After-tax income (first retirement year) ÷ after-tax salary (last working year)',
-  'tile.savingGoal.sub':'{mult}× annual expenses = target portfolio',
-  'tile.avgWdrl':'Avg Portfolio Income',
-  'tile.avgWdrl.sub':'Annual avg after-tax income · retirement to life expectancy',
 
 
   // ── Personal tab ──
@@ -1934,10 +1933,15 @@ en:{
   'mc.wd.acct.info':'Data is collected from the Withdrawals tab and the ACCOUNT WITHDRAWALS PER PERIOD table.',
   'mc.wd.age.info':'Data is collected from the Withdrawals tab and the AGE-BASED EXPENSE INTERVALS table.',
   'sc.notice':'Assumes constant returns each year — no market volatility. Run Monte Carlo for a realistic range of outcomes.','mc.notice':'The Scenarios tab shows the same plan under constant-return assumptions — useful as a baseline before interpreting the probability distribution here.',
-  'tile.funded':'Funded Ratio','tile.funded.ok':'Portfolio covers lifetime withdrawals without investment returns','tile.funded.low':'Dependent on investment returns to fund retirement',
-  'tile.funded.formula.hdr':'Formula','tile.funded.formula':'Funded Ratio = Portfolio at Retirement ÷ (Avg. Annual Withdrawal × Years in Retirement)','tile.funded.f.port':'Portfolio at retirement:','tile.funded.f.wd':'Avg. annual withdrawal:','tile.funded.f.yrs':'Years in retirement:','tile.funded.f.denom':'Total lifetime withdrawals:',
-  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.wdrlRate':'Calculation: Annual withdrawal ÷ Portfolio at retirement × 100\n\n🟢 ≤ 4% — Sustainable (classic 4% rule)\n🟡 4–6% — Moderate risk of depletion\n🔴 > 6% — High risk of depleting portfolio early','tip.depletion':'Year when the portfolio reaches zero under constant-return assumptions.\n\n🟢 Never — Portfolio generates enough return to sustain withdrawals indefinitely\n🔴 Year shown — Portfolio depletes before life expectancy','tip.coverage':'Calculation: Average after-tax income ÷ Average annual expenses during retirement\n\n🟢 ≥ 1.0× — Income fully covers spending\n🟡 0.9–1.0× — Minor shortfall (< 10%)\n🔴 < 0.9× — Significant income gap','tip.repRate':'Calculation: Avg retirement income ÷ Pre-retirement net salary × 100\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required','tip.savingGoal':'Calculation: Annual expenses × savings multiplier (set in Parameters)\n\nTarget portfolio size needed at retirement. Informational — no colour threshold.','tip.equity':'Equity allocation (%) across your investment accounts at retirement age.\n\nHigher equity increases expected return and volatility. Informational — no colour threshold.','tip.avgWdrl':'Calculation: Average annual after-tax income across all retirement years\n\n🟢 ≥ Annual expenses — Income covers planned spending\n🟡 < Annual expenses — Income below planned spending; review withdrawal strategy','tip.funded':'Calculation: Portfolio at Retirement ÷ (Avg Annual Withdrawal × Years in Retirement)\n\nMeasures how much of total lifetime withdrawals your starting capital covers — ignoring investment returns entirely.\n\n🟢 ≥ 1.2× — Self-funded even without investment returns\n🟡 0.8–1.2× — Requires moderate returns to fund retirement\n🔴 < 0.8× — Heavily dependent on investment returns',
+  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.wdrlRate':'Calculation: Annual withdrawal ÷ Portfolio at retirement × 100\n\n🟢 ≤ 4% — Sustainable (classic 4% rule)\n🟡 4–6% — Moderate risk of depletion\n🔴 > 6% — High risk of depleting portfolio early','tip.depletion':'Year when the portfolio reaches zero under constant-return assumptions.\n\n🟢 Never — Portfolio generates enough return to sustain withdrawals indefinitely\n🔴 Year shown — Portfolio depletes before life expectancy','tip.repRate':'Calculation: Avg retirement income ÷ Pre-retirement net salary × 100\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
   'summary.at.ret':'At retirement · ',
+  'tile.phasePension':'Monthly Pension · Age {from}–{to}',
+  'tile.phase.gogo':'Go-go years',
+  'tile.phase.slowgo':'Slow-go years',
+  'tile.phase.nogo':'No-go years',
+  'pp.hdr':'Pension by Retirement Phase',
+  'pp.weight':'Weight',
+  'tip.phasePension':'Distributes your entire portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nThe weights set the shape of the plan: each phase draws in proportion to its weight, so the default 100 / 90 / 80 front-loads spending into the Go-go years. Only the ratios matter — 10 / 9 / 8 gives the same result.\n\nEach year\'s draw is discounted at that year\'s blended real return, so the equity glide path is respected. Before Tax is the gross withdrawal; After Tax deducts kommunalskatt from the pension portion.\n\nMonthly, in today\'s money. Informational — no colour threshold.',
 
 
 
@@ -1992,20 +1996,13 @@ sv:{
   'hdr.subtitle':'Fasta priser · Svenska skatteregler · Alla belopp i SEK',
   'tile.goalFulfil':'Sparmålsuppfyllelse',
   'tile.goalFulfil.sub':'Portfölj efter skatt vid pension ÷ ({mult}× utgifter)',
-  'tile.savingGoal':'Sparmål (Målportfölj)',
   'tile.wdrlRate':'Uttagshastighet',
   'tile.wdrlRate.sub':'Snittuttag per år ÷ portfölj vid pensionsstart',
   'tile.depletion':'Portföljdepletion',
   'tile.depletion.never':'Överlever till förväntad livslängd',
   'tile.depletion.age':'Ålder {age} · portfölj slut',
-  'tile.coverage':'Inkomst / Utgifter Snitt',
-  'tile.coverage.sub':'Genomsnittlig täckningsgrad under pension',
-  'tile.equity':'Aktieallokering (Pension)',
-  'tile.equity.sub':'Aktieandel av portföljen vid pension',
   'tile.maxSpend':'Max Hållbart Uttag',
   'tile.maxSpend.sub':'4%-regeln tillämpas vid pension',
-  'tile.funded':'Finansieringsgrad',
-  'tile.funded.sub':'Portfölj ÷ (25× årsutgifter)',
   'tile.totalTax':'Total Skatt (Pension)',
   'tile.totalTax.sub':'Kommunal + statlig skatt, hela pensionstiden',
   'tile.munTax':'Kommunalskatt (Totalt)','tile.munTax.sub':'Kommunalskatt under hela pensionstiden',
@@ -2194,9 +2191,6 @@ sv:{
   // ── Tile labels ──
   'tile.repRate':'Ersättningsgrad',
   'tile.repRate.sub':'Inkomst efter skatt (första pensionsåret) ÷ nettolön (sista arbetsåret)',
-  'tile.savingGoal.sub':'{mult}× årsutgifter = målportfölj',
-  'tile.avgWdrl':'Genomsnittlig portföljinkomst',
-  'tile.avgWdrl.sub':'Genomsnittlig årlig inkomst efter skatt · pension till förväntad livslängd',
 
 
   // ── Personal tab ──
@@ -2368,10 +2362,15 @@ sv:{
   'mc.wd.acct.info':'Data hämtas från Uttag-fliken och tabellen KONTOUTTAG PER PERIOD.',
   'mc.wd.age.info':'Data hämtas från Uttag-fliken och tabellen ÅLDERSBASERADE UTGIFTSINTERVALL.',
   'sc.notice':'Antar konstant avkastning varje år — ingen marknadsvolatilitet. Kör Monte Carlo för ett realistiskt utfallsintervall.','mc.notice':'Scenarier-fliken visar samma plan med konstanta avkastningsantaganden — användbart som referenspunkt innan du tolkar sannolikhetsfördelningen här.',
-  'tile.funded':'Finansieringsgrad','tile.funded.ok':'Portföljen täcker livstidsuttag utan investeringsavkastning','tile.funded.low':'Beror på investeringsavkastning för att finansiera pensionen',
-  'tile.funded.formula.hdr':'Formel','tile.funded.formula':'Finansieringsgrad = Portfölj vid pension ÷ (Genomsnittligt årsuttag × Pensionsår)','tile.funded.f.port':'Portfölj vid pension:','tile.funded.f.wd':'Genomsnittligt årsuttag:','tile.funded.f.yrs':'Pensionsår:','tile.funded.f.denom':'Totala livstidsuttag:',
-  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.wdrlRate':'Beräkning: Årsuttag ÷ Portfölj vid pension × 100\n\n🟢 ≤ 4% — Hållbart (klassiska 4%-regeln)\n🟡 4–6% — Måttlig risk för att portföljen tar slut\n🔴 > 6% — Hög risk för förtida uttömning av portföljen','tip.depletion':'År då portföljen når noll med antaganden om konstant avkastning.\n\n🟢 Aldrig — Avkastningen täcker uttagen i all framtid\n🔴 År visas — Portföljen tar slut före förväntad livslängd','tip.coverage':'Beräkning: Genomsnittlig nettoinkomst ÷ Genomsnittliga årsutgifter under pension\n\n🟢 ≥ 1,0× — Inkomsten täcker utgifterna fullt ut\n🟡 0,9–1,0× — Liten brist (< 10%)\n🔴 < 0,9× — Betydande inkomstgap','tip.repRate':'Beräkning: Genomsnittlig pensionsinkomst ÷ Nettolön före pension × 100\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs','tip.savingGoal':'Beräkning: Årsutgifter × sparmultiplikator (anges i Parametrar)\n\nMålportföljstorlek vid pension. Informativ — ingen färgtröskel.','tip.equity':'Aktieallokering (%) i dina investeringskonton vid pensionsåldern.\n\nHögre aktieandel ger högre förväntad avkastning och volatilitet. Informativ — ingen färgtröskel.','tip.avgWdrl':'Beräkning: Genomsnittlig nettoinkomst per år under hela pensionsperioden\n\n🟢 ≥ Årsutgifter — Inkomsten täcker planerade utgifter\n🟡 < Årsutgifter — Inkomsten understiger utgifterna; se över uttagsstrategi','tip.funded':'Beräkning: Portfölj vid pension ÷ (Genomsnittligt årsuttag × Pensionsår)\n\nMäter hur stor andel av livstidsuttagen ditt startkapital täcker — utan investeringsavkastning.\n\n🟢 ≥ 1,2× — Självfinansierat även utan avkastning\n🟡 0,8–1,2× — Kräver måttlig avkastning\n🔴 < 0,8× — Starkt beroende av investeringsavkastning',
+  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.wdrlRate':'Beräkning: Årsuttag ÷ Portfölj vid pension × 100\n\n🟢 ≤ 4% — Hållbart (klassiska 4%-regeln)\n🟡 4–6% — Måttlig risk för att portföljen tar slut\n🔴 > 6% — Hög risk för förtida uttömning av portföljen','tip.depletion':'År då portföljen når noll med antaganden om konstant avkastning.\n\n🟢 Aldrig — Avkastningen täcker uttagen i all framtid\n🔴 År visas — Portföljen tar slut före förväntad livslängd','tip.repRate':'Beräkning: Genomsnittlig pensionsinkomst ÷ Nettolön före pension × 100\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
   'summary.at.ret':'Vid pension · ',
+  'tile.phasePension':'Månadspension · Ålder {from}–{to}',
+  'tile.phase.gogo':'Aktiva år (go-go)',
+  'tile.phase.slowgo':'Lugnare år (slow-go)',
+  'tile.phase.nogo':'Stillsamma år (no-go)',
+  'pp.hdr':'Pension per pensionsfas',
+  'pp.weight':'Vikt',
+  'tip.phasePension':'Fördelar hela din portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nVikterna bestämmer planens form: varje period tar ut i proportion till sin vikt, så standardvärdet 100 / 90 / 80 frontladdar uttagen till de aktiva åren. Bara förhållandet spelar roll — 10 / 9 / 8 ger samma resultat.\n\nVarje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen. Före skatt är bruttouttaget; Efter skatt drar av kommunalskatt på pensionsdelen.\n\nBelopp per månad, i dagens penningvärde. Informativ — ingen färgtröskel.',
 
 
 
@@ -4804,6 +4803,129 @@ function fmt(n,decimals=0){
 function fmtPct(v){ return isNaN(v)?'—':((v*100).toFixed(1).replace('.',','))+'%'; }
 function fmtX(v){ return isNaN(v)?'—':v.toFixed(2).replace('.',',')+'×'; }
 
+// ── MONTHLY PENSION BY RETIREMENT PHASE (Go-go / Slow-go / No-go) ──
+// The whole portfolio at retirement is distributed across the three age
+// brackets so that it is fully spent by life expectancy. The Before/After
+// Tax toggle picks the basis: gross (portAfterTax + portBeforeTax) or
+// tax-adjusted (kommunalskatt deducted from the pension portion).
+// The relative spending weights are set by the user on the dashboard;
+// only their ratios matter, so 100/90/80 and 10/9/8 give the same plan.
+// The default steps each phase down 10 % of the first-phase amount — the
+// classic retirement spending smile (50 000 / 45 000 / 40 000 kr).
+var PHASE_KEYS     = ['gogo', 'slowgo', 'nogo'];
+var _phaseWeights  = [100, 90, 80];
+var _ppTaxMode     = 'gross';   // 'gross' = before tax, 'net' = after tax
+
+// Sanitised weights. All-zero is left as-is: computePensionPhases() then
+// finds no positive factor and returns null, so the tiles show em dashes
+// rather than figures that contradict the weights shown on screen.
+function getPhaseWeights(){
+  return _phaseWeights.map(function(v){
+    var n = parseFloat(String(v).replace(',', '.'));
+    return (isFinite(n) && n > 0) ? n : 0;
+  });
+}
+
+// Unparseable input keeps the current weight; the re-render restores it.
+function applyPhaseWeight(i, val){
+  var n = parseFloat(String(val).replace(',', '.'));
+  if(isFinite(n) && n >= 0) _phaseWeights[i] = n;
+  recalc();
+}
+
+function setPpTaxMode(mode){
+  _ppTaxMode = mode;
+  var bg = document.getElementById('pp-btn-gross');
+  var bn = document.getElementById('pp-btn-net');
+  if(bg){ bg.style.background = mode==='gross' ? '#48B866' : 'transparent';
+          bg.style.color      = mode==='gross' ? '#0f1f3d' : 'var(--muted)';
+          bg.style.fontWeight = mode==='gross' ? '600' : '500'; }
+  if(bn){ bn.style.background = mode==='net'   ? '#48B866' : 'transparent';
+          bn.style.color      = mode==='net'   ? '#0f1f3d' : 'var(--muted)';
+          bn.style.fontWeight = mode==='net'   ? '600' : '500'; }
+  recalc();
+}
+
+// Three contiguous age brackets covering retirement → life expectancy.
+// Mirrors the Withdrawals tab's AGE-BASED EXPENSE INTERVALS when that
+// feature is active; otherwise splits "years in retirement" into thirds
+// using the same formula as autoCalcExpIntervals().
+function getPensionPhaseBrackets(params){
+  var retAge  = params.retirementYear - params.birthYear;
+  var lifeAge = params.lifeYear - params.birthYear;
+  // Need at least three retirement years for a meaningful three-phase split
+  if(!isFinite(retAge) || !isFinite(lifeAge) || lifeAge - retAge < 2) return null;
+
+  var clamp = function(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); };
+  var ivOn  = document.getElementById('exp-iv-master')
+              && document.getElementById('exp-iv-master').checked;
+  var c0, c1;
+
+  if(ivOn && typeof expAgeIntervals !== 'undefined' && expAgeIntervals.length >= 3){
+    // Follow the user's own bracket boundaries, forced contiguous & in range
+    c0 = clamp(expAgeIntervals[0].to, retAge,  lifeAge - 2);
+    c1 = clamp(expAgeIntervals[1].to, c0 + 1,  lifeAge - 1);
+  } else {
+    var period = (lifeAge - retAge) / 3;
+    c0 = clamp(Math.round(retAge + period), retAge,  lifeAge - 2);
+    c1 = clamp(Math.round(c0 + 1 + period), c0 + 1,  lifeAge - 1);
+  }
+  return [
+    {from: retAge, to: c0},
+    {from: c0 + 1, to: c1},
+    {from: c1 + 1, to: lifeAge}
+  ];
+}
+
+// Solve for the base annual amount A such that the portfolio is exactly
+// depleted at life expectancy, where each retirement year k withdraws
+// A × weight(phase of k). Withdrawals are discounted mid-year at the
+// portfolio's own blended real return for that year (honours the glide
+// path via each year's equity share).
+function computePensionPhases(data, portfolio){
+  const {years, params} = data;
+  const brackets = getPensionPhaseBrackets(params);
+  if(!brackets || !(portfolio > 0)) return null;
+
+  const weights = getPhaseWeights();
+  const eqR = getParam('eqReturn') / 100;
+  const bdR = getParam('bdReturn') / 100;
+  const retAge  = brackets[0].from;
+  const lifeAge = brackets[2].to;
+
+  // Real return per retirement year, from the projected equity share
+  const retRows = years.filter(y => y.age >= retAge && y.age <= lifeAge);
+  const returnAt = function(age){
+    const row = retRows.find(y => y.age === age);
+    const eq  = row && isFinite(row.eqPct) ? row.eqPct : 0;
+    return eq * eqR + (1 - eq) * bdR;
+  };
+  const phaseOf = function(age){
+    for(let p = 0; p < 3; p++) if(age >= brackets[p].from && age <= brackets[p].to) return p;
+    return 2;
+  };
+
+  // Σ weight(k) × discount(k), discounting each year's draw to retirement
+  let factor = 0, cum = 1;
+  for(let age = retAge; age <= lifeAge; age++){
+    const r = returnAt(age);
+    factor += weights[phaseOf(age)] * cum / Math.pow(1 + r, 0.5);
+    cum /= (1 + r);
+  }
+  if(!(factor > 0)) return null;
+
+  const base = portfolio / factor;   // annual SEK at one unit of weight
+  return brackets.map(function(b, i){
+    return {
+      from:    b.from,
+      to:      b.to,
+      key:     PHASE_KEYS[i],
+      weight:  weights[i],
+      monthly: base * weights[i] / 12
+    };
+  });
+}
+
 function updateDashboard(data){
   const {years, params, annualExpenses, savingGoal} = data;
   const retIdx = years.findIndex(y=>y.yr===params.retirementYear);
@@ -4815,27 +4937,21 @@ function updateDashboard(data){
   const depAge   = depRow ? depRow.age : null;
 
   const retYears = years.filter(y=>y.yr>=params.retirementYear);
-  const avgCoverage = retYears.length ? retYears.reduce((s,y)=>s+y.ratio,0)/retYears.length : 0;
   const totalMunTax  = retYears.reduce((s,y)=>s+y.munTax,0);
   const totalStatTax = retYears.reduce((s,y)=>s+y.stateTax,0);
   // Tax-adjusted portfolio: After-Tax + Before-Tax × (1 − kommunalskatt)
   const munR         = getParam('munTax')/100;
   const taxAdjPort   = retRow ? (retRow.portAfterTax||0) + (retRow.portBeforeTax||0)*(1-munR) : 0;
+  const grossPort    = retRow ? (retRow.portAfterTax||0) + (retRow.portBeforeTax||0) : 0;
   const maxSpend     = taxAdjPort * 0.04;
   // Avg annual withdrawal over retirement ÷ portfolio at retirement start
   const avgAnnWdrl  = retYears.length>0
     ? retYears.reduce((s,y)=>s+(y.taxable||0)+(y.taxFree||0),0)/retYears.length : 0;
   const portAtRet      = taxAdjPort > 0 ? taxAdjPort : (retRow ? retRow.totalPort : 0);
   const avgWdrlRate    = portAtRet>0 ? avgAnnWdrl/portAtRet : 0;
-  const dashFunded     = (avgAnnWdrl>0 && retYears.length>0)
-    ? portAtRet / (avgAnnWdrl * retYears.length) : null;
   const mult           = getParam('savingMultiplier');
   if(typeof updateSavingGoalRef==='function') updateSavingGoalRef();
   const taxAdjGoalFul  = savingGoal>0 ? taxAdjPort/savingGoal : 0;
-  // Avg annual after-tax income during retirement
-  const retYearsRng = years.filter(y=>y.yr>=params.retirementYear && y.yr<=params.lifeYear);
-  const avgRetIncome = retYearsRng.length>0
-    ? retYearsRng.reduce((s,y)=>s+(y.afterTaxIncome||0),0)/retYearsRng.length : 0;
 
     // Replacement Rate: first-year retirement after-tax income ÷ last working year after-tax income
   const _earningYrs  = years.filter(y=>y.yr<params.retirementYear && (y.earnedIncomePre||0)>0);
@@ -4857,22 +4973,30 @@ const top = [
      val:depYear===null?t('sc.never'):depYear,
      sub:depRow?t('tile.depletion.age',{age:depAge}):t('tile.depletion.never'),
      cls:depYear===null?'good':'bad',tile:depYear===null?'emerald':'rose',tip:t('tip.depletion')},
-    {label:t('tile.coverage'),val:fmtX(avgCoverage),sub:t('tile.coverage.sub'),cls:avgCoverage>=1?'good':avgCoverage>=0.9?'warn':'bad',tile:'sky',tip:t('tip.coverage')},
-  ];
-  const mid = [
     {label:t('tile.repRate'),val:fmtPct(repRate),sub:t('tile.repRate.sub'),cls:repRate>=0.7?'good':repRate>=0.5?'warn':'bad',tile:'emerald',tip:t('tip.repRate')},
-    {label:t('tile.savingGoal'),val:'SEK '+fmt(savingGoal),sub:t('tile.savingGoal.sub',{mult:getParam('savingMultiplier')}),cls:'warn',tile:'',tip:t('tip.savingGoal')},
-    {label:t('tile.equity'),val:fmtPct(retRow?.eqPct),sub:t('tile.equity.sub'),cls:'',tile:'',tip:t('tip.equity')},
-    {label:t('tile.avgWdrl'),val:'SEK '+fmt(avgRetIncome),sub:t('tile.avgWdrl.sub'),cls:avgRetIncome>=annualExpenses?'good':'warn',tile:'',tip:t('tip.avgWdrl')},
-    {label:t('tile.funded'),
-     val: dashFunded!==null ? dashFunded.toFixed(2)+'x' : '—',
-     sub: dashFunded!==null
-       ? (dashFunded>=1 ? t('tile.funded.ok') : t('tile.funded.low'))
-       : '—',
-     cls: dashFunded===null?'':dashFunded>=1.2?'good':dashFunded>=0.8?'warn':'bad',
-     tile: dashFunded===null?'':dashFunded>=1?'emerald':'rose',
-     tip: t('tip.funded')},
   ];
+  const ppPort   = _ppTaxMode==='net' ? taxAdjPort : grossPort;
+  const ppTaxLbl = t(_ppTaxMode==='net' ? 'acc.after.tax' : 'acc.before.tax');
+  const phases   = computePensionPhases(data, ppPort);
+  const mid = (phases || [{},{},{}]).map(function(ph, i){
+    const has = !!(phases && isFinite(ph.monthly));
+    return {
+      label: t('tile.phasePension', {from: has?ph.from:'—', to: has?ph.to:'—'}),
+      val:   has ? 'SEK '+fmt(ph.monthly) : '—',
+      sub:   t('tile.phase.'+PHASE_KEYS[i]) + ' · ' + ppTaxLbl,
+      cls:   '',
+      tile:  ['emerald','sky',''][i],
+      tip:   t('tip.phasePension'),
+      extra: '<div style="display:flex;align-items:center;gap:6px;margin-top:10px">'
+           +   '<span style="font-size:11px;color:var(--muted)">'+t('pp.weight')+'</span>'
+           +   '<input id="pp-w'+i+'" type="text" inputmode="decimal" value="'+fmt(_phaseWeights[i], Number.isInteger(_phaseWeights[i])?0:1)+'"'
+           +     ' style="width:56px;text-align:right;font-family:var(--font-m);font-size:13px;color:var(--gold);'
+           +     'background:var(--s3);border:1px solid var(--border);border-radius:4px;padding:3px 6px;outline:none"'
+           +     ' onchange="applyPhaseWeight('+i+',this.value)">'
+           +   '<span style="font-size:11px;color:var(--muted)">%</span>'
+           + '</div>'
+    };
+  });
 
   function renderTiles(id, arr){
     document.getElementById(id).innerHTML = arr.map(t=>`
@@ -8408,11 +8532,13 @@ function collectPlanState(){
     expenses: JSON.parse(JSON.stringify(expenses)),
     accounts: JSON.parse(JSON.stringify(accounts)),
     expAgeIntervals: JSON.parse(JSON.stringify(expAgeIntervals)),
+    phaseWeights: _phaseWeights.slice(),
     modes: {
       expTaxMode:   window._expTaxMode   || 'after',
       assetTaxMode: window._assetTaxMode || 'before',
       incExpMode:   window._incExpMode   || 'annual',
       ilsMode:      window._ilsMode      || 'gross',
+      ppTaxMode:    _ppTaxMode           || 'gross',
       lang: (document.documentElement.lang || 'en')
     }
   };
@@ -8451,6 +8577,9 @@ function applyPlanState(state){
     state.expAgeIntervals.forEach(function(iv){ expAgeIntervals.push(iv); });
     buildExpIntervals();
   }
+  if(Array.isArray(state.phaseWeights) && state.phaseWeights.length === 3){
+    _phaseWeights = state.phaseWeights.slice();
+  }
 
   // 3. Restore toggle modes
   var m = state.modes || {};
@@ -8458,6 +8587,7 @@ function applyPlanState(state){
   if(m.assetTaxMode && typeof setAssetTaxMode   === 'function') setAssetTaxMode(m.assetTaxMode);
   if(m.incExpMode   && typeof setIncExpMode      === 'function') setIncExpMode(m.incExpMode);
   if(m.ilsMode      && typeof setILSMode         === 'function') setILSMode(m.ilsMode);
+  if(m.ppTaxMode    && typeof setPpTaxMode       === 'function') setPpTaxMode(m.ppTaxMode);
   if(m.lang         && typeof setLang            === 'function') setLang(m.lang);
 
   // 4. Handle exp-iv-master checkbox visual state
