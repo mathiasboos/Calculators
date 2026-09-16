@@ -871,16 +871,16 @@ input[type="number"]::-webkit-outer-spin-button {
       <div class="card-header" data-i18n="pers.life.career">Life & Career</div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.birth">Birth Year</div>
-        <input class="inp" type="number" id="birthYear" value="1968" onchange="onBirthYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input class="inp" type="number" id="birthYear" value="1968" onchange="onBirthYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2){autoCalcExpIntervals();syncIntervalsToPensionPhases();}">
       </div>
       <div class="input-row" style="flex-wrap:wrap">
         <div class="input-label"><span data-i18n="pers.ret.lbl">Retirement Year</span><small data-i18n="pers.ret.small">Year you stop working</small></div>
-        <input class="inp" type="number" id="retirementYear" value="2036" onchange="onRetirementYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input class="inp" type="number" id="retirementYear" value="2036" onchange="onRetirementYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2){autoCalcExpIntervals();syncIntervalsToPensionPhases();}">
         <div id="retirementYear-hint" style="flex-basis:100%;text-align:right;font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic"></div>
       </div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.life.exp">Life Expectancy Year</div>
-        <input class="inp" type="number" id="lifeYear" value="2070" onchange="recalc();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input class="inp" type="number" id="lifeYear" value="2070" onchange="recalc();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2){autoCalcExpIntervals();syncIntervalsToPensionPhases();}">
       </div>
       <!-- Longevity illustrator -->
       <div style="margin-top:16px;padding:14px 16px;background:rgba(74,143,204,.06);border:1px solid rgba(74,143,204,.2);border-radius:8px">
@@ -1240,7 +1240,7 @@ input[type="number"]::-webkit-outer-spin-button {
   <!-- Age-Based Expense Intervals -->
   <div class="card" style="margin-top:20px">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <input type="checkbox" id="exp-iv-master" style="width:16px;height:16px;accent-color:#48B866;cursor:pointer" onchange="toggleExpIvMaster()">
+      <input type="checkbox" id="exp-iv-master" checked style="width:16px;height:16px;accent-color:#48B866;cursor:pointer" onchange="toggleExpIvMaster()">
       <div id="exp-iv-master-label" class="card-header" style="margin-bottom:0;cursor:pointer" onclick="document.getElementById('exp-iv-master').click()" data-i18n="wd.iv.hdr">AGE-BASED EXPENSE INTERVALS</div>
       <button id="exp-iv-est-all" onclick="expAgeIntervals.forEach(function(_,i){estimateGrossWithdrawal(i);})"
         style="display:none;padding:4px 10px;font-size:11px;background:rgba(74,143,204,.12);border:1px solid rgba(74,143,204,.35);border-radius:6px;color:#4885C4;cursor:pointer;font-weight:600;white-space:nowrap"><span data-i18n="wd.iv.est.all">Estimate All</span></button>
@@ -3581,9 +3581,9 @@ function calcReturn(acc, age, params){
 // ── AGE-BASED EXPENSE INTERVALS ────────────────────────────────────────
 var _savedAccountWd = null;  // saved wd/ws/we when intervals active
 var expAgeIntervals = [
-  {from:65, to:75,  amount:0, wdAmount:0, wdManual:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
-  {from:76, to:85,  amount:0, wdAmount:0, wdManual:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
-  {from:86, to:150, amount:0, wdAmount:0, wdManual:false, wdPctAT:0.40, wdPctPI:0.60, wdPctST:0}
+  {from:65, to:75,  amount:0, wdAmount:0, wdManual:false, wdUserSet:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
+  {from:76, to:85,  amount:0, wdAmount:0, wdManual:false, wdUserSet:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
+  {from:86, to:150, amount:0, wdAmount:0, wdManual:false, wdUserSet:false, wdPctAT:0.40, wdPctPI:0.60, wdPctST:0}
 ];
 
 function buildExpIntervals(){
@@ -3618,7 +3618,7 @@ function buildExpIntervals(){
       // Withdrawal/yr
       +'<td style="padding:4px 4px">'
         +'<input type="text" inputmode="numeric" value="'+fmtK(iv.wdAmount)+'" style="width:110px;'+INP+'" id="exp-iv-wd-'+i+'"'
-          +' onchange="var vw=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;expAgeIntervals['+i+'].wdAmount=vw;this.value=vw.toLocaleString(\'sv-SE\');expAgeIntervals['+i+'].wdManual=true;refreshIvSEK('+i+');recalc();updateExpIvStatus()">'
+          +' onchange="var vw=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;expAgeIntervals['+i+'].wdAmount=vw;this.value=vw.toLocaleString(\'sv-SE\');expAgeIntervals['+i+'].wdManual=true;expAgeIntervals['+i+'].wdUserSet=true;refreshIvSEK('+i+');recalc();updateExpIvStatus()">'
         +'<div id="exp-iv-est-info-'+i+'" style="display:none;font-size:10px;color:var(--muted);margin-top:2px"></div>'
       +'</td>'
       // Active
@@ -3749,6 +3749,7 @@ function toggleExpIvMaster(){
       _savedAccountWd = accounts.map(function(a){return {wd:a.wd,ws:a.ws,we:a.we};});
     }
     autoCalcExpIntervals();
+    syncIntervalsToPensionPhases();
     buildExpIntervals();
     distributeIntervalWithdrawals();
     buildAccountsTable();
@@ -4830,7 +4831,7 @@ function getPhaseWeights(){
 function applyPhaseWeight(i, val){
   var n = parseFloat(String(val).replace(',', '.'));
   if(isFinite(n) && n >= 0) _phaseWeights[i] = n;
-  recalc();
+  if(!syncIntervalsToPensionPhases()) recalc();
 }
 
 function setPpTaxMode(mode){
@@ -4924,6 +4925,59 @@ function computePensionPhases(data, portfolio){
       monthly: base * weights[i] / 12
     };
   });
+}
+
+// Fills the Withdrawals tab's "Withdrawal/yr (SEK)" column from the
+// dashboard's phase pensions, so the two tabs state the same plan.
+//
+// Always uses the BEFORE-TAX basis whatever the dashboard toggle shows:
+// that column is a gross withdrawal everywhere else in the app (the
+// projection taxes the P-Insurance share on the way out).
+//
+// It has to iterate. The projection deducts a year's withdrawal before
+// recording that year's closing balances, and interval 0 starts at the
+// retirement age — so the portfolio the phases are derived from is itself
+// a function of what we are about to write. Loop gain is the
+// withdrawal-to-portfolio ratio (~5%), so each pass cuts the error ~20x
+// and a handful of passes land on the krona. Never call this from inside
+// recalc(): recalc() runs updateDashboard(), which would re-enter.
+var _phaseSyncRunning = false;
+var PHASE_SYNC_MAX_PASSES = 16;
+
+function syncIntervalsToPensionPhases(){
+  if(_phaseSyncRunning) return 0;
+  var master = document.getElementById('exp-iv-master');
+  if(!master || !master.checked) return 0;
+
+  var passes = 0;
+  _phaseSyncRunning = true;
+  try{
+    for(; passes < PHASE_SYNC_MAX_PASSES; passes++){
+      var data   = runProjection();
+      var retRow = data.years.find(function(y){ return y.yr === data.params.retirementYear; });
+      if(!retRow) break;
+      var gross  = (retRow.portAfterTax||0) + (retRow.portBeforeTax||0);
+      var phases = computePensionPhases(data, gross);
+      if(!phases) break;
+
+      var maxDelta = 0;
+      for(var i = 0; i < phases.length && i < expAgeIntervals.length; i++){
+        if(expAgeIntervals[i].wdUserSet) continue;   // the user's own number wins
+        var target = Math.round(phases[i].monthly) * 12;
+        maxDelta = Math.max(maxDelta, Math.abs(target - (expAgeIntervals[i].wdAmount||0)));
+        expAgeIntervals[i].wdAmount = target;
+      }
+      if(maxDelta === 0){ passes++; break; }         // exact fixed point
+    }
+  } finally {
+    _phaseSyncRunning = false;
+  }
+
+  buildExpIntervals();
+  distributeIntervalWithdrawals();
+  buildAccountsTable();
+  recalc();   // safe: nothing recalc() reaches calls back into this
+  return passes;
 }
 
 function updateDashboard(data){
@@ -5920,7 +5974,6 @@ function autoCalcExpIntervals(){
     if(fe)fe.value=iv.from; if(te)te.value=iv.to;
     if(ae&&annExp>0)ae.value=annExp.toLocaleString('sv-SE');
     if(yfe)yfe.textContent=iv.yf; if(yte)yte.textContent=iv.yt;
-    if(annExp>0 && !expAgeIntervals[i].wdManual) estimateGrossWithdrawal(i);
   });
   // Rebuild interval table so DOM inputs reflect updated expAgeIntervals data
   buildExpIntervals();
@@ -8500,6 +8553,12 @@ applyWdrlRate(4.0); // default 4% withdrawal rate
 incCalc();
 autoFillNetSalary();
 updateAccountsIvState();
+// Age-based expense intervals are on out of the box, with Withdrawal/yr
+// seeded from the dashboard's phase pensions.
+(function(){
+  var cb = document.getElementById('exp-iv-master');
+  if(cb && cb.checked) toggleExpIvMaster();
+})();
 
 // ══════════════════════════════════════════════════
 // SAVE / LOAD SYSTEM
@@ -8591,13 +8650,17 @@ function applyPlanState(state){
   if(m.lang         && typeof setLang            === 'function') setLang(m.lang);
 
   // 4. Handle exp-iv-master checkbox visual state
+  // The snapshot taken when intervals were switched on at boot describes the
+  // pre-restore accounts array, so it must not survive into this plan —
+  // toggling the feature off later would otherwise write stale schedules.
+  _savedAccountWd = null;
   var ivMaster = document.getElementById('exp-iv-master');
   if(ivMaster && typeof toggleExpIvMaster === 'function'){
     var table = document.getElementById('exp-iv-table-wrap');
     if(ivMaster.checked){
       if(table) table.style.display = '';
       var label = document.getElementById('exp-iv-master-label');
-      if(label){ label.textContent = 'AGE-BASED EXPENSE INTERVALS – ACTIVE'; label.style.color = '#48B866'; }
+      if(label){ label.textContent = t('wd.iv.hdr.active'); label.style.color = '#48B866'; }
     } else {
       if(table) table.style.display = 'none';
     }
