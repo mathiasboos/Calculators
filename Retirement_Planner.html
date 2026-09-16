@@ -2592,6 +2592,11 @@ function isRiktalderForecast(birthYear){
 //         förtida-uttag treatment differs between vintages); the workbook is
 //         authoritative here by decision.
 // WARNING: re-extract each December alongside the tax constants.
+// Förskottsränta: the 1.6% norm already priced into the delningstal. During
+// payout the pension is indexed by inkomstindex less this rate, so in the
+// constant-price world this file models it falls 1/1.016-1 = -1.5748%/yr real.
+// Verified against Typfallsmodellen sheet "Utdata": median -1.5749%/yr.
+const FOLJSAMHET_FORSKOTTSRANTA = 0.016;
 const DELNINGSTAL_IP_FIRST_AGE = 61;
 const DELNINGSTAL_IP = {
  1938:[17.51,16.94,16.36,15.79,15.56,14.99,14.42,13.84,13.27,12.71,12.15,11.6,11.05,10.51,9.98,9.46,8.95,8.46,7.97,7.5],
@@ -4016,6 +4021,8 @@ function runProjection(){
 
   // init balances
   let balances = accounts.map(a => a.opening);
+  // Statutory pension fixed at the first payout year, then följsamhetsindexerad.
+  let statutoryPension = accounts.map(() => null);
 
   for(let yr=START_YEAR; yr<=endYear; yr++){
     const age = yr - params.birthYear;
@@ -4202,9 +4209,24 @@ function runProjection(){
           // 100% / 75% / 50% / 25% / 0%.
           // Note: state pensions are intentionally NOT subject to the
           // interval override — they always follow delningstal logic.
-          var _dt    = resolveDelningstal(a, age);
           var _share = (a.wdShare != null ? a.wdShare : 1);
-          wd = _dt > 0 ? Math.round(Math.max(0, opening) / _dt * _share) : 0;
+          if(a.actuarial){
+            // Statutory mechanic (Typfallsmodellen): the pension is set ONCE in
+            // the first payout year as behållning / delningstal, then
+            // följsamhetsindexeras for life. It is a lifelong annuity carried by
+            // the collective, not a drawdown of the individual's balance, so it
+            // neither accelerates downwards nor stops when the balance runs out.
+            if(statutoryPension[i] == null){
+              var _dt0 = resolveDelningstal(a, age);
+              statutoryPension[i] = _dt0 > 0 ? Math.max(0, opening) / _dt0 * _share : 0;
+            } else {
+              statutoryPension[i] = statutoryPension[i] / (1 + FOLJSAMHET_FORSKOTTSRANTA);
+            }
+            wd = Math.round(statutoryPension[i]);
+          } else {
+            var _dt = resolveDelningstal(a, age);
+            wd = _dt > 0 ? Math.round(Math.max(0, opening) / _dt * _share) : 0;
+          }
         } else {
           if(a.ws<9999 && yr>=a.ws && yr<=a.we){
             // Auto-default wd = opening at ws / (we - ws) for p-ins when unset
@@ -4220,7 +4242,9 @@ function runProjection(){
         yieldTaxP    += (opening + contrib) * (a.yt||0);
         mgmtFeePT    += (opening + contrib) * (a.mgmt||0);
         mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
-        actualWd = Math.min(wd, valBefore);
+        // A statutory annuity keeps paying after the notional balance is spent.
+        actualWd = (a.actuarial && a.useDelningstal && a.type==='state')
+                 ? wd : Math.min(wd, valBefore);
         const valAfterWd = Math.max(0, valBefore - actualWd);
         const _ytSek = (a.yt||0)   * valAfterWd;  // full annual rate on full base
         const _mfSek = (a.mgmt||0) * valAfterWd;  // full annual rate on full base
