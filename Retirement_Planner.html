@@ -2428,6 +2428,10 @@ function t(key,vars){
 
 function setLang(lang){
   _lang=lang;
+  // collectPlanState() reads the language back off the document, so without
+  // this every saved plan records 'en' and restoring one silently reverts a
+  // Swedish session to English.
+  document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     var k=el.getAttribute('data-i18n');
     var txt=t(k);
