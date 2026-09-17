@@ -4661,6 +4661,7 @@ function updateCharts(data){
           data: years.map(function(y){ return y.yr >= params.retirementYear ? Math.round(y.taxFree||0) : 0; }),
           backgroundColor:'rgba(60,187,110,0.80)',
           borderColor:'transparent', borderWidth:0,
+          hidden: _ilsMode==='gross',
           categoryPercentage:1.0, barPercentage:1.0, stack:'income' },
         { label:t('chart.ds.pIns'),
           data: years.map(function(y){ return y.yr >= params.retirementYear ? Math.round(y.wdrlPIns||0) : 0; }),
@@ -4683,6 +4684,7 @@ function updateCharts(data){
           data: years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/_ilsDiv()); }),
           type:'line', borderColor:'#48B866', borderWidth:1.5,
           borderDash:[8,5], fill:false, pointRadius:0, pointHoverRadius:0,
+          hidden: _ilsMode==='net',
           tension:0, stack:undefined },
       ]
     },
@@ -4696,20 +4698,22 @@ function updateCharts(data){
             color:'#6b85a8', font:{size:10,family:'DM Mono'},
             usePointStyle:true, pointStyle:'rect', boxWidth:12,
             generateLabels: function(chart){
-              return chart.data.datasets.map(function(ds, i){
-                var isLine = ds.type === 'line';
-                return {
-                  text: ds.label,
-                  fontColor: '#6b85a8',
-                  fillStyle: isLine ? 'transparent' : ds.backgroundColor,
-                  strokeStyle: isLine ? ds.borderColor : 'transparent',
-                  lineWidth: isLine ? 1.5 : 0,
-                  lineDash: isLine ? [8,5] : [],
-                  pointStyle: isLine ? 'line' : 'rect',
-                  hidden: false,
-                  datasetIndex: i
-                };
-              });
+              return chart.data.datasets
+                .map(function(ds, i){
+                  var isLine = ds.type === 'line';
+                  return {
+                    text: ds.label,
+                    fontColor: '#6b85a8',
+                    fillStyle: isLine ? 'transparent' : ds.backgroundColor,
+                    strokeStyle: isLine ? ds.borderColor : 'transparent',
+                    lineWidth: isLine ? 1.5 : 0,
+                    lineDash: isLine ? [8,5] : [],
+                    pointStyle: isLine ? 'line' : 'rect',
+                    hidden: false,
+                    datasetIndex: i
+                  };
+                })
+                .filter(function(_, i){ return !chart.data.datasets[i].hidden; });
             }
           }
         },
@@ -4730,13 +4734,13 @@ function updateCharts(data){
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:4px">'+t('wd.chart.tooltip.age')+' '+yr.age+' · '+yr.yr+'</div>'
               + (!isRet
                 ? '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#4885C4">'+t('dash.ils.salary')+'</span><span style="color:#4885C4">'+fmtV(_isNet?(yr.earnedIncomePost||0):(yr.earnedIncomePre||0))+' '+_period+'</span></div>'
-                : '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#48B866">'+t('dash.ils.after.acc')+'</span><span style="color:#48B866">'+fmtV(yr.taxFree)+' '+_period+'</span></div>'
+                : (_isNet ? '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#48B866">'+t('dash.ils.after.acc')+'</span><span style="color:#48B866">'+fmtV(yr.taxFree)+' '+_period+'</span></div>' : '')
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#4885C4">'+t('acc.badge.pins')+'</span><span style="color:#4885C4">'+fmtVT(yr.wdrlPIns)+' '+_period+'</span></div>'
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#C4B89A">'+t('acc.badge.state')+'</span><span style="color:#C4B89A">'+fmtVT(yr.wdrlState)+' '+_period+'</span></div>')
               + (isRet
-                ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px"><span style="color:#1a1a2e">'+t('dash.ils.totalpension')+'</span><span style="color:#1a1a2e">'+fmtVT((yr.wdrlPIns||0)+(yr.wdrlState||0))+' '+_period+'</span></div>'
+                ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px"><span style="color:#edf2ff">'+t('dash.ils.totalpension')+'</span><span style="color:#edf2ff">'+fmtVT((yr.wdrlPIns||0)+(yr.wdrlState||0))+' '+_period+'</span></div>'
                 : '')
-              + (function(){ var _thr=yr.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return '<div style="display:flex;justify-content:space-between;gap:16px;'+(isRet?'':'margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px')+'"><span style="color:#48B866">'+t('dash.ils.tax.thr')+'</span><span style="color:#48B866">'+fmtV(_thr)+' '+_period+'</span></div>'; })()
+              + (_isNet ? '' : (function(){ var _thr=yr.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return '<div style="display:flex;justify-content:space-between;gap:16px;'+(isRet?'':'margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px')+'"><span style="color:#48B866">'+t('dash.ils.tax.thr')+'</span><span style="color:#48B866">'+fmtV(_thr)+' '+_period+'</span></div>'; })())
               + '<div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right">'+(_isNet?t('dash.ils.after.tax.lbl')+' · ':'')+_period+'</div>';
             el.style.opacity='1';
             positionTooltip(el, context.chart, tooltip);
@@ -7459,8 +7463,10 @@ function _updateILSChart(){
   var ds = charts.chartIncomeLifetime.data.datasets;
   // Salary: gross vs net (earnedIncomePost is already net)
   ds[0].data = years.map(function(y){ return y.yr < params.retirementYear ? Math.round((isNet?(y.earnedIncomePost||0):(y.earnedIncomePre||0))/div) : 0; });
-  // After-tax accounts: no tax deduction (already tax-free)
+  // After-tax accounts: no tax deduction (already tax-free); only meaningful
+  // as a net-income line item, so hide it in Before Tax mode.
   ds[1].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.taxFree||0)/div) : 0; });
+  ds[1].hidden = !isNet;
   // P-Insurance: apply tax factor when net
   ds[2].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlPIns||0)*tf/div) : 0; });
   // State Pension: apply tax factor when net
@@ -7468,8 +7474,9 @@ function _updateILSChart(){
   // Total pension (P-Ins + State), same tax factor as the bars above
   ds[4].data = years.map(function(y){ return y.yr >= params.retirementYear
     ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0))*tf/div) : null; });
-  // State tax threshold line
+  // State tax threshold line: a gross-income concept, so hide it in After Tax mode.
   ds[5].data = years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/div); });
+  ds[5].hidden = isNet;
   // Update title
   var title = document.querySelector('#chartIncomeLifetime')?.closest('.chart-wrap')?.querySelector('.chart-title');
   if(title) title.textContent = t('dash.ils.title')+' (SEK/'+(div===12?t('dash.period.mth'):t('dash.period.yr'))+', '+(isNet?t('acc.after.tax'):t('acc.before.tax'))+')';
