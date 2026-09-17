@@ -1745,6 +1745,7 @@ en:{
   'dash.ils.title.full':'Income Sources Over Lifetime (SEK/yr, Before Tax)',
   'dash.ils.salary':'Salary',
   'dash.ils.after.acc':'After-Tax Acc',
+  'dash.ils.totalpension':'Total Pension',
   'dash.ils.tax.thr':'Tax threshold',
   'dash.ils.after.tax.lbl':'after tax',
   'dash.port.split.title':'Portfolio Value by Account Type (SEK)',
@@ -2173,6 +2174,7 @@ sv:{
   'dash.ils.title.full':'Inkomstkällor under livet (SEK/år, Före skatt)',
   'dash.ils.salary':'Lön',
   'dash.ils.after.acc':'Beskattat konto',
+  'dash.ils.totalpension':'Total pension',
   'dash.ils.tax.thr':'Skiktgräns',
   'dash.ils.after.tax.lbl':'efter skatt',
   'dash.port.split.title':'Portföljvärde per kontotyp (SEK)',
@@ -4670,6 +4672,13 @@ function updateCharts(data){
           backgroundColor:'rgba(196,184,154,0.85)',
           borderColor:'transparent', borderWidth:0,
           categoryPercentage:1.0, barPercentage:1.0, stack:'income' },
+        { label:t('dash.ils.totalpension'),
+          data: years.map(function(y){ return y.yr >= params.retirementYear
+            ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0)) * (_ilsMode==='gross'?1:_ilsTaxFactor()) / _ilsDiv())
+            : null; }),
+          type:'line', borderColor:'#1a1a2e', borderWidth:1.5,
+          borderDash:[8,5], fill:false, pointRadius:0, pointHoverRadius:0,
+          spanGaps:false, tension:0, stack:undefined },
         { label:t('par.state.thresh'),
           data: years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/_ilsDiv()); }),
           type:'line', borderColor:'#48B866', borderWidth:1.5,
@@ -7453,8 +7462,11 @@ function _updateILSChart(){
   ds[2].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlPIns||0)*tf/div) : 0; });
   // State Pension: apply tax factor when net
   ds[3].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlState||0)*tf/div) : 0; });
+  // Total pension (P-Ins + State), same tax factor as the bars above
+  ds[4].data = years.map(function(y){ return y.yr >= params.retirementYear
+    ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0))*tf/div) : null; });
   // State tax threshold line
-  ds[4].data = years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/div); });
+  ds[5].data = years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/div); });
   // Update title
   var title = document.querySelector('#chartIncomeLifetime')?.closest('.chart-wrap')?.querySelector('.chart-title');
   if(title) title.textContent = t('dash.ils.title')+' (SEK/'+(div===12?t('dash.period.mth'):t('dash.period.yr'))+', '+(isNet?t('acc.after.tax'):t('acc.before.tax'))+')';
