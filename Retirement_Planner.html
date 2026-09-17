@@ -4733,7 +4733,10 @@ function updateCharts(data){
                 : '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#48B866">'+t('dash.ils.after.acc')+'</span><span style="color:#48B866">'+fmtV(yr.taxFree)+' '+_period+'</span></div>'
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#4885C4">'+t('acc.badge.pins')+'</span><span style="color:#4885C4">'+fmtVT(yr.wdrlPIns)+' '+_period+'</span></div>'
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#C4B89A">'+t('acc.badge.state')+'</span><span style="color:#C4B89A">'+fmtVT(yr.wdrlState)+' '+_period+'</span></div>')
-              + (function(){ var _thr=yr.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px"><span style="color:#48B866">'+t('dash.ils.tax.thr')+'</span><span style="color:#48B866">'+fmtV(_thr)+' '+_period+'</span></div>'; })()
+              + (isRet
+                ? '<div style="display:flex;justify-content:space-between;gap:16px;margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px"><span style="color:#1a1a2e">'+t('dash.ils.totalpension')+'</span><span style="color:#1a1a2e">'+fmtVT((yr.wdrlPIns||0)+(yr.wdrlState||0))+' '+_period+'</span></div>'
+                : '')
+              + (function(){ var _thr=yr.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return '<div style="display:flex;justify-content:space-between;gap:16px;'+(isRet?'':'margin-top:3px;border-top:1px solid rgba(0,0,0,0.1);padding-top:3px')+'"><span style="color:#48B866">'+t('dash.ils.tax.thr')+'</span><span style="color:#48B866">'+fmtV(_thr)+' '+_period+'</span></div>'; })()
               + '<div style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right">'+(_isNet?t('dash.ils.after.tax.lbl')+' · ':'')+_period+'</div>';
             el.style.opacity='1';
             positionTooltip(el, context.chart, tooltip);
