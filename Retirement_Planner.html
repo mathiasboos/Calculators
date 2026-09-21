@@ -4679,13 +4679,13 @@ function updateCharts(data){
             : null; }),
           type:'line', borderColor:'#1a1a2e', borderWidth:1.5,
           borderDash:[8,5], fill:false, pointRadius:0, pointHoverRadius:0,
-          spanGaps:false, tension:0, stack:undefined },
+          spanGaps:false, tension:0, stack:'totalPensionLine' },
         { label:t('par.state.thresh'),
           data: years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/_ilsDiv()); }),
           type:'line', borderColor:'#48B866', borderWidth:1.5,
           borderDash:[8,5], fill:false, pointRadius:0, pointHoverRadius:0,
           hidden: _ilsMode==='net',
-          tension:0, stack:undefined },
+          tension:0, stack:'thresholdLine' },
       ]
     },
     options:{
