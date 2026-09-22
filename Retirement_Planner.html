@@ -1238,6 +1238,8 @@ input[type="number"]::-webkit-outer-spin-button {
       <div id="exp-iv-master-label" class="card-header" style="margin-bottom:0;cursor:pointer" onclick="document.getElementById('exp-iv-master').click()" data-i18n="wd.iv.hdr">AGE-BASED EXPENSE INTERVALS</div>
       <button id="exp-iv-est-all" onclick="expAgeIntervals.forEach(function(_,i){estimateGrossWithdrawal(i);})"
         style="display:none;padding:4px 10px;font-size:11px;background:rgba(74,143,204,.12);border:1px solid rgba(74,143,204,.35);border-radius:6px;color:#4885C4;cursor:pointer;font-weight:600;white-space:nowrap"><span data-i18n="wd.iv.est.all">Estimate All</span></button>
+      <button id="exp-iv-maximize" onclick="maximizeExpIntervals()"
+        style="display:none;padding:4px 10px;font-size:11px;background:var(--gold);border:none;border-radius:6px;color:#0f1f3d;cursor:pointer;font-weight:700;white-space:nowrap"><span data-i18n="dash.maximize">⚡ Maximize</span></button>
     </div>
     <div id="exp-iv-table-wrap" style="display:none"><table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
@@ -1832,6 +1834,7 @@ en:{
   'wd.iv.hdr':'AGE-BASED EXPENSE INTERVALS',
   'wd.iv.hdr.active':'AGE-BASED EXPENSE INTERVALS – ACTIVE',
   'wd.iv.est.all':'Estimate All',
+  'wd.iv.max.depletes':'portfolio depletes at age {age}',
   'wd.iv.sum':'Sum',
   'wd.iv.status.active':'Interval-based expenses & withdrawals active',
   'wd.iv.status.sub':'Withdrawal/yr auto-calculated and distributed across after-tax accounts.',
@@ -2261,6 +2264,7 @@ sv:{
   'wd.iv.hdr':'ÅLDERSBASERADE UTGIFTSINTERVALL',
   'wd.iv.hdr.active':'ÅLDERSBASERADE UTGIFTSINTERVALL – AKTIVT',
   'wd.iv.est.all':'Beräkna alla',
+  'wd.iv.max.depletes':'portföljen tar slut vid {age} års ålder',
   'wd.iv.sum':'Summa',
   'wd.iv.status.active':'Intervallbaserade utgifter & uttag aktiva',
   'wd.iv.status.sub':'Uttag/år beräknas automatiskt och fördelas över beskattade konton.',
@@ -3879,6 +3883,8 @@ function toggleExpIvMaster(){
     label.style.color = active ? '#48B866' : '';
   var estAllBtn=document.getElementById('exp-iv-est-all');
   if(estAllBtn) estAllBtn.style.display=active?'inline-flex':'none';
+  var maxBtn=document.getElementById('exp-iv-maximize');
+  if(maxBtn) maxBtn.style.display=active?'inline-flex':'none';
   }
   if(table) table.style.display = active ? '' : 'none';
   if(active){
@@ -5469,6 +5475,73 @@ function maximizeWithdrawals(){
   _targetWdrlRate = null;
   buildAccountsTable();
   recalc();
+}
+
+// ── MAXIMIZE AGE-BASED EXPENSE INTERVALS ────────────────────────────────
+// Scales the go-go/slow-go/no-go annual amounts together (preserving their
+// current ratio, or falling back to an illustrative 80/70/60 shape when
+// they're not yet differentiated) to find the highest level that still
+// depletes the portfolio at, not before, the life expectancy year. There's
+// no closed-form solution here (three sequential levels sharing one pool of
+// accounts with real returns), so this bisects on the same depletion signal
+// updateDashboard() already uses (years.find(y=>y.totalPort<1)).
+function maximizeExpIntervals(){
+  const retYr  = getParam('retirementYear');
+  const lifeYr = getParam('lifeYear');
+  if(lifeYr <= retYr){
+    alert('Life Expectancy Year must be after Retirement Year.');
+    return;
+  }
+  const retYrRow = _projYears.find(y => y.yr === retYr);
+  if(!retYrRow){
+    alert('Run a calculation first.'); return;
+  }
+
+  var baseAmt = expAgeIntervals.map(function(iv){ return iv.amount||0; });
+  var w = (baseAmt[0]===baseAmt[1] && baseAmt[1]===baseAmt[2])
+    ? [0.80, 0.70, 0.60]
+    : baseAmt;
+
+  function tooHigh(k){
+    expAgeIntervals.forEach(function(iv, i){
+      iv.amount = Math.round(w[i]*k);
+      estimateGrossWithdrawal(i);
+    });
+    var data = runProjection();
+    // Age-based expense intervals only draw from the after-tax and P-Insurance
+    // pools (wdPctAT/wdPctPI) — state pension follows its own delningstal
+    // schedule and depletes near lifeYear regardless of k, so it must be
+    // excluded here or the depletion signal is always confounded by it.
+    var depRow = data.years.find(function(y){ return ((y.portAfterTax||0)+(y.portPIns||0))<1; });
+    return !!(depRow && depRow.yr < data.params.lifeYear);
+  }
+
+  var lo = 0, hi = 1000, guard = 0;
+  while(!tooHigh(hi) && guard < 60){ hi *= 2; guard++; }
+  for(var iter=0; iter<40; iter++){
+    var mid = (lo+hi)/2;
+    if(tooHigh(mid)) hi = mid; else lo = mid;
+  }
+
+  // Apply the converged, safe level for real
+  expAgeIntervals.forEach(function(iv, i){
+    iv.amount = Math.round(w[i]*lo);
+    estimateGrossWithdrawal(i);
+  });
+  buildExpIntervals();
+  distributeIntervalWithdrawals();
+  buildAccountsTable();
+  recalc();
+
+  var depRow2 = _projYears.find(function(y){ return ((y.portAfterTax||0)+(y.portPIns||0))<1; });
+  var depAge2 = depRow2 ? (depRow2.yr - getParam('birthYear')) : null;
+  var statusEl = document.getElementById('exp-iv-status');
+  if(statusEl){
+    var fmtK = function(n){ return Math.round(n||0).toLocaleString('sv-SE'); };
+    var labels = [t('tile.phase.gogo'), t('tile.phase.slowgo'), t('tile.phase.nogo')];
+    var parts = expAgeIntervals.map(function(iv,i){ return labels[i]+' '+fmtK(iv.amount)+' kr/yr'; }).join(' · ');
+    statusEl.textContent = parts + (depAge2!==null ? ' — ' + t('wd.iv.max.depletes',{age:depAge2}) : '');
+  }
 }
 
 // ── PROJECTION EXPORT ─────────────────────────────────────────────────────
