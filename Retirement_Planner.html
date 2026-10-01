@@ -1797,6 +1797,23 @@ en:{
   'acc.name.occ.pen.1':'Occupational Pension 1',
   'acc.name.occ.pen.2':'Occupational Pension 2',
   'acc.name.occ.pen.3':'Occupational Pension 3',
+  'acc.add.after':'+ Add After-Tax Account','acc.add.pins':'+ Add P-Insurance Account','acc.add.state':'+ Add State Account',
+  'occ.opt.individual':'Individual pension account',
+  'occ.opt.itp1':'ITP 1, Private employee (white collar), born 1979-',
+  'occ.opt.itp2':'ITP 2, Private employee (white collar), born before 1979',
+  'occ.opt.saflo':'SAF-LO, Private employee (blue collar)',
+  'occ.opt.kapkl':'KAP-KL, Municipal & regional employee, born before 1986',
+  'occ.opt.akapkr':'AKAP-KR, Municipal & regional employee, born 1986-',
+  'occ.opt.pa16a2':'PA16 (Avd 2), State employee, born before 1988',
+  'occ.opt.pa16a1':'PA16 (Avd 1), State employee, born 1988 or later',
+  'occ.name.db':'defined benefit',
+  'occ.badge.db':'Defined benefit',
+  'occ.warn.birth':'The occupational pension agreement does not match the birth year.',
+  'occ.db.service':'Service years',
+  'occ.db.from':'≈ {amt} kr/yr from age {age}',
+  'occ.db.tip':'Defined-benefit pension (Typfallsmodellen v4.8): a share of final salary per IBB band, scaled by service years/30 and adjusted for pension start age. Paid for life; no capital.',
+  'occ.payout.planned':'Planned','occ.payout.lifelong':'Lifelong',
+  'occ.payout.tip':'Lifelong: paid for life as balance ÷ premium pension divisor (Typfallsmodellen default). Planned: follows withdrawal amount/years and the expense intervals.',
   'acc.name.salary.ex':'Salary Exchange',
   'acc.name.premium.pen':'Premium Pension',
   'acc.name.income.pen':'Income Pension',
@@ -2227,6 +2244,23 @@ sv:{
   'acc.name.occ.pen.1':'Tjänstepension 1',
   'acc.name.occ.pen.2':'Tjänstepension 2',
   'acc.name.occ.pen.3':'Tjänstepension 3',
+  'acc.add.after':'+ Lägg till beskattat konto','acc.add.pins':'+ Lägg till P-försäkring','acc.add.state':'+ Lägg till statligt konto',
+  'occ.opt.individual':'Individuellt pensionskonto',
+  'occ.opt.itp1':'ITP-1, Privatanställda tjänstemän, födda 1979-',
+  'occ.opt.itp2':'ITP-2, Privatanställda tjänstemän, födda före 1979',
+  'occ.opt.saflo':'SAF-LO, Privatanställda arbetare',
+  'occ.opt.kapkl':'KAP-KL, Kommunal- & Regionanställda, födda före 1986',
+  'occ.opt.akapkr':'AKAP-KR, Kommunal- & Regionanställda, födda 1986 -',
+  'occ.opt.pa16a2':'PA16 (Avd 2), Statligt anställda, födda före 1988',
+  'occ.opt.pa16a1':'PA16 (Avd 1), Statligt anställda, födda 1988 och senare',
+  'occ.name.db':'förmånsbestämd',
+  'occ.badge.db':'Förmånsbestämd',
+  'occ.warn.birth':'Tjänstepensionsavtalet stämmer inte med födelseåret.',
+  'occ.db.service':'Tjänsteår',
+  'occ.db.from':'≈ {amt} kr/år från {age} år',
+  'occ.db.tip':'Förmånsbestämd pension (Typfallsmodellen v4.8): andel av slutlönen per IBB-intervall, skalad med tjänsteår/30 och justerad för uttagsålder. Betalas livsvarigt; inget kapital.',
+  'occ.payout.planned':'Planerat','occ.payout.lifelong':'Livsvarig',
+  'occ.payout.tip':'Livsvarig: betalas ut livet ut som behållning ÷ premiepensionens delningstal (Typfallsmodellens standard). Planerat: följer uttagsbelopp/år och utgiftsintervallen.',
   'acc.name.salary.ex':'Löneväxling',
   'acc.name.premium.pen':'Premiepension',
   'acc.name.income.pen':'Inkomstpension',
@@ -2774,7 +2808,148 @@ function resolveDelningstal(a, age){
   if(mode === 'own')  return parseFloat(a.customDelningstal) || 0;
   if(mode === 'fond') return getPremiePensionDelningstal(age, 'fond');
   if(mode === 'trad') return getPremiePensionDelningstal(age, 'trad');
+  if(mode === 'tjp')  return occTjpDelningstal(age);
   return getDelningstal(age, getParam('birthYear'));  // inkomst (default)
+}
+
+// ─── OCCUPATIONAL PENSION SCHEMES (Typfallsmodellen v4.8, reference/) ─────
+// Premium rules from VBA module Tjänstepensioner (tlITP1, tlITP2A, SAF_LO,
+// tlkap_kl, tlakap_kr, tlPA16, Kapan + PA_indiv), 2027+ steady state.
+// prem: r1 % up to 7.5 IBB, r2 % from 7.5 IBB to cap×IBB (999 = no cap),
+// contributions from age `from` through the year of age `to`.
+// db: defined-benefit part from VBA module TjänstepensionerFörmån (FTJP).
+const OCC_NO_CAP = 999;
+const OCC_SCHEMES = {
+  itp1:   {opt:'occ.opt.itp1',   name:'ITP 1',            born:[1979,9999], prem:{r1:4.5, r2:30,   cap:30,         from:25, to:65}},
+  itp2:   {opt:'occ.opt.itp2',   name:'ITP 2 – ITPK',     born:[0,1978],    prem:{r1:2,   r2:2,    cap:OCC_NO_CAP, from:28, to:64}, db:'itp2', dbName:'ITP 2'},
+  saflo:  {opt:'occ.opt.saflo',  name:'SAF-LO',           born:[0,9999],    prem:{r1:4.5, r2:30,   cap:OCC_NO_CAP, from:22, to:64}},
+  kapkl:  {opt:'occ.opt.kapkl',  name:'KAP-KL',           born:[0,1985],    prem:{r1:4.5, r2:4.5,  cap:30,         from:21, to:66}, db:'kapkl', dbName:'KAP-KL'},
+  akapkr: {opt:'occ.opt.akapkr', name:'AKAP-KR',          born:[1986,9999], prem:{r1:6,   r2:31.5, cap:30,         from:18, to:150}},
+  pa16a2: {opt:'occ.opt.pa16a2', name:'PA16 Avd 2',       born:[0,1987],    prem:{r1:6.2, r2:6.2,  cap:30,         from:23, to:68}, db:'pa16a2', dbName:'PA16 Avd 2'},
+  pa16a1: {opt:'occ.opt.pa16a1', name:'PA16 Avd 1',       born:[1988,9999], prem:{r1:6.2, r2:31.7, cap:OCC_NO_CAP, from:18, to:66}}
+};
+const OCC_SCHEME_ORDER = ['itp1','itp2','saflo','kapkl','akapkr','pa16a2','pa16a1'];
+
+// PA16 Avd 2 premium: Kåpan 2 % + PA_indiv 4.2 % (3.2 % if born before 1965).
+function occPremRates(key, birthYear){
+  var p = OCC_SCHEMES[key].prem;
+  if(key === 'pa16a2'){ var r = birthYear < 1965 ? 5.2 : 6.2; return {r1:r, r2:r, cap:p.cap}; }
+  return {r1:p.r1, r2:p.r2, cap:p.cap};
+}
+
+function occBirthMismatch(a){
+  var sc = a && a.scheme && OCC_SCHEMES[a.scheme];
+  if(!sc) return false;
+  var by = Math.floor(getParam('birthYear'));
+  return by < sc.born[0] || by > sc.born[1];
+}
+
+// Lifelong payout and the DB age adjustment both use the premiepension
+// divisor (VBA deltal(...,19)); below the PP table's first age (63) the
+// workbook extrapolates linearly, as done here.
+function occTjpDelningstal(age){
+  var a = Math.round(age);
+  if(a >= 63) return getPremiePensionDelningstal(a, 'fond');
+  var d63 = DELNINGSTAL_PP_FOND_2026[63], d64 = DELNINGSTAL_PP_FOND_2026[64];
+  return d63 + (d63 - d64) * (63 - a);
+}
+
+// KAPKL_f förmånsbestämd rates [7.5–20 IBB, 20–30 IBB]; 1966's 0.268 is as in the VBA.
+const KAPKL_DB_RATES = {
+  1947:[.6214,.3107],1948:[.6179,.3089],1949:[.6143,.3071],1950:[.6107,.3054],1951:[.6071,.3036],
+  1952:[.6036,.3018],1953:[.6,.3],1954:[.5964,.2982],1955:[.5929,.2964],1956:[.5893,.2946],
+  1957:[.5857,.2929],1958:[.5821,.2911],1959:[.5786,.2893],1960:[.575,.2875],1961:[.5714,.2857],
+  1962:[.5679,.2839],1963:[.5643,.2821],1964:[.5607,.2804],1965:[.5571,.2786],1966:[.5536,.268]
+};
+function kapklDbRates(by){
+  if(by <= 1946) return [.625,.3125];
+  if(by >= 1986) return [0,0];
+  return KAPKL_DB_RATES[by] || [.55,.275];
+}
+// tlPA03 rates [≤7.5 IBB, 7.5–20 IBB, 20–30 IBB].
+const PA16A2_DB_RATES = {
+  1943:[.095,.6485,.324],1944:[.093,.647,.323],1945:[.091,.6455,.322],1946:[.089,.644,.321],
+  1947:[.087,.6425,.32],1948:[.084,.641,.319],1949:[.082,.6395,.318],1950:[.079,.638,.317],
+  1951:[.077,.6365,.316],1952:[.074,.635,.315],1953:[.072,.6335,.314],1954:[.069,.632,.313],
+  1955:[.066,.6305,.312],1956:[.063,.629,.311],1957:[.06,.6275,.31],1958:[.057,.626,.309],
+  1959:[.054,.6245,.308],1960:[.051,.623,.307],1961:[.047,.6215,.306],1962:[.043,.62,.305],
+  1963:[.039,.6185,.304],1964:[.036,.617,.303],1965:[.032,.615,.302],1966:[.029,.613,.301],
+  1967:[.025,.611,.3],1968:[.021,.609,.3],1969:[.017,.607,.3],1970:[.013,.605,.3],
+  1971:[.009,.603,.3],1972:[.005,.601,.3]
+};
+function pa16a2DbRates(by){
+  if(by < 1943) return [.1,.65,.325];
+  if(by >= 1973) return [0,.6,.3];
+  return PA16A2_DB_RATES[by];
+}
+
+// Projected gross annual salary at a given age — same convention as the
+// salary-based contributions in runProjection; 0 once retired.
+function occAnnualSalary(params, age){
+  var yr = params.birthYear + age;
+  if(yr >= params.retirementYear) return 0;
+  var base = age < (params.allowanceAge || 67) ? params.grossSalPre66 : (params.grossSalPre67 || params.grossSalPre66);
+  return base * 12 * Math.pow(1 + (params.salaryIncrease || 0), yr - START_YEAR);
+}
+
+// Annual defined-benefit pension starting at `startAge` (VBA FTJP). The
+// workbook assumes work continues until pension start; here the salary years
+// are the last ones before leaving work if that comes first.
+function occDbBenefit(a, params, startAge){
+  var ibb  = getParam('ibb') || 83400;
+  var by   = Math.floor(params.birthYear);
+  var srv  = Math.max(0, Math.min(30, a.serviceYears != null ? a.serviceYears : 30));
+  var retAge = params.retirementYear - params.birthYear;
+  var sal  = function(age){ return occAnnualSalary(params, age); };
+  // deltal(65)/deltal(pension age), premiepension divisor
+  var ageAdj = Math.round(startAge) === 65 ? 1 : occTjpDelningstal(65) / occTjpDelningstal(startAge);
+  var F = 0, i, benefit = 0;
+  if(a.db === 'itp2' || a.db === 'pa16a2'){
+    // DC_underlag: mean of the 5 salary years before min(pension age, 65)
+    var z = Math.min(Math.floor(startAge), 65, retAge);
+    for(i = 1; i <= 5; i++) F += sal(z - i) / 5;
+  } else if(a.db === 'kapkl'){
+    // Best 5 of the 7 years 2–8 years before pension start, each ≤ 30 IBB
+    var end = Math.min(Math.floor(startAge) - 2, retAge - 1), yrs = [];
+    for(i = 0; i < 7; i++) yrs.push(Math.min(sal(end - i), 30 * ibb));
+    yrs.sort(function(x, y){ return y - x; });
+    for(i = 0; i < 5; i++) F += yrs[i] / 5;
+  }
+  if(F <= 0) return 0;
+  var band = function(lo, hi){ return Math.max(0, Math.min(F, hi * ibb) - lo * ibb); };
+  if(a.db === 'itp2'){
+    // tlITP2F: 10 / 65 / 32.5 %, its own start-age factor, then the
+    // caller's deltal ratio on top (both as in the workbook)
+    benefit = 0.1 * band(0, 7.5) + 0.65 * band(7.5, 20) + 0.325 * band(20, 30);
+    benefit *= srv / 30;
+    var zp = startAge, f;
+    if(Math.floor(zp) < 65)       f = 1 - 0.005 * Math.floor((65 - zp) * 12);
+    else if(Math.floor(zp) <= 70) f = 1 + 0.006 * Math.floor((zp - 65) * 12);
+    else                          f = 1 + 0.006 * 60;
+    benefit *= f;
+  } else if(a.db === 'kapkl'){
+    var kr = kapklDbRates(by);
+    benefit = kr[0] * band(7.5, 20) + kr[1] * band(20, 30);
+    benefit *= srv / 30;
+  } else if(a.db === 'pa16a2'){
+    var pr = pa16a2DbRates(by);
+    benefit = pr[0] * band(0, 7.5) + pr[1] * band(7.5, 20) + pr[2] * band(20, 30);
+    benefit *= srv / 30;
+  }
+  return benefit * ageAdj;
+}
+
+// First-year benefit of a DB row at its pension start year, for tables/summaries.
+function occDbEstimate(a){
+  var by = getParam('birthYear');
+  var ws = a.ws && a.ws < 9999 ? a.ws : getParam('retirementYear');
+  return Math.round(occDbBenefit(a, occParamsNow(), ws - by));
+}
+
+// Lifelong-paying or defined-benefit rows sit outside planned withdrawals.
+function isPlannedPIns(a){ return a.type === 'p-ins' && !a.db && !a.useDelningstal; }
+function usesDelningstalPayout(a){
+  return !!(a.useDelningstal && a.ws < 9999 && (a.type === 'state' || a.type === 'p-ins'));
 }
 
 let expenses = EXPENSES_INIT.map(e=>({...e}));
@@ -3010,9 +3185,9 @@ function renderPInsContrib(i, a){
     if(a.type !== 'state'){
       salarySection +=
         '<div style="font-size:10px;color:var(--muted)">'
-        +fmtD(ib1)+' \u2013 <input type="text" inputmode="decimal" value="'+fmtD(ib2)+'"'
+        +fmtD(ib1)+' \u2013 <input type="text" inputmode="decimal" value="'+(ib2>=OCC_NO_CAP?'\u221e':fmtD(ib2))+'"'
         +' style="width:30px;'+INP+'"'
-        +' onchange="accounts['+i+'].cIBB2=parseFloat(this.value.replace(\',\',\'.\'))||0;buildAccountsTable();recalc()">'
+        +' onchange="accounts['+i+'].cIBB2=/\u221e/.test(this.value)?OCC_NO_CAP:(parseFloat(this.value.replace(\',\',\'.\'))||0);buildAccountsTable();recalc()">'
         +' \u00d7 IBB:\u00a0<input type="text" inputmode="decimal" value="'+fmtD(r2)+'"'
         +' style="width:32px;'+INP+'"'
         +' onchange="accounts['+i+'].cRate2=parseFloat(this.value.replace(\',\',\'.\'))||0;updatePInsSEK('+i+');recalc()">%'
@@ -3040,6 +3215,38 @@ function renderPInsContrib(i, a){
     +'</div>'
     +salarySection
     +'</td>';
+}
+
+const OCC_DASH_TD = '<td style="text-align:center;color:var(--muted)">—</td>';
+const OCC_BADGE_STYLE = 'display:inline-block;margin-left:4px;padding:0 5px;border-radius:3px;font-size:9px;font-weight:700;letter-spacing:.03em;vertical-align:middle';
+
+function occBadgesHtml(a){
+  if(!a.scheme || !OCC_SCHEMES[a.scheme]) return '';
+  var h = '<span style="'+OCC_BADGE_STYLE+';background:rgba(74,143,204,.12);color:#4885C4">'+OCC_SCHEMES[a.scheme].name.split(' – ')[0]+'</span>';
+  if(a.db) h += '<span title="'+t('occ.db.tip')+'" style="'+OCC_BADGE_STYLE+';background:rgba(196,184,154,.25);color:#8a7a52">'+t('occ.badge.db')+'</span>';
+  if(occBirthMismatch(a)) h += '<span title="'+t('occ.warn.birth')+'" style="'+OCC_BADGE_STYLE+';background:rgba(232,79,42,.12);color:#FF5B2E">⚠</span>';
+  return h;
+}
+
+function occParamsNow(){
+  return {
+    birthYear: getParam('birthYear'), retirementYear: getParam('retirementYear'),
+    grossSalPre66: getParam('grossSalPre66'), grossSalPre67: getParam('grossSalPre67'),
+    salaryIncrease: getParam('salaryIncrease')/100, allowanceAge: getParam('allowanceAge') || 67
+  };
+}
+
+function renderOccDbCell(i, a){
+  var by = getParam('birthYear');
+  var startAge = (a.ws && a.ws < 9999 ? a.ws : getParam('retirementYear')) - by;
+  var amt = Math.round(occDbBenefit(a, occParamsNow(), startAge));
+  var INP = 'background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--gold);text-align:center;padding:1px 3px;font-size:10px;width:32px';
+  return '<td style="padding:4px;min-width:190px;vertical-align:top" title="'+t('occ.db.tip')+'">'
+    + '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">'+t('occ.db.service')+': '
+    + '<input type="text" inputmode="numeric" value="'+(a.serviceYears!=null?a.serviceYears:30)+'" style="'+INP+'"'
+    + ' onchange="accounts['+i+'].serviceYears=Math.max(0,Math.min(30,parseInt(this.value)||0));buildAccountsTable();recalc()"> / 30</div>'
+    + '<div style="font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
+    + t('occ.db.from',{amt:amt.toLocaleString('sv-SE'), age:Math.round(startAge)})+'</div></td>';
 }
 
 function updatePInsSEK(i){
@@ -3199,7 +3406,8 @@ function buildWdSummary(){
 
   // Base annual wd (equivalent to effWd outside buildWdTable)
   var baseWdOf = function(a, ai){
-    if(a.useDelningstal && a.type==='state' && a.ws<9999){
+    if(a.db) return occDbEstimate(a);
+    if(usesDelningstalPayout(a)){
       var ageWs = a.ws - by2;
       var dt    = resolveDelningstal(a, ageWs);
       var share = (a.wdShare != null ? a.wdShare : 1);
@@ -3610,17 +3818,17 @@ function buildAccountsTable(){
       tr.setAttribute('data-grp',g.type);
       if(collapsed) tr.style.display='none';
       tr.innerHTML=`
-        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span></td>
-        ${col(i,'opening',a.opening,1000,100)}
-        ${renderPInsContrib(i,a)}
-        ${col(i,'cs',a.cs,1,60)}
-        ${col(i,'ce',a.ce,1,60)}
-              ${col(i,'eq1',a.eq1,0.1,60)}
-      ${col(i,'eq2',a.eq2,0.1,60)}
-      ${col(i,'eq3',a.eq3,0.1,60)}
-      ${col(i,'mgmt',a.mgmt,0.01,60)}
-        ${col(i,'yt',a.yt,0.01,60)}
-        ${col(i,'fixedRet',a.fixedRet,0.1,60)}
+        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}</td>
+        ${a.db ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
+        ${a.db ? renderOccDbCell(i,a) : renderPInsContrib(i,a)}
+        ${a.db ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
+          + col(i,'ce',a.ce,1,60)
+          + col(i,'eq1',a.eq1,0.1,60)
+          + col(i,'eq2',a.eq2,0.1,60)
+          + col(i,'eq3',a.eq3,0.1,60)
+          + col(i,'mgmt',a.mgmt,0.01,60)
+          + col(i,'yt',a.yt,0.01,60)
+          + col(i,'fixedRet',a.fixedRet,0.1,60)}
         <td style="padding:0 4px"><button onclick="removeAccount(${i})" title="Remove account" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button></td>
       `;
       tbody.appendChild(tr);
@@ -3630,14 +3838,23 @@ function buildAccountsTable(){
     const addRow=document.createElement('tr');
     addRow.setAttribute('data-grp',g.type);
     if(collapsed) addRow.style.display='none';
-    addRow.innerHTML=`<td colspan="12" style="padding:6px 12px"><button onclick="addAccount('${g.type}')" style="font-size:11px;color:#4885C4;background:rgba(74,143,204,.08);border:1px solid rgba(74,143,204,.25);border-radius:5px;padding:3px 10px;cursor:pointer;font-weight:600">+ Add ${{after:'After-Tax',"p-ins":'P-Insurance',state:'State'}[g.type]} Account</button></td>`;
+    const _addStyle='font-size:11px;color:#4885C4;background:rgba(74,143,204,.08);border:1px solid rgba(74,143,204,.25);border-radius:5px;padding:3px 10px;cursor:pointer;font-weight:600;font-family:var(--font-b)';
+    const _addLbl=t({after:'acc.add.after','p-ins':'acc.add.pins',state:'acc.add.state'}[g.type]);
+    addRow.innerHTML = g.type==='p-ins'
+      ? `<td colspan="12" style="padding:6px 12px"><select id="acc-add-pins" onchange="addPInsFromMenu(this)" style="${_addStyle}">`
+        + `<option value="" selected disabled hidden>${_addLbl} \u25BE</option>`
+        + `<option value="individual">${t('occ.opt.individual')}</option>`
+        + OCC_SCHEME_ORDER.map(k=>`<option value="${k}">${t(OCC_SCHEMES[k].opt)}</option>`).join('')
+        + `</select></td>`
+      : `<td colspan="12" style="padding:6px 12px"><button onclick="addAccount('${g.type}')" style="${_addStyle}">${_addLbl}</button></td>`;
     tbody.appendChild(addRow);
 
     // Subtotal row (IDs updated by updateAccountSubtotals on every recalc)
     // For delningstal-driven state accounts, estimate yr-1 wd ≈ opening / dt(age@ws) × wdShare
     const _by_acc    = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
     const _wdOf      = (a)=>{
-      if(a.useDelningstal && a.type==='state' && a.ws<9999){
+      if(a.db) return occDbEstimate(a);
+    if(usesDelningstalPayout(a)){
         const _dt    = resolveDelningstal(a, a.ws - _by_acc);
         const _share = (a.wdShare != null ? a.wdShare : 1);
         return _dt>0 ? Math.round((a.opening||0)/_dt*_share) : 0;
@@ -3663,7 +3880,8 @@ function buildAccountsTable(){
   // ── Total Value row ──────────────────────────────────────────────
   const _byTot       = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
   const _wdOfTot     = (a)=>{
-    if(a.useDelningstal && a.type==='state' && a.ws<9999){
+    if(a.db) return occDbEstimate(a);
+    if(usesDelningstalPayout(a)){
       const _dt    = resolveDelningstal(a, a.ws - _byTot);
       const _share = (a.wdShare != null ? a.wdShare : 1);
       return _dt>0 ? Math.round((a.opening||0)/_dt*_share) : 0;
@@ -3796,7 +4014,7 @@ function refreshIvSEK(i){
   // Cap each category's SEK at 0 if the account group has no opening balance to
   // distribute from — matches what distributeIntervalWithdrawals already does.
   var atBal = accounts.reduce(function(s,a){ return !a.taxable ? s+(a.opening||0) : s; }, 0);
-  var piBal = accounts.reduce(function(s,a){ return a.type==='p-ins' ? s+(a.opening||0) : s; }, 0);
+  var piBal = accounts.reduce(function(s,a){ return isPlannedPIns(a) ? s+(a.opening||0) : s; }, 0);
   var atSEK = atBal > 0 ? (iv.wdAmount||0)*(iv.wdPctAT||0) : 0;
   var piSEK = piBal > 0 ? (iv.wdAmount||0)*(iv.wdPctPI||0) : 0;
   set('exp-iv-sekAT-'+i, atSEK);
@@ -3823,11 +4041,27 @@ function refreshIvSEK(i){
 // ── Distribute interval withdrawals using annuity maximise formula ────
 // State accounts are skipped entirely — they keep their delningstal-based
 // withdrawal logic (or manual wd) regardless of interval activation.
+// Snapshot keyed by account object, so rows added or removed while intervals
+// are active don't shift the restore. Lifelong / DB P-Insurance rows are never
+// rescheduled by the intervals, so they keep whatever the user set meanwhile.
+function snapshotAccountWd(){
+  return accounts.map(function(a){ return {acc:a, wd:a.wd, ws:a.ws, we:a.we}; });
+}
+function restoreAccountWd(snap){
+  snap.forEach(function(sv){
+    var a = sv.acc;
+    if(accounts.indexOf(a) < 0) return;
+    if(a.type === 'p-ins' && !isPlannedPIns(a)) return;
+    a.wd = sv.wd; a.ws = sv.ws; a.we = sv.we;
+  });
+}
+
 function distributeIntervalWithdrawals(){
   var activeIntervals = expAgeIntervals.filter(function(iv){return iv.amount>0 && iv.wdAmount>0;});
   if(activeIntervals.length === 0){
     accounts.forEach(function(a){
-      if(a.type==='state') return;  // preserve state pensions' own settings
+      // preserve state pensions' and lifelong / DB P-Insurance's own settings
+      if(a.type==='state' || (a.type==='p-ins' && !isPlannedPIns(a))) return;
       a.wd=0; a.ws=9999; a.we=9999;
     });
     return;
@@ -3853,7 +4087,7 @@ function distributeIntervalWithdrawals(){
 
   // Balances for distribution
   var atBal  = accounts.reduce(function(s,a){return !a.taxable?s+(a.opening||0):s;},0);
-  var piBal  = accounts.reduce(function(s,a){return a.type==='p-ins'?s+(a.opening||0):s;},0);
+  var piBal  = accounts.reduce(function(s,a){return isPlannedPIns(a)?s+(a.opening||0):s;},0);
 
   accounts.forEach(function(a){
     if(!a.taxable){
@@ -3864,7 +4098,7 @@ function distributeIntervalWithdrawals(){
       } else {
         a.wd=0; a.ws=9999; a.we=9999;
       }
-    } else if(a.type==='p-ins'){
+    } else if(isPlannedPIns(a)){
       a.wd = piBal>0&&(a.opening||0)>0 ? Math.round(avgPi*(a.opening||0)/piBal) : 0;
       a.ws=ws; a.we=we;
     }
@@ -3889,7 +4123,7 @@ function toggleExpIvMaster(){
   if(table) table.style.display = active ? '' : 'none';
   if(active){
     if(!_savedAccountWd){
-      _savedAccountWd = accounts.map(function(a){return {wd:a.wd,ws:a.ws,we:a.we};});
+      _savedAccountWd = snapshotAccountWd();
     }
     autoCalcExpIntervals();
     buildExpIntervals();
@@ -3899,7 +4133,7 @@ function toggleExpIvMaster(){
     if(typeof buildWdTable==='function') setTimeout(buildWdTable,0);
   } else {
     if(_savedAccountWd){
-      accounts.forEach(function(a,i){a.wd=_savedAccountWd[i].wd;a.ws=_savedAccountWd[i].ws;a.we=_savedAccountWd[i].we;});
+      restoreAccountWd(_savedAccountWd);
       _savedAccountWd=null;
     }
     buildAccountsTable();
@@ -3920,7 +4154,7 @@ function updateExpIvStatus(){
   if(anyActive){
     if(!_savedAccountWd){
       // First activation: save original wd/ws/we
-      _savedAccountWd = accounts.map(function(a){return {wd:a.wd,ws:a.ws,we:a.we};});
+      _savedAccountWd = snapshotAccountWd();
     }
     // Recalculate distribution every time an interval changes
     distributeIntervalWithdrawals();
@@ -3928,11 +4162,7 @@ function updateExpIvStatus(){
     setTimeout(updateAccountSubtotals,0);
   } else if(!anyActive && _savedAccountWd){
     // All deactivated: restore saved values
-    accounts.forEach(function(a,i){
-      a.wd=_savedAccountWd[i].wd;
-      a.ws=_savedAccountWd[i].ws;
-      a.we=_savedAccountWd[i].we;
-    });
+    restoreAccountWd(_savedAccountWd);
     _savedAccountWd = null;
     buildAccountsTable();
     setTimeout(updateAccountSubtotals,0);
@@ -4049,7 +4279,7 @@ function runProjection(){
     // per-account closing balance
     let totalWdrlTaxable=0, totalWdrlFree=0;
     let totalEq=0, totalBd=0, totalPort=0;
-    let portAfterTax=0, portBeforeTax=0, portPIns=0, portState=0, wdrlPIns=0, wdrlState=0, yieldTaxK=0, yieldTaxP=0, mgmtFeeTotal=0, mgmtFeeAT=0, mgmtFeePT=0;
+    let portAfterTax=0, portBeforeTax=0, portPIns=0, portPInsPlanned=0, portState=0, wdrlPIns=0, wdrlState=0, yieldTaxK=0, yieldTaxP=0, mgmtFeeTotal=0, mgmtFeeAT=0, mgmtFeePT=0;
 
     // ── PRE-PASS: compute after-tax pool & pooled withdrawal ──────────────
     // All after-tax accounts (ISK, Cash, Endowment) form a single pool.
@@ -4187,7 +4417,16 @@ function runProjection(){
         const valBefore = valGross;  // withdrawal deducted below before fees
         // Per-category interval override
         let wd;
-        if(wdIvActive && a.type==='p-ins'){
+        if(a.db){
+          // Defined-benefit pension: set once at pension start from final
+          // salary and service years, then paid for life (no capital).
+          if(a.ws<9999 && yr>=a.ws && yr<=a.we){
+            if(statutoryPension[i] == null) statutoryPension[i] = occDbBenefit(a, params, age);
+            wd = Math.round(statutoryPension[i]);
+          } else {
+            wd = 0;
+          }
+        } else if(wdIvActive && isPlannedPIns(a)){
           // Interval is active for this year — always use the interval's
           // P-Insurance amount, even if that amount is 0.
           // Previously the code only entered this branch when wdIvPIns>0,
@@ -4195,12 +4434,12 @@ function runProjection(){
           // across all intervals), causing withdrawals during intervals where
           // wdPctPI = 0%.
           if(wdIvPIns > 0){
-            const totalPInsBal = balances.reduce(function(s,b,j){return accounts[j].type==='p-ins'?s+Math.max(0,b):s;},0);
+            const totalPInsBal = balances.reduce(function(s,b,j){return isPlannedPIns(accounts[j])?s+Math.max(0,b):s;},0);
             wd = totalPInsBal>0 ? Math.min(Math.round(wdIvPIns*Math.max(0,opening)/totalPInsBal), valBefore) : 0;
           } else {
             wd = 0;  // interval is active but P-Insurance split is 0% — no withdrawal
           }
-        } else if(a.useDelningstal && a.type==='state' && a.ws<9999 && yr>=a.ws && yr<=a.we){
+        } else if(usesDelningstalPayout(a) && yr>=a.ws && yr<=a.we){
           // State pension drawdown by delningstal — divisor depends on
           // a.delningstalMode: 'inkomst' (PFS 2024:2) / 'fond' or 'trad'
           // (PP 2026) / 'own' (custom). Uses opening balance.
@@ -4242,7 +4481,7 @@ function runProjection(){
         mgmtFeePT    += (opening + contrib) * (a.mgmt||0);
         mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
         // A statutory annuity keeps paying after the notional balance is spent.
-        actualWd = (a.actuarial && a.useDelningstal && a.type==='state')
+        actualWd = (a.db || (a.actuarial && a.useDelningstal && a.type==='state'))
                  ? wd : Math.min(wd, valBefore);
         const valAfterWd = Math.max(0, valBefore - actualWd);
         const _ytSek = (a.yt||0)   * valAfterWd;  // full annual rate on full base
@@ -4250,6 +4489,7 @@ function runProjection(){
         closing  = Math.max(0, valAfterWd - _ytSek - _mfSek);
         portBeforeTax += closing;
         if(a.type==='p-ins') portPIns  += closing;
+        if(isPlannedPIns(a)) portPInsPlanned += closing;
         if(a.type==='state') portState += closing;
         if (actualWd > 0){
           totalWdrlTaxable += actualWd;
@@ -4338,6 +4578,7 @@ function runProjection(){
     row.mgmtFeePT         = mgmtFeePT;
     row.portBeforeTax     = portBeforeTax;
     row.portPIns          = portPIns;
+    row.portPInsPlanned   = portPInsPlanned;
     row.portState         = portState;
     row.totalPort         = totalPort;
     row.withdrawalAfterTax= withdrawalAfterTax;
@@ -5212,7 +5453,8 @@ function updateAccountSubtotals(){
   // Estimate yr-1 wd for delningstal accounts: opening / dt(age@ws) × wdShare
   const _byAcc = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
   const _wdEff = (a)=>{
-    if(a.useDelningstal && a.type==='state' && a.ws<9999){
+    if(a.db) return occDbEstimate(a);
+    if(usesDelningstalPayout(a)){
       const _dt    = resolveDelningstal(a, a.ws - _byAcc);
       const _share = (a.wdShare != null ? a.wdShare : 1);
       return _dt>0 ? Math.round((a.opening||0)/_dt*_share) : 0;
@@ -5353,7 +5595,7 @@ function applyWdrlRate(pct){
   const munR   = getParam('munTax')/100;
 
   // Base: after-tax portfolio + P-Insurance portfolio (tax-adjusted) at retirement
-  const pIns = accounts.filter(function(a){return a.type==='p-ins';});
+  const pIns = accounts.filter(isPlannedPIns);
   const pInsBal = pIns.reduce(function(s,a,_){
     const idx = accounts.indexOf(a);
     return s + ((retRow.accClosing && retRow.accClosing[idx])||0);
@@ -5368,13 +5610,13 @@ function applyWdrlRate(pct){
   const inclBals = accounts.map(function(a,i){
     const bal = (retRow.accClosing && retRow.accClosing[i])||0;
     if(!a.taxable) return bal;               // after-tax: full value
-    if(a.type==='p-ins') return bal*(1-munR); // P-Ins: discounted by tax
+    if(isPlannedPIns(a)) return bal*(1-munR); // P-Ins: discounted by tax
     return 0;                                 // State pensions: excluded
   });
   const totalInclBal = inclBals.reduce(function(s,v){return s+v;},0);
 
   accounts.forEach(function(a,i){
-    if(!a.taxable || a.type==='p-ins'){
+    if(!a.taxable || isPlannedPIns(a)){
       if(totalInclBal > 0 && inclBals[i] > 0){
         // Gross withdrawal: after-tax share / (1-munR) for P-Ins so net matches target
         const netShare = fixedAnnualWd * inclBals[i] / totalInclBal;
@@ -5444,6 +5686,7 @@ function maximizeWithdrawals(){
   accounts.forEach((a, i) => {
     const balAtRet = retYrRow.accClosing[i] || 0;
     if(balAtRet < 1) return; // skip depleted/empty accounts
+    if(a.type==='p-ins' && !isPlannedPIns(a)) return; // lifelong / DB pay on their own terms
 
     // Net return rate at retirement age
     let ret;
@@ -5508,11 +5751,11 @@ function maximizeExpIntervals(){
       estimateGrossWithdrawal(i);
     });
     var data = runProjection();
-    // Age-based expense intervals only draw from the after-tax and P-Insurance
-    // pools (wdPctAT/wdPctPI) — state pension follows its own delningstal
-    // schedule and depletes near lifeYear regardless of k, so it must be
-    // excluded here or the depletion signal is always confounded by it.
-    var depRow = data.years.find(function(y){ return ((y.portAfterTax||0)+(y.portPIns||0))<1; });
+    // Age-based expense intervals only draw from the after-tax pool and the
+    // planned-withdrawal P-Insurance accounts. State pension and lifelong /
+    // defined-benefit P-Insurance follow their own schedules regardless of k,
+    // so they must be excluded or the depletion signal is confounded.
+    var depRow = data.years.find(function(y){ return ((y.portAfterTax||0)+(y.portPInsPlanned||0))<1; });
     return !!(depRow && depRow.yr < data.params.lifeYear);
   }
 
@@ -5533,7 +5776,7 @@ function maximizeExpIntervals(){
   buildAccountsTable();
   recalc();
 
-  var depRow2 = _projYears.find(function(y){ return ((y.portAfterTax||0)+(y.portPIns||0))<1; });
+  var depRow2 = _projYears.find(function(y){ return ((y.portAfterTax||0)+(y.portPInsPlanned||0))<1; });
   var depAge2 = depRow2 ? (depRow2.yr - getParam('birthYear')) : null;
   var statusEl = document.getElementById('exp-iv-status');
   if(statusEl){
@@ -6118,6 +6361,39 @@ function autoCalcExpIntervals(){
 }
 
 
+function occPayoutToggle(ai, a){
+  var btn = function(mode, key){
+    var on = (mode==='lifelong') === !!a.useDelningstal;
+    return '<button onclick="setPInsPayout('+ai+',\''+mode+'\')" title="'+t('occ.payout.tip')+'" '
+      +'style="background:'+(on?'#4885C4':'transparent')+';color:'+(on?'#fff':'var(--muted)')+';'
+      +'border:1px solid '+(on?'#4885C4':'var(--border)')+';border-radius:3px;padding:1px 4px;'
+      +'font-size:8px;font-weight:'+(on?'700':'600')+';letter-spacing:.04em;text-transform:uppercase;'
+      +'cursor:pointer;font-family:var(--font-b);line-height:1.3">'+t(key)+'</button>';
+  };
+  return '<div style="display:flex;gap:2px;justify-content:flex-end;margin-top:2px">'
+    + btn('planned','occ.payout.planned') + btn('lifelong','occ.payout.lifelong') + '</div>';
+}
+
+function setPInsPayout(ai, mode){
+  var a = accounts[ai];
+  if(!a || a.type!=='p-ins' || a.db) return;
+  if(mode==='lifelong'){
+    if(a.useDelningstal) return;
+    a._plannedWe = a.we;
+    a.useDelningstal = true; a.delningstalMode = 'tjp'; a.delningstalScope = 'tjp';
+    if(!(a.ws < 9999)) a.ws = Math.round(getParam('retirementYear'));
+    a.we = 9998;
+  } else {
+    if(!a.useDelningstal) return;
+    a.useDelningstal = false;
+    a.we = a._plannedWe && a._plannedWe < 9998 ? a._plannedWe : Math.round(getParam('lifeYear'));
+  }
+  var ivOn = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
+  if(ivOn) updateExpIvStatus();
+  buildAccountsTable(); setTimeout(updateAccountSubtotals,0);
+  recalc(); buildWdTable();
+}
+
 function buildWdTable(){
   setTimeout(function(){ if(document.getElementById('tab-withdrawals').classList.contains('active')){ buildWithdrawalChart(); buildWdSummary(); } }, 100);
   var thead = document.getElementById('wd-acct-thead');
@@ -6225,7 +6501,8 @@ function buildWdTable(){
   // estimate year-1 withdrawal (balance at retirement / delningstal at start
   // age) × wdShare (utbetalningsgrad, default 1 = 100%).
   function effWd(a){
-    if(a.useDelningstal && a.type==='state' && a.ws<9999){
+    if(a.db) return occDbEstimate(a);
+    if(usesDelningstalPayout(a)){
       var _ageWs = a.ws - by;
       var _dt    = resolveDelningstal(a, _ageWs);
       var _share = (a.wdShare != null ? a.wdShare : 1);
@@ -6233,21 +6510,30 @@ function buildWdTable(){
     }
     return a.wd || 0;
   }
+  // Lifelong / DB P-Insurance pay on their own schedule even when intervals are on.
+  function ownScheduleSum(accs, i){
+    return accs.reduce(function(t,a){
+      if(a.type!=='p-ins' || isPlannedPIns(a)) return t;
+      var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
+      return t+(ivYF(i)<=we&&ivYT(i)>=ws?effWd(a)*wdTaxFactor(a):0);
+    },0);
+  }
   function ivCatTotal(iv, type){
     var pct=type==='after'?(iv.wdPctAT||0):type==='p-ins'?(iv.wdPctPI||0):(iv.wdPctST||0);
     // Return 0 if the account group has nothing to distribute from
     var bal;
     if(type==='after')  bal=accounts.reduce(function(s,a){return !a.taxable?s+(a.opening||0):s;},0);
-    else if(type==='p-ins') bal=accounts.reduce(function(s,a){return a.type==='p-ins'?s+(a.opening||0):s;},0);
+    else if(type==='p-ins') bal=accounts.reduce(function(s,a){return isPlannedPIns(a)?s+(a.opening||0):s;},0);
     else bal=1; // state: handled separately via delningstal, always allow
     return bal>0 ? (iv.wdAmount||0)*pct : 0;
   }
   function wdCell(a, iv, pidx){
     var ivOn=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-    // State accounts always follow delningstal logic — intervals don't apply
-    if(ivOn && a.type!=='state'){
+    // State accounts (and lifelong / DB P-Insurance) follow their own
+    // payout logic — intervals don't apply
+    if(ivOn && (a.type==='after' || isPlannedPIns(a))){
       var catTotal=ivCatTotal(iv,a.type)*wdTaxFactor(a);
-      var grpSum=accounts.filter(function(x){return x.type===a.type;}).reduce(function(s,x){return s+(x.opening||0);},0);
+      var grpSum=accounts.filter(function(x){return x.type===a.type && (x.type!=='p-ins' || isPlannedPIns(x));}).reduce(function(s,x){return s+(x.opening||0);},0);
       var share=grpSum>0?(a.opening||0)/grpSum:0;
       return '<td '+TD+'><span style="color:var(--text)">'+fmtN(Math.round(catTotal*share))+'</span></td>';
     }
@@ -6287,7 +6573,7 @@ function buildWdTable(){
       var s;
       // State accounts always follow delningstal, even when intervals active
       if(ivOn2 && grpType!=='state'){
-        s=Math.round(ivCatTotal(iv, grpType));
+        s=Math.round(ivCatTotal(iv, grpType) + ownScheduleSum(accs, i));
       } else {
         s=accs.reduce(function(t,a){
           var ivYFrom=ivYF(i), ivYTo=ivYT(i);
@@ -6320,8 +6606,17 @@ function buildWdTable(){
       tr+='<td '+TD+'>'+fmtN(estVal(a))+'</td>';
       tr+='<td '+TD+'>'+fmtN(estEnd(a))+'</td>';
       var ai=accounts.indexOf(a);
+      if(a.db){
+        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right" title="'+t('occ.db.tip')+'">'
+          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
+          +'<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">'+t('occ.badge.db')+'</div></td>';
+      } else if(a.type==='p-ins' && a.scheme && a.useDelningstal){
+        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'
+          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
+          +occPayoutToggle(ai, a)+'</td>';
+      }
       // State pension with delningstal: show estimated wd + mode selector + share selector
-      if(a.useDelningstal && a.type==='state'){
+      else if(a.useDelningstal && a.type==='state'){
         var _dtAge0 = (a.ws && a.ws<9999) ? (a.ws - by) : null;
         var _dt0    = _dtAge0 != null ? resolveDelningstal(a, _dtAge0) : 0;
         var _share  = (a.wdShare != null ? a.wdShare : 1);
@@ -6409,6 +6704,7 @@ function buildWdTable(){
           _wdDefault = Math.round(estVal(a) / (a.we - a.ws));
         }
         tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'wd',_wdDefault,90);
+        if(a.type==='p-ins' && a.scheme) tr+=occPayoutToggle(ai, a);
         // "Use delningstal" toggle only for state accounts with 'custom' scope
         // (Inkomst/Premie-scope accounts always stay on delningstal, so the
         // toggle is hidden — there's no way to turn delningstal off for them).
@@ -6423,7 +6719,9 @@ function buildWdTable(){
         tr+='</td>';
       }
       tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'ws',a.ws,70)+'</td>';
-      tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'we',a.we,70)+'</td>';
+      tr+= (a.db || (a.type==='p-ins' && a.useDelningstal))
+        ? '<td '+TD+'><span style="color:var(--muted)" title="'+t('occ.payout.lifelong')+'">\u221e</span></td>'
+        : '<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'we',a.we,70)+'</td>';
       ivs.forEach(function(iv,pidx){ tr+=wdCell(a,iv,pidx); });
       tr+='</tr>';
       rows+=tr;
@@ -6453,7 +6751,7 @@ function buildWdTable(){
       // Interval-based: wdAmount = AT+PI total. Add state pensions on top
       // (they're calculated independently via delningstal).
       var stateSum=allAccs.reduce(function(t,a){
-        if(a.type!=='state') return t;
+        if(a.type!=='state' && !(a.type==='p-ins' && !isPlannedPIns(a))) return t;
         var ivYFrom=ivYF(i), ivYTo=ivYT(i);
         var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
         return t+(ivYFrom<=we&&ivYTo>=ws?effWd(a):0);
@@ -7094,7 +7392,15 @@ function setPvMode(mode){
 }
 
 
-function addAccount(type){
+function addPInsFromMenu(sel){
+  var v = sel.value;
+  sel.value = '';
+  if(!v) return;
+  addAccount('p-ins', v === 'individual' ? null : v);
+}
+
+function addAccount(type, scheme){
+  if(type === 'p-ins' && scheme && OCC_SCHEMES[scheme]) return addOccScheme(scheme);
   var yr = START_YEAR || new Date().getFullYear();
   var ytDef = type==='after'?0.0105:type==='p-ins'?0.00375:0.000;
   var newA = {
@@ -7115,6 +7421,42 @@ function addAccount(type){
   accounts.splice(lastIdx>=0?lastIdx+1:accounts.length, 0, newA);
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
 }
+function addOccScheme(key){
+  var sc   = OCC_SCHEMES[key];
+  var yr   = START_YEAR || new Date().getFullYear();
+  var by   = Math.floor(getParam('birthYear'));
+  var retY = Math.round(getParam('retirementYear'));
+  var lifeY= Math.round(getParam('lifeYear'));
+  var rates= occPremRates(key, by);
+  var rows = [{
+    name: sc.name, scheme: key,
+    type:'p-ins', opening:0, contrib:0,
+    cs: Math.max(yr, by + sc.prem.from), ce: Math.min(by + sc.prem.to, 9998),
+    wd:0, ws:retY, we:lifeY,
+    eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:0.00375,
+    fixedRet:null, fixedRetPost:null,
+    contribSalary:true, cRate1:rates.r1, cIBB1:7.5, cIBB2:rates.cap, cRate2:rates.r2,
+    taxable:true, customDelningstal:17.26, wdShare:1
+  }];
+  if(sc.db){
+    rows.push({
+      name: sc.dbName + ' – ' + t('occ.name.db'), scheme: key, db: sc.db,
+      serviceYears: Math.max(0, Math.min(30, (retY - by) - 28)),
+      type:'p-ins', opening:0, contrib:0, cs:9999, ce:9999,
+      wd:0, ws:retY, we:9998,
+      eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
+      contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
+      taxable:true, wdShare:1
+    });
+  }
+  var lastIdx=-1;
+  accounts.forEach(function(a,i){if(a.type==='p-ins') lastIdx=i;});
+  Array.prototype.splice.apply(accounts, [lastIdx>=0?lastIdx+1:accounts.length, 0].concat(rows));
+  if(occBirthMismatch(rows[0])) showPlanToast('⚠ ' + t('occ.warn.birth'), true);
+  window._accGroupCollapsed && (window._accGroupCollapsed['p-ins'] = false);
+  buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
+}
+
 function removeAccount(i){
   var type=accounts[i]?accounts[i].type:null;
   var count=accounts.filter(function(a){return a.type===type;}).length;
