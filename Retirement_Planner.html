@@ -4365,6 +4365,9 @@ function runProjection(){
     }
 
     // ── MAIN LOOP ─────────────────────────────────────────────────────────
+    // balances[] is overwritten with each account's closing value as the loop
+    // runs, so cross-account shares must read this snapshot of the openings.
+    const openBalances = balances.slice();
     for(let i=0;i<accounts.length;i++){
       const a = accounts[i];
       const opening = balances[i];
@@ -4434,7 +4437,7 @@ function runProjection(){
           // across all intervals), causing withdrawals during intervals where
           // wdPctPI = 0%.
           if(wdIvPIns > 0){
-            const totalPInsBal = balances.reduce(function(s,b,j){return isPlannedPIns(accounts[j])?s+Math.max(0,b):s;},0);
+            const totalPInsBal = openBalances.reduce(function(s,b,j){return isPlannedPIns(accounts[j])?s+Math.max(0,b):s;},0);
             wd = totalPInsBal>0 ? Math.min(Math.round(wdIvPIns*Math.max(0,opening)/totalPInsBal), valBefore) : 0;
           } else {
             wd = 0;  // interval is active but P-Insurance split is 0% — no withdrawal
@@ -6600,7 +6603,7 @@ function buildWdTable(){
       var tr='<tr data-wdgrp="'+type+'"'+(collapsed?' style="display:none"':'')+'>';
       tr+='<td '+TD_L+'>'
         +'<span style="font-size:12px;color:var(--text)">'+accDisplayName(a)+'</span>'
-        +'<span style="font-size:9px;color:'+g.color+';margin-left:5px;text-transform:uppercase">'+t('acc.badge.'+type)+'</span>'
+        +'<span style="font-size:9px;color:'+g.color+';margin-left:5px;text-transform:uppercase">'+t({after:'acc.badge.after','p-ins':'acc.badge.pins',state:'acc.badge.state'}[type])+'</span>'
         +'</td>';
       tr+='<td '+TD+'>'+fmtN(a.opening||0)+'</td>';
       tr+='<td '+TD+'>'+fmtN(estVal(a))+'</td>';
