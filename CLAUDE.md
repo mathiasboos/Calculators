@@ -85,6 +85,31 @@ Offline, dependency-free Swedish pension and salary calculators built as standal
 update Salary_Exchange.html's copy — both must be replaced separately
 each December, or the two calculators will disagree.
 
+### Occupational pensions (tjänstepension) — Retirement_Planner.html only
+
+Source: `reference/Typfallsmodellen_v4.8.xlsb` (Pensionsmyndigheten), VBA
+modules `Tjänstepensioner` (premiums, payout divisor) and
+`TjänstepensionerFörmån` (defined benefit, function `FTJP`). Extract the VBA
+with oletools (`olevba`) to read it. When a new Typfallsmodellen version is
+published, replace the workbook and re-verify everything below.
+
+- `OCC_SCHEMES` — premium rates per IBB band, IBB caps and earning ages for
+  ITP 1, ITPK, SAF-LO, KAP-KL, AKAP-KR, PA16 Avd 1/2 (2027+ steady state).
+  ⚠ PA16 flex steps up yearly (2026 is a blended 6.125 % / 31.625 %), and
+  PA16 Avd 2's rate depends on birth year (<1965) — check `PA_indiv`/`tlPA16`
+- `KAPKL_DB_RATES` / `kapklDbRates` — KAP-KL förmånsbestämd cohort rates
+  (`KAPKL_f`; the 1966 value 0.268 is copied as-is from the VBA)
+- `PA16A2_DB_RATES` / `pa16a2DbRates` — PA16 Avd 2 förmånsbestämd (`tlPA03`)
+- `occDbBenefit` — ITP 2 (`tlITP2F`), KAP-KL, PA16 Avd 2. ITP 2 gets both its
+  own start-age factor (−0.5 %/month before 65, +0.6 %/month after) AND the
+  deltal(65)/deltal(age) ratio, exactly as the workbook does
+- Lifelong payout and the DB age ratio use the premiepension divisor
+  (`DELNINGSTAL_PP_FOND_2026`, extrapolated below 63) — the workbook's default
+  (`Rng_ddelat` = 0) applies no scheme rate/life adjustment
+- Not modelled: SAF-LO's STP part (pre-1996 blue-collar service), KAP-KL's
+  pre-1998 PFA transition, ITP 2 salary-growth caps (`DC_underlag`), the
+  `Rng_ddelat` divisor adjustment, AKAP-KR's 6 %-flat rate above age 69
+
 ## Source of truth for formulas
 
 When fixing or verifying calculation logic, **treat Excel as the source of truth**. If a formula in an HTML file diverges from the reference Excel model, the HTML is wrong.
