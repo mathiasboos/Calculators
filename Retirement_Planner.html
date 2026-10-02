@@ -3167,6 +3167,18 @@ function renderPInsContrib(i, a){
   var btnFixed  = btnBase+(a.contribSalary?';background:transparent;color:var(--muted)':';background:var(--gold);color:#0f1f3d');
   var btnSalary = btnBase+(a.contribSalary?';background:var(--gold);color:#0f1f3d':';background:transparent;color:var(--muted)');
 
+  // Scheme accounts follow the agreement's rules: show them, don't offer editing.
+  if(a.scheme && OCC_SCHEMES[a.scheme] && !a.db){
+    var fmtR = function(v){ return Number(v).toString().replace('.',','); };
+    var lim  = ib2 >= OCC_NO_CAP ? '∞' : fmtD(ib2);
+    return '<td style="padding:4px;min-width:190px;vertical-align:top">'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px">0 – '+fmtD(ib1)+' × IBB: <span style="color:var(--gold)">'+fmtR(r1)+'%</span></div>'
+      +'<div style="font-size:10px;color:var(--muted)">'+fmtD(ib1)+' – '+lim+' × IBB: <span style="color:var(--gold)">'+fmtR(r2)+'%</span></div>'
+      +'<div id="pins-sek-'+i+'" style="margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,0.1);'
+      +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
+      +'≈ '+calcSal(getParam('grossSalPre66')*12).toLocaleString('sv-SE')+' kr/yr</div></td>';
+  }
+
   var salarySection = '';
   if(a.contribSalary){
     var sal    = getParam('grossSalPre66')*12;
