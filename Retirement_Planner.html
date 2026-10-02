@@ -3750,13 +3750,11 @@ function buildAccountsTable(){
   const tbody=document.getElementById('accounts-tbody');
   tbody.innerHTML='';
 
-  // Group accounts by type preserving order
-  const groups=[];
-  let cur=null;
-  accounts.forEach((a,i)=>{
-    if(!cur||a.type!==cur.type){ cur={type:a.type,items:[]}; groups.push(cur); }
-    cur.items.push({a,i});
-  });
+  // All three groups are always shown, even when empty, so accounts can be
+  // added back after removing the last one in a category.
+  const groups=['after','p-ins','state'].map(type=>({
+    type, items: accounts.map((a,i)=>({a,i})).filter(x=>x.a.type===type)
+  }));
 
   // ── After-tax display helpers ─────────────────────────────────────
   const _afterTaxMode = window._assetTaxMode === 'after';
@@ -7473,9 +7471,6 @@ function addOccScheme(key){
 }
 
 function removeAccount(i){
-  var type=accounts[i]?accounts[i].type:null;
-  var count=accounts.filter(function(a){return a.type===type;}).length;
-  if(count<=1){ alert('Cannot remove the last account in a category.'); return; }
   accounts.splice(i,1);
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
 }
