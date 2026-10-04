@@ -93,22 +93,36 @@ modules `Tjänstepensioner` (premiums, payout divisor) and
 with oletools (`olevba`) to read it. When a new Typfallsmodellen version is
 published, replace the workbook and re-verify everything below.
 
-- `OCC_SCHEMES` — premium rates per IBB band, IBB caps and earning ages for
-  ITP 1, ITPK, SAF-LO, KAP-KL, AKAP-KR, PA16 Avd 1/2 (2027+ steady state).
-  ⚠ PA16 flex steps up yearly (2026 is a blended 6.125 % / 31.625 %), and
-  PA16 Avd 2's rate depends on birth year (<1965) — check `PA_indiv`/`tlPA16`
+- Engine (`occMakeCtx`, `occStep`, `occPremium`, `occHistoryOpening`) is a port of
+  the workbook's yearly loop: balance = premium·y^0.5 + prev·y·keptAfterFees
+  + prev·inheritance gain, minus yield tax, minus payout·y^0.5. The payout is
+  set ONCE at pension start (balance ÷ cohort divisor) and then stays flat in
+  constant prices (the workbook indexes it with prisbasbelopp)
+- Embedded data, extend/verify every year: `OCC_HIST` (income index, IBB, fund
+  return, kept-after-fees, statslåneränta — sheets Nyckeltal / Några tal),
+  `OCC_DT` (premiepension divisor by birth year × age, Nyckeltal c27:c71) and
+  `OCC_ARV` (inheritance gains, sheet `arv PP`). Forward years use the
+  Parameters-tab real return (default 1.7 %, `occReturn`) and
+  statslåneränta 2.5 % (`avkskatt` Case Else) → yield tax 0.375 %
+- `occPremium` — premium rules per scheme AND year (tlITP1, tlITP2A, SAF_LO,
+  tlkap_kl, tlakap_kr, Kapan + PA_indiv, tlPA16). ⚠ PA16 flex steps up yearly
+  (2026 is a blended 6.125 % / 31.625 %); PA16 Avd 2's rate depends on birth
+  year (<1965). `OCC_SCHEMES` only holds the 2027+ values shown in the UI
+- Past wages = today's salary × income index(year) / income index(2026);
+  future IBB grows with the real wage growth (workbook convention). Scheme
+  accounts without an entered Opening get the history value (`openAuto`)
 - `KAPKL_DB_RATES` / `kapklDbRates` — KAP-KL förmånsbestämd cohort rates
   (`KAPKL_f`; the 1966 value 0.268 is copied as-is from the VBA)
 - `PA16A2_DB_RATES` / `pa16a2DbRates` — PA16 Avd 2 förmånsbestämd (`tlPA03`)
-- `occDbBenefit` — ITP 2 (`tlITP2F`), KAP-KL, PA16 Avd 2. ITP 2 gets both its
-  own start-age factor (−0.5 %/month before 65, +0.6 %/month after) AND the
-  deltal(65)/deltal(age) ratio, exactly as the workbook does
-- Lifelong payout and the DB age ratio use the premiepension divisor
-  (`DELNINGSTAL_PP_FOND_2026`, extrapolated below 63) — the workbook's default
-  (`Rng_ddelat` = 0) applies no scheme rate/life adjustment
-- Not modelled: SAF-LO's STP part (pre-1996 blue-collar service), KAP-KL's
-  pre-1998 PFA transition, ITP 2 salary-growth caps (`DC_underlag`), the
-  `Rng_ddelat` divisor adjustment, AKAP-KR's 6 %-flat rate above age 69
+- `occDbBenefit` — ITP 2 (`tlITP2F`), KAP-KL, PA16 Avd 2, using IBB(start
+  age − 1). ITP 2 gets both its own start-age factor (−0.5 %/month before 65,
+  +0.6 %/month after) AND the deltal(65)/deltal(age) ratio, as in the workbook
+- Verified against the HTML port of v4.8 (same inputs, inflation 0, growth 1 %):
+  premium-only schemes and the DB schemes at pension age ≥ 65 agree within ~1 %
+- Not modelled: SAF-LO's STP part (~3 %), KAP-KL's pre-1998 PFA transition,
+  ITP 2 salary-growth caps (`DC_underlag`), the `Rng_ddelat` divisor
+  adjustment, AKAP-KR's 6 %-flat rate above 69, and the workbook's behaviour
+  for tjänstepension taken before 65 (it pays more than the planner there)
 
 ## Source of truth for formulas
 
