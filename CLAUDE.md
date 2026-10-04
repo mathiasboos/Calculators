@@ -117,8 +117,17 @@ published, replace the workbook and re-verify everything below.
 - `occDbBenefit` — ITP 2 (`tlITP2F`), KAP-KL, PA16 Avd 2, using IBB(start
   age − 1). ITP 2 gets both its own start-age factor (−0.5 %/month before 65,
   +0.6 %/month after) AND the deltal(65)/deltal(age) ratio, as in the workbook
+- State income pension (inkomstpension, account scope `inkomst`, `isIpEngineAcc`)
+  uses the same approach: `ipPgi` / `ipRatt` (16 % of PGI = 93 % of income up to
+  7.5 IBB, credited the year after the income), `ipStep` (VBA `IP_`: pension
+  index, admin fee, inheritance gains `OCC_ARV_IP`), payout = balance incl. the
+  last right ÷ cohort divisor (`DELNINGSTAL_IP`), then indexed with the pension
+  index ÷ 1.016. Data to extend yearly: `OCC_IP` (pension index, admin fee, PBB,
+  förhöjt PBB, lägsta pensionsålder by cohort) and `OCC_ARV_IP`. Forecast pension
+  index = income index (no balancing brake), as in the workbook
 - Verified against the HTML port of v4.8 (same inputs, inflation 0, growth 1 %):
-  premium-only schemes and the DB schemes at pension age ≥ 65 agree within ~1 %
+  premium-only schemes, the DB schemes at pension age ≥ 65 and the income pension
+  agree within ~1 %
 - Not modelled: SAF-LO's STP part (~3 %), KAP-KL's pre-1998 PFA transition,
   ITP 2 salary-growth caps (`DC_underlag`), the `Rng_ddelat` divisor
   adjustment, AKAP-KR's 6 %-flat rate above 69, and the workbook's behaviour
