@@ -143,10 +143,19 @@ published, replace the workbook and re-verify everything below.
   in `gpAmount`/`iptAmount`. Agrees with the port's yearly table within ~0.3 %
   (the port's summary tile adds the last right, +2.5 %). Not modelled: tilläggspension
   (ATP) in the underlag, bostadstillägg interplay, residence years < 40 for IPT
+- Tilläggspension (ATP, `benefitKind` `tillagg`, `atpSeries`/`atpFull`): only for
+  people born 1938–1953 (zero for later cohorts, by law and in the workbook).
+  ATP points = PGI/förhöjt prisbasbelopp − 1 per year (age < 65, from 1960), average
+  of the best 15 years, 0.6·points·PBB + 0.96 (single) / 0.785 (couple) · PBB, scaled
+  by years/30 (min 3), × (1 − `andelNya`) (the rest sits in the income pension),
+  × the early/late-withdrawal factor TWICE (workbook quirk, kept), indexed like the
+  income pension, plus the guarantee top-up from pre-1995 points. `andelNya` also
+  scales the income/premium/guarantee rights of those cohorts (ages ≤ 64). Agrees
+  with the port exactly (±0.4 %) when the payout year is 2026+ (flat PBB 59 200).
+  Not modelled: PGB points (childcare/studies), ATP in the Garantipension underlag
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
-  Premiepension (auto opening), Garantipension / Inkomstpensionstillägg (calculated, see above),
-  Tilläggspension (`benefit` row: fixed yearly amount for life from the
-  Withdrawals tab, no capital), Annat (generic)
+  Premiepension (auto opening), Garantipension / Inkomstpensionstillägg / Tilläggspension (all calculated,
+  see above), Annat (generic)
 - Verified against the HTML port of v4.8 (same inputs, inflation 0, growth 1 %):
   premium-only schemes, the DB schemes at pension age ≥ 65 and the income pension
   agree within ~1 %
