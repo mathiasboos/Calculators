@@ -1801,6 +1801,10 @@ en:{
   'acc.add.after':'+ Add After-Tax Account','acc.add.pins':'+ Add P-Insurance Account','acc.add.state':'+ Add State Account',
   'st.opt.inkomst':'Income pension','st.opt.premie':'Premium pension','st.opt.garanti':'Guarantee pension','st.opt.ipt':'Income pension supplement','st.opt.tillagg':'Supplementary pension (ATP)','st.opt.annat':'Other',
   'st.benefit.note':'Fixed yearly benefit paid for life, no capital. Enter the amount on the Withdrawals tab.',
+  'bn.rule.garanti':'Top-up to the guarantee level when the pension is low (underlag: 18.5 % of PGI)',
+  'bn.rule.ipt':'Supplement for low income pensions (underlag: 18.5 % of PGI)',
+  'bn.auto.tip':'Calculated with Typfallsmodellen from your income history (contribution start/end age). Paid from the guarantee age.',
+  'gp.single':'Single','gp.cohab':'Cohabiting','gp.years':'Residence years',
   'occ.opt.individual':'Individual pension account',
   'occ.opt.itp1':'ITP 1, Private employee (white collar), born 1979-',
   'occ.opt.itp2':'ITP 2, Private employee (white collar), born before 1979',
@@ -2255,6 +2259,10 @@ sv:{
   'acc.add.after':'+ Lägg till beskattat konto','acc.add.pins':'+ Lägg till P-försäkring','acc.add.state':'+ Lägg till statligt konto',
   'st.opt.inkomst':'Inkomstpension','st.opt.premie':'Premiepension','st.opt.garanti':'Garantipension','st.opt.ipt':'Inkomstpensionstillägg','st.opt.tillagg':'Tilläggspension','st.opt.annat':'Annat',
   'st.benefit.note':'Fast årsbelopp som betalas ut livet ut, inget kapital. Ange beloppet på fliken Uttag.',
+  'bn.rule.garanti':'Tillskott upp till garantinivån när pensionen är låg (underlag: 18,5 % av PGI)',
+  'bn.rule.ipt':'Tillägg för låga inkomstpensioner (underlag: 18,5 % av PGI)',
+  'bn.auto.tip':'Beräknas med Typfallsmodellen utifrån din inkomsthistorik (start-/slutålder för avgifter). Betalas från riktåldern.',
+  'gp.single':'Ensamstående','gp.cohab':'Gift/sammanboende','gp.years':'Bosättningsår',
   'occ.opt.individual':'Individuellt pensionskonto',
   'occ.opt.itp1':'ITP-1, Privatanställda tjänstemän, födda 1979-',
   'occ.opt.itp2':'ITP-2, Privatanställda tjänstemän, födda före 1979',
@@ -3481,11 +3489,11 @@ function ipPgi(y, income, ibb, pbb, fpb){
 }
 function ipAvgift(y){ return y <= 1994 ? 0.185 : y <= 1998 ? 0.165 : 0.16; }
 // Pension right credited in year y (from the income of year y-1).
-function ipRatt(ctx, a, y){
+function ipRatt(ctx, a, y, rate){
   var iy = y - 1;
   if(iy < a.cs || iy > a.ce || iy >= ctx.retY) return 0;
   var pgi = ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy));
-  return ipAvgift(iy) * pgi;
+  return (rate != null ? rate : ipAvgift(iy)) * pgi;
 }
 function ipRiktl(born){
   var r = OCC_IP.riktl;
@@ -3523,6 +3531,58 @@ function ipHistoryOpening(a, ctx){
   return bal;
 }
 function ipIndexRatio(ctx, y){ return ipPindex(ctx, y) / ipPindex(ctx, y - 1); }
+
+// ─── Garantipension (VBA Bidrag.gp) and Inkomstpensionstillägg (VBA Bidrag.tillagg) ───
+// Both are computed from the "underlag": the income pension the person would get if the
+// whole 18.5 % premium (16 % + 2.5 %) went to the income pension (VBA GP_ratt/GP_pbh,
+// payout = balance ÷ cohort divisor, then indexed like the income pension). The underlag
+// is a notional series kept inside the account, not a balance that shows in the assets.
+// Riktålder (guarantee-pension age) by birth cohort 1930–2057 (Typfallsmodellen riktålder series; update yearly).
+const RIKTALDER = {first:1930, v:[65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,65,66,66,67,67,67,67,67,67,67,68,68,68,68,68,68,68,68,68,68,68,68,68,68,68,69,69,69,69,69,69,69,69,69,69,69,69,69,69,69,69,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,70,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72,72]};
+function riktalderOf(born){ return RIKTALDER.v[Math.min(Math.max(Math.floor(born) - RIKTALDER.first, 0), RIKTALDER.v.length - 1)]; }
+function isUnderlagAcc(a){ return !!(a && a.type === 'state' && (a.benefitKind === 'garanti' || a.benefitKind === 'ipt')); }
+function underlagSeries(ctx, a){
+  var by = ctx.by, startY = Math.max(a.ws < 9999 ? a.ws : ctx.retY, by + riktalderOf(by)), bal = 0, y;
+  for(y = Math.max(a.cs + 1, OCC_IP.first + 1); y < startY; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y, 0.185), y, false);
+  // Workbook: divisor at riktåldern (cohorts after 1958), and the last right is not included
+  var dv = getDelningstal(by > 1958 ? riktalderOf(by) : startY - by, by);
+  var v = dv > 0 ? bal / dv : 0, vals = {};
+  vals[startY] = v;
+  for(y = startY + 1; y <= startY + 80; y++){ v = v * ipIndexRatio(ctx, y) / (1 + FOLJSAMHET_FORSKOTTSRANTA); vals[y] = v; }
+  return {startY: startY, vals: vals, by: by};
+}
+function gpPbb(){ return OCC_IP.pbb[OCC_IP.pbb.length - 1]; }   // prices are constant in the planner
+function gpAmount(inc, civ, ftid){
+  var pbb = gpPbb(), g;
+  if(civ === 1) g = inc <= 1.14 * pbb ? 2.2 * pbb - inc : 1.06 * pbb - 0.48 * (inc - 1.14 * pbb);
+  else          g = inc <= 1.26 * pbb ? 2.43 * pbb - inc : 1.17 * pbb - 0.48 * (inc - 1.26 * pbb);
+  if(g < 0 || ftid < 4) return 0;
+  if(ftid < 40) g = g * ftid / 40;
+  return 12 * Math.floor(g / 12 + 0.5);
+}
+function iptAmount(ctx, underl, y, ftid){
+  if(y < 2021 || ftid < 1) return 0;
+  var i = (occIncomeIdx(ctx, y) / occIncomeIdx(ctx, 2021)) / Math.pow(1.016, y - 2021);
+  var u = underl / i, v;
+  if(u < 108000 || u >= 204000) return 0;
+  if(u < 132000) v = Math.floor((u - 108000) * 0.3 / 600) * 600 + 300;
+  else if(u <= 168000) v = 7200;
+  else v = Math.floor((7200 - (u - 168000) * 0.2) / 600) * 600 + 300;
+  return ftid < 40 ? v * ftid / 40 : v;
+}
+// Benefit paid in year y (0 before the start year or before riktåldern).
+function underlagBenefit(ctx, a, ser, y){
+  if(!ser || y < ser.startY) return 0;
+  var u = ser.vals[y] || 0;
+  if(a.benefitKind === 'garanti') return gpAmount(u, a.civ === 1 ? 1 : 0, a.ftid != null ? a.ftid : 40);
+  var yrs = Math.min(40, Math.max(0, a.ce - a.cs + 1));
+  return iptAmount(ctx, u, y, yrs);
+}
+// First-payout-year estimate for the Assets / Withdrawals displays.
+function underlagFirstAmount(a){
+  var ctx = occMakeCtx(occParamsNow()), ser = underlagSeries(ctx, a);
+  return {amt: underlagBenefit(ctx, a, ser, ser.startY), age: ser.startY - ser.by};
+}
 
 // ─── Premiepension history (VBA ppavgift / PP_pbh / PPMavg) ───────────────
 // Only the HISTORY is taken from Typfallsmodellen (auto opening when Opening is
@@ -4481,8 +4541,8 @@ function buildAccountsTable(){
       tr.innerHTML=`
         <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}</td>
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
-        ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell() : renderPInsContrib(i,a)}
-        ${(a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
+        ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
+        ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
           + col(i,'ce',a.ce,1,60)
           + ((isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
             col(i,'eq1',a.eq1,0.1,60)
@@ -4521,6 +4581,7 @@ function buildAccountsTable(){
     const _by_acc    = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
     const _wdOf      = (a)=>{
       if(a.db) return occDbEstimate(a);
+      if(isUnderlagAcc(a)) return Math.round(underlagFirstAmount(a).amt);
     if(usesDelningstalPayout(a)){
         const _dt    = resolveDelningstal(a, a.ws - _by_acc);
         const _share = (a.wdShare != null ? a.wdShare : 1);
@@ -4548,6 +4609,7 @@ function buildAccountsTable(){
   const _byTot       = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
   const _wdOfTot     = (a)=>{
     if(a.db) return occDbEstimate(a);
+    if(isUnderlagAcc(a)) return Math.round(underlagFirstAmount(a).amt);
     if(usesDelningstalPayout(a)){
       const _dt    = resolveDelningstal(a, a.ws - _byTot);
       const _share = (a.wdShare != null ? a.wdShare : 1);
@@ -4919,6 +4981,7 @@ function runProjection(){
   // Typfallsmodellen history value before balances are initialised.
   const _occ = occMakeCtx(params);
   if(occRefreshAutoOpenings(_occ)) window._occOpeningChanged = true;
+  const _ugSer = accounts.map(a => isUnderlagAcc(a) ? underlagSeries(_occ, a) : null);
 
   // init balances
   let balances = accounts.map(a => a.opening);
@@ -5109,6 +5172,9 @@ function runProjection(){
           } else {
             wd = 0;
           }
+        } else if(isUnderlagAcc(a)){
+          // Garantipension / IPT: amount follows from the pension underlag each year
+          wd = (a.ws<9999 && yr>=a.ws && yr<=a.we) ? Math.round(underlagBenefit(_occ, a, _ugSer[i], yr)) : 0;
         } else if(wdIvActive && isPlannedPIns(a)){
           // Interval is active for this year — always use the interval's
           // P-Insurance amount, even if that amount is 0.
@@ -7214,6 +7280,7 @@ function buildWdTable(){
   // age) × wdShare (utbetalningsgrad, default 1 = 100%).
   function effWd(a){
     if(a.db) return occDbEstimate(a);
+    if(isUnderlagAcc(a)) return Math.round(underlagFirstAmount(a).amt);
     if(usesDelningstalPayout(a)){
       var _ageWs = a.ws - by;
       var _dt    = resolveDelningstal(a, _ageWs);
@@ -7326,6 +7393,11 @@ function buildWdTable(){
         tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'
           +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
           +occPayoutToggle(ai, a)+'</td>';
+      }
+      else if(isUnderlagAcc(a)){
+        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right" title="'+t('bn.auto.tip')+'">'
+          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
+          +'<div style="font-size:9px;color:#4885C4">'+t('occ.auto')+'</div></td>';
       }
       // State pension with delningstal: show estimated wd + mode selector + share selector
       else if(a.useDelningstal && a.type==='state'){
@@ -8195,9 +8267,11 @@ function addStateAccount(kind){
       cs: Math.min(by + 25, retY - 1), ce: retY - 1, ws: retY, we: lifeY
     });
   } else {
+    var auto = kind === 'garanti' || kind === 'ipt';
     row = {
       name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
-      opening:0, contrib:0, cs:9999, ce:9999, wd:0, ws:retY, we:lifeY,
+      benefitKind:kind, civ:0, ftid:40,
+      opening:0, contrib:0, cs: auto ? Math.min(by + 25, retY - 1) : 9999, ce: auto ? retY - 1 : 9999, wd:0, ws:retY, we:lifeY,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
       taxable:true, wdShare:1
@@ -8209,7 +8283,24 @@ function addStateAccount(kind){
   window._accGroupCollapsed && (window._accGroupCollapsed.state = false);
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
 }
-function renderBenefitCell(){
+function renderBenefitCell(i, a){
+  if(isUnderlagAcc(a)){
+    var r = underlagFirstAmount(a);
+    var INP = 'background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--gold);text-align:center;padding:1px 3px;font-size:10px';
+    var ctl = '';
+    if(a.benefitKind === 'garanti'){
+      ctl = '<div style="font-size:10px;color:var(--muted);margin:3px 0">'
+        + '<select style="'+INP+'" onchange="accounts['+i+'].civ=parseInt(this.value);buildAccountsTable();recalc()">'
+        + '<option value="0"'+(a.civ===1?'':' selected')+'>'+t('gp.single')+'</option>'
+        + '<option value="1"'+(a.civ===1?' selected':'')+'>'+t('gp.cohab')+'</option></select> '
+        + t('gp.years')+': <input type="text" inputmode="numeric" value="'+(a.ftid!=null?a.ftid:40)+'" style="'+INP+';width:28px"'
+        + ' onchange="accounts['+i+'].ftid=Math.max(0,Math.min(40,parseInt(this.value)||0));buildAccountsTable();recalc()"> / 40</div>';
+    }
+    return '<td style="padding:4px;min-width:190px;vertical-align:top" title="'+t('bn.auto.tip')+'">'
+      + '<div style="font-size:10px;color:var(--muted)">'+t('bn.rule.'+a.benefitKind)+'</div>' + ctl
+      + '<div style="font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right;margin-top:3px">'
+      + t('occ.db.from',{amt:Math.round(r.amt).toLocaleString('sv-SE'), age:Math.round(r.age)})+'</div></td>';
+  }
   return '<td style="padding:4px;min-width:190px;vertical-align:top;font-size:10px;color:var(--muted)">'+t('st.benefit.note')+'</td>';
 }
 

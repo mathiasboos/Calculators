@@ -132,10 +132,21 @@ published, replace the workbook and re-verify everything below.
   the planner's own growth so equity %, fees, yield tax and fixed return stay
   editable. Data to extend yearly: `PP_RGK` (Några tal C19). Agrees with the port
   within ~0.6 % (payout = balance(retY−1)·yield + last right ÷ cohort divisor)
+- Garantipension and Inkomstpensionstillägg (`benefitKind` `garanti` / `ipt`,
+  `isUnderlagAcc`): both derive from the "underlag" = the income pension the person
+  would get if the whole 18.5 % went to the income pension (`underlagSeries`:
+  `ipStep` with rate 0.185, balance ÷ divisor at riktåldern, last right NOT
+  included, then indexed like the income pension). `gpAmount` = VBA `Bidrag.gp`
+  (2026+ levels, single/cohabiting, residence years), `iptAmount` = VBA `tillagg`;
+  paid from max(Wdrl start, riktålder `RIKTALDER`). The underlag is notional (no
+  balance shows in the assets). Data to extend yearly: `RIKTALDER`, the 2026+ levels
+  in `gpAmount`/`iptAmount`. Agrees with the port's yearly table within ~0.3 %
+  (the port's summary tile adds the last right, +2.5 %). Not modelled: tilläggspension
+  (ATP) in the underlag, bostadstillägg interplay, residence years < 40 for IPT
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
-  Premiepension (auto opening), Garantipension / Inkomstpensionstillägg /
-  Tilläggspension (`benefit` rows: fixed yearly amount for life from the
-  Withdrawals tab, no capital, not calculated from Typfallsmodellen), Annat (generic)
+  Premiepension (auto opening), Garantipension / Inkomstpensionstillägg (calculated, see above),
+  Tilläggspension (`benefit` row: fixed yearly amount for life from the
+  Withdrawals tab, no capital), Annat (generic)
 - Verified against the HTML port of v4.8 (same inputs, inflation 0, growth 1 %):
   premium-only schemes, the DB schemes at pension age ≥ 65 and the income pension
   agree within ~1 %
