@@ -1799,6 +1799,8 @@ en:{
   'acc.name.occ.pen.2':'Occupational Pension 2',
   'acc.name.occ.pen.3':'Occupational Pension 3',
   'acc.add.after':'+ Add After-Tax Account','acc.add.pins':'+ Add P-Insurance Account','acc.add.state':'+ Add State Account',
+  'st.opt.inkomst':'Income pension','st.opt.premie':'Premium pension','st.opt.garanti':'Guarantee pension','st.opt.ipt':'Income pension supplement','st.opt.tillagg':'Supplementary pension (ATP)','st.opt.annat':'Other',
+  'st.benefit.note':'Fixed yearly benefit paid for life, no capital. Enter the amount on the Withdrawals tab.',
   'occ.opt.individual':'Individual pension account',
   'occ.opt.itp1':'ITP 1, Private employee (white collar), born 1979-',
   'occ.opt.itp2':'ITP 2, Private employee (white collar), born before 1979',
@@ -2251,6 +2253,8 @@ sv:{
   'acc.name.occ.pen.2':'Tjänstepension 2',
   'acc.name.occ.pen.3':'Tjänstepension 3',
   'acc.add.after':'+ Lägg till beskattat konto','acc.add.pins':'+ Lägg till P-försäkring','acc.add.state':'+ Lägg till statligt konto',
+  'st.opt.inkomst':'Inkomstpension','st.opt.premie':'Premiepension','st.opt.garanti':'Garantipension','st.opt.ipt':'Inkomstpensionstillägg','st.opt.tillagg':'Tilläggspension','st.opt.annat':'Annat',
+  'st.benefit.note':'Fast årsbelopp som betalas ut livet ut, inget kapital. Ange beloppet på fliken Uttag.',
   'occ.opt.individual':'Individuellt pensionskonto',
   'occ.opt.itp1':'ITP-1, Privatanställda tjänstemän, födda 1979-',
   'occ.opt.itp2':'ITP-2, Privatanställda tjänstemän, födda före 1979',
@@ -2829,6 +2833,7 @@ function resolveDelningstal(a, age){
 // prem: r1 % up to 7.5 IBB, r2 % from 7.5 IBB to cap×IBB (999 = no cap),
 // contributions from age `from` through the year of age `to`.
 // db: defined-benefit part from VBA module TjänstepensionerFörmån (FTJP).
+const STATE_KINDS = ['inkomst','premie','garanti','ipt','tillagg','annat'];  // + Add State Account menu
 const OCC_NO_CAP = 999;
 const OCC_SCHEMES = {
   itp1:   {opt:'occ.opt.itp1',   name:'ITP 1',            born:[1979,9999], prem:{r1:4.5, r2:30,   cap:30,         from:25, to:65}},
@@ -3311,17 +3316,18 @@ function occHistoryOpening(a, ctx){
 function occRefreshAutoOpenings(ctx){
   var changed = false;
   accounts.forEach(function(a){
-    var isOcc = isOccPremiumAcc(a), isIp = isIpEngineAcc(a);
-    if(!isOcc && !isIp) return;
+    var isOcc = isOccPremiumAcc(a), isIp = isIpEngineAcc(a), isPp = isPpAutoAcc(a);
+    if(!isOcc && !isIp && !isPp) return;
     var auto = a.openAuto === true || (a.openAuto !== false && !(a.opening > 0));
     if(!auto) return;
     a.openAuto = true;
-    var v = Math.round(isOcc ? occHistoryOpening(a, ctx) : ipHistoryOpening(a, ctx));
+    var v = Math.round(isOcc ? occHistoryOpening(a, ctx) : isIp ? ipHistoryOpening(a, ctx) : ppHistoryOpening(a, ctx));
     if(v !== Math.round(a.opening || 0)){ a.opening = v; changed = true; }
   });
   return changed;
 }
 
+function hasAutoOpening(a){ return isOccPremiumAcc(a) || isIpEngineAcc(a) || isPpAutoAcc(a); }
 function isOccPremiumAcc(a){ return !!(a && a.scheme && !a.db && a.type === 'p-ins'); }
 // Income-pension (inkomstpension) series 1960–2026: pension index, kept after admin fee, prisbasbelopp, förhöjt prisbasbelopp.
 const OCC_IP = {first:1960,
@@ -3517,6 +3523,52 @@ function ipHistoryOpening(a, ctx){
   return bal;
 }
 function ipIndexRatio(ctx, y){ return ipPindex(ctx, y) / ipPindex(ctx, y - 1); }
+
+// ─── Premiepension history (VBA ppavgift / PP_pbh / PPMavg) ───────────────
+// Only the HISTORY is taken from Typfallsmodellen (auto opening when Opening is
+// blank/0); the projection keeps the planner's own growth model so equity %,
+// fees, yield tax and fixed return stay editable on the account.
+function isPpAutoAcc(a){
+  return !!(a && a.type === 'state' && a.delningstalScope === 'premie' && a.ppEngine !== false);
+}
+function ppAvgift(y){ return y <= 1994 ? 0 : y <= 1998 ? 0.02 : 0.025; }
+// Premium credited in year y from the income of year y-1.
+function ppRatt(ctx, a, y){
+  var iy = y - 1;
+  if(iy < a.cs || iy > a.ce || iy >= ctx.retY) return 0;
+  var pgi = ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy));
+  return ppAvgift(iy) * pgi;
+}
+// Fund-manager fee in kr (PPMavg, incl. the workbook's caps; flat 100 kr from 2019).
+function ppFee(y, bal, yv){
+  var raw = bal * (1 - occKept(y)) * (y < 2011 ? 1 : Math.sqrt(yv));
+  if(y < 2007) return raw;
+  if(y === 2007 && raw > 100) return 100;
+  if(y < 2010 && raw > 110) return 110;
+  if(y === 2010 && raw > 125) return 125;
+  if(y < 2014 && raw > 110) return 110;
+  if(y < 2017 && raw > 120) return 120;
+  if(y < 2018 && raw > 125) return 125;
+  if(y < 2019 && raw > 125) return 160;
+  return 100;
+}
+// RGK-räntan (Några tal C19, %): interest on premiums held by Riksgälden before they are placed; 1 % afterwards.
+const PP_RGK = {first:1996, v:[22.3,16.9,11.8,6.5,7.8,6.3,6.6,5.2,4.6,4.5,5.9,6.6,3.699,1.991,4.505,2.939,3.983,2.732,2.259,1.491,1.081,0.914,0.908,0.94,0.706,1.072,2.707,3.606,2.729]};
+function ppRgk(y){
+  if(y < PP_RGK.first) return 1;
+  var i = y - PP_RGK.first;
+  return 1 + (i < PP_RGK.v.length ? PP_RGK.v[i] : 1) / 100;
+}
+function ppStep(ctx, bal, ratt, y){
+  var yv = occYieldFactor(ctx, y);
+  var arv = occArvGain(y - ctx.by + 1, y + 1) * (y - 1 < 2010 ? 1 : 1 / Math.sqrt(yv));
+  return Math.max(0, bal * yv + bal * arv + ratt * ppRgk(y) - (bal > 0 ? ppFee(y, bal, yv) : 0));
+}
+function ppHistoryOpening(a, ctx){
+  var bal = 0;
+  for(var y = Math.max(a.cs + 1, 1996); y < START_YEAR; y++) bal = ppStep(ctx, bal, ppRatt(ctx, a, y), y);
+  return bal;
+}
 
 
 
@@ -4385,7 +4437,7 @@ function buildAccountsTable(){
       return `<td><input type="text" readonly value="${fmtd}" style="${baseStyle};color:#48B866;background:rgba(245,180,40,.07);border:1px solid rgba(245,180,40,.2);border-radius:4px;text-align:right;padding:2px 5px;font-size:12px;font-family:var(--font-m);pointer-events:none"></td>`;
     }
     const fmtd=val===null||val===undefined?'0':Math.round(val).toLocaleString('sv-SE');
-    if(field==='opening' && (isOccPremiumAcc(accounts[i]) || isIpEngineAcc(accounts[i])) && accounts[i].openAuto){
+    if(field==='opening' && hasAutoOpening(accounts[i]) && accounts[i].openAuto){
       return `<td><input type="text" inputmode="numeric" ${attrs} value="${fmtd}" style="${baseStyle};font-style:italic;color:#4885C4" title="${t('occ.auto.tip')}" onchange="${onChange}">`
         + `<div style="font-size:9px;color:#4885C4;text-align:right;margin-top:2px" title="${t('occ.auto.tip')}">${t('occ.auto')}</div></td>`;
     }
@@ -4428,9 +4480,9 @@ function buildAccountsTable(){
       if(collapsed) tr.style.display='none';
       tr.innerHTML=`
         <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}</td>
-        ${a.db ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
-        ${a.db ? renderOccDbCell(i,a) : renderPInsContrib(i,a)}
-        ${a.db ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
+        ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
+        ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell() : renderPInsContrib(i,a)}
+        ${(a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
           + col(i,'ce',a.ce,1,60)
           + ((isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
             col(i,'eq1',a.eq1,0.1,60)
@@ -4455,6 +4507,11 @@ function buildAccountsTable(){
         + `<option value="" selected disabled hidden>${_addLbl} \u25BE</option>`
         + `<option value="individual">${t('occ.opt.individual')}</option>`
         + OCC_SCHEME_ORDER.map(k=>`<option value="${k}">${t(OCC_SCHEMES[k].opt)}</option>`).join('')
+        + `</select></td>`
+      : g.type==='state'
+      ? `<td colspan="12" style="padding:6px 12px"><select id="acc-add-state" onchange="addStateFromMenu(this)" style="${_addStyle}">`
+        + `<option value="" selected disabled hidden>${_addLbl} \u25BE</option>`
+        + STATE_KINDS.map(k=>`<option value="${k}">${t('st.opt.'+k)}</option>`).join('')
         + `</select></td>`
       : `<td colspan="12" style="padding:6px 12px"><button onclick="addAccount('${g.type}')" style="${_addStyle}">${_addLbl}</button></td>`;
     tbody.appendChild(addRow);
@@ -5114,7 +5171,7 @@ function runProjection(){
           mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
         }
         // A statutory annuity keeps paying after the notional balance is spent.
-        const _lifelong = a.db || ((a.actuarial || isIpEngineAcc(a)) && a.useDelningstal && (a.type==='state' || a.type==='p-ins'));
+        const _lifelong = a.db || a.benefit || ((a.actuarial || isIpEngineAcc(a)) && a.useDelningstal && (a.type==='state' || a.type==='p-ins'));
         if(_occStep){
           // Payout leaves mid-year, so it costs payout·y^0.5 of the year-end balance
           const _py = Math.sqrt(_occStep.yv);
@@ -7949,7 +8006,7 @@ function updateAccountField(i, field, rawVal){
   } else if(isMon){
     accounts[i][field] = parseInt(rawVal.replace(/[^0-9]/g,''))||0;
     if(inp) inp.value = accounts[i][field].toLocaleString('sv-SE');
-    if(field==='opening' && (isOccPremiumAcc(accounts[i]) || isIpEngineAcc(accounts[i]))) accounts[i].openAuto = !(accounts[i].opening > 0);
+    if(field==='opening' && hasAutoOpening(accounts[i])) accounts[i].openAuto = !(accounts[i].opening > 0);
     updateAccountSubtotals();
   } else if(isYearField){
     // Input is age — convert to year for storage
@@ -8113,6 +8170,47 @@ function addOccScheme(key){
   if(occBirthMismatch(rows[0])) showPlanToast('⚠ ' + t('occ.warn.birth'), true);
   window._accGroupCollapsed && (window._accGroupCollapsed['p-ins'] = false);
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
+}
+
+// State-account kinds offered by "+ Add State Account". Inkomstpension and
+// Premiepension are the real accounts (auto opening from Typfallsmodellen when
+// Opening is blank/0); Garantipension, Inkomstpensionstillägg and Tilläggspension
+// are fixed lifelong benefits entered as a yearly amount on the Withdrawals tab.
+function addStateFromMenu(sel){
+  var v = sel.value;
+  sel.value = '';
+  if(v) addStateAccount(v);
+}
+function addStateAccount(kind){
+  if(kind === 'annat') return addAccount('state');
+  var by   = Math.floor(getParam('birthYear'));
+  var retY = Math.round(getParam('retirementYear'));
+  var lifeY= Math.round(getParam('lifeYear'));
+  var row;
+  if(kind === 'inkomst' || kind === 'premie'){
+    var key = kind === 'inkomst' ? 'acc.name.income.pen' : 'acc.name.premium.pen';
+    var tpl = ACCOUNTS_INIT.filter(function(x){ return x.nameKey === key; })[0];
+    row = Object.assign({}, tpl, {
+      opening:0, openAuto:true, contrib:0, wd:0,
+      cs: Math.min(by + 25, retY - 1), ce: retY - 1, ws: retY, we: lifeY
+    });
+  } else {
+    row = {
+      name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
+      opening:0, contrib:0, cs:9999, ce:9999, wd:0, ws:retY, we:lifeY,
+      eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
+      contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
+      taxable:true, wdShare:1
+    };
+  }
+  var lastIdx=-1;
+  accounts.forEach(function(a,i){if(a.type==='state') lastIdx=i;});
+  accounts.splice(lastIdx>=0?lastIdx+1:accounts.length, 0, row);
+  window._accGroupCollapsed && (window._accGroupCollapsed.state = false);
+  buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
+}
+function renderBenefitCell(){
+  return '<td style="padding:4px;min-width:190px;vertical-align:top;font-size:10px;color:var(--muted)">'+t('st.benefit.note')+'</td>';
 }
 
 function removeAccount(i){

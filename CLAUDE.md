@@ -125,6 +125,17 @@ published, replace the workbook and re-verify everything below.
   index ÷ 1.016. Data to extend yearly: `OCC_IP` (pension index, admin fee, PBB,
   förhöjt PBB, lägsta pensionsålder by cohort) and `OCC_ARV_IP`. Forecast pension
   index = income index (no balancing brake), as in the workbook
+- Premium pension (premiepension, scope `premie`, `isPpAutoAcc`): only the HISTORY
+  uses the workbook (`ppRatt` = 2.5 % of PGI credited the year after, `ppStep` =
+  VBA `PP_pbh`: fund yield, `arv PP` gains, RGK interest `PP_RGK`, manager fee
+  `ppFee`/`PPMavg`). Used when Opening is blank/0 (`openAuto`); the projection keeps
+  the planner's own growth so equity %, fees, yield tax and fixed return stay
+  editable. Data to extend yearly: `PP_RGK` (Några tal C19). Agrees with the port
+  within ~0.6 % (payout = balance(retY−1)·yield + last right ÷ cohort divisor)
+- "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
+  Premiepension (auto opening), Garantipension / Inkomstpensionstillägg /
+  Tilläggspension (`benefit` rows: fixed yearly amount for life from the
+  Withdrawals tab, no capital, not calculated from Typfallsmodellen), Annat (generic)
 - Verified against the HTML port of v4.8 (same inputs, inflation 0, growth 1 %):
   premium-only schemes, the DB schemes at pension age ≥ 65 and the income pension
   agree within ~1 %
