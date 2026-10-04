@@ -153,6 +153,21 @@ published, replace the workbook and re-verify everything below.
   scales the income/premium/guarantee rights of those cohorts (ages ≤ 64). Agrees
   with the port exactly (±0.4 %) when the payout year is 2026+ (flat PBB 59 200).
   Not modelled: PGB points (childcare/studies), ATP in the Garantipension underlag
+- PGB — pensionsgrundande belopp (section under Assets, `pgbItems`, `pgbCalc`,
+  `rightsBase`): items Child / Conscription / Studies / Activity-sickness compensation,
+  ported from `VBA_go` (PGB block), `Pensionssystemet.pgb_barn` and the workbook sheet
+  `PGB`. Child: 4 years (birth year … +3) = max(income year of birth − PGI, 0.75·MPGI − PGI,
+  1 IBB), rounded up to 100 kr; conscription: 0.5·MPGI × days/365 (1995–2010 and 2018+,
+  120–730 days); studies: terms × grant per term × 1.38 (from 1997) floored to 100 kr;
+  sickness/activity: manual amount (sheet says "ange manuellt"). PGI + PGB ≤ 7.5 IBB; ages 16 …
+  riktålder, before retirement, born ≥ 1938. PGB feeds income pension, premium pension (history),
+  Garantipension underlag and ATP points (`pgbyears` rule: < 5 years use pgi + PGB·185/160 for
+  IP/GP, only pgi for PP). Own PGI for the child/SA rules assumes work from the earliest
+  contribution start of the IP/PP/underlag accounts. Data to extend yearly: `PGB_DATA` (MPGI,
+  study grant per term). The workbook's study/conscription cell formulas could not be read
+  (xlsb), so the 1.38 factor and days/365 are inferred from the sheet's cached values; no
+  oracle (the HTML port has no PGB inputs). Not modelled: forward premium-pension contributions
+  from PGB (planner's own salary-based contribution), KPI scaling of the first child's PGI
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
   Premiepension (auto opening), Garantipension / Inkomstpensionstillägg / Tilläggspension (all calculated,
   see above), Annat (generic)

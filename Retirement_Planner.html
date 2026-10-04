@@ -1385,7 +1385,16 @@ input[type="number"]::-webkit-outer-spin-button {
       </thead>
       <tbody id="accounts-tbody"></tbody>
     </table>
-  
+
+  <!-- ── PGB — pensionsgrundande belopp ───────────────────────────── -->
+  <div id="pgb-section" style="margin-top:30px">
+    <div class="section-title" style="font-size:18px" data-i18n="pgb.title">Pensionable amounts – PGB</div>
+    <div class="section-sub" data-i18n="pgb.sub">Pension rights for child years, conscription, studies and sickness/activity compensation (Typfallsmodellen)</div>
+    <div id="pgb-list"></div>
+    <div id="pgb-add" style="margin:8px 0"></div>
+    <div id="pgb-summary" style="font-size:11px;color:var(--muted)"></div>
+  </div>
+
 </div>
 </div>
 
@@ -1807,6 +1816,12 @@ en:{
   'gp.single':'Single','gp.cohab':'Cohabiting','gp.years':'Residence years',
   'bn.rule.tillagg':'ATP points from your income history (best 15 years); the rest of the cohort goes to the income pension',
   'bn.atp.none':'No tilläggspension for people born after 1953.',
+  'pgb.title':'Pensionable amounts – PGB','pgb.sub':'Pension rights for child years, conscription, studies and sickness/activity compensation (Typfallsmodellen)',
+  'pgb.add':'+ Add PGB item','pgb.opt.child':'Child','pgb.opt.vpl':'Conscription service','pgb.opt.studies':'Studies','pgb.opt.sa':'Activity / sickness compensation',
+  'pgb.f.birth':'Born','pgb.f.start':'Start','pgb.f.end':'Discharge','pgb.f.agefrom':'From age','pgb.f.ageto':'To age','pgb.f.terms':'Terms/yr','pgb.f.grant':'or grant kr/yr','pgb.f.amount':'PGB kr/yr (today)',
+  'pgb.col.type':'Type','pgb.col.details':'Details','pgb.col.result':'Pensionable amount','pgb.empty':'No items. Add child years, conscription, studies or sickness/activity compensation.',
+  'pgb.total':'Total PGB','pgb.rule':'Counted from age 16 until the guarantee age and before retirement; PGI + PGB is capped at 7.5 IBB. Raises income pension, premium pension and ATP rights.',
+  'pgb.warn.born':'Not applicable for people born before 1938.',
   'occ.opt.individual':'Individual pension account',
   'occ.opt.itp1':'ITP 1, Private employee (white collar), born 1979-',
   'occ.opt.itp2':'ITP 2, Private employee (white collar), born before 1979',
@@ -2267,6 +2282,12 @@ sv:{
   'gp.single':'Ensamstående','gp.cohab':'Gift/sammanboende','gp.years':'Bosättningsår',
   'bn.rule.tillagg':'ATP-poäng från din inkomsthistorik (bästa 15 åren); resten av kohorten ingår i inkomstpensionen',
   'bn.atp.none':'Ingen tilläggspension för personer födda efter 1953.',
+  'pgb.title':'Pensionsgrundande belopp – PGB','pgb.sub':'Pensionsrätt för barnår, värnplikt, studier och sjuk-/aktivitetsersättning (Typfallsmodellen)',
+  'pgb.add':'+ Lägg till PGB','pgb.opt.child':'Barn','pgb.opt.vpl':'Värnplikt','pgb.opt.studies':'Studier','pgb.opt.sa':'Aktivitets-/sjukersättning',
+  'pgb.f.birth':'Född','pgb.f.start':'Start','pgb.f.end':'Muck','pgb.f.agefrom':'Från ålder','pgb.f.ageto':'Till ålder','pgb.f.terms':'Terminer/år','pgb.f.grant':'eller bidrag kr/år','pgb.f.amount':'PGB kr/år (idag)',
+  'pgb.col.type':'Typ','pgb.col.details':'Uppgifter','pgb.col.result':'Pensionsgrundande belopp','pgb.empty':'Inga poster. Lägg till barnår, värnplikt, studier eller sjuk-/aktivitetsersättning.',
+  'pgb.total':'Summa PGB','pgb.rule':'Räknas från 16 år till riktåldern och före pension; PGI + PGB begränsas till 7,5 IBB. Höjer rätter i inkomstpension, premiepension och ATP.',
+  'pgb.warn.born':'Gäller inte personer födda före 1938.',
   'occ.opt.individual':'Individuellt pensionskonto',
   'occ.opt.itp1':'ITP-1, Privatanställda tjänstemän, födda 1979-',
   'occ.opt.itp2':'ITP-2, Privatanställda tjänstemän, födda före 1979',
@@ -2547,6 +2568,7 @@ function setLang(lang){
   populateMCPortValue();
   // Rebuild accounts table so nameKey translations update
   if(typeof buildAccountsTable === 'function') buildAccountsTable();
+  if(typeof buildPgbSection === 'function') buildPgbSection();
   // Rebuild withdrawal table
   if(typeof buildWdTable === 'function') buildWdTable();
   // Rebuild scenarios comparison table
@@ -2845,6 +2867,12 @@ function resolveDelningstal(a, age){
 // prem: r1 % up to 7.5 IBB, r2 % from 7.5 IBB to cap×IBB (999 = no cap),
 // contributions from age `from` through the year of age `to`.
 // db: defined-benefit part from VBA module TjänstepensionerFörmån (FTJP).
+// Pensionsgrundande belopp (PGB) items entered in the PGB section under Assets.
+let pgbItems = [];
+// PGB data (Typfallsmodellen sheets PGB / Några tal): mean pensionable income MPGI by year (1960–2024),
+// study grant per term (bidrag) by year (1965–2026). Update yearly.
+const PGB_DATA = {mpgiFirst:1960, mpgi:[12936, 13803, 14850, 15792, 16944, 18150, 19716, 20900, 21888, 22910, 24480, 26368, 28613, 30149, 34101, 39060, 43456, 47615, 51920, 56461, 61438, 67620, 72624, 78376, 84651, 91560, 99491, 106763, 115842, 127224, 140778, 150696, 156031, 158584, 161920, 167400, 174432, 180190, 186613, 168918, 174316, 181818, 188535, 194453, 199677, 204622, 210898, 218470, 227764, 235243, 238107, 245293, 254077, 260525, 265833, 272971, 280581, 289202, 297411, 306382, 316056, 324953, 335646, 352704, 367376], bidragFirst:1965, bidrag:[875.0, 875.0, 875.0, 875.0, 875.0, 875.0, 875.0, 875.0, 876.5, 938.5, 999.0, 1044.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 1089.0, 6980.0, 7631.0, 8579.0, 8978.0, 8686.0, 8586.0, 8707.0, 8829.0, 8854.0, 8878.0, 8878.0, 8927.0, 10070.0, 11440.0, 11640.0, 11860.0, 11880.0, 12220.0, 12640.0, 12860.0, 13420.0, 13480.0, 13600.0, 13980.0, 14140.0, 14100.0, 14140.0, 14080.0, 14240.0, 14460.0, 16180.0, 16460.0, 16560.0, 16800.0, 18260.0, 19940.0, 20460.0, 20600.0]};
+const PGB_KINDS = ['child','vpl','studies','sa'];
 const STATE_KINDS = ['inkomst','premie','garanti','ipt','tillagg','annat'];  // + Add State Account menu
 const OCC_NO_CAP = 999;
 const OCC_SCHEMES = {
@@ -3497,9 +3525,10 @@ function ipAvgift(y){ return y <= 1994 ? 0.185 : y <= 1998 ? 0.165 : 0.16; }
 function andelNya(born){ born = Math.floor(born); return born > 1953 ? 1 : born < 1938 ? 0 : (born - 1934) / 20; }
 function ipRatt(ctx, a, y, rate){
   var iy = y - 1;
-  if(iy < a.cs || iy > a.ce || iy >= ctx.retY) return 0;
-  var pgi = ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy));
-  return (rate != null ? rate : ipAvgift(iy)) * pgi * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
+  if(iy >= ctx.retY) return 0;
+  var base = rightsBase(ctx, a, iy, rate != null ? 'gp' : 'ip');
+  if(!(base > 0)) return 0;
+  return (rate != null ? rate : ipAvgift(iy)) * base * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
 }
 function ipRiktl(born){
   var r = OCC_IP.riktl;
@@ -3533,7 +3562,7 @@ function ipStep(ctx, bal, ratt, y, noArv){
 }
 function ipHistoryOpening(a, ctx){
   var bal = 0;
-  for(var y = Math.max(a.cs + 1, OCC_IP.first + 1); y < START_YEAR; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y), y);
+  for(var y = Math.max(Math.min(a.cs, pgbFirstYear(ctx)) + 1, OCC_IP.first + 1); y < START_YEAR; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y), y);
   return bal;
 }
 function ipIndexRatio(ctx, y){ return ipPindex(ctx, y) / ipPindex(ctx, y - 1); }
@@ -3549,7 +3578,7 @@ function riktalderOf(born){ return RIKTALDER.v[Math.min(Math.max(Math.floor(born
 function isUnderlagAcc(a){ return !!(a && a.type === 'state' && (a.benefitKind === 'garanti' || a.benefitKind === 'ipt' || a.benefitKind === 'tillagg')); }
 function underlagSeries(ctx, a){
   var by = ctx.by, startY = Math.max(a.ws < 9999 ? a.ws : ctx.retY, by + riktalderOf(by)), bal = 0, y;
-  for(y = Math.max(a.cs + 1, OCC_IP.first + 1); y < startY; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y, 0.185), y, false);
+  for(y = Math.max(Math.min(a.cs, pgbFirstYear(ctx)) + 1, OCC_IP.first + 1); y < startY; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y, 0.185), y, false);
   // Workbook: divisor at riktåldern (cohorts after 1958), and the last right is not included
   var dv = getDelningstal(by > 1958 ? riktalderOf(by) : startY - by, by);
   var v = dv > 0 ? bal / dv : 0, vals = {};
@@ -3610,10 +3639,10 @@ function atpSeries(ctx, a, U, startU){
   var by = ctx.by, out = {};
   if(by > 1953 || by < 1938) return out;
   var pts = [], pts94 = [], n94 = 0, nAll = 0, y, age;
-  for(y = Math.max(1960, a.cs); y <= Math.min(a.ce, by + 64); y++){
+  for(y = Math.max(1960, Math.min(a.cs, pgbFirstYear(ctx))); y <= by + 64; y++){
     if(y >= ctx.retY) break;
     age = y - by;
-    var pgi = ipPgi(y, occWage(ctx, y), occIbb(ctx, y), ipAt(OCC_IP.pbb, y), ipAt(OCC_IP.fpb, y));
+    var pgi = rightsBase(ctx, a, y, 'tp');
     var pt = Math.round(Math.max(pgi / ipAt(OCC_IP.fpb, y) - 1, 0) * 100) / 100;
     if(pt > 0) nAll++;
     pts.push(pt);
@@ -3640,6 +3669,116 @@ function underlagFirstAmount(a){
   return {amt: underlagBenefit(ctx, a, ser, ser.startY), age: ser.startY - ser.by};
 }
 
+// ─── PGB — pensionsgrundande belopp (VBA VBA_go PGB block, Pensionssystemet.pgb_barn) ───
+// Sickness/activity compensation (manual), child years (4 years, VBA pgb_barn), conscription (50 % of
+// MPGI × days/365, 1995–2010 and 2018+), studies (terms × grant × 1.38 from 1997, floored to 100 kr).
+// PGI + PGB is capped at 7.5 IBB. Ages 16 … riktålder, before the pension start, born 1938 or later.
+function pgbMpgi(ctx, y){
+  var D = PGB_DATA, last = D.mpgiFirst + D.mpgi.length - 1;
+  return y <= last ? D.mpgi[Math.max(0, y - D.mpgiFirst)] : D.mpgi[D.mpgi.length - 1] * occIncomeIdx(ctx, y) / occIncomeIdx(ctx, last);
+}
+function pgbBidrag(y){
+  var D = PGB_DATA, i = Math.min(Math.max(y - D.bidragFirst, 0), D.bidrag.length - 1);
+  return D.bidrag[i];
+}
+function pgbWorkStart(ctx){
+  if(ctx._pgbWs == null){
+    var m = Infinity;
+    accounts.forEach(function(a){ if((isIpEngineAcc(a) || isPpAutoAcc(a) || isUnderlagAcc(a)) && a.cs < m) m = a.cs; });
+    ctx._pgbWs = m === Infinity ? ctx.by + 25 : m;
+  }
+  return ctx._pgbWs;
+}
+function pgbOwnWage(ctx, y){ return (y >= pgbWorkStart(ctx) && y < ctx.retY) ? occWage(ctx, y) : 0; }
+function pgbOwnPgi(ctx, y){
+  var w = pgbOwnWage(ctx, y);
+  return w > 0 ? ipPgi(y, w, occIbb(ctx, y), ipAt(OCC_IP.pbb, y), ipAt(OCC_IP.fpb, y)) : 0;
+}
+function pgbDateYear(s){ var m = /^(\d{4})/.exec(s || ''); return m ? parseInt(m[1]) : 0; }
+function pgbDayNum(s){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 86400000 : NaN; }
+// Days of a conscription period inside calendar year y (min 120 days in total, max 730, not before 1995).
+function pgbVplDays(it, y){
+  var a = pgbDayNum(it.start), b = pgbDayNum(it.end);
+  if(isNaN(a) || isNaN(b)) return 0;
+  a = Math.max(a, Date.UTC(1995, 0, 1) / 86400000);
+  var tot = b - a;
+  if(tot < 120) return 0;
+  b = Math.min(b, a + 730);
+  var y0 = Date.UTC(y, 0, 1) / 86400000, y1 = Date.UTC(y + 1, 0, 1) / 86400000;
+  return Math.max(0, Math.min(b, y1) - Math.max(a, y0));
+}
+function pgbVplBase(ctx, y){ return ((y >= 1995 && y <= 2010) || y >= 2018) ? 0.5 * pgbMpgi(ctx, y) : 0; }
+function pgbStudyFactor(y){ return y >= 1997 ? 1.38 : 0; }
+// PGB of income year y with the share of every item: {tot, by:{itemIndex:amount}}
+function pgbCalc(ctx, y){
+  ctx._pgb = ctx._pgb || {};
+  if(ctx._pgb[y]) return ctx._pgb[y];
+  var res = {tot: 0, by: {}}, by = ctx.by, age = y - by;
+  ctx._pgb[y] = res;
+  if(!pgbItems.length || by < 1938 || age <= 15 || age > riktalderOf(by) || y >= ctx.retY) return res;
+  var pgi = pgbOwnPgi(ctx, y), cap = 7.5 * occIbb(ctx, y), pgb = 0;
+  var add = function(i, amt){
+    var before = pgb; pgb += amt;
+    if(pgi + pgb > cap) pgb = Math.max(cap - pgi, 0);
+    res.by[i] = (res.by[i] || 0) + (pgb - before);
+  };
+  var idxNow = occIncomeIdx(ctx, y) / occIncomeIdx(ctx, START_YEAR);
+  pgbItems.forEach(function(it, i){
+    if(it.kind === 'sa' && age >= it.from && age <= it.to) add(i, (it.amount || 0) * idxNow);
+  });
+  var diverse = 0, firstChild = true, rikt = riktalderOf(by);
+  pgbItems.forEach(function(it, i){
+    if(it.kind !== 'child') return;
+    var yb = pgbDateYear(it.date), isFirst = firstChild; firstChild = false;
+    if(!(yb > 1960) || diverse > 0) return;
+    var ageAtBirth = yb - by - (isFirst ? 0 : 1);
+    if(ageAtBirth <= 15) return;
+    if(!(age < rikt && (y === yb || (y > yb && y < yb + 4)))) return;
+    var jy = by + ageAtBirth, jink = pgbOwnWage(ctx, jy) ;
+    var uink = pgi + pgb, ibbY = occIbb(ctx, y);
+    var v = jink - uink;
+    if(0.75 * pgbMpgi(ctx, y) - uink > v) v = 0.75 * pgbMpgi(ctx, y) - uink;
+    if(ibbY > v) v = ibbY;
+    v = Math.floor((v + 49) / 100) * 100;
+    diverse = v; add(i, v);
+  });
+  pgbItems.forEach(function(it, i){
+    if(it.kind !== 'vpl') return;
+    var d = pgbVplDays(it, y);
+    if(d > 0) add(i, pgbVplBase(ctx, y) * d / 365);
+  });
+  pgbItems.forEach(function(it, i){
+    if(it.kind !== 'studies' || age < it.from || age > it.to) return;
+    var grant = it.amount > 0 ? it.amount : (it.terms === 1 ? 1 : 2) * pgbBidrag(y);
+    add(i, Math.floor(grant * pgbStudyFactor(y) / 100) * 100);
+  });
+  res.tot = pgb;
+  return res;
+}
+// Number of years with PGI + PGB (VBA pgbyears) up to year upTo
+function pgbCount(ctx, upTo){
+  var n = 0, by = ctx.by, last = Math.min(upTo, ctx.retY - 1, by + riktalderOf(by));
+  for(var y = by + 16; y <= last; y++){
+    if(y - by < 71 && pgbOwnPgi(ctx, y) + pgbCalc(ctx, y).tot > 0) n++;
+  }
+  return n;
+}
+function pgbFirstYear(ctx){ return pgbItems.length ? ctx.by + 16 : Infinity; }
+// Pension-right base of income year iy: own PGI (within the account's contribution window) + PGB.
+// type 'ip' / 'pp' / 'gp' follow the workbook's treatment while fewer than 5 PGB years exist.
+function rightsBase(ctx, a, iy, type){
+  var pgiPart = (iy >= a.cs && iy <= a.ce && iy < ctx.retY)
+    ? ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy)) : 0;
+  if(!pgbItems.length) return pgiPart;
+  var pgb = pgbCalc(ctx, iy).tot;
+  if(!(pgb > 0)) return pgiPart;
+  if(type === 'tp') return pgiPart + pgb;
+  var n = pgbCount(ctx, Math.min(iy + 1, ctx.retY - 1));
+  if(n >= 5) return pgiPart + pgb;
+  if(n > 0) return type === 'pp' ? pgiPart : pgiPart + (type === 'ip' ? Math.floor(pgb * 185 / 160) : pgb * 185 / 160);
+  return pgiPart;
+}
+
 // ─── Premiepension history (VBA ppavgift / PP_pbh / PPMavg) ───────────────
 // Only the HISTORY is taken from Typfallsmodellen (auto opening when Opening is
 // blank/0); the projection keeps the planner's own growth model so equity %,
@@ -3651,9 +3790,10 @@ function ppAvgift(y){ return y <= 1994 ? 0 : y <= 1998 ? 0.02 : 0.025; }
 // Premium credited in year y from the income of year y-1.
 function ppRatt(ctx, a, y){
   var iy = y - 1;
-  if(iy < a.cs || iy > a.ce || iy >= ctx.retY) return 0;
-  var pgi = ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy));
-  return ppAvgift(iy) * pgi * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
+  if(iy >= ctx.retY) return 0;
+  var base = rightsBase(ctx, a, iy, 'pp');
+  if(!(base > 0)) return 0;
+  return ppAvgift(iy) * base * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
 }
 // Fund-manager fee in kr (PPMavg, incl. the workbook's caps; flat 100 kr from 2019).
 function ppFee(y, bal, yv){
@@ -3682,7 +3822,7 @@ function ppStep(ctx, bal, ratt, y){
 }
 function ppHistoryOpening(a, ctx){
   var bal = 0;
-  for(var y = Math.max(a.cs + 1, 1996); y < START_YEAR; y++) bal = ppStep(ctx, bal, ppRatt(ctx, a, y), y);
+  for(var y = Math.max(Math.min(a.cs, pgbFirstYear(ctx)) + 1, 1996); y < START_YEAR; y++) bal = ppStep(ctx, bal, ppRatt(ctx, a, y), y);
   return bal;
 }
 
@@ -4694,6 +4834,7 @@ function buildAccountsTable(){
 }
 accounts.forEach(function(a){ if(a.type==='after') a.contribSalary=false; }); // state keeps contribSalary:true
 buildAccountsTable();
+buildPgbSection();
 
 // ══════════════════════════════════════════════════
 // CORE CALCULATION ENGINE
@@ -6324,6 +6465,8 @@ function recalc(){
     const data = runProjection();
     _projYears = data.years; _projParams = data.params;
     if(window._occOpeningChanged){ window._occOpeningChanged = false; buildAccountsTable(); }
+    var _pgbSec = document.getElementById('pgb-section');
+    if(_pgbSec && pgbItems.length && !_pgbSec.contains(document.activeElement)) buildPgbSection();
     updateDashboard(data);
     try{ updateCharts(data); }catch(ec){ console.error('CHARTS ERROR:',ec); }
     updateProjectionTable(data);
@@ -8362,6 +8505,67 @@ function renderBenefitCell(i, a){
   return '<td style="padding:4px;min-width:190px;vertical-align:top;font-size:10px;color:var(--muted)">'+t('st.benefit.note')+'</td>';
 }
 
+
+// ─── PGB section (Assets tab) ───
+function pgbCtx(){ return occMakeCtx(occParamsNow()); }
+function addPgbItem(kind){
+  var by = Math.floor(getParam('birthYear')), it = {kind: kind};
+  if(kind === 'child') it.date = (by + 30) + '-06-01';
+  else if(kind === 'vpl'){ it.start = (by + 19) + '-08-01'; it.end = (by + 20) + '-05-01'; }
+  else if(kind === 'studies'){ it.from = 20; it.to = 24; it.terms = 2; it.amount = 0; }
+  else { it.from = 30; it.to = 34; it.amount = 100000; }
+  pgbItems.push(it);
+  buildPgbSection(); recalc();
+}
+function addPgbFromMenu(sel){ var v = sel.value; sel.value = ''; if(v) addPgbItem(v); }
+function removePgbItem(i){ pgbItems.splice(i, 1); buildPgbSection(); recalc(); }
+function updatePgbField(i, field, val){
+  var it = pgbItems[i]; if(!it) return;
+  if(field === 'date' || field === 'start' || field === 'end') it[field] = val;
+  else if(field === 'terms') it.terms = parseInt(val) === 1 ? 1 : 2;
+  else {
+    var n = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
+    it[field] = isNaN(n) ? 0 : n;
+    if(field === 'from' || field === 'to') it[field] = Math.max(0, Math.round(it[field]));
+  }
+  buildPgbSection(); recalc();
+}
+function buildPgbSection(){
+  var host = document.getElementById('pgb-list');
+  if(!host) return;
+  var ctx = pgbCtx(), by = ctx.by, fmt = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
+  var INP = 'background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;padding:3px 5px';
+  var inp = function(i, f, v, w){ return '<input type="text" inputmode="numeric" value="'+v+'" style="'+INP+';width:'+w+'px;text-align:right" onchange="updatePgbField('+i+',\''+f+'\',this.value)">'; };
+  var dt  = function(i, f, v){ return '<input type="date" value="'+(v||'')+'" style="'+INP+'" onchange="updatePgbField('+i+',\''+f+'\',this.value)">'; };
+  var lbl = function(k){ return '<span style="font-size:10px;color:var(--muted);margin:0 4px 0 8px">'+t(k)+'</span>'; };
+  var last = Math.min(ctx.retY - 1, by + riktalderOf(by));
+  var grand = 0, rows = '', n = 0;
+  pgbItems.forEach(function(it, i){
+    var parts = [], tot = 0, c;
+    for(var y = by + 16; y <= last; y++){ c = pgbCalc(ctx, y).by[i] || 0; if(c > 0){ tot += c; parts.push(y+': '+fmt(c)); } }
+    grand += tot;
+    var name = t('pgb.opt.' + it.kind), det = '';
+    if(it.kind === 'child'){ n++; name += ' ' + n; det = lbl('pgb.f.birth') + dt(i, 'date', it.date); }
+    else if(it.kind === 'vpl') det = lbl('pgb.f.start') + dt(i, 'start', it.start) + lbl('pgb.f.end') + dt(i, 'end', it.end);
+    else if(it.kind === 'studies') det = lbl('pgb.f.agefrom') + inp(i, 'from', it.from, 40) + lbl('pgb.f.ageto') + inp(i, 'to', it.to, 40)
+      + lbl('pgb.f.terms') + '<select style="'+INP+'" onchange="updatePgbField('+i+',\'terms\',this.value)"><option value="2"'+(it.terms===1?'':' selected')+'>2</option><option value="1"'+(it.terms===1?' selected':'')+'>1</option></select>'
+      + lbl('pgb.f.grant') + inp(i, 'amount', it.amount ? fmt(it.amount) : '0', 80);
+    else det = lbl('pgb.f.agefrom') + inp(i, 'from', it.from, 40) + lbl('pgb.f.ageto') + inp(i, 'to', it.to, 40) + lbl('pgb.f.amount') + inp(i, 'amount', fmt(it.amount || 0), 90);
+    rows += '<tr><td style="padding:6px 8px;font-weight:600;white-space:nowrap">'+name+'</td><td style="padding:6px 8px">'+det+'</td>'
+      + '<td style="padding:6px 8px;font-size:11px;font-family:var(--font-m);color:var(--gold)">'
+      + (tot > 0 ? '≈ '+fmt(tot)+' kr<div style="font-size:9px;color:var(--muted);margin-top:2px">'+parts.slice(0,6).join(' · ')+(parts.length>6?' …':'')+'</div>' : '<span style="color:var(--muted)">0</span>')
+      + '</td><td style="padding:0 4px"><button onclick="removePgbItem('+i+')" title="Remove" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer">✕</button></td></tr>';
+  });
+  host.innerHTML = pgbItems.length
+    ? '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em"><th style="padding:4px 8px">'+t('pgb.col.type')+'</th><th style="padding:4px 8px">'+t('pgb.col.details')+'</th><th style="padding:4px 8px">'+t('pgb.col.result')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
+    : '<div style="font-size:12px;color:var(--muted);padding:6px 0">'+t('pgb.empty')+'</div>';
+  var addStyle = 'font-size:11px;color:#4885C4;background:rgba(74,143,204,.08);border:1px solid rgba(74,143,204,.25);border-radius:5px;padding:3px 10px;cursor:pointer;font-weight:600;font-family:var(--font-b)';
+  document.getElementById('pgb-add').innerHTML = '<select id="pgb-add-sel" onchange="addPgbFromMenu(this)" style="'+addStyle+'"><option value="" selected disabled hidden>'+t('pgb.add')+' ▾</option>'
+    + PGB_KINDS.map(function(k){ return '<option value="'+k+'">'+t('pgb.opt.'+k)+'</option>'; }).join('') + '</select>';
+  var note = by < 1938 ? t('pgb.warn.born') : '';
+  document.getElementById('pgb-summary').innerHTML = (pgbItems.length ? t('pgb.total') + ': <b style="color:var(--gold)">' + fmt(grand) + ' kr</b> · ' : '') + t('pgb.rule') + (note ? ' <span style="color:#FF5B2E">'+note+'</span>' : '');
+}
+
 function removeAccount(i){
   accounts.splice(i,1);
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0); recalc();
@@ -9979,6 +10183,7 @@ function collectPlanState(){
     expenses: JSON.parse(JSON.stringify(expenses)),
     accounts: JSON.parse(JSON.stringify(accounts)),
     expAgeIntervals: JSON.parse(JSON.stringify(expAgeIntervals)),
+    pgbItems: JSON.parse(JSON.stringify(pgbItems)),
     modes: {
       expTaxMode:   window._expTaxMode   || 'after',
       assetTaxMode: window._assetTaxMode || 'before',
@@ -10017,6 +10222,9 @@ function applyPlanState(state){
     state.accounts.forEach(function(a){ accounts.push(a); });
     buildAccountsTable();
   }
+  pgbItems.length = 0;
+  if(Array.isArray(state.pgbItems)) state.pgbItems.forEach(function(it){ pgbItems.push(it); });
+  buildPgbSection();
   if(Array.isArray(state.expAgeIntervals)){
     expAgeIntervals.length = 0;
     state.expAgeIntervals.forEach(function(iv){ expAgeIntervals.push(iv); });
