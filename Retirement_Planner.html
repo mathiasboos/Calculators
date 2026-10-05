@@ -1717,7 +1717,7 @@ en:{
   'pers.birth':'Birth Year',
   'pers.ret.lbl':'Retirement Year',
   'pp.own.eq':'Own equity brackets','pp.glide':'Default fund: 100 % equities to age 55 → 33 % at 75',
-  'pp.glide.tip':'Premium pension default fund (AP7 Såfa): 100 % equities up to age 55, then gradually down to 33 % equities / 67 % bonds at age 75. Tick "Own equity brackets" to use the Equity % age brackets instead.',
+  'pp.glide.tip':'Premium pension default fund (AP7 Såfa): 100 % equities up to age 55, then gradually down to 33 % equities / 67 % bonds at age 75; fee 0,04 %. Tick "Own equity brackets" to use the Equity % age brackets instead.',
   'pers.work.age':'Begin work at age','pers.ret.age':'Retirement Age','pers.ret.age.small':'Age you stop working',
   'pers.rikt.tick':'Target retirement age','pers.life.age':'Life Expectancy Age',
   'pers.ret.year':'Retirement Year','pers.life.year':'Life Expectancy Year',
@@ -2206,7 +2206,7 @@ sv:{
   'pers.birth':'Födelseår',
   'pers.ret.lbl':'Pensionsår',
   'pp.own.eq':'Egna aktieandelar','pp.glide':'Förvalsalternativet: 100 % aktier till 55 år → 33 % vid 75',
-  'pp.glide.tip':'Premiepensionens förvalsalternativ (AP7 Såfa): 100 % aktier till 55 år, därefter gradvis ner till 33 % aktier / 67 % räntor vid 75 år. Kryssa i "Egna aktieandelar" för att använda aktieandelarna per åldersintervall i stället.',
+  'pp.glide.tip':'Premiepensionens förvalsalternativ (AP7 Såfa): 100 % aktier till 55 år, därefter gradvis ner till 33 % aktier / 67 % räntor vid 75 år; avgift 0,04 %. Kryssa i "Egna aktieandelar" för att använda aktieandelarna per åldersintervall i stället.',
   'pers.work.age':'Börjar arbeta vid ålder','pers.ret.age':'Pensionsålder','pers.ret.age.small':'Åldern då du slutar arbeta',
   'pers.rikt.tick':'Riktålder','pers.life.age':'Förväntad livslängd (ålder)',
   'pers.ret.year':'Pensionsår','pers.life.year':'Livslängdsår',
@@ -2715,7 +2715,7 @@ const ACCOUNTS_INIT = [
   {name:"Occupational Pension 3", nameKey:"acc.name.occ.pen.3",    type:"p-ins",  opening:400000,  contrib:0,      cs:2026, ce:2035, wd:0,  ws:2036, we:2056, eq1:0.9, eq2:0.4, eq3:0.75,mgmt:0.002, yt:0.00375,fixedRet:null, fixedRetPost:null, contribSalary:false, cRate1:4.5, cIBB1:7.5, cIBB2:30.0, cRate2:30, taxable:true},
   {name:"Salary Exchange",        nameKey:"acc.name.salary.ex",    type:"p-ins",  opening:500000,  contrib:24000,  cs:2026, ce:2035, wd:0,  ws:2036, we:2056, eq1:0.9, eq2:0.4, eq3:0.75,mgmt:0.002, yt:0.00375,fixedRet:null, fixedRetPost:null, contribSalary:false, cRate1:4.5, cIBB1:7.5, cIBB2:30.0, cRate2:30, taxable:true},
   // State
-  {name:"Premium Pension",        nameKey:"acc.name.premium.pen",  type:"state",  opening:750000, contrib:15638,  cs:2026, ce:2035, wd:65000,  ws:2036, we:2070, eq1:0.9, eq2:0.4, eq3:0.75,mgmt:0.001, yt:0.000,  fixedRet:null, fixedRetPost:null, taxable:true, contribSalary:true, cRate1:2.32, cIBB1:8.07, cIBB2:30.0, cRate2:30, useDelningstal:true, delningstalMode:'fond', customDelningstal:17.26, delningstalScope:'premie', wdShare:1},
+  {name:"Premium Pension",        nameKey:"acc.name.premium.pen",  type:"state",  opening:750000, contrib:15638,  cs:2026, ce:2035, wd:65000,  ws:2036, we:2070, eq1:0.9, eq2:0.4, eq3:0.75,mgmt:0.0004, yt:0.000,  fixedRet:null, fixedRetPost:null, taxable:true, contribSalary:true, cRate1:2.32, cIBB1:8.07, cIBB2:30.0, cRate2:30, useDelningstal:true, delningstalMode:'fond', customDelningstal:17.26, delningstalScope:'premie', wdShare:1},
   {name:"Income Pension",         nameKey:"acc.name.income.pen",   type:"state",  opening:2000000, contrib:100080, cs:2026, ce:2035, wd:91000,  ws:2036, we:2070, eq1:0.0, eq2:0.0, eq3:0.0, mgmt:0.001, yt:0.000,  fixedRet:0.015,fixedRetPost:0.015,taxable:true, contribSalary:true, cRate1:14.88, cIBB1:8.07, cIBB2:30.0, cRate2:30, useDelningstal:true, delningstalMode:'inkomst', customDelningstal:17.26, delningstalScope:'inkomst', wdShare:1},
 ];
 
@@ -10447,7 +10447,11 @@ function applyPlanState(state){
   }
   if(Array.isArray(state.accounts)){
     accounts.length = 0;
-    state.accounts.forEach(function(a){ accounts.push(a); });
+    state.accounts.forEach(function(a){
+      // Premium pension default fund (AP7 Såfa) fee is 0,04 %; older saves carry the old 0,10 % default
+      if(a.type === 'state' && a.delningstalScope === 'premie' && !a.ownEq && a.mgmt === 0.001) a.mgmt = 0.0004;
+      accounts.push(a);
+    });
     buildAccountsTable();
   }
   pgbItems.length = 0;

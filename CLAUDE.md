@@ -204,6 +204,8 @@ published, replace the workbook and re-verify everything below.
 - Premium pension equity: default fund glidepath (`ppGlideEq`: 100 % equities to 55, linear to
   33 % at 75) via `calcEquityShare`; tick "Own equity brackets" (`a.ownEq`) to use eq1–eq3.
   Typfallsmodellen itself has one fund-return assumption, no glidepath
+  Default Mgmt % = AP7 Såfa's fee 0,04 % (`mgmt: 0.0004`, check ap7.se yearly); restore lifts the
+  old 0,10 % default on non-`ownEq` premium pension accounts
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
