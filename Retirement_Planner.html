@@ -953,6 +953,7 @@ input[type="number"]::-webkit-outer-spin-button {
             <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.sal.net.pre">Net Pre-retirement</td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalPre66" value="43 587" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalPre67" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td></tr>
           </tbody>
         </table>
+        <div id="sal-uplift-hint" style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4"></div>
       </div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.salary.inc">Annual salary increase above inflation (%)</div>
@@ -1725,6 +1726,7 @@ en:{
   'pers.life.career':'Life & Career',
   'pers.birth':'Birth Year',
   'pers.ret.lbl':'Retirement Year',
+  'pers.sal.uplift':'Gross salary in 2025 money, as in Typfallsmodellen. The model raises it by the 2026 income index (+{pct} %) and uses {amt} kr/month; net salary is after tax on that amount.',
   'pp.own.eq':'Own equity brackets','pp.glide':'Default fund: 100 % equities to age 55 → 33 % at 75',
   'pp.glide.tip':'Premium pension default fund (AP7 Såfa): 100 % equities up to age 55, then gradually down to 33 % equities / 67 % bonds at age 75; fee 0,04 %. Tick "Own equity brackets" to use the Equity % age brackets instead.',
   'pers.work.age':'Begin work at age','pers.ret.age':'Retirement Age','pers.ret.age.small':'Age you stop working',
@@ -2215,6 +2217,7 @@ sv:{
   'pers.life.career':'Liv & Karriär',
   'pers.birth':'Födelseår',
   'pers.ret.lbl':'Pensionsår',
+  'pers.sal.uplift':'Bruttolön i 2025 års nivå, som i Typfallsmodellen. Modellen räknar upp den med 2026 års inkomstindex (+{pct} %) och använder {amt} kr/mån; nettolönen är efter skatt på det beloppet.',
   'pp.own.eq':'Egna aktieandelar','pp.glide':'Förvalsalternativet: 100 % aktier till 55 år → 33 % vid 75',
   'pp.glide.tip':'Premiepensionens förvalsalternativ (AP7 Såfa): 100 % aktier till 55 år, därefter gradvis ner till 33 % aktier / 67 % räntor vid 75 år; avgift 0,04 %. Kryssa i "Egna aktieandelar" för att använda aktieandelarna per åldersintervall i stället.',
   'pers.work.age':'Börjar arbeta vid ålder','pers.ret.age':'Pensionsålder','pers.ret.age.small':'Åldern då du slutar arbeta',
@@ -2687,6 +2690,7 @@ function setLang(lang){
     var k = opt.getAttribute('data-i18n-opt'); if(k){ var tx=t(k); if(tx!==k) opt.text=tx; }
   }); }
   if(typeof guideRender === 'function') guideRender();
+  if(typeof salUpliftHint === 'function') salUpliftHint();
   recalc();
 }
 
@@ -3235,6 +3239,14 @@ function occMakeCtx(p){
     ageThr: p.allowanceAge || 67, ret: ret
   };
 }
+// Like Typfallsmodellen, the monthly salary on the Personal tab is entered in 2025
+// money and raised by the 2026 income index (228.08 / 220.23 = +3.56 %:
+// 40 000 → 41 426 kr/month). grossSal() returns the 2026 salary the engine uses.
+function salBaseUplift(){
+  var a = OCC_HIST.incomeIndex, i26 = 2026 - OCC_HIST.first;
+  return (i26 >= 1 && i26 < a.length) ? a[i26] / a[i26 - 1] : 1;
+}
+function grossSal(id){ return getParam(id) * salBaseUplift(); }
 function occIncomeIdx(ctx, y){
   var a = OCC_HIST.incomeIndex, last = OCC_HIST.first + a.length - 1;
   if(y <= last) return a[Math.max(0, y - OCC_HIST.first)];
@@ -4222,7 +4234,7 @@ function renderPInsContrib(i, a){
 
   var salarySection = '';
   if(a.contribSalary){
-    var sal    = getParam('grossSalPre66')*12;
+    var sal    = grossSal('grossSalPre66')*12;
     var sekVal = calcSal(sal).toLocaleString('sv-SE');
     // Row 1: 0 – cIBB1 × IBB : cRate1 %
     salarySection +=
@@ -4296,7 +4308,7 @@ function occBadgesHtml(a){
 function occParamsNow(){
   return {
     birthYear: getParam('birthYear'), retirementYear: getParam('retirementYear'),
-    grossSalPre66: getParam('grossSalPre66'), grossSalPre67: getParam('grossSalPre67'),
+    grossSalPre66: grossSal('grossSalPre66'), grossSalPre67: grossSal('grossSalPre67'),
     salaryIncrease: getParam('salaryIncrease')/100, allowanceAge: getParam('allowanceAge') || 67
   };
 }
@@ -4317,7 +4329,7 @@ function renderOccDbCell(i, a){
 function updatePInsSEK(i){
   var a   = accounts[i];
   var ibb = getParam('ibb') || 83400;
-  var sal = getParam('grossSalPre66') * 12;
+  var sal = grossSal('grossSalPre66') * 12;
   var b1  = (a.cIBB1 != null ? a.cIBB1 : 7.5) * ibb;
   var b2  = (a.cIBB2 != null ? a.cIBB2 : 30.0) * ibb;
   var r1  = a.cRate1 != null ? a.cRate1 : 4.5;
@@ -4335,7 +4347,7 @@ function updatePInsSEK(i){
 function effectiveContrib(a){
   if(a.contribSalary){
     var ibb = getParam('ibb') || 83400;
-    var sal = getParam('grossSalPre66') * 12;
+    var sal = grossSal('grossSalPre66') * 12;
     var b1  = (a.cIBB1 != null ? a.cIBB1 : 7.5) * ibb;
     var b2  = (a.cIBB2 != null ? a.cIBB2 : 30.0) * ibb;
     var r1  = a.cRate1 != null ? a.cRate1 : 4.5;
@@ -5296,9 +5308,9 @@ function runProjection(){
     birthYear:       getParam('birthYear'),
     retirementYear:  getParam('retirementYear'),
     lifeYear:        getParam('lifeYear'),
-    monthlySalary:   getParam('grossSalPre66'), // backward compat alias
-    grossSalPre66:   getParam('grossSalPre66'),
-    grossSalPre67:   getParam('grossSalPre67'),
+    monthlySalary:   grossSal('grossSalPre66'), // backward compat alias
+    grossSalPre66:   grossSal('grossSalPre66'),   // 2025 salary raised to 2026 (Typfallsmodellen)
+    grossSalPre67:   grossSal('grossSalPre67'),
     netSalPre66:     getParam('netSalPre66'),
     netSalPre67:     getParam('netSalPre67'),
     grossSalRet66:   getParam('grossSalRet66'),
@@ -7329,10 +7341,19 @@ function autoFillNetSalary(){
     var grossEl = document.getElementById(p[0]);
     var netEl   = document.getElementById(p[1]);
     if(!grossEl || !netEl) return;
-    var gross = parseInt((grossEl.value||'').replace(/[^0-9]/g,''))||0;
+    var gross = Math.round((parseInt((grossEl.value||'').replace(/[^0-9]/g,''))||0) * salBaseUplift());
     var net = calcNet(gross, p[2]);
     netEl.value = net.toLocaleString('sv-SE');
   });
+  salUpliftHint();
+}
+// Explains the Typfallsmodellen salary convention under the salary table.
+function salUpliftHint(){
+  var el = document.getElementById('sal-uplift-hint');
+  if(!el) return;
+  var g = getParam('grossSalPre66');
+  el.textContent = t('pers.sal.uplift', {pct: ((salBaseUplift() - 1) * 100).toFixed(1).replace('.', ','),
+    amt: Math.round(g * salBaseUplift()).toLocaleString('sv-SE')});
 }
 
 function incSetAge(a){

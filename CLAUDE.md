@@ -217,9 +217,13 @@ published, replace the workbook and re-verify everything below.
   age-68 amount at 85 / 95 / 100; born 1980 stays level)
 - Default assumptions = Typfallsmodellen's prognosis standard: equities and bonds real return
   1,7 % (one return for all funds, after fees), inflation 0 %, occupational schemes 1,7 %, salary
-  increase 0 %. Typfallsmodellen's Månadslön is in 2025 money and is raised by the 2026 income
-  index (+3,57 %: 40 000 → 41 426 kr/month); the planner's salary is 2026 money, so enter the
-  raised value when comparing. With that, ITP1/1980/40 000: ITP 1 −0,9 %, PP −2,7 %, IP +1,5 %
+  increase 0 %. Salary convention as in Typfallsmodellen: the Personal-tab gross salary is 2025
+  money, raised by the 2026 income index (`salBaseUplift` = OCC_HIST 228.08 / 220.23, +3,56 %:
+  40 000 → 41 426 kr/month) wherever the engine reads it (`grossSal`); net salary is computed on the
+  raised amount; hint `#sal-uplift-hint`. ITP1/1980/40 000 vs the port at 68: ITP 1 −0,9 %,
+  PP −3,5 % (−2,7 % with fee 0), IP +1,5 %, net salary 32 752 vs 32 770. Oracle scripts must enter
+  the 2025 salary (port wage ÷ salBaseUplift). The 1,7 % is AFTER fees; the workbook's unticked
+  "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
