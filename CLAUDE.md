@@ -233,6 +233,10 @@ published, replace the workbook and re-verify everything below.
   HTML defaults (`defaultValue`); called by `planClear` (so every preset) and the Parameters-tab
   button "↺ Typfallsmodellen defaults". Saves carry `assumptionsV: 2`; restoring an older save moves
   untouched old defaults (eq 4,5/1,7, bonds 0,5/1,7, salary +1,0) to 1,9 / 1,9 / 0,0, typed values stay
+- Dashboard Replacement Rate = Typfallsmodellen's kompensationsgrad: pension before tax in the first
+  retirement year (wdrlState + wdrlPIns) ÷ final salary before tax (mean of the last 5 working
+  years' earnedIncomePre); the after-tax ratio (all after-tax income ÷ last net salary) is the sub-line.
+  ITP1/1980/40 000: 74,2 % vs the port's 74,7 %
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
