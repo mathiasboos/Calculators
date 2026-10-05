@@ -2950,7 +2950,11 @@ function resolveDelningstal(a, age){
   if(!a || !a.useDelningstal) return 0;
   const mode = a.delningstalMode || 'inkomst';
   if(mode === 'own')  return parseFloat(a.customDelningstal) || 0;
-  if(mode === 'fond') return getPremiePensionDelningstal(age, 'fond');
+  // Premium pension fund insurance: Typfallsmodellen's cohort divisor (Nyckeltal,
+  // OCC_DT; 2 from age 101, as ppkassa). Together with the inheritance gains in the
+  // projection this keeps the lifelong pension level.
+  if(mode === 'fond') return isPpAcc(a) ? (age > 100 ? 2 : occDelningstal(Math.floor(getParam('birthYear')), age))
+                                        : getPremiePensionDelningstal(age, 'fond');
   if(mode === 'trad') return getPremiePensionDelningstal(age, 'trad');
   if(mode === 'tjp')  return occTjpDelningstal(age);
   return getDelningstal(age, getParam('birthYear'));  // inkomst (default)
@@ -3871,6 +3875,8 @@ function rightsBase(ctx, a, iy, type){
 // Only the HISTORY is taken from Typfallsmodellen (auto opening when Opening is
 // blank/0); the projection keeps the planner's own growth model so equity %,
 // fees, yield tax and fixed return stay editable on the account.
+// Any premium pension account (lifelong, with inheritance gains in the projection).
+function isPpAcc(a){ return !!(a && a.type === 'state' && a.delningstalScope === 'premie'); }
 function isPpAutoAcc(a){
   return !!(a && a.type === 'state' && a.delningstalScope === 'premie' && a.ppEngine !== false);
 }
@@ -5493,7 +5499,11 @@ function runProjection(){
         // Compute return before wd so valBefore is available
         const ret      = geoRet(calcReturn(a, age, params));
         const _occStep = engineStep(a, _occ, opening, contrib, yr, retFraction);
-        const valGross = _occStep ? Math.max(0, _occStep.avail) : Math.max(0, (opening + contrib) * (1 + ret));
+        // Premium pension: inheritance gains (arvsvinster, sheet "arv PP") are added
+        // every year as in Typfallsmodellen (PP_pbh) — they keep the lifelong
+        // pension roughly level instead of draining the individual balance.
+        const _ppArv = isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + ret) : 0;
+        const valGross = _occStep ? Math.max(0, _occStep.avail) : Math.max(0, (opening + contrib) * (1 + ret) + _ppArv);
         // Fees applied on total value after withdrawal (not just opening+contrib)
         // valBefore is set after withdrawal; fees then applied to that
         const valBefore = valGross;  // withdrawal deducted below before fees
@@ -5567,13 +5577,13 @@ function runProjection(){
           returnPreTax += _occStep.pre - opening - contrib;  // net growth before yield tax
           yieldTaxP    += _occStep.tax;
         } else {
-          returnPreTax += (opening + contrib) * ret;  // gross return
+          returnPreTax += (opening + contrib) * ret + _ppArv;  // gross return (+ PP inheritance gains)
           yieldTaxP    += (opening + contrib) * (a.yt||0);
           mgmtFeePT    += (opening + contrib) * (a.mgmt||0);
           mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
         }
         // A statutory annuity keeps paying after the notional balance is spent.
-        const _lifelong = a.db || a.benefit || ((a.actuarial || isIpEngineAcc(a)) && a.useDelningstal && (a.type==='state' || a.type==='p-ins'));
+        const _lifelong = a.db || a.benefit || ((a.actuarial || isIpEngineAcc(a) || isPpAcc(a)) && a.useDelningstal && (a.type==='state' || a.type==='p-ins'));
         if(_occStep){
           // Payout leaves mid-year, so it costs payout·y^0.5 of the year-end balance
           const _py = Math.sqrt(_occStep.yv);
@@ -5611,7 +5621,8 @@ function runProjection(){
       } else if(a.taxable){
         // Re-compute ret locally (const ret is block-scoped inside else{})
         var _ret4d = geoRet(calcReturn(a, age, params));
-        _grossRetSek = (opening + _ac) * _ret4d;
+        _grossRetSek = (opening + _ac) * _ret4d
+          + (isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + _ret4d) : 0);
         var _base4fee = Math.max(0, (opening + _ac) * (1 + _ret4d) - (actualWd||0));
         _yt = (a.yt||0)   * _base4fee;  // full annual rate
         _mf = (a.mgmt||0) * _base4fee;  // full annual rate

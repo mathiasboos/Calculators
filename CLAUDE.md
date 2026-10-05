@@ -208,6 +208,11 @@ published, replace the workbook and re-verify everything below.
   old 0,10 % default on non-`ownEq` premium pension accounts
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
   restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
+- Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
+  balance ÷ the cohort PP divisor (`occDelningstal`, 2 from age 101), and the projection adds the
+  inheritance gains (`occArvGain`, sheet "arv PP") to the PP balance every year (`isPpAcc`). The
+  payout is not capped by the balance. Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
+  age-68 amount at 85 / 95 / 100; born 1980 stays level)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
