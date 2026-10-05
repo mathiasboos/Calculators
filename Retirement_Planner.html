@@ -1716,6 +1716,8 @@ en:{
   'pers.life.career':'Life & Career',
   'pers.birth':'Birth Year',
   'pers.ret.lbl':'Retirement Year',
+  'pp.own.eq':'Own equity brackets','pp.glide':'Default fund: 100 % equities to age 55 → 33 % at 75',
+  'pp.glide.tip':'Premium pension default fund (AP7 Såfa): 100 % equities up to age 55, then gradually down to 33 % equities / 67 % bonds at age 75. Tick "Own equity brackets" to use the Equity % age brackets instead.',
   'pers.work.age':'Begin work at age','pers.ret.age':'Retirement Age','pers.ret.age.small':'Age you stop working',
   'pers.rikt.tick':'Target retirement age','pers.life.age':'Life Expectancy Age',
   'pers.ret.year':'Retirement Year','pers.life.year':'Life Expectancy Year',
@@ -2203,6 +2205,8 @@ sv:{
   'pers.life.career':'Liv & Karriär',
   'pers.birth':'Födelseår',
   'pers.ret.lbl':'Pensionsår',
+  'pp.own.eq':'Egna aktieandelar','pp.glide':'Förvalsalternativet: 100 % aktier till 55 år → 33 % vid 75',
+  'pp.glide.tip':'Premiepensionens förvalsalternativ (AP7 Såfa): 100 % aktier till 55 år, därefter gradvis ner till 33 % aktier / 67 % räntor vid 75 år. Kryssa i "Egna aktieandelar" för att använda aktieandelarna per åldersintervall i stället.',
   'pers.work.age':'Börjar arbeta vid ålder','pers.ret.age':'Pensionsålder','pers.ret.age.small':'Åldern då du slutar arbeta',
   'pers.rikt.tick':'Riktålder','pers.life.age':'Förväntad livslängd (ålder)',
   'pers.ret.year':'Pensionsår','pers.life.year':'Livslängdsår',
@@ -3920,6 +3924,11 @@ function usesDelningstalPayout(a){
 
 let expenses = EXPENSES_INIT.map(e=>({...e}));
 let accounts = ACCOUNTS_INIT.map(a=>({...a}));
+// Default contribution window = begin-work age … retirement age (Personal tab).
+accounts.forEach(function(a){
+  if(a.cs < 9999){ a.cs = _csFor(a, Math.round(getParam('birthYear')), workStartAge()); a.ce = defaultCe(); }
+});
+persTrack();
 
 // Helper: get display name for an account (respects nameKey for i18n)
 function accDisplayName(a){ return a && a.nameKey ? t(a.nameKey) : (a ? a.name : ''); }
@@ -4856,15 +4865,14 @@ function buildAccountsTable(){
       tr.setAttribute('data-grp',g.type);
       if(collapsed) tr.style.display='none';
       tr.innerHTML=`
-        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}</td>
+        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${(a.type==='state' && a.delningstalScope==='premie') ? `<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
         ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
         ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
           + col(i,'ce',a.ce,1,60)
           + ((isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
-            col(i,'eq1',a.eq1,0.1,60)
-          + col(i,'eq2',a.eq2,0.1,60)
-          + col(i,'eq3',a.eq3,0.1,60)
+            (isPpGlide(a) ? `<td colspan="3" style="font-size:10px;color:var(--muted);padding:4px 6px;line-height:1.35" title="${t('pp.glide.tip')}">${t('pp.glide')}</td>`
+              : col(i,'eq1',a.eq1,0.1,60) + col(i,'eq2',a.eq2,0.1,60) + col(i,'eq3',a.eq3,0.1,60))
           + col(i,'mgmt',a.mgmt,0.01,60)
           + col(i,'yt',a.yt,0.01,60)
           + col(i,'fixedRet',a.fixedRet,0.1,60))}
@@ -4962,8 +4970,16 @@ buildPgbSection();
 // ══════════════════════════════════════════════════
 function getParam(id){ const el=document.getElementById(id); if(!el)return 0; return parseFloat((el.value||'0').replace(/\s/g,'').replace(',','.'))||0; }
 
+// Premium pension default fund (AP7 Såfa): 100 % equities to age 55, then
+// linearly down to 33 % equities / 67 % bonds at 75, flat after that.
+function ppGlideEq(age){ return age <= 55 ? 1 : age >= 75 ? 0.33 : 1 - 0.67 * (age - 55) / 20; }
+function isPpGlide(a){
+  return !!(a && a.type === 'state' && a.delningstalScope === 'premie' && !a.ownEq
+    && (a.fixedRet === null || a.fixedRet === undefined));
+}
 function calcEquityShare(acc, age){
   if(acc.fixedRet!==null && acc.fixedRet!==undefined) return 0;
+  if(isPpGlide(acc)) return ppGlideEq(age);
   const t1 = getParam('ageTo1')||63;
   const t2 = getParam('ageTo2')||73;
   if(age<=t1) return acc.eq1;
@@ -5345,11 +5361,12 @@ function runProjection(){
     for (let i = 0; i < accounts.length; i++) {
       const a = accounts[i];
       if (!a.taxable) {
-        const _annC2 = (yr>=a.cs && yr<=a.ce) ? (a.contrib||0) : 0;
+        const _inC2  = yr>=a.cs && yr<=a.ce && (yr<params.retirementYear || a.ce>params.retirementYear);
+        const _annC2 = _inC2 ? (a.contrib||0) : 0;
         const _r2 = calcReturn(a, age, params);
         const ret2 = geoRet(_r2);
         const netRet2 = ret2 - proRate(a.yt||0) - proRate(a.mgmt||0);
-        const contrib2 = (yr>=a.cs && yr<=a.ce) ? monthlyFV(_annC2, _r2, a.yt||0, a.mgmt||0) : 0;
+        const contrib2 = _inC2 ? monthlyFV(_annC2, _r2, a.yt||0, a.mgmt||0) : 0;
         prePassContrib[i] = contrib2;
         // First year: balance earns geoRet; contributions use annuity FV (already includes their return)
         const atBase2 = yr===START_YEAR ? balances[i]*(1+netRet2) + contrib2 : (balances[i]+contrib2)*(1+netRet2);
@@ -5468,7 +5485,8 @@ function runProjection(){
             contrib = contribFactor>0 ? monthlyFV(_annPinsC, calcReturn(a,age,params), a.yt||0, a.mgmt||0) : _annPinsC;
           }
         } else {
-          const _annCf = (yr>=a.cs && yr<=a.ce) ? (a.contrib||0) : 0;
+          // Contributing "until retirement age" stops in the retirement year itself
+          const _annCf = (yr>=a.cs && yr<=a.ce && (yr<params.retirementYear || a.ce>params.retirementYear)) ? (a.contrib||0) : 0;
           contrib = monthlyFV(_annCf, calcReturn(a, age, params), a.yt||0, a.mgmt||0);
         }
         contribPreTax += contrib;
@@ -6788,8 +6806,7 @@ function maximizeWithdrawals(){
       // Use post-retirement fixed return if available
       ret = (a.fixedRetPost !== null && a.fixedRetPost !== undefined) ? a.fixedRetPost : a.fixedRet;
     } else {
-      const _t1m=getParam('ageTo1')||63, _t2m=getParam('ageTo2')||73;
-      const eq = retAge <= _t1m ? a.eq1 : retAge <= _t2m ? a.eq2 : a.eq3;
+      const eq = calcEquityShare(a, retAge);
       ret = eq * eqRet + (1 - eq) * bdRet;
     }
     const netRet = ret - (a.yt || 0) - (a.mgmt || 0);
@@ -7923,6 +7940,7 @@ function persApplyAges(){
   if(laEl) laEl.value = la;
   document.getElementById('retirementYear').value = by + ra;
   document.getElementById('lifeYear').value = by + la;
+  if(persRelinkAccounts()){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
   updateRetirementHint();
   recalc();
   var iv = document.getElementById('exp-iv-master');
@@ -7949,20 +7967,33 @@ function workStartYear(a){
   var sc = a && a.scheme && !a.db && OCC_SCHEMES[a.scheme];
   return by + (sc ? Math.max(w, sc.prem.from) : w);
 }
-// Accounts whose contribution start follows the begin-work age.
-function followsWorkStart(a){
-  return (a.scheme && !a.db) || isIpEngineAcc(a) || isPpAutoAcc(a) || isUnderlagAcc(a);
+// Default contribution window of an account: Personal tab's begin-work age
+// (schemes: not before the scheme's own start age) to the retirement year.
+function _csFor(a, by, w){
+  var sc = a && a.scheme && !a.db && OCC_SCHEMES[a.scheme];
+  return by + (sc ? Math.max(w, sc.prem.from) : w);
 }
-var _lastWorkAge = 23;
-function onWorkAgeChange(){
-  var by = Math.round(getParam('birthYear')), oldW = _lastWorkAge, newW = workStartAge();
+function defaultCe(){ return Math.round(getParam('retirementYear')); }
+// Accounts still on their old default window follow the Personal tab; edited ones stay.
+var _lastBy, _lastWorkAge, _lastRetY;   // set by persTrack() at account init
+function persTrack(){
+  _lastBy = Math.round(getParam('birthYear')); _lastWorkAge = workStartAge(); _lastRetY = defaultCe();
+}
+function persRelinkAccounts(){
+  if(_lastBy == null){ persTrack(); return false; }
+  var by = Math.round(getParam('birthYear')), w = workStartAge(), retY = defaultCe(), changed = false;
   accounts.forEach(function(a){
-    if(!followsWorkStart(a)) return;
-    var sc = a.scheme && OCC_SCHEMES[a.scheme];
-    var oldCs = by + (sc ? Math.max(oldW, sc.prem.from) : oldW);
-    if(a.cs === oldCs) a.cs = Math.min(workStartYear(a), a.ce);
+    if(!(a.cs < 9999)) return;
+    var oldCs = _csFor(a, _lastBy, _lastWorkAge), newCs = _csFor(a, by, w);
+    if(a.ce === _lastRetY && a.ce !== retY){ a.ce = retY; changed = true; }
+    if(a.cs === oldCs && a.cs !== newCs){ a.cs = newCs; changed = true; }
+    if(a.cs > a.ce && a.ce < 9999){ a.cs = a.ce; changed = true; }
   });
-  _lastWorkAge = newW;
+  persTrack();
+  return changed;
+}
+function onWorkAgeChange(){
+  persRelinkAccounts();
   buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
   recalc();
 }
@@ -8552,7 +8583,7 @@ function addAccount(type, scheme){
   var ytDef = type==='after'?0.0105:type==='p-ins'?0.00375:0.000;
   var newA = {
     name: type==='after'?'New After-Tax Account':type==='p-ins'?'New Pension Account':'New State Account',
-    type:type, opening:0, contrib:0, cs:yr, ce:yr+5,
+    type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(),
     wd:0, ws:9999, we:9999,
     eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:ytDef,
     fixedRet:null, fixedRetPost:null,
@@ -8578,7 +8609,7 @@ function addOccScheme(key){
   var rows = [{
     name: sc.name, scheme: key,
     type:'p-ins', opening:0, contrib:0,
-    cs: by + Math.max(workStartAge(), sc.prem.from), ce: Math.min(by + sc.prem.to, 9998),
+    cs: by + Math.max(workStartAge(), sc.prem.from), ce: retY,
     openAuto:true,
     useDelningstal:true, delningstalMode:'tjp', delningstalScope:'tjp', actuarial:true,
     wd:0, ws:retY, we:9998,
@@ -8626,14 +8657,14 @@ function addStateAccount(kind){
     var tpl = ACCOUNTS_INIT.filter(function(x){ return x.nameKey === key; })[0];
     row = Object.assign({}, tpl, {
       opening:0, openAuto:true, contrib:0, wd:0,
-      cs: Math.min(by + workStartAge(), retY - 1), ce: retY - 1, ws: retY, we: lifeY
+      cs: Math.min(by + workStartAge(), retY), ce: retY, ws: retY, we: lifeY
     });
   } else {
     var auto = kind === 'garanti' || kind === 'ipt' || kind === 'tillagg';
     row = {
       name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
       benefitKind:kind, civ:0, ftid:40,
-      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY - 1) : 9999, ce: auto ? retY - 1 : 9999, wd:0, ws:retY, we:lifeY,
+      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY) : 9999, ce: auto ? retY : 9999, wd:0, ws:retY, we:lifeY,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
       taxable:true, wdShare:1
@@ -10254,6 +10285,7 @@ function populateMCDefaults(){
       if(a.nameKey === 'acc.name.income.pen') return; // exclude
       if(a.fixedRet !== null && a.fixedRet !== undefined) return; // skip fixed-return accs
       var wt = a.opening || 0;
+      if(isPpGlide(a)){ wEq1 += ppGlideEq(brT1) * wt; wEq2 += ppGlideEq(brT2) * wt; wEq3 += ppGlideEq(brT2 + 1) * wt; wTot += wt; return; }
       wEq1 += a.eq1 * wt; wEq2 += a.eq2 * wt; wEq3 += a.eq3 * wt; wTot += wt;
     });
     if(wTot > 0){
@@ -10405,7 +10437,7 @@ function applyPlanState(state){
   });
 
   persSyncFromYears();
-  _lastWorkAge = workStartAge();
+  persTrack();
 
   // 2. Restore JS arrays
   if(Array.isArray(state.expenses)){
@@ -10566,7 +10598,7 @@ function planTypical1980(){
   planClear();
   var by = 1980;
   _setInp('birthYear', by);
-  _setInp('workStartAge', 23); _lastWorkAge = 23;
+  _setInp('workStartAge', 23);
   document.getElementById('retTargetAge').checked = true;   // retirement at riktålder (68)
   _setInp('lifeAge', 95);                                   // 2075
   persApplyAges();
@@ -10577,7 +10609,6 @@ function planTypical1980(){
   EXPENSES_INIT.forEach(function(e){ expenses.push({name:e.name, val:e.val}); });
   var retY = Math.round(getParam('retirementYear'));
   addOccScheme('itp1');
-  accounts.forEach(function(a){ if(a.scheme === 'itp1' && !a.db) a.ce = retY; });  // contributions to 68
   addStateAccount('premie');
   addStateAccount('inkomst');
   _planRebuild();

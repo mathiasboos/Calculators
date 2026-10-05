@@ -196,6 +196,14 @@ published, replace the workbook and re-verify everything below.
   of truth (`persApplyAges` writes them, `persSyncFromYears` restores ages from older saves).
   New state accounts start contributions at the work age; schemes at max(work age, scheme
   from-age); `pgbWorkStart` = birth + work age. Gross/Net Retirement salary rows were removed
+- Assets tab contribution window defaults to Personal: Contrib Start = begin-work age (schemes:
+  max(work age, scheme from-age), `_csFor`), Contrib End = retirement age (`defaultCe`). Accounts
+  still on the old default follow Personal-tab changes (`persRelinkAccounts`, trackers set by
+  `persTrack`); edited ones stay. "End = retirement year" means no contribution in the retirement
+  year itself (fixed contributions; salary/scheme/IP ones were already gated)
+- Premium pension equity: default fund glidepath (`ppGlideEq`: 100 % equities to 55, linear to
+  33 % at 75) via `calcEquityShare`; tick "Own equity brackets" (`a.ownEq`) to use eq1–eq3.
+  Typfallsmodellen itself has one fund-return assumption, no glidepath
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
