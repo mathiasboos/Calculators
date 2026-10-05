@@ -206,6 +206,10 @@ published, replace the workbook and re-verify everything below.
 - Premium pension equity: default fund glidepath (`ppGlideEq`: 100 % equities to 55, linear to
   33 % at 75) via `calcEquityShare`; tick "Own equity brackets" (`a.ownEq`) to use eq1–eq3.
   Typfallsmodellen itself has one fund-return assumption, no glidepath
+  Contractual scheme premium rows (`isOccPremiumAcc`) have the same tick box: unticked = the
+  Parameters occupational return (1,7 % net); ticked = `engineStep` runs `occStep` with the account's
+  own net return (equity % brackets × eq/bond returns − Mgmt %); premiums, arv gains, yield tax and
+  history stay Typfallsmodellen's
   Default Mgmt % = AP7 Såfa's fee 0,04 % (`mgmt: 0.0004`, check ap7.se yearly); restore lifts the
   old 0,10 % default on non-`ownEq` premium pension accounts
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,

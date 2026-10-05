@@ -1734,7 +1734,8 @@ en:{
   'pers.birth':'Birth Year',
   'pers.ret.lbl':'Retirement Year',
   'pers.sal.uplift':'Gross salary in 2025 money, as in Typfallsmodellen. The model raises it by the 2026 income index (+{pct} %) and uses {amt} kr/month; net salary is after tax on that amount.',
-  'pp.own.eq':'Own equity brackets','pp.glide':'Default fund: 100 % equities to age 55 → 33 % at 75',
+  'pp.own.eq':'Own equity brackets',
+  'occ.own.eq.tip':'Unticked: Typfallsmodellen\'s return for occupational schemes (Parameters, 1,7 % net of fees). Ticked: the Equity % age brackets with the Parameters equity/bond returns, minus Mgmt %.','pp.glide':'Default fund: 100 % equities to age 55 → 33 % at 75',
   'pp.glide.tip':'Premium pension default fund (AP7 Såfa): 100 % equities up to age 55, then gradually down to 33 % equities / 67 % bonds at age 75; fee 0,04 %. Tick "Own equity brackets" to use the Equity % age brackets instead.',
   'pers.work.age':'Begin work at age','pers.ret.age':'Retirement Age','pers.ret.age.small':'Age you stop working',
   'pers.rikt.tick':'Target retirement age','pers.life.age':'Life Expectancy Age',
@@ -2227,7 +2228,8 @@ sv:{
   'pers.birth':'Födelseår',
   'pers.ret.lbl':'Pensionsår',
   'pers.sal.uplift':'Bruttolön i 2025 års nivå, som i Typfallsmodellen. Modellen räknar upp den med 2026 års inkomstindex (+{pct} %) och använder {amt} kr/mån; nettolönen är efter skatt på det beloppet.',
-  'pp.own.eq':'Egna aktieandelar','pp.glide':'Förvalsalternativet: 100 % aktier till 55 år → 33 % vid 75',
+  'pp.own.eq':'Egna aktieandelar',
+  'occ.own.eq.tip':'Ej ikryssad: Typfallsmodellens avkastning för tjänstepensionsavtal (Parametrar, 1,7 % efter avgifter). Ikryssad: aktieandelarna per åldersintervall med Parametrarnas avkastning för aktier/obligationer, minus förvaltningsavgiften.','pp.glide':'Förvalsalternativet: 100 % aktier till 55 år → 33 % vid 75',
   'pp.glide.tip':'Premiepensionens förvalsalternativ (AP7 Såfa): 100 % aktier till 55 år, därefter gradvis ner till 33 % aktier / 67 % räntor vid 75 år; avgift 0,04 %. Kryssa i "Egna aktieandelar" för att använda aktieandelarna per åldersintervall i stället.',
   'pers.work.age':'Börjar arbeta vid ålder','pers.ret.age':'Pensionsålder','pers.ret.age.small':'Åldern då du slutar arbeta',
   'pers.rikt.tick':'Riktålder','pers.life.age':'Förväntad livslängd (ålder)',
@@ -3630,7 +3632,18 @@ const OCC_ARV_IP = {firstYear:2000, a1First:17, a1:[
 // Year step shared by the Typfallsmodellen engines (occupational premium accounts
 // and the income pension); null for accounts using the planner's own growth.
 function engineStep(a, ctx, opening, contrib, y, frac){
-  if(isOccPremiumAcc(a)) return occStep(ctx, opening, contrib, y, frac);
+  if(isOccPremiumAcc(a)){
+    // "Own equity brackets": forward years earn the account's own blended return
+    // (equity % brackets × Parameters equity/bond returns − Mgmt %) instead of
+    // Typfallsmodellen's occupational return; premiums, inheritance gains, yield
+    // tax and history stay Typfallsmodellen's.
+    if(a.ownEq){
+      var eq = calcEquityShare(a, y - ctx.by);
+      var own = eq * getParam('eqReturn') / 100 + (1 - eq) * getParam('bdReturn') / 100 - (a.mgmt || 0);
+      ctx = Object.assign({}, ctx, {ret: own});
+    }
+    return occStep(ctx, opening, contrib, y, frac);
+  }
   if(isIpEngineAcc(a)){
     var pre = ipStep(ctx, opening, contrib, y, y >= (a.ws < 9999 ? a.ws : ctx.retY));
     return {yv: 1, pre: pre, tax: 0, avail: pre};
@@ -4296,11 +4309,13 @@ const OCC_BADGE_STYLE = 'display:inline-block;margin-left:4px;padding:0 5px;bord
 
 // Equity %, management fee, yield tax and fixed return follow Typfallsmodellen
 // for scheme accounts and are shown read-only.
-function occLockedCells(a){
+// tailOnly: just the Yield-tax and Fixed-Ret cells (scheme with "Own equity brackets").
+function occLockedCells(a, tailOnly){
   var dash = function(txt, tip){ return '<td style="text-align:center;color:var(--muted)" title="'+tip+'">'+txt+'</td>'; };
   var tip = t('occ.locked.tip');
   var ip = isIpEngineAcc(a);
   var ytxt = ip ? '\u2014' : (occTax(START_YEAR + 1) * 100).toFixed(3).replace('.', ',');
+  if(tailOnly) return dash(ytxt, tip) + dash('\u2014', tip);
   var rtxt = ip ? t('ip.index') : (occMakeCtx(occParamsNow()).ret * 100).toFixed(1).replace('.', ',');
   return dash('\u2014', tip) + dash('\u2014', tip) + dash('\u2014', tip)
        + dash('\u2014', tip) + dash(ytxt, tip) + dash(rtxt, tip);
@@ -4906,12 +4921,14 @@ function buildAccountsTable(){
       tr.setAttribute('data-grp',g.type);
       if(collapsed) tr.style.display='none';
       tr.innerHTML=`
-        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${(a.type==='state' && a.delningstalScope==='premie') ? `<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
+        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${((a.type==='state' && a.delningstalScope==='premie') || isOccPremiumAcc(a)) ? `<label title="${isOccPremiumAcc(a) ? t('occ.own.eq.tip') : t('pp.glide.tip')}" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
         ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
         ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
           + col(i,'ce',a.ce,1,60)
-          + ((isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
+          + ((isOccPremiumAcc(a) && a.ownEq) ? col(i,'eq1',a.eq1,0.1,60) + col(i,'eq2',a.eq2,0.1,60) + col(i,'eq3',a.eq3,0.1,60)
+              + col(i,'mgmt',a.mgmt,0.01,60) + occLockedCells(a, true)
+          : (isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
             (isPpGlide(a) ? `<td colspan="3" style="font-size:10px;color:var(--muted);padding:4px 6px;line-height:1.35" title="${t('pp.glide.tip')}">${t('pp.glide')}</td>`
               : col(i,'eq1',a.eq1,0.1,60) + col(i,'eq2',a.eq2,0.1,60) + col(i,'eq3',a.eq3,0.1,60))
           + col(i,'mgmt',a.mgmt,0.01,60)
