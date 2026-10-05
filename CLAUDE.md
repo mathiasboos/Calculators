@@ -206,6 +206,8 @@ published, replace the workbook and re-verify everything below.
   Typfallsmodellen itself has one fund-return assumption, no glidepath
   Default Mgmt % = AP7 Såfa's fee 0,04 % (`mgmt: 0.0004`, check ap7.se yearly); restore lifts the
   old 0,10 % default on non-`ownEq` premium pension accounts
+- State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
+  restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
