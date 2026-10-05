@@ -227,7 +227,8 @@ published, replace the workbook and re-verify everything below.
   "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
 - `resetAssumptions()` puts eqReturn / bdReturn / inflation / occReturn / salaryIncrease back to their
   HTML defaults (`defaultValue`); called by `planClear` (so every preset) and the Parameters-tab
-  button "↺ Typfallsmodellen defaults". Saved plans otherwise keep their own assumptions (auto-restore)
+  button "↺ Typfallsmodellen defaults". Saves carry `assumptionsV: 2`; restoring an older save moves
+  untouched old defaults (eq 4,5/1,7, bonds 0,5/1,7, salary +1,0) to 1,9 / 1,9 / 0,0, typed values stay
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

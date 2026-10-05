@@ -10458,6 +10458,7 @@ function collectPlanState(){
   });
   return {
     version: 3,
+    assumptionsV: 2,   // saved with the Typfallsmodellen default assumptions (1,9 % returns)
     savedAt: new Date().toISOString(),
     inputs: inputs,
     expenses: JSON.parse(JSON.stringify(expenses)),
@@ -10482,6 +10483,15 @@ function applyPlanState(state){
 
   // 1. Restore input fields
   var inp = state.inputs || {};
+  // Plans saved before the Typfallsmodellen defaults still carry the old default
+  // assumptions (equities 4,5 / bonds 0,5 / salary +1,0 %, or the interim 1,7):
+  // move those untouched defaults to 1,9 / 1,9 / 0,0. Values a user typed stay.
+  if(!(state.assumptionsV >= 2)){
+    var _old = function(v, list){ return list.indexOf(String(v).replace('.', ',')) >= 0; };
+    ['eqReturn','mc-ret-eq'].forEach(function(id){ if(id in inp && _old(inp[id], ['4,5','1,7'])) inp[id] = '1,9'; });
+    ['bdReturn','mc-ret-bd'].forEach(function(id){ if(id in inp && _old(inp[id], ['0,5','1,7'])) inp[id] = '1,9'; });
+    if('salaryIncrease' in inp && _old(inp.salaryIncrease, ['1,0','1'])) inp.salaryIncrease = '0,0';
+  }
   Object.keys(inp).forEach(function(id){
     var el = document.getElementById(id);
     if(!el) return;
