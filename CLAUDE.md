@@ -190,6 +190,12 @@ published, replace the workbook and re-verify everything below.
   life year 2075, typical pensioner expenses (`EXPENSES_INIT`, 18 400 kr/month), ITP 1 +
   Premiepension + Inkomstpension with automatic (Typfallsmodellen) openings. ITP 1 Contrib End
   shows 68, but `occPremium` stops ITP 1 premiums at 66 from 2023 (workbook rule)
+- Personal tab works in ages: Begin work at age (`#workStartAge`, default 23), Retirement Age
+  (`#retirementAge`, tick box `#retTargetAge` = follow riktålder) and Life Expectancy Age
+  (`#lifeAge`, default 95). The hidden `#retirementYear` / `#lifeYear` stay the engine's source
+  of truth (`persApplyAges` writes them, `persSyncFromYears` restores ages from older saves).
+  New state accounts start contributions at the work age; schemes at max(work age, scheme
+  from-age); `pgbWorkStart` = birth + work age. Gross/Net Retirement salary rows were removed
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

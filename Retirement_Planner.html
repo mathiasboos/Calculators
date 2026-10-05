@@ -586,6 +586,8 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 
+/* Retirement age follows riktålder while the tick box is on */
+#retirementAge[readonly]{opacity:.6;cursor:not-allowed}
 /* Guided walkthrough */
 .guide-hl{outline:2px solid var(--gold)!important;outline-offset:3px;border-radius:6px;animation:guidePulse 1.6s ease-in-out infinite}
 @keyframes guidePulse{0%,100%{box-shadow:0 0 0 0 rgba(240,193,66,.0)}50%{box-shadow:0 0 0 6px rgba(240,193,66,.25)}}
@@ -890,16 +892,27 @@ input[type="number"]::-webkit-outer-spin-button {
       <div class="card-header" data-i18n="pers.life.career">Life & Career</div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.birth">Birth Year</div>
-        <input class="inp" type="number" id="birthYear" value="1968" onchange="onBirthYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input class="inp" type="number" id="birthYear" value="1968" onchange="persApplyAges()">
+      </div>
+      <div class="input-row">
+        <div class="input-label" data-i18n="pers.work.age">Begin work at age</div>
+        <input class="inp" type="number" id="workStartAge" value="23" onchange="onWorkAgeChange()">
       </div>
       <div class="input-row" style="flex-wrap:wrap">
-        <div class="input-label"><span data-i18n="pers.ret.lbl">Retirement Year</span><small data-i18n="pers.ret.small">Year you stop working</small></div>
-        <input class="inp" type="number" id="retirementYear" value="2036" onchange="onRetirementYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <div class="input-label"><span data-i18n="pers.ret.age">Retirement Age</span><small data-i18n="pers.ret.age.small">Age you stop working</small></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="retTargetAge" checked onchange="persApplyAges()" style="accent-color:#48B866;cursor:pointer">
+            <span data-i18n="pers.rikt.tick">Target retirement age</span></label>
+          <input class="inp" type="number" id="retirementAge" value="68" readonly onchange="persApplyAges()">
+        </div>
+        <input type="hidden" id="retirementYear" value="2036" onchange="onRetirementYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
         <div id="retirementYear-hint" style="flex-basis:100%;text-align:right;font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic"></div>
       </div>
       <div class="input-row">
-        <div class="input-label" data-i18n="pers.life.exp">Life Expectancy Year</div>
-        <input class="inp" type="number" id="lifeYear" value="2070" onchange="recalc();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <div class="input-label" data-i18n="pers.life.age">Life Expectancy Age</div>
+        <input class="inp" type="number" id="lifeAge" value="95" onchange="persApplyAges()">
+        <input type="hidden" id="lifeYear" value="2063" onchange="recalc();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
       </div>
       <!-- Longevity illustrator -->
       <div style="margin-top:16px;padding:14px 16px;background:rgba(74,143,204,.06);border:1px solid rgba(74,143,204,.2);border-radius:8px">
@@ -930,8 +943,6 @@ input[type="number"]::-webkit-outer-spin-button {
           <tbody>
             <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.sal.gross.pre">Gross Pre-retirement</td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="grossSalPre66" value="60 000" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');autoFillNetSalary();recalc()"></td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="grossSalPre67" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');autoFillNetSalary();recalc()"></td></tr>
             <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.sal.net.pre">Net Pre-retirement</td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalPre66" value="43 587" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalPre67" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td></tr>
-            <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.sal.gross.ret">Gross Retirement</td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="grossSalRet66" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');autoFillNetSalary();recalc()"></td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="grossSalRet67" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');autoFillNetSalary();recalc()"></td></tr>
-            <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.sal.net.ret">Net Retirement</td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalRet66" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td><td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="netSalRet67" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td></tr>
           </tbody>
         </table>
       </div>
@@ -944,6 +955,8 @@ input[type="number"]::-webkit-outer-spin-button {
       <div class="card-header" data-i18n="pers.summary">Summary</div>
       <div class="input-row"><div class="input-label" data-i18n="pers.cur.year">Current Year</div><div id="s-curYear" style="font-family:var(--font-m);color:var(--gold)">2026</div></div>
       <div class="input-row"><div class="input-label" data-i18n="pers.age.ret">Age at Retirement</div><div id="s-retAge" style="font-family:var(--font-m);color:var(--gold)">-</div></div>
+      <div class="input-row"><div class="input-label" data-i18n="pers.ret.year">Retirement Year</div><div id="s-retYear" style="font-family:var(--font-m);color:var(--gold)">-</div></div>
+      <div class="input-row"><div class="input-label" data-i18n="pers.life.year">Life Expectancy Year</div><div id="s-lifeYear" style="font-family:var(--font-m);color:var(--gold)">-</div></div>
       <div class="input-row"><div class="input-label" data-i18n="pers.yrs.to.ret">Years to Retirement</div><div id="s-yrsToRet" style="font-family:var(--font-m);color:var(--gold)">-</div></div>
       <div class="input-row"><div class="input-label" data-i18n="pers.yrs.in.ret">Years in Retirement</div><div id="s-yrsInRet" style="font-family:var(--font-m);color:var(--gold)">-</div></div>
     </div>
@@ -1649,7 +1662,7 @@ en:{
   'preset.cleared':'✓ All input data cleared','preset.loaded':'✓ Typical case loaded: ITP1, born 1980, salary 40 000 kr/month',
   'guide.step':'Step {n} of {m}','guide.back':'Back','guide.next':'Next','guide.finish':'Finish','guide.close':'Close guide',
   'guide.t1':'Personal','guide.t2':'Assets','guide.t3':'Withdrawals','guide.t4':'Expenses',
-  'guide.b1':'<li>Enter your <b>birth year</b>.</li><li><b>Retirement year</b> is pre-filled at your target retirement age (riktålder). Change it if you plan to stop working earlier or later.</li><li>Enter <b>life expectancy year</b>, for example the year you turn 95.</li><li>Enter your <b>gross monthly salary</b>; the net salary fills in automatically. Set the yearly salary increase above inflation.</li>',
+  'guide.b1':'<li>Enter your <b>birth year</b> and the <b>age you began working</b>.</li><li><b>Retirement age</b>: tick <b>Target retirement age</b> to use your riktålder, or untick it and enter your own age.</li><li>Enter <b>life expectancy age</b>, for example 95.</li><li>Enter your <b>gross monthly salary</b>; the net salary fills in automatically. Set the yearly salary increase above inflation.</li>',
   'guide.b2':'<li><b>After-tax</b>: add savings such as ISK, endowment insurance and cash with today\'s balance and monthly saving.</li><li><b>P-Insurance</b>: pick your occupational pension scheme (e.g. ITP 1). Leave Opening empty to calculate the balance from your salary history.</li><li><b>State</b>: add Inkomstpension and Premiepension (Opening empty = automatic), and Garantipension / Inkomstpensionstillägg if relevant.</li><li><b>PGB</b>: add child years, conscription, studies or sickness compensation.</li>',
   'guide.b3':'<li>For each pension account choose <b>Lifelong</b> (paid for life) or <b>Planned</b> (a set number of years).</li><li>Set withdrawal start and end years for savings accounts.</li><li>Use <b>age-based expense intervals</b> and <b>Optimize to Zero</b> to spread withdrawals over retirement.</li>',
   'guide.b4':'<li>Enter your <b>monthly spending after tax</b> in retirement per category.</li><li>Start from minPension\'s typical retiree: <b>Basic</b> 17 600, <b>Average</b> 18 400 or <b>Extra</b> 27 300 kr/month, then adjust the amounts.</li><li>Press <b>Finish</b> to see the result on the Dashboard.</li>',
@@ -1703,6 +1716,9 @@ en:{
   'pers.life.career':'Life & Career',
   'pers.birth':'Birth Year',
   'pers.ret.lbl':'Retirement Year',
+  'pers.work.age':'Begin work at age','pers.ret.age':'Retirement Age','pers.ret.age.small':'Age you stop working',
+  'pers.rikt.tick':'Target retirement age','pers.life.age':'Life Expectancy Age',
+  'pers.ret.year':'Retirement Year','pers.life.year':'Life Expectancy Year',
   'pers.ret.small':'Year you stop working',
   'pers.life.exp':'Life Expectancy Year',
   'pers.salary.inc':'Annual salary increase above inflation (%)',
@@ -2133,7 +2149,7 @@ sv:{
   'preset.cleared':'✓ All indata rensad','preset.loaded':'✓ Typfall laddat: ITP1, född 1980, lön 40 000 kr/mån',
   'guide.step':'Steg {n} av {m}','guide.back':'Tillbaka','guide.next':'Nästa','guide.finish':'Klar','guide.close':'Stäng guiden',
   'guide.t1':'Personligt','guide.t2':'Tillgångar','guide.t3':'Uttag','guide.t4':'Utgifter',
-  'guide.b1':'<li>Ange ditt <b>födelseår</b>.</li><li><b>Pensionsår</b> är förifyllt med din riktålder. Ändra om du tänker sluta arbeta tidigare eller senare.</li><li>Ange <b>förväntat livslängdsår</b>, t.ex. året du fyller 95.</li><li>Ange din <b>bruttolön per månad</b>; nettolönen fylls i automatiskt. Ange årlig löneökning utöver inflationen.</li>',
+  'guide.b1':'<li>Ange ditt <b>födelseår</b> och <b>åldern då du började arbeta</b>.</li><li><b>Pensionsålder</b>: kryssa i <b>Riktålder</b> för att använda din riktålder, eller ta bort krysset och ange egen ålder.</li><li>Ange <b>förväntad livslängd</b> som ålder, t.ex. 95.</li><li>Ange din <b>bruttolön per månad</b>; nettolönen fylls i automatiskt. Ange årlig löneökning utöver inflationen.</li>',
   'guide.b2':'<li><b>Efter skatt</b>: lägg till sparande som ISK, kapitalförsäkring och kontanter med dagens saldo och månadssparande.</li><li><b>P-försäkring</b>: välj ditt tjänstepensionsavtal (t.ex. ITP 1). Lämna Ingående tomt så beräknas saldot från din lönehistorik.</li><li><b>Statlig</b>: lägg till Inkomstpension och Premiepension (tomt Ingående = automatiskt), samt Garantipension / Inkomstpensionstillägg vid behov.</li><li><b>PGB</b>: lägg till barnår, värnplikt, studier eller sjukersättning.</li>',
   'guide.b3':'<li>Välj för varje pensionskonto <b>Livsvarig</b> (betalas livet ut) eller <b>Planerat</b> (ett visst antal år).</li><li>Ange start- och slutår för uttag från sparkonton.</li><li>Använd <b>åldersbaserade utgiftsintervall</b> och <b>Optimera till noll</b> för att fördela uttagen över pensionen.</li>',
   'guide.b4':'<li>Ange dina <b>månadsutgifter efter skatt</b> som pensionär per kategori.</li><li>Utgå från minPensions typiska pensionär: <b>Bas</b> 17 600, <b>Medel</b> 18 400 eller <b>Plus</b> 27 300 kr/mån, och justera sedan beloppen.</li><li>Tryck <b>Klar</b> för att se resultatet på översikten.</li>',
@@ -2187,6 +2203,9 @@ sv:{
   'pers.life.career':'Liv & Karriär',
   'pers.birth':'Födelseår',
   'pers.ret.lbl':'Pensionsår',
+  'pers.work.age':'Börjar arbeta vid ålder','pers.ret.age':'Pensionsålder','pers.ret.age.small':'Åldern då du slutar arbeta',
+  'pers.rikt.tick':'Riktålder','pers.life.age':'Förväntad livslängd (ålder)',
+  'pers.ret.year':'Pensionsår','pers.life.year':'Livslängdsår',
   'pers.ret.small':'Året du slutar arbeta',
   'pers.life.exp':'Förväntad livslängd (år)',
   'pers.salary.inc':'Årlig löneökning utöver inflation (%)',
@@ -3753,14 +3772,7 @@ function pgbBidrag(y){
   var D = PGB_DATA, i = Math.min(Math.max(y - D.bidragFirst, 0), D.bidrag.length - 1);
   return D.bidrag[i];
 }
-function pgbWorkStart(ctx){
-  if(ctx._pgbWs == null){
-    var m = Infinity;
-    accounts.forEach(function(a){ if((isIpEngineAcc(a) || isPpAutoAcc(a) || isUnderlagAcc(a)) && a.cs < m) m = a.cs; });
-    ctx._pgbWs = m === Infinity ? ctx.by + 25 : m;
-  }
-  return ctx._pgbWs;
-}
+function pgbWorkStart(ctx){ return ctx.by + workStartAge(); }
 function pgbOwnWage(ctx, y){ return (y >= pgbWorkStart(ctx) && y < ctx.retY) ? occWage(ctx, y) : 0; }
 function pgbOwnPgi(ctx, y){
   var w = pgbOwnWage(ctx, y);
@@ -6452,6 +6464,8 @@ const top = [
   const curYear = new Date().getFullYear();
   document.getElementById('s-curYear').textContent = curYear;
   document.getElementById('s-retAge').textContent  = params.retirementYear - params.birthYear;
+  document.getElementById('s-retYear').textContent = params.retirementYear;
+  document.getElementById('s-lifeYear').textContent= params.lifeYear;
   document.getElementById('s-yrsToRet').textContent= Math.max(0, params.retirementYear - curYear);
   document.getElementById('s-yrsInRet').textContent= Math.max(0, params.lifeYear - params.retirementYear);
 
@@ -7268,8 +7282,6 @@ function autoFillNetSalary(){
   var pairs = [
     ['grossSalPre66','netSalPre66','under'],
     ['grossSalPre67','netSalPre67','over'],
-    ['grossSalRet66','netSalRet66','under'],
-    ['grossSalRet67','netSalRet67','over'],
   ];
   pairs.forEach(function(p){
     var grossEl = document.getElementById(p[0]);
@@ -7893,27 +7905,65 @@ function buildWdTable(){
 }
 
 
-// ─── Riktålder pre-fill & hint for Retirement Year ───────────────────────
-// On birthYear change, if the user hasn't customized retirementYear away
-// from the previous cohort's riktålder, auto-update it to the new cohort's
-// riktålder. Otherwise leave the custom value alone. Always refresh the hint.
-var _lastBirthYear = parseInt((document.getElementById('birthYear')||{}).value)||1971;
-
-function onBirthYearChange(){
-  var byEl = document.getElementById('birthYear');
-  var retEl = document.getElementById('retirementYear');
-  var newBY = parseInt(byEl ? byEl.value : '') || _lastBirthYear;
-  var oldBY = _lastBirthYear;
-  var newRiktAge = getRiktalder(newBY);
-  var oldRiktYear = oldBY + (getRiktalder(oldBY) || 0);
-  var curRetYear  = retEl ? (parseInt(retEl.value)||0) : 0;
-  // Only auto-update retirementYear if it currently equals the old cohort's
-  // riktålder year (i.e. the user hasn't customized it).
-  if(retEl && newRiktAge && curRetYear === oldRiktYear){
-    retEl.value = newBY + newRiktAge;
+// ─── Personal tab: ages drive the hidden year inputs ─────────────────────
+// #retirementYear / #lifeYear (hidden) stay the source of truth for the engine
+// and for save/restore; the visible inputs are ages. With "Target retirement
+// age" ticked the retirement age follows the cohort's riktålder.
+function persApplyAges(){
+  var by   = Math.round(getParam('birthYear')) || 1971;
+  var tick = document.getElementById('retTargetAge');
+  var raEl = document.getElementById('retirementAge'), laEl = document.getElementById('lifeAge');
+  var rikt = getRiktalder(by);
+  if(raEl && tick){
+    raEl.readOnly = !!tick.checked;
+    if(tick.checked && rikt) raEl.value = rikt;
   }
-  _lastBirthYear = newBY;
+  var ra = Math.round(getParam('retirementAge')) || rikt || 65;
+  var la = Math.max(Math.round(getParam('lifeAge')) || 95, ra + 1);
+  if(laEl) laEl.value = la;
+  document.getElementById('retirementYear').value = by + ra;
+  document.getElementById('lifeYear').value = by + la;
   updateRetirementHint();
+  recalc();
+  var iv = document.getElementById('exp-iv-master');
+  if(iv && iv.checked) autoCalcExpIntervals();
+}
+// Ages from the stored years (restore of older saves that only hold years).
+function persSyncFromYears(){
+  var by = Math.round(getParam('birthYear')) || 1971;
+  var ra = Math.round(getParam('retirementYear')) - by, la = Math.round(getParam('lifeYear')) - by;
+  var raEl = document.getElementById('retirementAge'), laEl = document.getElementById('lifeAge');
+  var tick = document.getElementById('retTargetAge');
+  if(raEl) raEl.value = ra;
+  if(laEl) laEl.value = la;
+  if(tick){
+    if(tick.checked && ra !== getRiktalder(by)) tick.checked = false;
+    if(raEl) raEl.readOnly = !!tick.checked;
+  }
+  updateRetirementHint();
+}
+function workStartAge(){ var v = Math.round(getParam('workStartAge')); return v > 0 ? v : 23; }
+// Contribution start of a newly added account, from the begin-work age.
+function workStartYear(a){
+  var by = Math.round(getParam('birthYear')), w = workStartAge();
+  var sc = a && a.scheme && !a.db && OCC_SCHEMES[a.scheme];
+  return by + (sc ? Math.max(w, sc.prem.from) : w);
+}
+// Accounts whose contribution start follows the begin-work age.
+function followsWorkStart(a){
+  return (a.scheme && !a.db) || isIpEngineAcc(a) || isPpAutoAcc(a) || isUnderlagAcc(a);
+}
+var _lastWorkAge = 23;
+function onWorkAgeChange(){
+  var by = Math.round(getParam('birthYear')), oldW = _lastWorkAge, newW = workStartAge();
+  accounts.forEach(function(a){
+    if(!followsWorkStart(a)) return;
+    var sc = a.scheme && OCC_SCHEMES[a.scheme];
+    var oldCs = by + (sc ? Math.max(oldW, sc.prem.from) : oldW);
+    if(a.cs === oldCs) a.cs = Math.min(workStartYear(a), a.ce);
+  });
+  _lastWorkAge = newW;
+  buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
   recalc();
 }
 
@@ -7943,15 +7993,16 @@ function updateRetirementHint(){
   var L_targetIs  = sv ? 'riktålder:'          : 'target retirement age:';
   var L_after     = sv ? 'år efter riktålder'  : 'yr after target';
   var L_before    = sv ? 'år före riktålder'   : 'yr before target';
+  var L_retYear   = sv ? 'Pensionsår'          : 'Retirement year';
   if(riktYr && rY === riktYr){
-    hintEl.innerHTML = '<span style="color:#48B866;font-weight:600">'+L_target+'</span>'
-      +' · '+L_youWillBe+' <b>'+ageAtRet+'</b> '+L_yrsOld
-      +(forecast?' <span style="opacity:.7">'+L_forecast+'</span>':'');
+    hintEl.innerHTML = '<span style="color:#48B866;font-weight:600">'+L_target+' '+rikt+'</span>'
+      +(forecast?' <span style="opacity:.7">'+L_forecast+'</span>':'')
+      +' · '+L_retYear+' <b>'+rY+'</b>';
   } else if(riktYr){
     var diff = rY - riktYr;
     var diffTxt = diff>0 ? '+'+diff+' '+L_after : diff+' '+L_before;
-    hintEl.innerHTML = L_youWillBe+' <b>'+ageAtRet+'</b> '+L_yrsOld+' · '
-      +'<span style="opacity:.8">'+L_targetIs+' '+riktYr
+    hintEl.innerHTML = L_retYear+' <b>'+rY+'</b> · '
+      +'<span style="opacity:.8">'+L_targetIs+' '+rikt
       +' ('+diffTxt+')</span>';
   } else {
     hintEl.innerHTML = L_youWillBe+' <b>'+ageAtRet+'</b> '+L_yrsOld;
@@ -8527,7 +8578,7 @@ function addOccScheme(key){
   var rows = [{
     name: sc.name, scheme: key,
     type:'p-ins', opening:0, contrib:0,
-    cs: by + sc.prem.from, ce: Math.min(by + sc.prem.to, 9998),
+    cs: by + Math.max(workStartAge(), sc.prem.from), ce: Math.min(by + sc.prem.to, 9998),
     openAuto:true,
     useDelningstal:true, delningstalMode:'tjp', delningstalScope:'tjp', actuarial:true,
     wd:0, ws:retY, we:9998,
@@ -8575,14 +8626,14 @@ function addStateAccount(kind){
     var tpl = ACCOUNTS_INIT.filter(function(x){ return x.nameKey === key; })[0];
     row = Object.assign({}, tpl, {
       opening:0, openAuto:true, contrib:0, wd:0,
-      cs: Math.min(by + 25, retY - 1), ce: retY - 1, ws: retY, we: lifeY
+      cs: Math.min(by + workStartAge(), retY - 1), ce: retY - 1, ws: retY, we: lifeY
     });
   } else {
     var auto = kind === 'garanti' || kind === 'ipt' || kind === 'tillagg';
     row = {
       name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
       benefitKind:kind, civ:0, ftid:40,
-      opening:0, contrib:0, cs: auto ? Math.min(by + 25, retY - 1) : 9999, ce: auto ? retY - 1 : 9999, wd:0, ws:retY, we:lifeY,
+      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY - 1) : 9999, ce: auto ? retY - 1 : 9999, wd:0, ws:retY, we:lifeY,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
       taxable:true, wdShare:1
@@ -10353,6 +10404,9 @@ function applyPlanState(state){
     el.dispatchEvent(new Event('change'));
   });
 
+  persSyncFromYears();
+  _lastWorkAge = workStartAge();
+
   // 2. Restore JS arrays
   if(Array.isArray(state.expenses)){
     expenses.length = 0;
@@ -10483,7 +10537,7 @@ function _setInp(id, v){ var el = document.getElementById(id); if(el) el.value =
 function planClear(){
   guideClose();
   ['grossSalPre66','grossSalPre67','netSalPre66','netSalPre67',
-   'grossSalRet66','grossSalRet67','netSalRet66','netSalRet67','inc-lon','inc-vaxling','inc-pension'
+   'inc-lon','inc-vaxling','inc-pension'
   ].forEach(function(id){ _setInp(id, '0'); });
   _setInp('salaryIncrease', '1,0');
   accounts.length = 0;
@@ -10511,9 +10565,11 @@ function _planRebuild(){
 function planTypical1980(){
   planClear();
   var by = 1980;
-  _setInp('birthYear', by); _lastBirthYear = by;
-  _setInp('retirementYear', by + (getRiktalder(by) || 68));
-  _setInp('lifeYear', 2075);
+  _setInp('birthYear', by);
+  _setInp('workStartAge', 23); _lastWorkAge = 23;
+  document.getElementById('retTargetAge').checked = true;   // retirement at riktålder (68)
+  _setInp('lifeAge', 95);                                   // 2075
+  persApplyAges();
   _setInp('grossSalPre66', (40000).toLocaleString('sv-SE'));
   _setInp('inc-lon', (40000).toLocaleString('sv-SE'));
   autoFillNetSalary();
@@ -10532,7 +10588,7 @@ function planTypical1980(){
 function goTab(id){ switchTab(id); window.scrollTo(0, 0); }
 
 var GUIDE_STEPS = [
-  {tab:'personal',    hl:['#birthYear','#retirementYear','#lifeYear','#grossSalPre66','#salaryIncrease']},
+  {tab:'personal',    hl:['#birthYear','#workStartAge','#retirementAge','#lifeAge','#grossSalPre66','#salaryIncrease']},
   {tab:'accounts',    hl:["#accounts-tbody button[onclick=\"addAccount('after')\"]",'#acc-add-pins','#acc-add-state','#pgb-add']},
   {tab:'withdrawals', hl:['#exp-iv-master-label','#wd-acct-table']},
   {tab:'expenses',    hl:['#exp-persona','#expense-rows']}
