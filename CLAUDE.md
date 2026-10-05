@@ -184,7 +184,7 @@ published, replace the workbook and re-verify everything below.
 - Header dropdown `#plan-preset` → `PLAN_PRESETS` (key → function, add new typical cases
   there plus a `<option>` and `preset.*` i18n keys). Every choice asks for confirmation;
   the plan saved in the browser is untouched until Save
-- Its placeholder reads "Begin here to create a plan" and pulses gold/green/blue for 3 s on load
+- Its placeholder reads "Begin here to create a plan" and pulses gold/green/blue for 5 s on load
   (`.preset-attn`, CSS only)
 - `planClear()` — zero salaries, remove all accounts and PGB items, expense categories kept
   at 0, expense intervals reset. Birth / retirement / life-expectancy years are kept
