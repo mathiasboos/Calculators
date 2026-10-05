@@ -154,7 +154,7 @@ published, replace the workbook and re-verify everything below.
   with the port exactly (±0.4 %) when the payout year is 2026+ (flat PBB 59 200).
   Not modelled: PGB points (childcare/studies), ATP in the Garantipension underlag
 - PGB — pensionsgrundande belopp (section under Assets, `pgbItems`, `pgbCalc`,
-  `rightsBase`): items Child / Conscription / Studies / Activity-sickness compensation,
+  `rightsBase`): items Child (1–4 PGB years, default 4) / Conscription / Studies / Activity-sickness compensation,
   ported from `VBA_go` (PGB block), `Pensionssystemet.pgb_barn` and the workbook sheet
   `PGB`. Child: 4 years (birth year … +3) = max(income year of birth − PGI, 0.75·MPGI − PGI,
   1 IBB), rounded up to 100 kr; conscription: 0.5·MPGI × days/365 (1995–2010 and 2018+,

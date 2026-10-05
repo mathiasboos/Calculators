@@ -1389,7 +1389,7 @@ input[type="number"]::-webkit-outer-spin-button {
   <!-- ── PGB — pensionsgrundande belopp ───────────────────────────── -->
   <div id="pgb-section" style="margin-top:30px">
     <div class="section-title" style="font-size:18px" data-i18n="pgb.title">Pensionable amounts – PGB</div>
-    <div class="section-sub" data-i18n="pgb.sub">Pension rights for child years, conscription, studies and sickness/activity compensation (Typfallsmodellen)</div>
+    <div class="section-sub" data-i18n="pgb.sub">Pension rights for child years, conscription, studies and sickness/activity compensation</div>
     <div id="pgb-list"></div>
     <div id="pgb-add" style="margin:8px 0"></div>
     <div id="pgb-summary" style="font-size:11px;color:var(--muted)"></div>
@@ -1816,9 +1816,9 @@ en:{
   'gp.single':'Single','gp.cohab':'Cohabiting','gp.years':'Residence years',
   'bn.rule.tillagg':'ATP points from your income history (best 15 years); the rest of the cohort goes to the income pension',
   'bn.atp.none':'No tilläggspension for people born after 1953.',
-  'pgb.title':'Pensionable amounts – PGB','pgb.sub':'Pension rights for child years, conscription, studies and sickness/activity compensation (Typfallsmodellen)',
+  'pgb.title':'Pensionable amounts – PGB','pgb.sub':'Pension rights for child years, conscription, studies and sickness/activity compensation',
   'pgb.add':'+ Add PGB item','pgb.opt.child':'Child','pgb.opt.vpl':'Conscription service','pgb.opt.studies':'Studies','pgb.opt.sa':'Activity / sickness compensation',
-  'pgb.f.birth':'Born','pgb.f.start':'Start','pgb.f.end':'Discharge','pgb.f.agefrom':'From age','pgb.f.ageto':'To age','pgb.f.terms':'Terms/yr','pgb.f.grant':'or grant kr/yr','pgb.f.amount':'PGB kr/yr (today)',
+  'pgb.f.birth':'Born','pgb.f.years':'PGB years','pgb.f.start':'Start','pgb.f.end':'Discharge','pgb.f.agefrom':'From age','pgb.f.ageto':'To age','pgb.f.terms':'Terms/yr','pgb.f.grant':'or grant kr/yr','pgb.f.amount':'PGB kr/yr (today)',
   'pgb.col.type':'Type','pgb.col.details':'Details','pgb.col.result':'Pensionable amount','pgb.empty':'No items. Add child years, conscription, studies or sickness/activity compensation.',
   'pgb.total':'Total PGB','pgb.rule':'Counted from age 16 until the guarantee age and before retirement; PGI + PGB is capped at 7.5 IBB. Raises income pension, premium pension and ATP rights.',
   'pgb.warn.born':'Not applicable for people born before 1938.',
@@ -2282,9 +2282,9 @@ sv:{
   'gp.single':'Ensamstående','gp.cohab':'Gift/sammanboende','gp.years':'Bosättningsår',
   'bn.rule.tillagg':'ATP-poäng från din inkomsthistorik (bästa 15 åren); resten av kohorten ingår i inkomstpensionen',
   'bn.atp.none':'Ingen tilläggspension för personer födda efter 1953.',
-  'pgb.title':'Pensionsgrundande belopp – PGB','pgb.sub':'Pensionsrätt för barnår, värnplikt, studier och sjuk-/aktivitetsersättning (Typfallsmodellen)',
+  'pgb.title':'Pensionsgrundande belopp – PGB','pgb.sub':'Pensionsrätt för barnår, värnplikt, studier och sjuk-/aktivitetsersättning',
   'pgb.add':'+ Lägg till PGB','pgb.opt.child':'Barn','pgb.opt.vpl':'Värnplikt','pgb.opt.studies':'Studier','pgb.opt.sa':'Aktivitets-/sjukersättning',
-  'pgb.f.birth':'Född','pgb.f.start':'Start','pgb.f.end':'Muck','pgb.f.agefrom':'Från ålder','pgb.f.ageto':'Till ålder','pgb.f.terms':'Terminer/år','pgb.f.grant':'eller bidrag kr/år','pgb.f.amount':'PGB kr/år (idag)',
+  'pgb.f.birth':'Född','pgb.f.years':'PGB-år','pgb.f.start':'Start','pgb.f.end':'Muck','pgb.f.agefrom':'Från ålder','pgb.f.ageto':'Till ålder','pgb.f.terms':'Terminer/år','pgb.f.grant':'eller bidrag kr/år','pgb.f.amount':'PGB kr/år (idag)',
   'pgb.col.type':'Typ','pgb.col.details':'Uppgifter','pgb.col.result':'Pensionsgrundande belopp','pgb.empty':'Inga poster. Lägg till barnår, värnplikt, studier eller sjuk-/aktivitetsersättning.',
   'pgb.total':'Summa PGB','pgb.rule':'Räknas från 16 år till riktåldern och före pension; PGI + PGB begränsas till 7,5 IBB. Höjer rätter i inkomstpension, premiepension och ATP.',
   'pgb.warn.born':'Gäller inte personer födda före 1938.',
@@ -3733,7 +3733,7 @@ function pgbCalc(ctx, y){
     if(!(yb > 1960) || diverse > 0) return;
     var ageAtBirth = yb - by - (isFirst ? 0 : 1);
     if(ageAtBirth <= 15) return;
-    if(!(age < rikt && (y === yb || (y > yb && y < yb + 4)))) return;
+    if(!(age < rikt && (y === yb || (y > yb && y < yb + (it.years >= 1 && it.years <= 4 ? Math.round(it.years) : 4))))) return;
     var jy = by + ageAtBirth, jink = pgbOwnWage(ctx, jy) ;
     var uink = pgi + pgb, ibbY = occIbb(ctx, y);
     var v = jink - uink;
@@ -6466,7 +6466,7 @@ function recalc(){
     _projYears = data.years; _projParams = data.params;
     if(window._occOpeningChanged){ window._occOpeningChanged = false; buildAccountsTable(); }
     var _pgbSec = document.getElementById('pgb-section');
-    if(_pgbSec && pgbItems.length && !_pgbSec.contains(document.activeElement)) buildPgbSection();
+    if(_pgbSec && pgbItems.length) refreshPgbResults();
     updateDashboard(data);
     try{ updateCharts(data); }catch(ec){ console.error('CHARTS ERROR:',ec); }
     updateProjectionTable(data);
@@ -8510,7 +8510,7 @@ function renderBenefitCell(i, a){
 function pgbCtx(){ return occMakeCtx(occParamsNow()); }
 function addPgbItem(kind){
   var by = Math.floor(getParam('birthYear')), it = {kind: kind};
-  if(kind === 'child') it.date = (by + 30) + '-06-01';
+  if(kind === 'child'){ it.date = (by + 30) + '-06-01'; it.years = 4; }
   else if(kind === 'vpl'){ it.start = (by + 19) + '-08-01'; it.end = (by + 20) + '-05-01'; }
   else if(kind === 'studies'){ it.from = 20; it.to = 24; it.terms = 2; it.amount = 0; }
   else { it.from = 30; it.to = 34; it.amount = 100000; }
@@ -8519,42 +8519,73 @@ function addPgbItem(kind){
 }
 function addPgbFromMenu(sel){ var v = sel.value; sel.value = ''; if(v) addPgbItem(v); }
 function removePgbItem(i){ pgbItems.splice(i, 1); buildPgbSection(); recalc(); }
-function updatePgbField(i, field, val){
+function pgbParseDate(v){
+  var m = /^\s*(\d{4})[-\/.]?(\d{1,2})?[-\/.]?(\d{1,2})?\s*$/.exec(String(v || ''));
+  if(!m) return null;
+  var mo = m[2] ? parseInt(m[2]) : 1, d = m[3] ? parseInt(m[3]) : 1;
+  if(mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return m[1] + '-' + (mo < 10 ? '0' : '') + mo + '-' + (d < 10 ? '0' : '') + d;
+}
+function updatePgbField(i, field, val, el){
   var it = pgbItems[i]; if(!it) return;
-  if(field === 'date' || field === 'start' || field === 'end') it[field] = val;
+  if(field === 'date' || field === 'start' || field === 'end'){
+    var d = pgbParseDate(val);
+    if(!d){ if(el) el.style.borderColor = '#FF5B2E'; return; }
+    it[field] = d;
+    if(el){ el.value = d; el.style.borderColor = ''; }
+  }
   else if(field === 'terms') it.terms = parseInt(val) === 1 ? 1 : 2;
+  else if(field === 'years') it.years = Math.max(1, Math.min(4, parseInt(val) || 4));
   else {
     var n = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
     it[field] = isNaN(n) ? 0 : n;
     if(field === 'from' || field === 'to') it[field] = Math.max(0, Math.round(it[field]));
+    if(el) el.value = (field === 'amount' && it[field]) ? Math.round(it[field]).toLocaleString('sv-SE') : it[field];
   }
-  buildPgbSection(); recalc();
+  recalc();
+  refreshPgbResults();
+}
+function pgbResultHtml(ctx, i){
+  var by = ctx.by, last = Math.min(ctx.retY - 1, by + riktalderOf(by)), tot = 0, parts = [], c;
+  var fmt = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
+  for(var y = by + 16; y <= last; y++){ c = pgbCalc(ctx, y).by[i] || 0; if(c > 0){ tot += c; parts.push(y+': '+fmt(c)); } }
+  return {tot: tot, html: tot > 0
+    ? '≈ '+fmt(tot)+' kr<div style="font-size:9px;color:var(--muted);margin-top:2px">'+parts.slice(0,6).join(' · ')+(parts.length>6?' …':'')+'</div>'
+    : '<span style="color:var(--muted)">0</span>'};
+}
+// Update only the result cells and the summary so typing / tabbing between fields is not interrupted.
+function refreshPgbResults(){
+  var ctx = pgbCtx(), grand = 0;
+  pgbItems.forEach(function(it, i){
+    var r = pgbResultHtml(ctx, i), el = document.getElementById('pgb-res-' + i);
+    if(el) el.innerHTML = r.html;
+    grand += r.tot;
+  });
+  var sum = document.getElementById('pgb-summary');
+  if(sum) sum.innerHTML = (pgbItems.length ? t('pgb.total') + ': <b style="color:var(--gold)">' + Math.round(grand).toLocaleString('sv-SE') + ' kr</b> · ' : '') + t('pgb.rule')
+    + (ctx.by < 1938 ? ' <span style="color:#FF5B2E">'+t('pgb.warn.born')+'</span>' : '');
 }
 function buildPgbSection(){
   var host = document.getElementById('pgb-list');
   if(!host) return;
-  var ctx = pgbCtx(), by = ctx.by, fmt = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
+  var ctx = pgbCtx(), fmt = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
   var INP = 'background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;padding:3px 5px';
-  var inp = function(i, f, v, w){ return '<input type="text" inputmode="numeric" value="'+v+'" style="'+INP+';width:'+w+'px;text-align:right" onchange="updatePgbField('+i+',\''+f+'\',this.value)">'; };
-  var dt  = function(i, f, v){ return '<input type="date" value="'+(v||'')+'" style="'+INP+'" onchange="updatePgbField('+i+',\''+f+'\',this.value)">'; };
+  var inp = function(i, f, v, w){ return '<input type="text" inputmode="numeric" value="'+v+'" style="'+INP+';width:'+w+'px;text-align:right" onfocus="this.select()" onchange="updatePgbField('+i+',\''+f+'\',this.value,this)">'; };
+  var dt  = function(i, f, v){ return '<input type="text" inputmode="numeric" placeholder="yyyy-mm-dd" value="'+(v||'')+'" maxlength="10" style="'+INP+';width:92px;text-align:center" onfocus="this.select()" onchange="updatePgbField('+i+',\''+f+'\',this.value,this)">'; };
+  var sel = function(i, f, opts, cur){ return '<select style="'+INP+'" onchange="updatePgbField('+i+',\''+f+'\',this.value,this)">'+opts.map(function(o){ return '<option value="'+o+'"'+(o===cur?' selected':'')+'>'+o+'</option>'; }).join('')+'</select>'; };
   var lbl = function(k){ return '<span style="font-size:10px;color:var(--muted);margin:0 4px 0 8px">'+t(k)+'</span>'; };
-  var last = Math.min(ctx.retY - 1, by + riktalderOf(by));
-  var grand = 0, rows = '', n = 0;
+  var rows = '', n = 0;
   pgbItems.forEach(function(it, i){
-    var parts = [], tot = 0, c;
-    for(var y = by + 16; y <= last; y++){ c = pgbCalc(ctx, y).by[i] || 0; if(c > 0){ tot += c; parts.push(y+': '+fmt(c)); } }
-    grand += tot;
     var name = t('pgb.opt.' + it.kind), det = '';
-    if(it.kind === 'child'){ n++; name += ' ' + n; det = lbl('pgb.f.birth') + dt(i, 'date', it.date); }
+    if(it.kind === 'child'){ n++; name += ' ' + n; det = lbl('pgb.f.birth') + dt(i, 'date', it.date) + lbl('pgb.f.years') + sel(i, 'years', [1,2,3,4], it.years >= 1 && it.years <= 4 ? Math.round(it.years) : 4); }
     else if(it.kind === 'vpl') det = lbl('pgb.f.start') + dt(i, 'start', it.start) + lbl('pgb.f.end') + dt(i, 'end', it.end);
     else if(it.kind === 'studies') det = lbl('pgb.f.agefrom') + inp(i, 'from', it.from, 40) + lbl('pgb.f.ageto') + inp(i, 'to', it.to, 40)
-      + lbl('pgb.f.terms') + '<select style="'+INP+'" onchange="updatePgbField('+i+',\'terms\',this.value)"><option value="2"'+(it.terms===1?'':' selected')+'>2</option><option value="1"'+(it.terms===1?' selected':'')+'>1</option></select>'
+      + lbl('pgb.f.terms') + sel(i, 'terms', [2,1], it.terms === 1 ? 1 : 2)
       + lbl('pgb.f.grant') + inp(i, 'amount', it.amount ? fmt(it.amount) : '0', 80);
     else det = lbl('pgb.f.agefrom') + inp(i, 'from', it.from, 40) + lbl('pgb.f.ageto') + inp(i, 'to', it.to, 40) + lbl('pgb.f.amount') + inp(i, 'amount', fmt(it.amount || 0), 90);
     rows += '<tr><td style="padding:6px 8px;font-weight:600;white-space:nowrap">'+name+'</td><td style="padding:6px 8px">'+det+'</td>'
-      + '<td style="padding:6px 8px;font-size:11px;font-family:var(--font-m);color:var(--gold)">'
-      + (tot > 0 ? '≈ '+fmt(tot)+' kr<div style="font-size:9px;color:var(--muted);margin-top:2px">'+parts.slice(0,6).join(' · ')+(parts.length>6?' …':'')+'</div>' : '<span style="color:var(--muted)">0</span>')
-      + '</td><td style="padding:0 4px"><button onclick="removePgbItem('+i+')" title="Remove" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer">✕</button></td></tr>';
+      + '<td id="pgb-res-'+i+'" style="padding:6px 8px;font-size:11px;font-family:var(--font-m);color:var(--gold)"></td>'
+      + '<td style="padding:0 4px"><button onclick="removePgbItem('+i+')" title="Remove" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer">✕</button></td></tr>';
   });
   host.innerHTML = pgbItems.length
     ? '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em"><th style="padding:4px 8px">'+t('pgb.col.type')+'</th><th style="padding:4px 8px">'+t('pgb.col.details')+'</th><th style="padding:4px 8px">'+t('pgb.col.result')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
@@ -8562,8 +8593,7 @@ function buildPgbSection(){
   var addStyle = 'font-size:11px;color:#4885C4;background:rgba(74,143,204,.08);border:1px solid rgba(74,143,204,.25);border-radius:5px;padding:3px 10px;cursor:pointer;font-weight:600;font-family:var(--font-b)';
   document.getElementById('pgb-add').innerHTML = '<select id="pgb-add-sel" onchange="addPgbFromMenu(this)" style="'+addStyle+'"><option value="" selected disabled hidden>'+t('pgb.add')+' ▾</option>'
     + PGB_KINDS.map(function(k){ return '<option value="'+k+'">'+t('pgb.opt.'+k)+'</option>'; }).join('') + '</select>';
-  var note = by < 1938 ? t('pgb.warn.born') : '';
-  document.getElementById('pgb-summary').innerHTML = (pgbItems.length ? t('pgb.total') + ': <b style="color:var(--gold)">' + fmt(grand) + ' kr</b> · ' : '') + t('pgb.rule') + (note ? ' <span style="color:#FF5B2E">'+note+'</span>' : '');
+  refreshPgbResults();
 }
 
 function removeAccount(i){
