@@ -179,6 +179,21 @@ published, replace the workbook and re-verify everything below.
   adjustment, AKAP-KR's 6 %-flat rate above 69, and the workbook's behaviour
   for tjänstepension taken before 65 (it pays more than the planner there)
 
+### Plan presets and guided walkthrough — Retirement_Planner.html
+
+- Header dropdown `#plan-preset` → `PLAN_PRESETS` (key → function, add new typical cases
+  there plus a `<option>` and `preset.*` i18n keys). Every choice asks for confirmation;
+  the plan saved in the browser is untouched until Save
+- `planClear()` — zero salaries, remove all accounts and PGB items, expense categories kept
+  at 0, expense intervals reset. Birth / retirement / life-expectancy years are kept
+- `planTypical1980()` — ITP 1, born 1980, 40 000 kr/month, retirement at riktålder (68),
+  life year 2075, typical pensioner expenses (`EXPENSES_INIT`, 18 400 kr/month), ITP 1 +
+  Premiepension + Inkomstpension with automatic (Typfallsmodellen) openings. ITP 1 Contrib End
+  shows 68, but `occPremium` stops ITP 1 premiums at 66 from 2023 (workbook rule)
+- "New retirement plan" = `planClear()` + `guideStart()`: floating panel (`GUIDE_STEPS`,
+  `guide.*` keys) Personal → Assets → Withdrawals → Expenses, highlighting key fields
+  (`.guide-hl`). `goTab(id)` switches tabs from code (`switchTab` no longer needs a click event)
+
 ## Source of truth for formulas
 
 When fixing or verifying calculation logic, **treat Excel as the source of truth**. If a formula in an HTML file diverges from the reference Excel model, the HTML is wrong.

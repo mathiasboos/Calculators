@@ -586,6 +586,21 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 
+/* Guided walkthrough */
+.guide-hl{outline:2px solid var(--gold)!important;outline-offset:3px;border-radius:6px;animation:guidePulse 1.6s ease-in-out infinite}
+@keyframes guidePulse{0%,100%{box-shadow:0 0 0 0 rgba(240,193,66,.0)}50%{box-shadow:0 0 0 6px rgba(240,193,66,.25)}}
+#guide-panel{position:fixed;right:20px;bottom:20px;width:340px;max-width:calc(100vw - 32px);z-index:9000;
+  background:var(--s1);border:1px solid var(--gold);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.35);
+  padding:14px 16px;font-family:var(--font-b);color:var(--text)}
+#guide-panel .g-step{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+#guide-panel .g-title{font-size:15px;font-weight:700;margin:2px 0 8px}
+#guide-panel ul{margin:0 0 12px;padding-left:18px;font-size:12px;line-height:1.55;color:var(--muted)}
+#guide-panel .g-btns{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#guide-panel button{font-family:var(--font-b);font-size:11px;font-weight:700;border-radius:6px;padding:5px 12px;cursor:pointer}
+#guide-panel .g-next{background:var(--gold);color:#0f1f3d;border:none}
+#guide-panel .g-back{background:transparent;color:var(--muted);border:1px solid var(--border)}
+#guide-panel .g-x{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);font-size:14px;padding:2px 4px}
+@media(max-width:767px){#guide-panel{left:16px;right:16px;width:auto;bottom:76px}}
 </style>
 </head>
 <body>
@@ -600,6 +615,16 @@ input[type="number"]::-webkit-outer-spin-button {
   </div>
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
     <div class="header-badge">All amounts in SEK</div>
+
+    <!-- Plan presets: new plan (guided), typical cases, clear -->
+    <select id="plan-preset" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case"
+      style="width:auto;max-width:200px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
+             font-size:11px;font-weight:600;letter-spacing:.04em;padding:5px 8px;cursor:pointer">
+      <option value="" selected disabled hidden data-i18n-opt="preset.placeholder">Plan…</option>
+      <option value="new" data-i18n-opt="preset.new">New retirement plan</option>
+      <option value="itp1-1980" data-i18n-opt="preset.itp1">ITP1, 1980, Salary 40 000</option>
+      <option value="clear" data-i18n-opt="preset.clear">Clear all input data</option>
+    </select>
 
     <!-- Save / Load controls -->
     <div style="display:flex;align-items:center;gap:6px">
@@ -1614,6 +1639,16 @@ en:{
   'exp.Media and mobile phone':'Media and mobile phone','exp.Consumables':'Consumables',
   'exp.Household equipment':'Household equipment','exp.Home insurance':'Home insurance',
   'exp.Public transportation':'Public transportation','exp.Car':'Car',
+  'preset.placeholder':'Plan…','preset.new':'New retirement plan','preset.itp1':'ITP1, 1980, Salary 40 000',
+  'preset.clear':'Clear all input data',
+  'preset.confirm':'This replaces the data in the current plan (personal, assets, expenses, withdrawals). A plan saved in the browser is kept until you press Save. Continue?',
+  'preset.cleared':'✓ All input data cleared','preset.loaded':'✓ Typical case loaded: ITP1, born 1980, salary 40 000 kr/month',
+  'guide.step':'Step {n} of {m}','guide.back':'Back','guide.next':'Next','guide.finish':'Finish','guide.close':'Close guide',
+  'guide.t1':'Personal','guide.t2':'Assets','guide.t3':'Withdrawals','guide.t4':'Expenses',
+  'guide.b1':'<li>Enter your <b>birth year</b>.</li><li><b>Retirement year</b> is pre-filled at your target retirement age (riktålder). Change it if you plan to stop working earlier or later.</li><li>Enter <b>life expectancy year</b>, for example the year you turn 95.</li><li>Enter your <b>gross monthly salary</b>; the net salary fills in automatically. Set the yearly salary increase above inflation.</li>',
+  'guide.b2':'<li><b>After-tax</b>: add savings such as ISK, endowment insurance and cash with today\'s balance and monthly saving.</li><li><b>P-Insurance</b>: pick your occupational pension scheme (e.g. ITP 1). Leave Opening empty to calculate the balance from your salary history.</li><li><b>State</b>: add Inkomstpension and Premiepension (Opening empty = automatic), and Garantipension / Inkomstpensionstillägg if relevant.</li><li><b>PGB</b>: add child years, conscription, studies or sickness compensation.</li>',
+  'guide.b3':'<li>For each pension account choose <b>Lifelong</b> (paid for life) or <b>Planned</b> (a set number of years).</li><li>Set withdrawal start and end years for savings accounts.</li><li>Use <b>age-based expense intervals</b> and <b>Optimize to Zero</b> to spread withdrawals over retirement.</li>',
+  'guide.b4':'<li>Enter your <b>monthly spending after tax</b> in retirement per category.</li><li>A typical pensioner spends about <b>18 400 kr/month</b>: rent 8 300, food 3 800 and so on.</li><li>Press <b>Finish</b> to see the result on the Dashboard.</li>',
   'acc.title':'Assets','acc.sub':'Tap to expand · SEK / year',
   'acc.sub.desktop':'Investment accounts, pensions & savings vehicles',
   'acc.group.after':'After-Tax Accounts','acc.group.pins':'P-Insurance Accounts',
@@ -2085,6 +2120,16 @@ sv:{
   'exp.Media and mobile phone':'Medier och mobiltelefon','exp.Consumables':'Förbrukningsvaror',
   'exp.Household equipment':'Hushållsutrustning','exp.Home insurance':'Hemförsäkring',
   'exp.Public transportation':'Kollektivtrafik','exp.Car':'Bil',
+  'preset.placeholder':'Plan…','preset.new':'Ny pensionsplan','preset.itp1':'ITP1, 1980, lön 40 000',
+  'preset.clear':'Rensa all indata',
+  'preset.confirm':'Detta ersätter uppgifterna i den aktuella planen (personligt, tillgångar, utgifter, uttag). En plan sparad i webbläsaren finns kvar tills du trycker Spara. Fortsätta?',
+  'preset.cleared':'✓ All indata rensad','preset.loaded':'✓ Typfall laddat: ITP1, född 1980, lön 40 000 kr/mån',
+  'guide.step':'Steg {n} av {m}','guide.back':'Tillbaka','guide.next':'Nästa','guide.finish':'Klar','guide.close':'Stäng guiden',
+  'guide.t1':'Personligt','guide.t2':'Tillgångar','guide.t3':'Uttag','guide.t4':'Utgifter',
+  'guide.b1':'<li>Ange ditt <b>födelseår</b>.</li><li><b>Pensionsår</b> är förifyllt med din riktålder. Ändra om du tänker sluta arbeta tidigare eller senare.</li><li>Ange <b>förväntat livslängdsår</b>, t.ex. året du fyller 95.</li><li>Ange din <b>bruttolön per månad</b>; nettolönen fylls i automatiskt. Ange årlig löneökning utöver inflationen.</li>',
+  'guide.b2':'<li><b>Efter skatt</b>: lägg till sparande som ISK, kapitalförsäkring och kontanter med dagens saldo och månadssparande.</li><li><b>P-försäkring</b>: välj ditt tjänstepensionsavtal (t.ex. ITP 1). Lämna Ingående tomt så beräknas saldot från din lönehistorik.</li><li><b>Statlig</b>: lägg till Inkomstpension och Premiepension (tomt Ingående = automatiskt), samt Garantipension / Inkomstpensionstillägg vid behov.</li><li><b>PGB</b>: lägg till barnår, värnplikt, studier eller sjukersättning.</li>',
+  'guide.b3':'<li>Välj för varje pensionskonto <b>Livsvarig</b> (betalas livet ut) eller <b>Planerat</b> (ett visst antal år).</li><li>Ange start- och slutår för uttag från sparkonton.</li><li>Använd <b>åldersbaserade utgiftsintervall</b> och <b>Optimera till noll</b> för att fördela uttagen över pensionen.</li>',
+  'guide.b4':'<li>Ange dina <b>månadsutgifter efter skatt</b> som pensionär per kategori.</li><li>En typisk pensionär gör av med cirka <b>18 400 kr/mån</b>: hyra 8 300, mat 3 800 osv.</li><li>Tryck <b>Klar</b> för att se resultatet på översikten.</li>',
   'acc.title':'Tillgångar','acc.sub':'Tryck för att expandera · SEK / år',
   'acc.sub.desktop':'Investeringskonton, pensioner & sparformer',
   'acc.group.after':'Beskattade konton','acc.group.pins':'P-försäkringskonton',
@@ -2593,6 +2638,11 @@ function setLang(lang){
   // Update longevity paragraph (contains HTML so can't use data-i18n textContent)
   var _longevityP = document.getElementById('pers-longevity-p');
   if(_longevityP) _longevityP.innerHTML = t('pers.longevity.p');
+  var _presetSel = document.getElementById('plan-preset');
+  if(_presetSel){ Array.from(_presetSel.options).forEach(function(opt){
+    var k = opt.getAttribute('data-i18n-opt'); if(k){ var tx=t(k); if(tx!==k) opt.text=tx; }
+  }); }
+  if(typeof guideRender === 'function') guideRender();
   recalc();
 }
 
@@ -6512,7 +6562,10 @@ function switchTab(id){
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
+  var _tbtn = document.querySelector('.tabs-bar .tab-btn[onclick="switchTab(\''+id+'\')"]');
+  if(_tbtn){ _tbtn.classList.add('active'); if(_tbtn.scrollIntoView) _tbtn.scrollIntoView({block:'nearest', inline:'nearest'}); }
+  else if(window.event && window.event.target && window.event.target.classList) window.event.target.classList.add('active');
+  if(typeof updateMobileNav === 'function') updateMobileNav(id);
   // rebuild accounts table in case it was modified
   if(id==='scenarios'){ buildScenariosTab(); }
   if(id==='montecarlo'){ populateMCDefaults(); }
@@ -10204,7 +10257,7 @@ var _SAVE_SKIP = [
   /^e-(monthly|annual|goal)$/,/^s-/,/^sg-/,/^proj-/,
   /^inc-(breakdown|result|waterfall|summary)/,/^asset-sum/,/^accounts-tbody/,
   /^expense-rows$/,/^exp-donut/,/^exp-chart/,/^exp-iv-tbody/,/^exp-iv-status/,
-  /^exp-iv-yrfrom/,/^exp-iv-yrto/,/^exp-iv-yrsek/,/^wb-/,/^sc-/
+  /^exp-iv-yrfrom/,/^exp-iv-yrto/,/^exp-iv-yrsek/,/^wb-/,/^sc-/,/^plan-preset$/
 ];
 
 function _skipId(id){
@@ -10360,6 +10413,131 @@ function planImport(){
     reader.readAsText(file);
   };
   fileInput.click();
+}
+
+// ── Plan presets (header dropdown) & guided walkthrough ──
+// PLAN_PRESETS maps the dropdown value to a function; add more typical cases here.
+var PLAN_PRESETS = {
+  'new':       function(){ planClear(); guideStart(); },
+  'itp1-1980': function(){ planTypical1980(); },
+  'clear':     function(){ planClear(); showPlanToast(t('preset.cleared')); }
+};
+function planPresetFromMenu(sel){
+  var v = sel.value;
+  sel.value = '';
+  if(!v || !PLAN_PRESETS[v]) return;
+  if(!confirm(t('preset.confirm'))) return;
+  PLAN_PRESETS[v]();
+}
+function _setInp(id, v){ var el = document.getElementById(id); if(el) el.value = v; }
+
+// Clears personal salaries, assets, PGB, expenses and withdrawal intervals.
+// Birth / retirement / life-expectancy years are kept: the calculations need them.
+function planClear(){
+  guideClose();
+  ['grossSalPre66','grossSalPre67','netSalPre66','netSalPre67',
+   'grossSalRet66','grossSalRet67','netSalRet66','netSalRet67','inc-lon','inc-vaxling','inc-pension'
+  ].forEach(function(id){ _setInp(id, '0'); });
+  _setInp('salaryIncrease', '1,0');
+  accounts.length = 0;
+  pgbItems.length = 0;
+  _savedAccountWd = null;
+  expenses.length = 0;
+  EXPENSES_INIT.forEach(function(e){ expenses.push({name:e.name, val:0}); });
+  expAgeIntervals.forEach(function(iv){ iv.amount = 0; iv.wdAmount = 0; iv.wdManual = false; });
+  _planRebuild();
+}
+function _planRebuild(){
+  updateRetirementHint();
+  buildExpenseRows();
+  buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
+  buildPgbSection();
+  recalc();                       // refreshes the expense totals the intervals read
+  var iv = document.getElementById('exp-iv-master');
+  if(iv && iv.checked) autoCalcExpIntervals(); else buildExpIntervals();
+  recalc();
+}
+
+// Typical case: ITP 1, born 1980, gross salary 40 000 kr/month, retirement at the
+// target retirement age, life expectancy 2075 (age 95), typical pensioner expenses,
+// premium and income pension calculated per Typfallsmodellen (auto openings).
+function planTypical1980(){
+  planClear();
+  var by = 1980;
+  _setInp('birthYear', by); _lastBirthYear = by;
+  _setInp('retirementYear', by + (getRiktalder(by) || 68));
+  _setInp('lifeYear', 2075);
+  _setInp('grossSalPre66', (40000).toLocaleString('sv-SE'));
+  _setInp('inc-lon', (40000).toLocaleString('sv-SE'));
+  autoFillNetSalary();
+  expenses.length = 0;
+  EXPENSES_INIT.forEach(function(e){ expenses.push({name:e.name, val:e.val}); });
+  var retY = Math.round(getParam('retirementYear'));
+  addOccScheme('itp1');
+  accounts.forEach(function(a){ if(a.scheme === 'itp1' && !a.db) a.ce = retY; });  // contributions to 68
+  addStateAccount('premie');
+  addStateAccount('inkomst');
+  _planRebuild();
+  goTab('dashboard');
+  showPlanToast(t('preset.loaded'));
+}
+
+function goTab(id){ switchTab(id); window.scrollTo(0, 0); }
+
+var GUIDE_STEPS = [
+  {tab:'personal',    hl:['#birthYear','#retirementYear','#lifeYear','#grossSalPre66','#salaryIncrease']},
+  {tab:'accounts',    hl:["#accounts-tbody button[onclick=\"addAccount('after')\"]",'#acc-add-pins','#acc-add-state','#pgb-add']},
+  {tab:'withdrawals', hl:['#exp-iv-master-label','#wd-acct-table']},
+  {tab:'expenses',    hl:['#expense-rows']}
+];
+var _guideStep = -1;
+function guideStart(){ _guideStep = 0; guideShow(); }
+function guideClose(){
+  _guideStep = -1;
+  document.querySelectorAll('.guide-hl').forEach(function(el){ el.classList.remove('guide-hl'); });
+  var p = document.getElementById('guide-panel'); if(p) p.remove();
+}
+function guideMove(d){
+  var n = _guideStep + d;
+  if(n >= GUIDE_STEPS.length){ guideClose(); goTab('dashboard'); return; }
+  _guideStep = Math.max(0, n);
+  guideShow();
+}
+function guideShow(){
+  if(_guideStep < 0) return;
+  // Open all account groups so every "+ Add" control is visible.
+  if(GUIDE_STEPS[_guideStep].tab === 'accounts') window._accGroupCollapsed = {after:false,'p-ins':false,state:false};
+  goTab(GUIDE_STEPS[_guideStep].tab);
+  guideRender();
+}
+// Draws the panel and the highlights for the current step (also on language switch).
+function guideRender(){
+  if(_guideStep < 0) return;
+  var n = _guideStep + 1, m = GUIDE_STEPS.length;
+  var p = document.getElementById('guide-panel');
+  if(!p){ p = document.createElement('div'); p.id = 'guide-panel'; document.body.appendChild(p); }
+  p.innerHTML = '<button class="g-x" onclick="guideClose()" title="'+t('guide.close')+'">✕</button>'
+    + '<div class="g-step">'+t('guide.step',{n:n, m:m})+'</div>'
+    + '<div class="g-title">'+t('guide.t'+n)+'</div>'
+    + '<ul>'+t('guide.b'+n)+'</ul>'
+    + '<div class="g-btns">'
+    +   (n > 1 ? '<button class="g-back" onclick="guideMove(-1)">← '+t('guide.back')+'</button>' : '<span></span>')
+    +   '<button class="g-next" onclick="guideMove(1)">'+(n < m ? t('guide.next')+' →' : t('guide.finish')+' ✓')+'</button>'
+    + '</div>';
+  var first = _guideHl();
+  if(first && first.scrollIntoView) first.scrollIntoView({block:'center', behavior:'smooth'});
+  // Tabs rebuild some of their tables shortly after switching; mark them again.
+  setTimeout(_guideHl, 150);
+}
+function _guideHl(){
+  document.querySelectorAll('.guide-hl').forEach(function(el){ el.classList.remove('guide-hl'); });
+  if(_guideStep < 0) return null;
+  var first = null;
+  GUIDE_STEPS[_guideStep].hl.forEach(function(sel){
+    var el = document.querySelector(sel);
+    if(el){ el.classList.add('guide-hl'); if(!first) first = el; }
+  });
+  return first;
 }
 
 // ── Toast helper ──
