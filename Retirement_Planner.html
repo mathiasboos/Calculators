@@ -957,6 +957,7 @@ input[type="number"]::-webkit-outer-spin-button {
   <div class="grid-2">
     <div class="card">
       <div class="card-header" data-i18n="exp.cat.hdr">Monthly Expense Categories (SEK)</div>
+      <div id="exp-persona" style="margin:-4px 0 12px"></div>
       <div id="expense-rows"></div>
     </div>
     <div class="card">
@@ -1639,6 +1640,9 @@ en:{
   'exp.Media and mobile phone':'Media and mobile phone','exp.Consumables':'Consumables',
   'exp.Household equipment':'Household equipment','exp.Home insurance':'Home insurance',
   'exp.Public transportation':'Public transportation','exp.Car':'Car',
+  'exp.Holiday cottage':'Holiday cottage','exp.persona.lbl':'Typical retiree (minPension)',
+  'exp.persona.basic':'Basic','exp.persona.average':'Average','exp.persona.extra':'Extra','exp.persona.src':'Source',
+  'exp.persona.confirm':'Replace your expense categories with the {name} budget?',
   'preset.placeholder':'Plan…','preset.new':'New retirement plan','preset.itp1':'ITP1, 1980, Salary 40 000',
   'preset.clear':'Clear all input data',
   'preset.confirm':'This replaces the data in the current plan (personal, assets, expenses, withdrawals). A plan saved in the browser is kept until you press Save. Continue?',
@@ -1648,7 +1652,7 @@ en:{
   'guide.b1':'<li>Enter your <b>birth year</b>.</li><li><b>Retirement year</b> is pre-filled at your target retirement age (riktålder). Change it if you plan to stop working earlier or later.</li><li>Enter <b>life expectancy year</b>, for example the year you turn 95.</li><li>Enter your <b>gross monthly salary</b>; the net salary fills in automatically. Set the yearly salary increase above inflation.</li>',
   'guide.b2':'<li><b>After-tax</b>: add savings such as ISK, endowment insurance and cash with today\'s balance and monthly saving.</li><li><b>P-Insurance</b>: pick your occupational pension scheme (e.g. ITP 1). Leave Opening empty to calculate the balance from your salary history.</li><li><b>State</b>: add Inkomstpension and Premiepension (Opening empty = automatic), and Garantipension / Inkomstpensionstillägg if relevant.</li><li><b>PGB</b>: add child years, conscription, studies or sickness compensation.</li>',
   'guide.b3':'<li>For each pension account choose <b>Lifelong</b> (paid for life) or <b>Planned</b> (a set number of years).</li><li>Set withdrawal start and end years for savings accounts.</li><li>Use <b>age-based expense intervals</b> and <b>Optimize to Zero</b> to spread withdrawals over retirement.</li>',
-  'guide.b4':'<li>Enter your <b>monthly spending after tax</b> in retirement per category.</li><li>A typical pensioner spends about <b>18 400 kr/month</b>: rent 8 300, food 3 800 and so on.</li><li>Press <b>Finish</b> to see the result on the Dashboard.</li>',
+  'guide.b4':'<li>Enter your <b>monthly spending after tax</b> in retirement per category.</li><li>Start from minPension\'s typical retiree: <b>Basic</b> 17 600, <b>Average</b> 18 400 or <b>Extra</b> 27 300 kr/month, then adjust the amounts.</li><li>Press <b>Finish</b> to see the result on the Dashboard.</li>',
   'acc.title':'Assets','acc.sub':'Tap to expand · SEK / year',
   'acc.sub.desktop':'Investment accounts, pensions & savings vehicles',
   'acc.group.after':'After-Tax Accounts','acc.group.pins':'P-Insurance Accounts',
@@ -2120,6 +2124,9 @@ sv:{
   'exp.Media and mobile phone':'Medier och mobiltelefon','exp.Consumables':'Förbrukningsvaror',
   'exp.Household equipment':'Hushållsutrustning','exp.Home insurance':'Hemförsäkring',
   'exp.Public transportation':'Kollektivtrafik','exp.Car':'Bil',
+  'exp.Holiday cottage':'Fritidshus','exp.persona.lbl':'Typisk pensionär (minPension)',
+  'exp.persona.basic':'Bas','exp.persona.average':'Medel','exp.persona.extra':'Plus','exp.persona.src':'Källa',
+  'exp.persona.confirm':'Ersätta dina utgiftskategorier med budgeten {name}?',
   'preset.placeholder':'Plan…','preset.new':'Ny pensionsplan','preset.itp1':'ITP1, 1980, lön 40 000',
   'preset.clear':'Rensa all indata',
   'preset.confirm':'Detta ersätter uppgifterna i den aktuella planen (personligt, tillgångar, utgifter, uttag). En plan sparad i webbläsaren finns kvar tills du trycker Spara. Fortsätta?',
@@ -2129,7 +2136,7 @@ sv:{
   'guide.b1':'<li>Ange ditt <b>födelseår</b>.</li><li><b>Pensionsår</b> är förifyllt med din riktålder. Ändra om du tänker sluta arbeta tidigare eller senare.</li><li>Ange <b>förväntat livslängdsår</b>, t.ex. året du fyller 95.</li><li>Ange din <b>bruttolön per månad</b>; nettolönen fylls i automatiskt. Ange årlig löneökning utöver inflationen.</li>',
   'guide.b2':'<li><b>Efter skatt</b>: lägg till sparande som ISK, kapitalförsäkring och kontanter med dagens saldo och månadssparande.</li><li><b>P-försäkring</b>: välj ditt tjänstepensionsavtal (t.ex. ITP 1). Lämna Ingående tomt så beräknas saldot från din lönehistorik.</li><li><b>Statlig</b>: lägg till Inkomstpension och Premiepension (tomt Ingående = automatiskt), samt Garantipension / Inkomstpensionstillägg vid behov.</li><li><b>PGB</b>: lägg till barnår, värnplikt, studier eller sjukersättning.</li>',
   'guide.b3':'<li>Välj för varje pensionskonto <b>Livsvarig</b> (betalas livet ut) eller <b>Planerat</b> (ett visst antal år).</li><li>Ange start- och slutår för uttag från sparkonton.</li><li>Använd <b>åldersbaserade utgiftsintervall</b> och <b>Optimera till noll</b> för att fördela uttagen över pensionen.</li>',
-  'guide.b4':'<li>Ange dina <b>månadsutgifter efter skatt</b> som pensionär per kategori.</li><li>En typisk pensionär gör av med cirka <b>18 400 kr/mån</b>: hyra 8 300, mat 3 800 osv.</li><li>Tryck <b>Klar</b> för att se resultatet på översikten.</li>',
+  'guide.b4':'<li>Ange dina <b>månadsutgifter efter skatt</b> som pensionär per kategori.</li><li>Utgå från minPensions typiska pensionär: <b>Bas</b> 17 600, <b>Medel</b> 18 400 eller <b>Plus</b> 27 300 kr/mån, och justera sedan beloppen.</li><li>Tryck <b>Klar</b> för att se resultatet på översikten.</li>',
   'acc.title':'Tillgångar','acc.sub':'Tryck för att expandera · SEK / år',
   'acc.sub.desktop':'Investeringskonton, pensioner & sparformer',
   'acc.group.after':'Beskattade konton','acc.group.pins':'P-försäkringskonton',
@@ -2655,20 +2662,23 @@ function getProjectionMonth(){
   var el=document.getElementById("currentMonth");
   return el ? Math.max(1,Math.min(12,parseInt(el.value)||new Date().getMonth()+1)) : new Date().getMonth()+1;
 }
-// Typical pensioner's monthly budget (after tax), 18 400 kr in total.
-const EXPENSES_INIT = [
-  {name:"Rent",                             val:8300},
-  {name:"Food",                             val:3800},
-  {name:"Personal hygiene and dental care", val:500},
-  {name:"Clothing and shoes",               val:750},
-  {name:"Leisure activities",               val:700},
-  {name:"Media and mobile phone",           val:1700},
-  {name:"Consumables",                      val:700},
-  {name:"Household equipment",              val:1100},
-  {name:"Home insurance",                   val:200},
-  {name:"Public transportation",            val:650},
-  {name:"Car",                              val:0},
-];
+// minPension's typical retiree budgets (monthly, after tax). Check yearly:
+// https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar
+var EXPENSE_PERSONAS = (function(){
+  var names = ["Rent","Holiday cottage","Food","Personal hygiene and dental care","Clothing and shoes",
+    "Leisure activities","Media and mobile phone","Consumables","Household equipment","Home insurance",
+    "Public transportation","Car","Travel"];
+  var vals = {
+    basic:   [8300,    0, 3600, 500, 750,  600, 1700, 200, 1100, 200, 650,    0,   0],   // 17 600
+    average: [8300,    0, 3800, 500, 750,  700, 1700, 700, 1100, 200, 650,    0,   0],   // 18 400
+    extra:   [8300, 3500, 3900, 500, 850, 1100, 1700, 700, 1100, 650,   0, 4500, 500]    // 27 300
+  };
+  var out = {};
+  Object.keys(vals).forEach(function(k){ out[k] = names.map(function(n, i){ return {name:n, val:vals[k][i]}; }); });
+  return out;
+})();
+var EXPENSE_PERSONA_ORDER = ['basic','average','extra'];
+const EXPENSES_INIT = EXPENSE_PERSONAS.average.map(function(e){ return {name:e.name, val:e.val}; });
 
 const ACCOUNTS_INIT = [
   // After-tax
@@ -3905,7 +3915,44 @@ function accDisplayName(a){ return a && a.nameKey ? t(a.nameKey) : (a ? a.name :
 // ── Build expense rows ──
 const expContainer = document.getElementById('expense-rows');
 
+// Persona row: Basic / Average / Extra (minPension). Active = the current list equals it.
+function expPersonaMatch(){
+  return EXPENSE_PERSONA_ORDER.filter(function(k){
+    var p = EXPENSE_PERSONAS[k];
+    return p.length === expenses.length && p.every(function(e, i){ return e.name === expenses[i].name && e.val === Math.round(expenses[i].val); });
+  })[0] || null;
+}
+function buildExpPersona(){
+  var el = document.getElementById('exp-persona');
+  if(!el) return;
+  var cur = expPersonaMatch();
+  var btns = EXPENSE_PERSONA_ORDER.map(function(k){
+    var on = k === cur, tot = EXPENSE_PERSONAS[k].reduce(function(s, e){ return s + e.val; }, 0);
+    return '<button onclick="applyExpensePersona(\''+k+'\')" style="flex:1;padding:5px 8px;border:none;cursor:pointer;font-family:var(--font-b);font-size:11px;'
+      + (on ? 'background:#48B866;color:#0f1f3d;font-weight:700' : 'background:transparent;color:var(--muted);font-weight:600') + '">'
+      + t('exp.persona.'+k) + ' <span style="font-family:var(--font-m);font-weight:500">' + tot.toLocaleString('sv-SE') + '</span></button>';
+  }).join('');
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase">'
+    + '<span>' + t('exp.persona.lbl') + '</span>'
+    + '<a href="https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar" target="_blank" rel="noopener" style="color:#4885C4;text-decoration:none;text-transform:none;letter-spacing:0">'
+    + t('exp.persona.src') + ': minPension \u2197</a></div>'
+    + '<div style="display:flex;background:var(--s2);border:1px solid var(--border);border-radius:6px;overflow:hidden">' + btns + '</div>';
+}
+function applyExpensePersona(k){
+  var p = EXPENSE_PERSONAS[k];
+  if(!p) return;
+  var total = expenses.reduce(function(s, e){ return s + (e.val || 0); }, 0);
+  if(total > 0 && !expPersonaMatch() && !confirm(t('exp.persona.confirm', {name: t('exp.persona.'+k)}))) return;
+  expenses.length = 0;
+  p.forEach(function(e){ expenses.push({name:e.name, val:e.val}); });
+  buildExpenseRows();
+  recalc();
+  var iv = document.getElementById('exp-iv-master');
+  if(iv && iv.checked){ autoCalcExpIntervals(); recalc(); }
+}
+
 function buildExpenseRows(){
+  buildExpPersona();
   expContainer.innerHTML = '';
   const canDelete = expenses.length > 1;
   expenses.forEach((e,i)=>{
@@ -3932,7 +3979,7 @@ function buildExpenseRows(){
       '<input class="inp inp-sm" type="text" inputmode="numeric"'
         +' value="'+Math.round(e.val).toLocaleString('sv-SE')+'" id="exp-'+i+'"'
         +' onchange="expenses['+i+'].val=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;'
-          +'this.value=Math.round(expenses['+i+'].val).toLocaleString(\'sv-SE\');recalc()">'
+          +'this.value=Math.round(expenses['+i+'].val).toLocaleString(\'sv-SE\');recalc();buildExpPersona()">'
       +(canDelete
         ? '<button onclick="deleteExpense('+i+')" title="Delete category"'
             +' style="background:none;border:none;cursor:pointer;padding:2px 4px;'
@@ -10488,7 +10535,7 @@ var GUIDE_STEPS = [
   {tab:'personal',    hl:['#birthYear','#retirementYear','#lifeYear','#grossSalPre66','#salaryIncrease']},
   {tab:'accounts',    hl:["#accounts-tbody button[onclick=\"addAccount('after')\"]",'#acc-add-pins','#acc-add-state','#pgb-add']},
   {tab:'withdrawals', hl:['#exp-iv-master-label','#wd-acct-table']},
-  {tab:'expenses',    hl:['#expense-rows']}
+  {tab:'expenses',    hl:['#exp-persona','#expense-rows']}
 ];
 var _guideStep = -1;
 function guideStart(){ _guideStep = 0; guideShow(); }

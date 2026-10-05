@@ -190,6 +190,10 @@ published, replace the workbook and re-verify everything below.
   life year 2075, typical pensioner expenses (`EXPENSES_INIT`, 18 400 kr/month), ITP 1 +
   Premiepension + Inkomstpension with automatic (Typfallsmodellen) openings. ITP 1 Contrib End
   shows 68, but `occPremium` stops ITP 1 premiums at 66 from 2023 (workbook rule)
+- Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
+  minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
+  https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
+  verify yearly. `EXPENSES_INIT` = Average
 - "New retirement plan" = `planClear()` + `guideStart()`: floating panel (`GUIDE_STEPS`,
   `guide.*` keys) Personal → Assets → Withdrawals → Expenses, highlighting key fields
   (`.guide-hl`). `goTab(id)` switches tabs from code (`switchTab` no longer needs a click event)
