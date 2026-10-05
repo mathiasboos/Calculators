@@ -588,6 +588,14 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Retirement age follows riktålder while the tick box is on */
 #retirementAge[readonly]{opacity:.6;cursor:not-allowed}
+/* Header "Begin here" dropdown: colour pulse for 3 s after the page opens */
+.preset-attn{animation:presetAttn 3s ease-in-out 1}
+@keyframes presetAttn{
+  0%,100%{box-shadow:0 0 0 0 rgba(240,193,66,0)}
+  15%{border-color:#f0c142;color:#f0c142;box-shadow:0 0 0 4px rgba(240,193,66,.45)}
+  40%{border-color:#48B866;color:#48B866;box-shadow:0 0 0 6px rgba(72,184,102,.45)}
+  65%{border-color:#4885C4;color:#4885C4;box-shadow:0 0 0 6px rgba(72,133,196,.45)}
+  85%{border-color:#f0c142;color:#f0c142;box-shadow:0 0 0 4px rgba(240,193,66,.35)}}
 /* Guided walkthrough */
 .guide-hl{outline:2px solid var(--gold)!important;outline-offset:3px;border-radius:6px;animation:guidePulse 1.6s ease-in-out infinite}
 @keyframes guidePulse{0%,100%{box-shadow:0 0 0 0 rgba(240,193,66,.0)}50%{box-shadow:0 0 0 6px rgba(240,193,66,.25)}}
@@ -619,10 +627,10 @@ input[type="number"]::-webkit-outer-spin-button {
     <div class="header-badge">All amounts in SEK</div>
 
     <!-- Plan presets: new plan (guided), typical cases, clear -->
-    <select id="plan-preset" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case"
-      style="width:auto;max-width:200px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
+    <select id="plan-preset" class="preset-attn" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case"
+      style="width:auto;max-width:260px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
              font-size:11px;font-weight:600;letter-spacing:.04em;padding:5px 8px;cursor:pointer">
-      <option value="" selected disabled hidden data-i18n-opt="preset.placeholder">Plan…</option>
+      <option value="" selected disabled hidden data-i18n-opt="preset.placeholder">Begin here to create a plan</option>
       <option value="new" data-i18n-opt="preset.new">New retirement plan</option>
       <option value="itp1-1980" data-i18n-opt="preset.itp1">ITP1, 1980, Salary 40 000</option>
       <option value="clear" data-i18n-opt="preset.clear">Clear all input data</option>
@@ -1656,7 +1664,7 @@ en:{
   'exp.Holiday cottage':'Holiday cottage','exp.persona.lbl':'Typical retiree (minPension)',
   'exp.persona.basic':'Basic','exp.persona.average':'Average','exp.persona.extra':'Extra','exp.persona.src':'Source',
   'exp.persona.confirm':'Replace your expense categories with the {name} budget?',
-  'preset.placeholder':'Plan…','preset.new':'New retirement plan','preset.itp1':'ITP1, 1980, Salary 40 000',
+  'preset.placeholder':'Begin here to create a plan','preset.new':'New retirement plan','preset.itp1':'ITP1, 1980, Salary 40 000',
   'preset.clear':'Clear all input data',
   'preset.confirm':'This replaces the data in the current plan (personal, assets, expenses, withdrawals). A plan saved in the browser is kept until you press Save. Continue?',
   'preset.cleared':'✓ All input data cleared','preset.loaded':'✓ Typical case loaded: ITP1, born 1980, salary 40 000 kr/month',
@@ -2145,7 +2153,7 @@ sv:{
   'exp.Holiday cottage':'Fritidshus','exp.persona.lbl':'Typisk pensionär (minPension)',
   'exp.persona.basic':'Bas','exp.persona.average':'Medel','exp.persona.extra':'Plus','exp.persona.src':'Källa',
   'exp.persona.confirm':'Ersätta dina utgiftskategorier med budgeten {name}?',
-  'preset.placeholder':'Plan…','preset.new':'Ny pensionsplan','preset.itp1':'ITP1, 1980, lön 40 000',
+  'preset.placeholder':'Börja här för att skapa en plan','preset.new':'Ny pensionsplan','preset.itp1':'ITP1, 1980, lön 40 000',
   'preset.clear':'Rensa all indata',
   'preset.confirm':'Detta ersätter uppgifterna i den aktuella planen (personligt, tillgångar, utgifter, uttag). En plan sparad i webbläsaren finns kvar tills du trycker Spara. Fortsätta?',
   'preset.cleared':'✓ All indata rensad','preset.loaded':'✓ Typfall laddat: ITP1, född 1980, lön 40 000 kr/mån',
