@@ -956,7 +956,7 @@ input[type="number"]::-webkit-outer-spin-button {
       </div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.salary.inc">Annual salary increase above inflation (%)</div>
-        <input class="inp" type="text" inputmode="decimal" id="salaryIncrease" value="1,0" onchange="recalc()">
+        <input class="inp" type="text" inputmode="decimal" id="salaryIncrease" value="0,0" onchange="recalc()">
       </div>
     </div>
     <div class="card">
@@ -1183,7 +1183,7 @@ input[type="number"]::-webkit-outer-spin-button {
         <div id="mc-mu-display" style="margin-top:6px;font-size:11px;color:var(--gold);font-weight:600;text-align:right">—</div>
       </div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.eq">Real Return — Equities (%)</span> <span title="From Parameters tab. Blended with bond return, weighted by bracket equity %." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-eq" type="text" inputmode="decimal" value="4,5" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.eq">Real Return — Equities (%)</span> <span title="From Parameters tab. Blended with bond return, weighted by bracket equity %." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-eq" type="text" inputmode="decimal" value="1,7" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
 
       <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.bd">Real Return — Bonds (%)</span> <span title="From Parameters tab." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-bd" type="text" inputmode="decimal" value="0,5" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
 
@@ -1453,7 +1453,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   <div class="card">
     <div class="card-header" data-i18n="par.returns">RETURN ASSUMPTIONS</div>
-    <div class="input-row"><div class="input-label" data-i18n="par.eqRet">Real Return &#8212; Equities (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="eqReturn" value="4,5" step="0.1" onchange="recalc()"></div>
+    <div class="input-row" data-i18n-title="par.ret.tip" title="The forecasting standard assumes a return of 1.7 percent. To relate the projected pension value to future income, the return is expressed as an &quot;excess return&quot;—that is, the extent to which the return on capital exceeds general wage growth." style="cursor:help"><div class="input-label" data-i18n="par.eqRet">Real Return &#8212; Equities (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="eqReturn" value="1,7" step="0.1" onchange="recalc()"></div>
     <div class="input-row"><div class="input-label" data-i18n="par.bdRet">Real Return &#8212; Bonds (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="bdReturn" value="0,5" step="0.1" onchange="recalc()"></div>
     <div class="input-row"><div class="input-label" data-i18n="par.infl">Inflation (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="inflation" value="0,0" step="0.1" onchange="recalc()"></div>
   </div>
@@ -1686,7 +1686,8 @@ en:{
   'acc.f.eq1':'Equity % Age 55–63','acc.f.eq2':'Equity % Age 64–73','acc.f.eq3':'Equity % Age 74+',
   'acc.f.mgmt':'Mgmt Fee %','acc.f.yt':'Yield Tax %','acc.f.fr':'Fixed Return %',
   'par.title':'Parameters','par.sub':'Model assumptions & Swedish tax',
-  'par.returns':'Return Assumptions','par.eqRet':'Real Return — Equities (%)','par.bdRet':'Real Return — Bonds (%)','par.infl':'Inflation (%)',
+  'par.returns':'Return Assumptions','par.eqRet':'Real Return — Equities (%)',
+  'par.ret.tip':'The forecasting standard assumes a return of 1.7 percent. To relate the projected pension value to future income, the return is expressed as an "excess return"—that is, the extent to which the return on capital exceeds general wage growth.','par.bdRet':'Real Return — Bonds (%)','par.infl':'Inflation (%)',
   'par.tax':'Swedish Income Tax',
   'par.mun':'Municipal Tax — Kommunalskatt (%)','par.state':'State Tax — Statlig (%)',
   'par.stThr66':'State Threshold age ≤66 (SEK)','par.stThr67':'State Threshold age ≥67 (SEK)',
@@ -2175,7 +2176,8 @@ sv:{
   'acc.f.eq1':'Aktie% Ålder 55–63','acc.f.eq2':'Aktie% Ålder 64–73','acc.f.eq3':'Aktie% Ålder 74+',
   'acc.f.mgmt':'Förvaltningsavgift %','acc.f.yt':'Avkastningsskatt %','acc.f.fr':'Fast avkastning %',
   'par.title':'Parametrar','par.sub':'Modellantaganden & svensk skatt',
-  'par.returns':'Avkastningsantaganden','par.eqRet':'Realavkastning — Aktier (%)','par.bdRet':'Realavkastning — Obligationer (%)','par.infl':'Inflation (%)',
+  'par.returns':'Avkastningsantaganden','par.eqRet':'Realavkastning — Aktier (%)',
+  'par.ret.tip':'Prognosstandarden antar en avkastning på 1,7 procent. För att relatera det framräknade pensionsvärdet till framtida inkomster uttrycks avkastningen som en ”överavkastning” – det vill säga hur mycket avkastningen på kapitalet överstiger den allmänna löneutvecklingen.','par.bdRet':'Realavkastning — Obligationer (%)','par.infl':'Inflation (%)',
   'par.tax':'Svensk inkomstskatt',
   'par.mun':'Kommunalskatt (%)','par.state':'Statlig skatt (%)',
   'par.stThr66':'Skiktgräns ålder ≤66 (SEK)','par.stThr67':'Skiktgräns ålder ≥67 (SEK)',
@@ -2609,6 +2611,10 @@ function setLang(lang){
     var k=el.getAttribute('data-i18n');
     var txt=t(k);
     if(txt!==k) el.textContent=txt;
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-title'), txt=t(k);
+    if(txt!==k) el.title=txt;
   });
   document.querySelectorAll('.lang-btn').forEach(function(btn){
     var active=btn.getAttribute('data-lang')===lang;
@@ -10595,7 +10601,7 @@ function planClear(){
   ['grossSalPre66','grossSalPre67','netSalPre66','netSalPre67',
    'inc-lon','inc-vaxling','inc-pension'
   ].forEach(function(id){ _setInp(id, '0'); });
-  _setInp('salaryIncrease', '1,0');
+  _setInp('salaryIncrease', '0,0');
   accounts.length = 0;
   pgbItems.length = 0;
   _savedAccountWd = null;
