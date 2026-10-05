@@ -225,6 +225,9 @@ published, replace the workbook and re-verify everything below.
   PP −3,5 % (−2,7 % with fee 0), IP +1,5 %, net salary 32 752 vs 32 770. Oracle scripts must enter
   the 2025 salary (port wage ÷ salBaseUplift). The 1,7 % is AFTER fees; the workbook's unticked
   "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
+- `resetAssumptions()` puts eqReturn / bdReturn / inflation / occReturn / salaryIncrease back to their
+  HTML defaults (`defaultValue`); called by `planClear` (so every preset) and the Parameters-tab
+  button "↺ Typfallsmodellen defaults". Saved plans otherwise keep their own assumptions (auto-restore)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
