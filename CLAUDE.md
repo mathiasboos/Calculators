@@ -216,7 +216,8 @@ published, replace the workbook and re-verify everything below.
   payout is not capped by the balance. Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
   age-68 amount at 85 / 95 / 100; born 1980 stays level)
 - Default assumptions = Typfallsmodellen's prognosis standard: equities and bonds real return
-  1,7 % (one return for all funds, after fees), inflation 0 %, occupational schemes 1,7 %, salary
+  1,9 % BEFORE fees (each account deducts its own Mgmt %; 1,7 % after the workbook's average 0,2 %
+  fee), inflation 0 %, occupational schemes 1,7 % (already net of fees), salary
   increase 0 %. Salary convention as in Typfallsmodellen: the Personal-tab gross salary is 2025
   money, raised by the 2026 income index (`salBaseUplift` = OCC_HIST 228.08 / 220.23, +3,56 %:
   40 000 → 41 426 kr/month) wherever the engine reads it (`grossSal`); net salary is computed on the
