@@ -1609,6 +1609,11 @@ en:{
   'exp.Household':'Household','exp.Insurance':'Insurance','exp.Restaurants':'Restaurants',
   'exp.Subscriptions':'Subscriptions','exp.Transportation':'Transportation',
   'exp.Travel':'Travel','exp.Utilities':'Utilities',
+  'exp.Rent':'Rent','exp.Food':'Food','exp.Personal hygiene and dental care':'Personal hygiene and dental care',
+  'exp.Clothing and shoes':'Clothing and shoes','exp.Leisure activities':'Leisure activities',
+  'exp.Media and mobile phone':'Media and mobile phone','exp.Consumables':'Consumables',
+  'exp.Household equipment':'Household equipment','exp.Home insurance':'Home insurance',
+  'exp.Public transportation':'Public transportation','exp.Car':'Car',
   'acc.title':'Assets','acc.sub':'Tap to expand · SEK / year',
   'acc.sub.desktop':'Investment accounts, pensions & savings vehicles',
   'acc.group.after':'After-Tax Accounts','acc.group.pins':'P-Insurance Accounts',
@@ -2075,6 +2080,11 @@ sv:{
   'exp.Household':'Hushåll','exp.Insurance':'Försäkring','exp.Restaurants':'Restaurang',
   'exp.Subscriptions':'Prenumerationer','exp.Transportation':'Transport',
   'exp.Travel':'Resor','exp.Utilities':'El, vatten & värme',
+  'exp.Rent':'Hyra','exp.Food':'Mat','exp.Personal hygiene and dental care':'Hygien och tandvård',
+  'exp.Clothing and shoes':'Kläder och skor','exp.Leisure activities':'Fritid',
+  'exp.Media and mobile phone':'Medier och mobiltelefon','exp.Consumables':'Förbrukningsvaror',
+  'exp.Household equipment':'Hushållsutrustning','exp.Home insurance':'Hemförsäkring',
+  'exp.Public transportation':'Kollektivtrafik','exp.Car':'Bil',
   'acc.title':'Tillgångar','acc.sub':'Tryck för att expandera · SEK / år',
   'acc.sub.desktop':'Investeringskonton, pensioner & sparformer',
   'acc.group.after':'Beskattade konton','acc.group.pins':'P-försäkringskonton',
@@ -2595,17 +2605,19 @@ function getProjectionMonth(){
   var el=document.getElementById("currentMonth");
   return el ? Math.max(1,Math.min(12,parseInt(el.value)||new Date().getMonth()+1)) : new Date().getMonth()+1;
 }
+// Typical pensioner's monthly budget (after tax), 18 400 kr in total.
 const EXPENSES_INIT = [
-  {name:"Gifts",            val:500},
-  {name:"Groceries",        val:5000},
-  {name:"Health Care",      val:500},
-  {name:"Household",        val:9500},
-  {name:"Insurance",        val:500},
-  {name:"Restaurants",      val:1000},
-  {name:"Subscriptions",    val:1000},
-  {name:"Transportation",   val:1000},
-  {name:"Travel",           val:1000},
-  {name:"Utilities",        val:5000},
+  {name:"Rent",                             val:8300},
+  {name:"Food",                             val:3800},
+  {name:"Personal hygiene and dental care", val:500},
+  {name:"Clothing and shoes",               val:750},
+  {name:"Leisure activities",               val:700},
+  {name:"Media and mobile phone",           val:1700},
+  {name:"Consumables",                      val:700},
+  {name:"Household equipment",              val:1100},
+  {name:"Home insurance",                   val:200},
+  {name:"Public transportation",            val:650},
+  {name:"Car",                              val:0},
 ];
 
 const ACCOUNTS_INIT = [
