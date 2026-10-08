@@ -3094,7 +3094,7 @@ function ceNote(a){
   if(!(Math.round(getParam('retirementYear')) > m || a.ceClamped)) return '';
   // Same look as the "auto" label under Opening (9 px); absolutely placed so the input row stays aligned
   var v = {name:a.name, age:m - wdBirthYear()};
-  return '<div style="position:relative;height:0"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:#e05555;text-align:right" title="'
+  return '<div style="position:relative;height:0;width:60px"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:#e05555;text-align:right" title="'
     +t('acc.ce.max.tip',v).replace(/"/g,'&quot;')+'">'+t('acc.ce.max',v)+'</div></div>';
 }
 // Muted note under Contrib Start: the scheme's lowest premium age (OCC_SCHEMES prem.from, enforced by occPremium)
@@ -3102,7 +3102,7 @@ function csNote(a){
   if(!isOccPremiumAcc(a) || !OCC_SCHEMES[a.scheme]) return '';
   var v = {name:a.name, age:OCC_SCHEMES[a.scheme].prem.from};
   var tip = t('acc.cs.low.tip',v) + (a.scheme === 'akapkr' || a.scheme === 'pa16a1' ? ' ' + t('acc.cs.low.tip.start') : '');
-  return '<div style="position:relative;height:0"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:var(--muted);text-align:right" title="'
+  return '<div style="position:relative;height:0;width:60px"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:var(--muted);text-align:right" title="'
     +tip.replace(/"/g,'&quot;')+'">'+t('acc.cs.low',v)+'</div></div>';
 }
 // Accounts flagged wsAuto (state + P-insurance, until the user edits Wdrl Start) follow the Personal tab
