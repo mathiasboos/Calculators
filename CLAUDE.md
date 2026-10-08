@@ -266,6 +266,14 @@ published, replace the workbook and re-verify everything below.
   Before tax Acc × (1 − kommunalskatt), so it already INCLUDES the after-tax accounts (goal fulfilment, vs. Goal and the Tax-adjusted line all use
   it). In Tax-adjusted view the Before tax Acc line is hidden and the tooltip lists After tax Acc + Before tax Acc after est. tax, which add up to the
   headline. Swedish KPI names: Kompensationsgrad, Uttagsnivå, Kapitalet tar slut
+- Pension income tax (`pensionTax`, `xAge`, projection ~"Swedish income tax") = Typfallsmodellen (VBA_go tax block, Skatteregler `avdrag26`, `statlig`,
+  `PublicAvg`): floor100(income) − grundavdrag (`grundavdragUnder`; `grundavdragOver` from `xAge(year)` = 66 to 2023, 67 to 2026, 68 to 2028, then target
+  age + 1) = taxable income; kommunalskatt (`munTax` input) + begravningsavgift `BEGRAV_AVG` 0,26 % on it, state tax (`stateTax` input) above `SKIKT` 643 000,
+  and `PublicAvg` 1 % up to 1,42 IBB. `row.munTax` = kommunal + begravning, `row.stateTax` = statlig + PublicAvg. No jobbskatteavdrag on pensions. The Parameters-tab
+  allowance amounts and state thresholds are no longer used for pension tax (thresholds only draw the chart line). Checked against an independent
+  re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
+  (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Not covered: pension drawn while still working is taxed separately from the salary; `taxAdjPort` and the
+  "After tax" display modes use flat tax-rate inputs; the workbook's 32,38 % municipal default is a user input here (32,4 %)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

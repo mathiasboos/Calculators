@@ -1470,6 +1470,7 @@ input[type="number"]::-webkit-outer-spin-button {
     <div class="card-header" data-i18n="par.tax">SWEDISH INCOME TAX</div>
     <div class="input-row"><div class="input-label" data-i18n="par.mun" style="display:flex;align-items:center;justify-content:space-between;gap:8px">Municipal Tax &#8212; Kommunalskatt (%)<button onclick="switchTab('income');document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.onclick&&b.onclick.toString().includes('income'));})" style="font-size:10px;color:#4885C4;background:rgba(74,143,204,.1);border:1px solid rgba(74,143,204,.3);border-radius:4px;padding:2px 7px;cursor:pointer;font-weight:600;white-space:nowrap"><span data-i18n="par.income.tab.btn">→ Income tab</span></button></div><input class="inp inp-sm" type="text" inputmode="decimal" id="munTax" value="32,4" step="0.1" onchange="recalc()"></div>
     <div class="input-row"><div class="input-label" data-i18n="par.state">State Tax &#8212; Statlig (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="stateTax" value="20,0" step="0.1" onchange="recalc()"></div>
+    <div style="margin-top:8px;font-size:10px;line-height:1.4;color:var(--muted)" data-i18n="par.tax.note">Pension income tax follows Typfallsmodellen: grundavdrag by age (enhanced from target age + 1), kommunalskatt + 0,26 % begravningsavgift, state tax above the skiktgräns (643 000), 1 % public fee. The allowance amounts below are not used for pension tax; the state tax thresholds only draw the chart line.</div>
     <div style="margin-top:10px">
       <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase" data-i18n="par.age.new.year">Age entering the new year</div>
       <table style="width:100%;border-collapse:collapse">
@@ -1482,12 +1483,12 @@ input[type="number"]::-webkit-outer-spin-button {
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.min.basic">Min. Basic Allowance ≤</td>
             <td style="padding:4px 4px;text-align:center"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:42px;text-align:center" id="allowance67Age" value="66" onchange="recalc()"></td>
-            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right" id="allowance67" value="17 400" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
+            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" id="allowance67" value="17 400" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
           </tr>
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.min.enhanced">Min. Enhanced Allowance ≥</td>
             <td style="padding:4px 4px;text-align:center"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:42px;text-align:center" id="allowanceAge" value="67" onchange="recalc()"></td>
-            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right" id="allowance" value="117 500" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
+            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" id="allowance" value="117 500" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
           </tr>
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.state.thresh.lo">State Tax Threshold ≤</td>
@@ -1997,6 +1998,7 @@ en:{
   // ── Parameters tab – tax table ──
   'par.age.new.year':'Age entering the new year',
   'par.tbl.desc':'Description',
+  'par.tax.note':'Pension income tax follows Typfallsmodellen: grundavdrag by age (enhanced from target age + 1), kommunalskatt + 0,26 % begravningsavgift, state tax above the skiktgräns (643 000), 1 % public fee. The allowance amounts below are not used for pension tax; the state tax thresholds only draw the chart line.',
   'par.min.basic':'Min. Basic Allowance ≤',
   'par.min.enhanced':'Min. Enhanced Allowance ≥',
   'par.state.thresh.lo':'State Tax Threshold ≤',
@@ -2501,6 +2503,7 @@ sv:{
   // ── Parametrar – skattabell ──
   'par.age.new.year':'Ålder vid ingången av det nya året',
   'par.tbl.desc':'Beskrivning',
+  'par.tax.note':'Skatten på pensionsinkomst följer Typfallsmodellen: grundavdrag efter ålder (förhöjt från riktåldern + 1), kommunalskatt + 0,26 % begravningsavgift, statlig skatt över skiktgränsen (643 000), 1 % public service-avgift. Grundavdragsbeloppen nedan används inte för pensionsskatten; skiktgränserna ritar bara linjen i diagrammet.',
   'par.min.basic':'Lägsta grundavdrag ≤',
   'par.min.enhanced':'Lägsta förhöjda grundavdrag ≥',
   'par.state.thresh.lo':'Skiktgräns ≤',
@@ -5813,12 +5816,11 @@ function runProjection(){
     }
 
     // Swedish income tax
-    const basicAllowance = (age < params.allowanceAge) ? params.allowance67 : params.allowance;
-    const taxableIncome  = Math.max(0, totalWdrlTaxable - basicAllowance);
-    const munTaxAmt      = taxableIncome * params.munTax;
-    const stateThreshold = (age < params.stateThreshAge) ? params.stateThresh66 : params.stateThresh;
-    const stateTaxAmt    = Math.max(0, (taxableIncome - stateThreshold) * params.stateTax);
-    const totalTax       = munTaxAmt + stateTaxAmt;
+    const _pt            = pensionTax(totalWdrlTaxable, age, yr, params.munTax, params.stateTax);
+    const taxableIncome  = _pt.besk;
+    const munTaxAmt      = _pt.kommunal + _pt.begrav;      // kommunalskatt + begravningsavgift
+    const stateTaxAmt    = _pt.statlig + _pt.publicAvg;    // statlig skatt + PublicAvg (grouped as in the workbook)
+    const totalTax       = _pt.total;
     const afterTaxIncome = totalWdrlTaxable - totalTax + totalWdrlFree;
 
     // Pension income net of taxes
@@ -7136,6 +7138,10 @@ function downloadProjExcel(){
 
 const PBB = 59200, IBB = 83400;
 const SKIKT = 643000;            // statlig skatt-gräns
+// Pension income tax = Typfallsmodellen (VBA_go + Skatteregler, 2026 rules, constant prices). Verify yearly.
+const BEGRAV_AVG      = 0.0026;      // begravningsavgift, K_skatt col "Begravningsavgift" 2026+ (church fee not included)
+const PUBLIC_AVG_RATE = 0.01;        // PublicAvg, added to the state tax in the workbook
+const PUBLIC_AVG_CAP  = 1.42 * IBB;  // PublicAvg is charged on at most 1.42 IBB (2026+)
 const PENS_TAK = 673038;         // tak allmän pensionsavgift-underlag
 const PENS_FRI = 25042;          // under detta tas ingen pensionsavgift
 const PS_BASE = 1.42*IBB;        // 118 428
@@ -7218,6 +7224,29 @@ function jobbavdragOver(ai, ki){
   else if(ai <= 5.24*PBB)   r = 0.2635*PBB + 0.07*ai;
   else                      r = 0.6293*PBB;
   return Math.max(0, Math.floor(r));
+}
+
+// First age with the enhanced (förhöjt) grundavdrag, workbook function Xage(year):
+// 66 to 2023, 67 to 2026, 68 to 2028, then target age (riktålder) + 1.
+function xAge(yr){
+  if(yr <= 2023) return 66;
+  if(yr <= 2026) return 67;
+  if(yr <= 2028) return 68;
+  return (getRiktalder(Math.round(getParam('birthYear')) || 1971) || 67) + 1;
+}
+// Tax on one year's pension income as in Typfallsmodellen: grundavdrag (enhanced from xAge), kommunalskatt +
+// begravningsavgift on the taxable income, statlig skatt above the skiktgräns, 1 % PublicAvg. No jobbskatteavdrag.
+function pensionTax(income, age, yr, munRate, stateRate){
+  var ffi = floor100(Math.max(0, income));
+  if(ffi <= 0) return {kommunal:0, begrav:0, statlig:0, publicAvg:0, total:0, ga:0, besk:0};
+  var ga   = age >= xAge(yr) ? grundavdragOver(ffi) : grundavdragUnder(ffi);
+  var besk = Math.max(0, ffi - ga);
+  var kommunal  = Math.floor(besk * munRate);
+  var begrav    = Math.floor(besk * BEGRAV_AVG);
+  var statlig   = Math.floor(Math.max(0, besk - SKIKT) * stateRate);
+  var publicAvg = Math.floor(Math.min(besk, PUBLIC_AVG_CAP) * PUBLIC_AVG_RATE + 0.5);
+  return {kommunal:kommunal, begrav:begrav, statlig:statlig, publicAvg:publicAvg,
+          total:kommunal + begrav + statlig + publicAvg, ga:ga, besk:besk};
 }
 
 function compute(monthly){
