@@ -261,6 +261,11 @@ published, replace the workbook and re-verify everything below.
   (no minimum in the workbook) both use the planner floor 18. Verify yearly
 - Expenses tab doughnut (`buildExpenseChart`) is styled like the Withdrawals doughnuts: no segment borders, 40 % hole, dark tooltip,
   and the `pctLabels` inline plugin draws each share inside its segment (hidden below 3 %, dark text on light segments)
+- Dashboard charts: Portfolio Value and Portfolio Value by Account Type are in MSEK (`fmtMsekTick`: one decimal, no "M"; comma in Swedish),
+  the two income charts use kronor with a thousand separator (`fmtKrTick`, "10 000") and start on Monthly. `taxAdjPort` = After tax Acc +
+  Before tax Acc × (1 − kommunalskatt), so it already INCLUDES the after-tax accounts (goal fulfilment, vs. Goal and the Tax-adjusted line all use
+  it). In Tax-adjusted view the Before tax Acc line is hidden and the tooltip lists After tax Acc + Before tax Acc after est. tax, which add up to the
+  headline. Swedish KPI names: Kompensationsgrad, Uttagsnivå, Kapitalet tar slut
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

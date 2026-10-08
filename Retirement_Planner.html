@@ -720,7 +720,7 @@ input[type="number"]::-webkit-outer-spin-button {
   <div class="grid-2" style="margin-bottom:16px;gap:16px">
     <div class="chart-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="chart-title" style="margin-bottom:0" data-i18n="chart.portfolio">Portfolio Value Over Time (SEK)</div>
+        <div class="chart-title" style="margin-bottom:0" data-i18n="chart.portfolio">Portfolio Value (MSEK)</div>
         <div style="display:flex;gap:3px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:3px">
           <button id="btn-port-total" onclick="setPortMode('total')" style="background:var(--gold);color:#0f1f3d;font-weight:700;border:none;border-radius:5px;padding:4px 11px;font-family:var(--font-b);font-size:11px;cursor:pointer;white-space:nowrap" data-i18n="dash.total">Total</button>
           <button id="btn-port-taxadj" onclick="setPortMode('taxadj')" style="background:transparent;color:var(--muted);font-weight:500;border:none;border-radius:5px;padding:4px 11px;font-family:var(--font-b);font-size:11px;cursor:pointer;white-space:nowrap" data-i18n="dash.tax.adj"><span data-i18n="pv.btn.taxadj">Tax-adjusted</span></button>
@@ -732,8 +732,8 @@ input[type="number"]::-webkit-outer-spin-button {
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px">
         <div class="chart-title" style="margin-bottom:0" data-i18n="chart.income">After-Tax Income vs Expenses (SEK)</div>
         <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
-          <button id="ie-btn-annual"  onclick="setIncExpMode('annual')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
-          <button id="ie-btn-monthly" onclick="setIncExpMode('monthly')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+          <button id="ie-btn-annual"  onclick="setIncExpMode('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
+          <button id="ie-btn-monthly" onclick="setIncExpMode('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
         </div>
       </div>
       <div class="chart-inner"><canvas id="chartIncome"></canvas></div>
@@ -747,7 +747,7 @@ input[type="number"]::-webkit-outer-spin-button {
     </div>
     <div class="chart-wrap">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px">
-        <div class="chart-title" id="ils-chart-title" style="margin-bottom:0" data-i18n="dash.ils.title.full">Income Sources Over Lifetime (SEK/yr, Before Tax)</div>
+        <div class="chart-title" id="ils-chart-title" style="margin-bottom:0" data-i18n="dash.ils.title.full">Income Sources Over Lifetime (kr/mth, Before Tax)</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
           <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
             <button id="ils-btn-gross" onclick="setILSMode('gross')" style="padding:3px 12px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="acc.before.tax">Before Tax</button>
@@ -761,8 +761,8 @@ input[type="number"]::-webkit-outer-spin-button {
             <span>%</span>
           </div>
           <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-            <button id="ils-btn-annual"  onclick="setILSPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
-            <button id="ils-btn-monthly" onclick="setILSPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+            <button id="ils-btn-annual"  onclick="setILSPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
+            <button id="ils-btn-monthly" onclick="setILSPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
           </div>
         </div>
       </div>
@@ -772,7 +772,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
   <div class="grid-2" style="margin-top:16px;margin-bottom:16px;gap:16px">
     <div class="chart-wrap">
-      <div class="chart-title" data-i18n="dash.port.split.title">Portfolio Value by Account Type (SEK)</div>
+      <div class="chart-title" data-i18n="dash.port.split.title">Portfolio Value by Account Type (MSEK)</div>
       <div class="chart-inner" style="height:240px"><canvas id="chartPortSplit"></canvas></div>
     </div>
     <div class="chart-wrap">
@@ -1641,10 +1641,10 @@ en:{
   'tile.stateTax':'State Tax (Total)','tile.stateTax.sub':'Statlig skatt over full retirement',
   'tile.portNow':'Portfolio (Current)','tile.portNow.sub':'Total portfolio value in {yr}',
   'tile.bonds':'Bonds Allocation (Retirement)','tile.bonds.sub':'Bond % of portfolio at retirement',
-  'chart.portfolio':'Portfolio Value (SEK)','chart.income':'Income vs Expenses (SEK)',
+  'chart.portfolio':'Portfolio Value (MSEK)','chart.income':'Income vs Expenses (SEK)',
   'chart.alloc':'Stocks & Bonds %','chart.tax':'Tax Per Year (SEK)',
   'chart.ds.total':'Portfolio value','chart.ds.totalTaxAdj':'Portfolio value (tax-adj.)','chart.ds.goal':'Savings goal',
-  'chart.ds.afterTax':'Portfolio After-Tax','chart.ds.pIns':'P-Insurance','chart.ds.state':'State Pensions','chart.ds.beforeTax':'Portfolio Before-Tax',
+  'chart.ds.afterTax':'After tax Acc','chart.ds.pIns':'P-Insurance','chart.ds.state':'State Pensions','chart.ds.beforeTax':'Before tax Acc',
   'chart.ds.income':'After-Tax Income','chart.ds.expenses':'Expenses',
   'chart.ds.equities':'Equities %','chart.ds.bonds':'Bonds %',
   'chart.ds.munTax':'Municipal Tax','chart.ds.stateTax':'State Tax',
@@ -1837,13 +1837,13 @@ en:{
   'dash.period.mth':'kr/mth',
   'dash.period.yr':'kr/yr',
   'dash.ils.title':'Income Sources Over Lifetime',
-  'dash.ils.title.full':'Income Sources Over Lifetime (SEK/yr, Before Tax)',
+  'dash.ils.title.full':'Income Sources Over Lifetime (kr/mth, Before Tax)',
   'dash.ils.salary':'Salary',
   'dash.ils.after.acc':'After-Tax Acc',
   'dash.ils.totalpension':'Total Pension',
   'dash.ils.tax.thr':'Tax threshold',
   'dash.ils.after.tax.lbl':'after tax',
-  'dash.port.split.title':'Portfolio Value by Account Type (SEK)',
+  'dash.port.split.title':'Portfolio Value by Account Type (MSEK)',
   // ── Nav tabs ──
   'nav.withdrawals':'Withdrawals',
   'nav.portfolio':'Portfolio Value',
@@ -2019,7 +2019,8 @@ en:{
   // ── Dashboard chart tooltips ──
   'chart.tt.port.total':'Total Portfolio','chart.tt.port.taxadj':'Portfolio (tax-adj.)',
   'chart.tt.port.gross':'Before-Tax (gross)','chart.tt.port.est.tax':'Est. tax',
-  'chart.tt.port.after':'After-Tax','chart.tt.port.before':'Before-Tax',
+  'chart.tt.port.after':'After tax Acc','chart.tt.port.before':'Before tax Acc',
+  'chart.tt.port.before.net':'Before tax Acc, after est. tax',
   'chart.tt.port.vs.goal':'vs. Goal',
   'chart.tt.equities':'Equities','chart.tt.bonds':'Bonds',
 
@@ -2131,9 +2132,9 @@ sv:{
   'hdr.subtitle':'Fasta priser · Svenska skatteregler · Alla belopp i SEK',
   'tile.goalFulfil':'Sparmålsuppfyllelse',
   'tile.goalFulfil.sub':'Portfölj efter skatt vid pension ÷ ({mult}× utgifter)',
-  'tile.wdrlRate':'Uttagshastighet',
+  'tile.wdrlRate':'Uttagsnivå',
   'tile.wdrlRate.sub':'Snittuttag per år ÷ portfölj vid pensionsstart',
-  'tile.depletion':'Portföljdepletion',
+  'tile.depletion':'Kapitalet tar slut',
   'tile.depletion.never':'Överlever till förväntad livslängd',
   'tile.depletion.age':'Ålder {age} · portfölj slut',
   'tile.maxSpend':'Max Hållbart Uttag',
@@ -2144,10 +2145,10 @@ sv:{
   'tile.stateTax':'Statlig Skatt (Totalt)','tile.stateTax.sub':'Statlig skatt under hela pensionstiden',
   'tile.portNow':'Portfölj (Nu)','tile.portNow.sub':'Totalt portföljvärde år {yr}',
   'tile.bonds':'Obligationsallokering (Pension)','tile.bonds.sub':'Obligationsandel vid pension',
-  'chart.portfolio':'Portföljvärde (SEK)','chart.income':'Inkomst vs Utgifter (SEK)',
+  'chart.portfolio':'Portföljvärde (MSEK)','chart.income':'Inkomst vs Utgifter (SEK)',
   'chart.alloc':'Aktier & Obligationer %','chart.tax':'Skatt per år (SEK)',
   'chart.ds.total':'Total portfölj','chart.ds.totalTaxAdj':'Portfölj (skattejusterad)','chart.ds.goal':'Sparmål',
-  'chart.ds.afterTax':'Portfölj efter skatt','chart.ds.pIns':'P-försäkring','chart.ds.state':'Statliga pensioner','chart.ds.beforeTax':'Portfölj före skatt',
+  'chart.ds.afterTax':'Efter skatt-konton','chart.ds.pIns':'P-försäkring','chart.ds.state':'Statliga pensioner','chart.ds.beforeTax':'Före skatt-konton',
   'chart.ds.income':'Inkomst efter skatt','chart.ds.expenses':'Utgifter',
   'chart.ds.equities':'Aktier %','chart.ds.bonds':'Obligationer %',
   'chart.ds.munTax':'Kommunalskatt','chart.ds.stateTax':'Statlig skatt',
@@ -2251,7 +2252,7 @@ sv:{
   'pers.summary':'Sammanfattning',
   // ── Income tab ──
   'inc.title':'Inkomst & Nettolön',
-  'inc.sub':'Beräkna nettolön · driver Ersättningsgrad-KPI på Översikt',
+  'inc.sub':'Beräkna nettolön · driver Kompensationsgrad-KPI på Översikt',
   'inc.salary.hdr':'LÖNEINMATNING',
   'inc.gross.salary':'Bruttomånadslön (SEK)',
   'inc.vaxling':'Bruttolöneavdrag, löneväxling (SEK/månad)',
@@ -2340,20 +2341,20 @@ sv:{
   'dash.period.mth':'kr/mån',
   'dash.period.yr':'kr/år',
   'dash.ils.title':'Inkomstkällor under livet',
-  'dash.ils.title.full':'Inkomstkällor under livet (SEK/år, Före skatt)',
+  'dash.ils.title.full':'Inkomstkällor under livet (kr/mån, Före skatt)',
   'dash.ils.salary':'Lön',
   'dash.ils.after.acc':'Beskattat konto',
   'dash.ils.totalpension':'Total pension',
   'dash.ils.tax.thr':'Skiktgräns',
   'dash.ils.after.tax.lbl':'efter skatt',
-  'dash.port.split.title':'Portföljvärde per kontotyp (SEK)',
+  'dash.port.split.title':'Portföljvärde per kontotyp (MSEK)',
   // ── Nav tabs ──
   'nav.withdrawals':'Uttag',
   'nav.portfolio':'Portföljvärde',
   'nav.scenarios':'Scenarier',
   'nav.income':'Inkomst',
   // ── Tile labels ──
-  'tile.repRate':'Ersättningsgrad',
+  'tile.repRate':'Kompensationsgrad',
   'tile.repRate.sub':'Pension före skatt (första pensionsåret) ÷ slutlön (snitt av de 5 sista åren)',
 
 
@@ -2507,7 +2508,7 @@ sv:{
   'par.state.thresh':'Skiktgräns',
   'par.income.tab.btn':'→ Inkomstfliken',
 
-  'inc.sync.msg':'✓ Nettolön ≤66 synkas automatiskt till Personlig flik · Ersättningsgrad uppdateras på Översikt',
+  'inc.sync.msg':'✓ Nettolön ≤66 synkas automatiskt till Personlig flik · Kompensationsgrad uppdateras på Översikt',
 
   // ── Inkomst – vattenfall & statistik ──
   'inc.eff.rate':'Effektiv skattesats','inc.marg.rate':'Marginalskatt',
@@ -2522,7 +2523,8 @@ sv:{
   // ── Översikt – diagram-tooltips ──
   'chart.tt.port.total':'Total portfölj','chart.tt.port.taxadj':'Portfölj (skattekorrigerad)',
   'chart.tt.port.gross':'Före skatt (brutto)','chart.tt.port.est.tax':'Beräknad skatt',
-  'chart.tt.port.after':'Efter skatt','chart.tt.port.before':'Före skatt',
+  'chart.tt.port.after':'Efter skatt-konton','chart.tt.port.before':'Före skatt-konton',
+  'chart.tt.port.before.net':'Före skatt-konton, efter beräknad skatt',
   'chart.tt.port.vs.goal':'vs. Mål',
   'chart.tt.equities':'Aktier','chart.tt.bonds':'Obligationer',
 
@@ -5905,6 +5907,9 @@ function initCharts(){
 }
 
 var _lastPortData = null;
+// Axis helpers: MSEK with one decimal and no unit (4.0 / 4,0), kronor with a thousand separator (10 000)
+function fmtMsekTick(v){ var x = (v/1e6).toFixed(1); return _lang === 'sv' ? x.replace('.', ',') : x; }
+function fmtKrTick(v){ return Math.round(v).toLocaleString('sv-SE'); }
 
 function updatePortfolioChart(pData){
   var years=pData.years, savingGoal=pData.savingGoal, retIdx=pData.retIdx;
@@ -5914,7 +5919,7 @@ function updatePortfolioChart(pData){
   const baseInteraction = {mode:'index', intersect:false};
   const baseScales = {
     x:{grid:GRID,ticks:{...TICKS,maxTicksLimit:10,callback:function(val,idx){const age=years[idx]?.age;return age!=null?age:'';}}}  ,
-    y:{grid:GRID,ticks:{...TICKS,callback:function(v){if(Math.abs(v)>=1e6)return(v/1e6).toFixed(2)+'M';if(Math.abs(v)>=1e3)return(v/1e3).toFixed(0)+'K';return v;}}}
+    y:{grid:GRID,ticks:{...TICKS,callback:fmtMsekTick}}
   };
 // ── PORTFOLIO ──────────────────────────────────
   if (charts.portfolio) charts.portfolio.destroy();
@@ -5963,7 +5968,7 @@ function updatePortfolioChart(pData){
           fill: false, pointRadius: 0, pointHoverRadius: 4,
           pointHoverBackgroundColor: '#4885C4', tension: 0.4, order: 4,
         },
-      ]
+      ].filter(function(ds){ return !(_portViewMode === 'taxadj' && ds.label === t('chart.ds.beforeTax')); })   // tax-adjusted: no Before tax Acc line
     },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -6014,36 +6019,18 @@ function updatePortfolioChart(pData){
             var diffStr = (diff >= 0 ? '+' : '') + fmtSEK(diff);
             var diffCol = diff >= 0 ? '#48B866' : '#FF5B2E';
             var portLabel = isTaxAdj ? t('chart.tt.port.taxadj') : t('chart.tt.port.total');
-            var taxNote = isTaxAdj
-              ? '<div style="display:flex;justify-content:space-between;gap:24px;font-size:10px;color:#4a6180;margin-top:2px">'
-                +   '<span>'+t('chart.tt.port.gross')+'</span>'
-                +   '<span>' + fmtSEK(yr.portBeforeTax||0) + '</span>'
-                + '</div>'
-                + '<div style="display:flex;justify-content:space-between;gap:24px;font-size:10px;color:#4a6180;margin-bottom:2px">'
-                +   '<span>'+t('chart.tt.port.est.tax')+' (' + Math.round(munR*100) + '% ksk.)</span>'
-                +   '<span>−' + fmtSEK((yr.portBeforeTax||0)*munR) + '</span>'
-                + '</div>'
-              : '';
+            var _ttRow = function(lbl, val, col){ return '<div style="display:flex;justify-content:space-between;gap:24px"><span style="color:#7a96be">'+lbl+'</span><span style="color:'+col+'">'+val+'</span></div>'; };
+            // Tax-adjusted = After tax Acc + Before tax Acc × (1 − tax): show the parts that add up
+            var _beforeLine = isTaxAdj
+              ? _ttRow(t('chart.tt.port.before.net'), fmtSEK((yr.portBeforeTax||0)*(1-munR)), '#4885C4')
+              : _ttRow(t('chart.tt.port.before'), fmtSEK(yr.portBeforeTax||0), '#4885C4');
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:6px;letter-spacing:.06em">'
               + t('wd.chart.tooltip.age')+' ' + yr.age + ' &nbsp;·&nbsp; ' + yr.yr + '</div>'
-              + '<div style="display:flex;justify-content:space-between;gap:24px">'
-              +   '<span style="color:#7a96be">' + portLabel + '</span>'
-              +   '<span style="color:#48B866;font-weight:500">' + fmtSEK(port) + '</span>'
-              + '</div>'
-              + taxNote
-              + '<div style="display:flex;justify-content:space-between;gap:24px">'
-              +   '<span style="color:#7a96be">'+t('chart.tt.port.after')+'</span>'
-              +   '<span style="color:#48B866">' + fmtSEK(yr.portAfterTax||0) + '</span>'
-              + '</div>'
-              + '<div style="display:flex;justify-content:space-between;gap:24px">'
-              +   '<span style="color:#7a96be">'+t('chart.tt.port.before')+'</span>'
-              +   '<span style="color:#4885C4">' + fmtSEK(yr.portBeforeTax||0) + '</span>'
-              + '</div>'
-              + '<div style="display:flex;justify-content:space-between;gap:24px">'
-              +   '<span style="color:#7a96be">'+t('chart.ds.goal')+'</span>'
-              +   '<span style="color:#FF5B2E">' + fmtSEK(goal) + '</span>'
-              + '</div>'
+              + _ttRow(portLabel, fmtSEK(port), '#48B866').replace('<span style="color:#48B866">','<span style="color:#48B866;font-weight:500">')
+              + _ttRow(t('chart.tt.port.after'), fmtSEK(yr.portAfterTax||0), '#48B866')
+              + _beforeLine
+              + _ttRow(t('chart.ds.goal'), fmtSEK(goal), '#FF5B2E')
               + '<div style="display:flex;justify-content:space-between;gap:24px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)">'
               +   '<span style="color:#7a96be">'+t('chart.tt.port.vs.goal')+'</span>'
               +   '<span style="color:' + diffCol + ';font-weight:500">' + diffStr + '</span>'
@@ -6168,8 +6155,7 @@ function updateCharts(data){
       scales: {
         x: {...baseScales.x, ticks:{...baseScales.x.ticks,
           callback:function(val,idx){ const age=years[idx]?.age; return age!=null?age:''; }}},
-        y: {...baseScales.y, ticks:{...baseScales.y.ticks,
-          callback:function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1).replace('.',',')+'M':Math.abs(v)>=1e3?(v/1e3).toFixed(0)+'K':v; }}}
+        y: {...baseScales.y, ticks:{...baseScales.y.ticks, callback:fmtKrTick}}
       }
     },
     plugins: [retirementLinePlugin]
@@ -6304,13 +6290,14 @@ function updateCharts(data){
         y:{ ...baseScales.y,
           stacked:true,
           ticks:{ ...baseScales.y.ticks,
-            callback:function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':Math.abs(v)>=1e3?(v/1e3).toFixed(0)+'K':v; }
+            callback:fmtKrTick
           }
         }
       }
     },
     plugins:[retirementLinePlugin]
   });
+  _updateILSChart();   // title and values follow the selected period (Monthly by default)
 
   // ── PORTFOLIO SPLIT (stacked column by account type) ─────────────────
   if(charts.chartPortSplit) charts.chartPortSplit.destroy();
@@ -6369,7 +6356,7 @@ function updateCharts(data){
              callback:function(val,idx){const age=years[idx]?.age;return age!=null?age:''}}},
         y:{stacked:true,grid:{color:'rgba(0,0,0,0.07)'},
            ticks:{color:'#4a6180',font:{family:'DM Mono',size:10},
-             callback:function(v){return Math.abs(v)>=1e6?(v/1e6).toFixed(1).replace('.',',')+'M':Math.abs(v)>=1e3?(v/1e3).toFixed(0)+'K':v}}}
+             callback:fmtMsekTick}}
       }
     }
   });
@@ -9433,7 +9420,7 @@ function buildWithdrawalChart(){
 
 var _wdTaxMode = 'gross';
 var _ilsMode = 'gross';
-var _ilsPeriod = 'annual';
+var _ilsPeriod = 'monthly';
 function _ilsDiv(){ return _ilsPeriod==='monthly' ? 12 : 1; }
 function _ilsTaxFactor(){
   if(_ilsMode !== 'net') return 1;
@@ -9466,7 +9453,7 @@ function _updateILSChart(){
   ds[5].hidden = isNet;
   // Update title
   var title = document.querySelector('#chartIncomeLifetime')?.closest('.chart-wrap')?.querySelector('.chart-title');
-  if(title) title.textContent = t('dash.ils.title')+' (SEK/'+(div===12?t('dash.period.mth'):t('dash.period.yr'))+', '+(isNet?t('acc.after.tax'):t('acc.before.tax'))+')';
+  if(title) title.textContent = t('dash.ils.title')+' ('+(div===12?t('dash.period.mth'):t('dash.period.yr'))+', '+(isNet?t('acc.after.tax'):t('acc.before.tax'))+')';
   charts.chartIncomeLifetime.update();
   // Tiles read _ilsMode and the same tax rate, so keep them in step.
   if(typeof refreshPhaseTiles === 'function') refreshPhaseTiles();
@@ -9514,7 +9501,7 @@ function wdTaxFactor(a){
 }
 
 
-var _incExpMode = 'annual';
+var _incExpMode = 'monthly';
 function setIncExpMode(mode){
   _incExpMode = mode;
   var ba = document.getElementById('ie-btn-annual');
@@ -9532,7 +9519,6 @@ function updateIncomeChart(){
   charts.income.options.plugins.tooltip.callbacks.label = function(ctx){
     return ' '+ctx.dataset.label+': '+Math.round(ctx.raw).toLocaleString('sv-SE')+' kr'+(_incExpMode==='monthly'?'/mth':'/yr');
   };
-  charts.income.options.scales.y.title = { display:true, text: _incExpMode==='monthly'?'kr / month':'kr / year', color:'#64748b', font:{size:10} };
   charts.income.update();
 }
 
