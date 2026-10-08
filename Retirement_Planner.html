@@ -776,7 +776,13 @@ input[type="number"]::-webkit-outer-spin-button {
       <div class="chart-inner" style="height:240px"><canvas id="chartPortSplit"></canvas></div>
     </div>
     <div class="chart-wrap">
-      <div class="chart-title" data-i18n="chart.tax">Tax Paid Per Year (SEK)</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+        <div class="chart-title" id="tax-chart-title" style="margin-bottom:0">Tax Per Month (kr/mth)</div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
+          <button id="tax-btn-annual"  onclick="setTaxChartMode('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
+          <button id="tax-btn-monthly" onclick="setTaxChartMode('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+        </div>
+      </div>
       <div class="chart-inner"><canvas id="chartTax"></canvas></div>
     </div>
   </div>
@@ -1643,7 +1649,7 @@ en:{
   'tile.portNow':'Portfolio (Current)','tile.portNow.sub':'Total portfolio value in {yr}',
   'tile.bonds':'Bonds Allocation (Retirement)','tile.bonds.sub':'Bond % of portfolio at retirement',
   'chart.portfolio':'Portfolio Value (MSEK)','chart.income':'Income vs Expenses (SEK)',
-  'chart.alloc':'Stocks & Bonds %','chart.tax':'Tax Per Year (SEK)',
+  'chart.alloc':'Stocks & Bonds %','chart.tax':'Tax Per Year (SEK)','chart.tax.yr':'Tax Per Year (kr/yr)','chart.tax.mth':'Tax Per Month (kr/mth)',
   'chart.ds.total':'Portfolio value','chart.ds.totalTaxAdj':'Portfolio value (tax-adj.)','chart.ds.goal':'Savings goal',
   'chart.ds.afterTax':'After tax Acc','chart.ds.pIns':'P-Insurance','chart.ds.state':'State Pensions','chart.ds.beforeTax':'Before tax Acc',
   'chart.ds.income':'After-Tax Income','chart.ds.expenses':'Expenses',
@@ -2148,7 +2154,7 @@ sv:{
   'tile.portNow':'Portfölj (Nu)','tile.portNow.sub':'Totalt portföljvärde år {yr}',
   'tile.bonds':'Obligationsallokering (Pension)','tile.bonds.sub':'Obligationsandel vid pension',
   'chart.portfolio':'Portföljvärde (MSEK)','chart.income':'Inkomst vs Utgifter (SEK)',
-  'chart.alloc':'Aktier & Obligationer %','chart.tax':'Skatt per år (SEK)',
+  'chart.alloc':'Aktier & Obligationer %','chart.tax':'Skatt per år (SEK)','chart.tax.yr':'Skatt per år (kr/år)','chart.tax.mth':'Skatt per månad (kr/mån)',
   'chart.ds.total':'Total portfölj','chart.ds.totalTaxAdj':'Portfölj (skattejusterad)','chart.ds.goal':'Sparmål',
   'chart.ds.afterTax':'Efter skatt-konton','chart.ds.pIns':'P-försäkring','chart.ds.state':'Statliga pensioner','chart.ds.beforeTax':'Före skatt-konton',
   'chart.ds.income':'Inkomst efter skatt','chart.ds.expenses':'Utgifter',
@@ -5925,6 +5931,15 @@ function updatePortfolioChart(pData){
   };
 // ── PORTFOLIO ──────────────────────────────────
   if (charts.portfolio) charts.portfolio.destroy();
+  var goalDs = {
+          label:t('chart.ds.goal'),
+          data: years.map(() => Math.round(savingGoal)),
+          borderColor: '#FF5B2E', borderWidth: 1.5,
+          borderDash: [8, 5],
+          fill: false, pointRadius: 0, pointHoverRadius: 0,
+          tension: 0, order: 2,
+        };
+  var _taPort = _portViewMode === 'taxadj', _munRp = getParam('munTax')/100;
   charts.portfolio = new Chart(document.getElementById('chartPortfolio'), {
     type: 'line',
     data: {
@@ -5948,14 +5963,7 @@ function updatePortfolioChart(pData){
           pointHoverBorderWidth: 2,
           tension: 0.4, order: 1,
         },
-        {
-          label:t('chart.ds.goal'),
-          data: years.map(() => Math.round(savingGoal)),
-          borderColor: '#FF5B2E', borderWidth: 1.5,
-          borderDash: [8, 5],
-          fill: false, pointRadius: 0, pointHoverRadius: 0,
-          tension: 0, order: 2,
-        },
+        _portViewMode === 'taxadj' ? goalDs : null,   // Savings goal only in the Tax-adjusted view
         {
           label:t('chart.ds.afterTax'),
           data: years.map(y => Math.round(y.portAfterTax||0)),
@@ -5964,13 +5972,13 @@ function updatePortfolioChart(pData){
           pointHoverBackgroundColor: '#48B866', tension: 0.4, order: 3,
         },
         {
-          label:t('chart.ds.beforeTax'),
-          data: years.map(y => Math.round(y.portBeforeTax||0)),
+          label:_taPort ? t('chart.tt.port.before.net') : t('chart.ds.beforeTax'),   // Tax-adjusted: after est. tax, as in the tooltip
+          data: years.map(y => Math.round((y.portBeforeTax||0) * (_taPort ? (1 - _munRp) : 1))),
           borderColor: '#4885C4', borderWidth: 1.5, borderDash: [4,3],
           fill: false, pointRadius: 0, pointHoverRadius: 4,
           pointHoverBackgroundColor: '#4885C4', tension: 0.4, order: 4,
         },
-      ].filter(function(ds){ return !(_portViewMode === 'taxadj' && ds.label === t('chart.ds.beforeTax')); })   // tax-adjusted: no Before tax Acc line
+      ].filter(Boolean)
     },
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -6032,11 +6040,13 @@ function updatePortfolioChart(pData){
               + _ttRow(portLabel, fmtSEK(port), '#48B866').replace('<span style="color:#48B866">','<span style="color:#48B866;font-weight:500">')
               + _ttRow(t('chart.tt.port.after'), fmtSEK(yr.portAfterTax||0), '#48B866')
               + _beforeLine
-              + _ttRow(t('chart.ds.goal'), fmtSEK(goal), '#FF5B2E')
-              + '<div style="display:flex;justify-content:space-between;gap:24px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)">'
-              +   '<span style="color:#7a96be">'+t('chart.tt.port.vs.goal')+'</span>'
-              +   '<span style="color:' + diffCol + ';font-weight:500">' + diffStr + '</span>'
-              + '</div>';
+              + (isTaxAdj
+                  ? _ttRow(t('chart.ds.goal'), fmtSEK(goal), '#FF5B2E')
+                    + '<div style="display:flex;justify-content:space-between;gap:24px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)">'
+                    +   '<span style="color:#7a96be">'+t('chart.tt.port.vs.goal')+'</span>'
+                    +   '<span style="color:' + diffCol + ';font-weight:500">' + diffStr + '</span>'
+                    + '</div>'
+                  : '');
             el.style.opacity = '1';
             positionTooltip(el, context.chart, tooltip);
           }
@@ -6445,9 +6455,9 @@ function updateCharts(data){
     data: {
       labels,
       datasets: [
-        {label:t('chart.ds.incTaxSal'), data:years.map(y=>Math.round(y.salaryTax||0)), backgroundColor:'rgba(74,143,204,.65)'},
-        {label:t('chart.ds.munTax'), data:years.map(y=>Math.round(y.munTax)),   backgroundColor:'rgba(233,184,74,.72)'},
-        {label:t('chart.ds.stateTax'),     data:years.map(y=>Math.round(y.stateTax)), backgroundColor:'rgba(232,79,42,.72)'},
+        {label:t('chart.ds.incTaxSal'), data:years.map(y=>Math.round((y.salaryTax||0)/_taxDiv())), backgroundColor:'rgba(74,143,204,.65)'},
+        {label:t('chart.ds.munTax'), data:years.map(y=>Math.round((y.munTax||0)/_taxDiv())),   backgroundColor:'rgba(233,184,74,.72)'},
+        {label:t('chart.ds.stateTax'),     data:years.map(y=>Math.round((y.stateTax||0)/_taxDiv())), backgroundColor:'rgba(232,79,42,.72)'},
       ]
     },
     options: {
@@ -6466,10 +6476,11 @@ function updateCharts(data){
             var yr = years[idx]; if (!yr) return;
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:6px">' + yr.yr + ' · '+t('wd.chart.tooltip.age')+' ' + yr.age + '</div>'
-              + (yr.salaryTax>0 ? '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.incTaxSal')+'</span><span style="color:#4885C4">'+fmtSEK(yr.salaryTax)+'</span></div>' : '')
-              + '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.munTax')+'</span><span style="color:#48B866">' + fmtSEK(yr.munTax) + '</span></div>'
-              + '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.stateTax')+'</span><span style="color:#FF5B2E">' + fmtSEK(yr.stateTax) + '</span></div>'
-              + '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)"><span style="color:#7a96be">'+t('chart.ds.totalTaxRow')+'</span><span style="color:#edf2ff">' + fmtSEK(yr.totalTax) + '</span></div>';
+              + (yr.salaryTax>0 ? '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.incTaxSal')+'</span><span style="color:#4885C4">'+fmtSEK(yr.salaryTax/_taxDiv())+'</span></div>' : '')
+              + '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.munTax')+'</span><span style="color:#48B866">' + fmtSEK(yr.munTax/_taxDiv()) + '</span></div>'
+              + '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.stateTax')+'</span><span style="color:#FF5B2E">' + fmtSEK(yr.stateTax/_taxDiv()) + '</span></div>'
+              + '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)"><span style="color:#7a96be">'+t('chart.ds.totalTaxRow')+'</span><span style="color:#edf2ff">' + fmtSEK(((yr.salaryTax||0) + (yr.totalTax||0))/_taxDiv()) + '</span></div>'
+              + '<div style="font-size:10px;color:var(--muted);margin-top:3px;text-align:right">'+(_taxChartMode==='monthly'?t('dash.period.mth'):t('dash.period.yr'))+'</div>';
             el.style.opacity='1';
             positionTooltip(el, context.chart, tooltip);
           }
@@ -6477,10 +6488,11 @@ function updateCharts(data){
       },
       scales: {
         x:{...baseScales.x, stacked:true},
-        y:{...baseScales.y, stacked:true}
+        y:{...baseScales.y, stacked:true, ticks:{...baseScales.y.ticks, callback:fmtKrTick}}
       }
     }
   });
+  updateTaxChartTitle();
 }
 
 // ══════════════════════════════════════════════════
@@ -9530,6 +9542,26 @@ function wdTaxFactor(a){
 }
 
 
+var _taxChartMode = 'monthly';
+function _taxDiv(){ return _taxChartMode === 'monthly' ? 12 : 1; }
+function updateTaxChartTitle(){
+  var el = document.getElementById('tax-chart-title');
+  if(el) el.textContent = t(_taxChartMode === 'monthly' ? 'chart.tax.mth' : 'chart.tax.yr');
+}
+function setTaxChartMode(mode){
+  _taxChartMode = mode;
+  var ba = document.getElementById('tax-btn-annual'), bm = document.getElementById('tax-btn-monthly');
+  if(ba){ ba.style.background=mode==='annual'?'#48B866':'transparent'; ba.style.color=mode==='annual'?'#0f1f3d':'var(--muted)'; ba.style.fontWeight=mode==='annual'?'600':'500'; }
+  if(bm){ bm.style.background=mode==='monthly'?'#48B866':'transparent'; bm.style.color=mode==='monthly'?'#0f1f3d':'var(--muted)'; bm.style.fontWeight=mode==='monthly'?'600':'500'; }
+  if(charts.tax && _projYears){
+    var d = _taxDiv(), ds = charts.tax.data.datasets;
+    ds[0].data = _projYears.map(function(y){ return Math.round((y.salaryTax||0)/d); });
+    ds[1].data = _projYears.map(function(y){ return Math.round((y.munTax||0)/d); });
+    ds[2].data = _projYears.map(function(y){ return Math.round((y.stateTax||0)/d); });
+    charts.tax.update();
+  }
+  updateTaxChartTitle();
+}
 var _incExpMode = 'monthly';
 function setIncExpMode(mode){
   _incExpMode = mode;
