@@ -1949,6 +1949,9 @@ en:{
   'wd.col.ret.start':'Asset at Retirement Start (SEK)',
   'wd.col.ret.end':'Asset at Retirement End (SEK)',
   'wd.col.ws':'Wdrl Start (Age)','wd.col.we':'Wdrl End (Age)',
+  'acc.cs.low':'Low age {age}',
+  'acc.cs.low.tip':'{name} pays no premium before age {age}.',
+  'acc.cs.low.tip.start':'The workbook has no fixed minimum age for this scheme: premiums start when work starts, age 18 is the planner floor.',
   'acc.ce.max':'Max age {age}',
   'acc.ce.max.tip':'{name} pays no premiums from age {age}, so contributions end at age {age} even though the retirement age is later.',
   'wd.err.state3':'Earliest withdrawal is 3 years before target age (age {age})',
@@ -2449,6 +2452,9 @@ sv:{
   'wd.col.ret.start':'Tillgångar vid pensionstart (SEK)',
   'wd.col.ret.end':'Tillgångar vid pensionsslut (SEK)',
   'wd.col.ws':'Uttag start (ålder)','wd.col.we':'Uttag slut (ålder)',
+  'acc.cs.low':'Lägsta ålder {age}',
+  'acc.cs.low.tip':'{name} betalar ingen premie före ålder {age}.',
+  'acc.cs.low.tip.start':'Typfallsmodellen har ingen fast lägsta ålder för detta avtal: premien börjar när arbetet börjar, 18 år är planerarens golv.',
   'acc.ce.max':'Högsta ålder {age}',
   'acc.ce.max.tip':'{name} betalar ingen premie från ålder {age}, så inbetalningarna slutar vid {age} år trots att pensionsåldern är senare.',
   'wd.err.state3':'Tidigast uttag är 3 år före riktåldern (ålder {age})',
@@ -3090,6 +3096,14 @@ function ceNote(a){
   var v = {name:a.name, age:m - wdBirthYear()};
   return '<div style="position:relative;height:0"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:#e05555;text-align:right" title="'
     +t('acc.ce.max.tip',v).replace(/"/g,'&quot;')+'">'+t('acc.ce.max',v)+'</div></div>';
+}
+// Muted note under Contrib Start: the scheme's lowest premium age (OCC_SCHEMES prem.from, enforced by occPremium)
+function csNote(a){
+  if(!isOccPremiumAcc(a) || !OCC_SCHEMES[a.scheme]) return '';
+  var v = {name:a.name, age:OCC_SCHEMES[a.scheme].prem.from};
+  var tip = t('acc.cs.low.tip',v) + (a.scheme === 'akapkr' || a.scheme === 'pa16a1' ? ' ' + t('acc.cs.low.tip.start') : '');
+  return '<div style="position:relative;height:0"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:var(--muted);text-align:right" title="'
+    +tip.replace(/"/g,'&quot;')+'">'+t('acc.cs.low',v)+'</div></div>';
 }
 // Accounts flagged wsAuto (state + P-insurance, until the user edits Wdrl Start) follow the Personal tab
 function wdSyncStart(){
@@ -5027,7 +5041,7 @@ function buildAccountsTable(){
         <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${((a.type==='state' && a.delningstalScope==='premie') || isOccPremiumAcc(a)) ? `<label title="${isOccPremiumAcc(a) ? t('occ.own.eq.tip') : t('pp.glide.tip')}" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
         ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
-        ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
+        ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60).replace(/<\/td>$/, csNote(a) + '</td>')
           + col(i,'ce',a.ce,1,60).replace(/<\/td>$/, ceNote(a) + '</td>')
           + ((isOccPremiumAcc(a) && a.ownEq) ? col(i,'eq1',a.eq1,0.1,60) + col(i,'eq2',a.eq2,0.1,60) + col(i,'eq3',a.eq3,0.1,60)
               + col(i,'mgmt',a.mgmt,0.01,60) + occLockedCells(a, true)
