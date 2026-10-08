@@ -259,6 +259,8 @@ published, replace the workbook and re-verify everything below.
   enforced by `occPremium`; verified against the VBA): ITP 1 25, ITP 2 – ITPK 28, SAF-LO 22 (23 in 2022, 24 in 2021, 25 in 2000–2020,
   28 before 2000), KAP-KL 21, PA16 Avd 2 23, AKAP-KR 21 (born ≤ 1985; born 1986+ from 2014 premiums start with the work) and PA16 Avd 1
   (no minimum in the workbook) both use the planner floor 18. Verify yearly
+- Expenses tab doughnut (`buildExpenseChart`) is styled like the Withdrawals doughnuts: no segment borders, 40 % hole, dark tooltip,
+  and the `pctLabels` inline plugin draws each share inside its segment (hidden below 3 %, dark text on light segments)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

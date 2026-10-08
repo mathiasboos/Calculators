@@ -9087,26 +9087,51 @@ function buildExpenseChart(){
   if(window._expDonutChart) window._expDonutChart.destroy();
 
   var ctx = canvas.getContext('2d');
+  // Same look as the Withdrawals doughnuts: no borders, 40 % hole, hover offset; the share is drawn inside each segment
+  var pctLabels = {
+    id:'expPctLabels',
+    afterDatasetsDraw:function(chart){
+      var c = chart.ctx, meta = chart.getDatasetMeta(0), ds = chart.data.datasets[0], tot = ds.data.reduce(function(s,v){return s+(v||0);},0);
+      if(!(tot > 0)) return;
+      c.save(); c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '700 11px sans-serif';
+      meta.data.forEach(function(arc, i){
+        var share = (ds.data[i]||0) / tot;
+        if(share < 0.03) return;                       // too narrow for a label
+        var pos = arc.tooltipPosition();
+        var hex = String(ds.backgroundColor[i]).replace('#',''), n = parseInt(hex,16);
+        var lum = (0.299*(n>>16) + 0.587*((n>>8)&255) + 0.114*(n&255)) / 255;
+        c.fillStyle = lum > 0.6 ? '#0f1f3d' : '#ffffff';  // dark text on light segments
+        c.fillText(Math.round(share*100) + '%', pos.x, pos.y);
+      });
+      c.restore();
+    }
+  };
   window._expDonutChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: labels,
-      datasets: [{ data: values, backgroundColor: colors, borderColor: 'var(--s1)', borderWidth: 2 }]
+      datasets: [{ data: values, backgroundColor: colors, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, hoverOffset: 4 }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '62%',
+      cutout: '40%',
+      animation: { duration: 400 },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: {
-          label: function(ctx) {
-            var pct = ((ctx.raw / total) * 100).toFixed(1);
-            return ' ' + ctx.label + ': ' + Math.round(ctx.raw).toLocaleString('sv-SE') + ' kr (' + pct + '%)';
+        tooltip: {
+          backgroundColor:'rgba(10,14,26,.92)', titleColor:'#48B866', bodyColor:'#c8d8e8',
+          padding:10, cornerRadius:6, displayColors:false,
+          callbacks: {
+            label: function(ctx) {
+              var pct = ((ctx.raw / total) * 100).toFixed(1);
+              return ' ' + ctx.label + ': ' + Math.round(ctx.raw).toLocaleString('sv-SE') + ' kr (' + pct + '%)';
+            }
           }
-        }}
+        }
       }
-    }
+    },
+    plugins: [pctLabels]
   });
 
   // Centre label: total
