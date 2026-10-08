@@ -251,7 +251,7 @@ published, replace the workbook and re-verify everything below.
 - Contrib End (Assets tab) of every state and P-insurance account with a contribution window follows the Personal-tab
   retirement age (`ceAuto`, `ceSyncEnd()` from `persApplyAges` / `onRetirementYearChange` / restore), capped at the
   scheme's last premium age `CE_MAX` (ITP 1 66, ITP 2 and SAF-LO 65, KAP-KL 67, PA16 Avd 2 69, PA16 Avd 1 67; AKAP-KR and
-  the Individual account have no cap; verify with `occPremium` yearly). A red `.wd-err` note "Max age N for <scheme>" shows
+  the Individual account have no cap; verify with `occPremium` yearly). A red 9 px note "Max age N" (like the "auto" label, absolutely placed so the row stays aligned) shows
   under the field while the cap is the binding limit. Typing a Contrib End stops the following; a typed age above the cap is
   set to the cap (`ceClamped`, note shown). Saves carry `ceRulesV: 1`; older saves flag accounts still on the retirement
   year (or the cap) as `ceAuto`. After-tax accounts keep the older `persRelinkAccounts` behaviour

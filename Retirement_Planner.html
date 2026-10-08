@@ -1949,7 +1949,7 @@ en:{
   'wd.col.ret.start':'Asset at Retirement Start (SEK)',
   'wd.col.ret.end':'Asset at Retirement End (SEK)',
   'wd.col.ws':'Wdrl Start (Age)','wd.col.we':'Wdrl End (Age)',
-  'acc.ce.max':'Max age {age} for {name}',
+  'acc.ce.max':'Max age {age}',
   'acc.ce.max.tip':'{name} pays no premiums from age {age}, so contributions end at age {age} even though the retirement age is later.',
   'wd.err.state3':'Earliest withdrawal is 3 years before target age (age {age})',
   'wd.err.target':'Earliest withdrawal is target age (age {age})',
@@ -2449,7 +2449,7 @@ sv:{
   'wd.col.ret.start':'Tillgångar vid pensionstart (SEK)',
   'wd.col.ret.end':'Tillgångar vid pensionsslut (SEK)',
   'wd.col.ws':'Uttag start (ålder)','wd.col.we':'Uttag slut (ålder)',
-  'acc.ce.max':'Högsta ålder {age} för {name}',
+  'acc.ce.max':'Högsta ålder {age}',
   'acc.ce.max.tip':'{name} betalar ingen premie från ålder {age}, så inbetalningarna slutar vid {age} år trots att pensionsåldern är senare.',
   'wd.err.state3':'Tidigast uttag är 3 år före riktåldern (ålder {age})',
   'wd.err.target':'Tidigast uttag är riktåldern (ålder {age})',
@@ -3086,7 +3086,10 @@ function ceNote(a){
   var m = ceMaxYear(a);
   if(!m || a.ce !== m) return '';
   if(!(Math.round(getParam('retirementYear')) > m || a.ceClamped)) return '';
-  return '<div class="wd-err" title="'+t('acc.ce.max.tip',{name:a.name,age:m - wdBirthYear()}).replace(/"/g,'&quot;')+'">'+t('acc.ce.max',{name:a.name,age:m - wdBirthYear()})+'</div>';
+  // Same look as the "auto" label under Opening (9 px); absolutely placed so the input row stays aligned
+  var v = {name:a.name, age:m - wdBirthYear()};
+  return '<div style="position:relative;height:0"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:#e05555;text-align:right" title="'
+    +t('acc.ce.max.tip',v).replace(/"/g,'&quot;')+'">'+t('acc.ce.max',v)+'</div></div>';
 }
 // Accounts flagged wsAuto (state + P-insurance, until the user edits Wdrl Start) follow the Personal tab
 function wdSyncStart(){
