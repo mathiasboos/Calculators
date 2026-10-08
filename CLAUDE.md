@@ -280,6 +280,13 @@ published, replace the workbook and re-verify everything below.
   re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
   (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Not covered: pension drawn while still working is taxed separately from the salary; `taxAdjPort` and the
   "After tax" display modes use flat tax-rate inputs; the workbook's 32,38 % municipal default is a user input here (32,4 %)
+- Dashboard KPI cards "Max Withdrawal Rate" (sv "Max uttagsnivå") and "Portfolio Runs Out" (sv "Kapitalet tar slut"): both are about the SAVINGS =
+  after-tax accounts + planned P-insurance (`portAfterTax + portPInsPlanned`); state pensions and lifelong / DB schemes are excluded. The rate card is read-only:
+  `maxSustainableRate` = highest constant real (inflation-adjusted) yearly withdrawal that empties each account exactly at the life-expectancy year (withdrawals
+  through that year, yearly net return incl. equity glide, fees, yield tax), as % of the initial savings (P-insurance after est. tax), plus kr/month. Verified against the
+  engine with the expense intervals off (at the max the balance hits 0 at life expectancy; +3 % one year earlier). The runs-out card follows the withdrawals actually
+  planned (the expense intervals override per-account Wdrl amounts while they are on). Both show "—" when there are no savings. The old +/- rate control, its
+  `applyWdrlRate` and the startup 4 % call were removed (they set per-account amounts that the intervals override)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
