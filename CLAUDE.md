@@ -238,14 +238,16 @@ published, replace the workbook and re-verify everything below.
   years' earnedIncomePre). `repRateNet` (after-tax ratio) is still computed but not shown.
   ITP1/1980/40 000: 74,2 % vs the port's 74,7 %
 - Withdrawal rules (Withdrawals tab): `WD_RULES` / `wdRule(a)` / `wdRuleErrors(a)` / `wdDefaultYear(a)` give each
-  pension an earliest start age, a default start age and (P-insurance, Planned mode only) a shortest withdrawal
-  time; a broken rule shows a red `.wd-err` message under the input, the typed value is kept. Verify the ages yearly.
-  ITP 1 55/66/5, ITP 2 55/65/5, SAF-LO 55/65/5, KAP-KL 61/67/10, AKAP-KR 62/70/10, PA16 Avd 2 61 (born ≤ 1965) or 63 /72/5,
-  PA16 Avd 1 63/72/5, Individual pension account 55/target age/5 (earliest/default/min years). Premium + Income
-  pension: earliest target age (riktålder) − 3; Garantipension + Inkomstpensionstillägg: target age (default start too).
-  New schemes start lifelong (∞) at the default age; the Individual pension account is lifelong by default too and has the
-  Planned/Lifelong toggle. Saves carry `wdRulesV: 1`; older saves move scheme accounts still starting at the retirement
-  year to the default age. The ITP1/1980 preset keeps ITP 1 at the retirement age (68)
+  pension an earliest start age and (P-insurance, Planned mode only) a shortest withdrawal time; a broken rule shows
+  a red `.wd-err` message under the input, the typed value is kept. Verify the ages yearly.
+  ITP 1 55/5, ITP 2 55/5, SAF-LO 55/5, KAP-KL 61/10, AKAP-KR 62/10, PA16 Avd 2 61 (born ≤ 1965) or 63 /5,
+  PA16 Avd 1 63/5, Individual pension account 55/5 (earliest age / min years). Premium + Income pension: earliest
+  target age (riktålder) − 3; Garantipension + Inkomstpensionstillägg: target age
+- Wdrl Start of every state and P-insurance account follows the Personal-tab retirement age, raised to its earliest
+  allowed age (`wdDefaultYear`). Accounts carry `wsAuto`; `wdSyncStart()` re-applies it from `persApplyAges` /
+  `onRetirementYearChange` / restore, and typing a Wdrl Start clears `wsAuto`. New schemes start lifelong (∞); the
+  Individual pension account is lifelong by default and has the Planned/Lifelong toggle. Saves carry `wdRulesV: 2`;
+  older saves flag accounts still on the retirement year (or the first version's per-scheme ages) as `wsAuto`
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
