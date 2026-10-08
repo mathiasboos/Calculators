@@ -590,6 +590,8 @@ input[type="number"]::-webkit-outer-spin-button {
 #retirementAge[readonly]{opacity:.6;cursor:not-allowed}
 /* Header "Begin here" dropdown: colour pulse for 5 s after the page opens */
 .preset-attn{animation:presetAttn 5s ease-in-out 1}
+/* Withdrawals tab: rule violations */
+.wd-err{color:#e05555;font-size:10px;line-height:1.25;max-width:150px;margin:2px 0 0 auto;text-align:right;white-space:normal;font-family:var(--font-b)}
 @keyframes presetAttn{
   0%,100%{box-shadow:0 0 0 0 rgba(240,193,66,0)}
   15%{border-color:#f0c142;color:#f0c142;box-shadow:0 0 0 4px rgba(240,193,66,.45)}
@@ -1947,6 +1949,10 @@ en:{
   'wd.col.ret.start':'Asset at Retirement Start (SEK)',
   'wd.col.ret.end':'Asset at Retirement End (SEK)',
   'wd.col.ws':'Wdrl Start (Age)','wd.col.we':'Wdrl End (Age)',
+  'wd.err.state3':'Earliest withdrawal is 3 years before target age (age {age})',
+  'wd.err.target':'Earliest withdrawal is target age (age {age})',
+  'wd.err.pins':'Earliest withdrawal is age {age}',
+  'wd.err.min':'Shortest withdrawal time is {n} years',
   'wd.col.period.prefix':'Withdrawal ',
   'wd.chart.age':'Age','wd.chart.year':'Year',
   'wd.badge.before.tax':'BEFORE TAX','wd.badge.after.tax':'AFTER TAX',
@@ -2441,6 +2447,10 @@ sv:{
   'wd.col.ret.start':'Tillgångar vid pensionstart (SEK)',
   'wd.col.ret.end':'Tillgångar vid pensionsslut (SEK)',
   'wd.col.ws':'Uttag start (ålder)','wd.col.we':'Uttag slut (ålder)',
+  'wd.err.state3':'Tidigast uttag är 3 år före riktåldern (ålder {age})',
+  'wd.err.target':'Tidigast uttag är riktåldern (ålder {age})',
+  'wd.err.pins':'Tidigast uttag är ålder {age}',
+  'wd.err.min':'Kortaste uttagstid är {n} år',
   'wd.col.period.prefix':'Uttag ',
   'wd.chart.age':'Ålder','wd.chart.year':'År',
   'wd.badge.before.tax':'FÖRE SKATT','wd.badge.after.tax':'EFTER SKATT',
@@ -3013,6 +3023,48 @@ const OCC_SCHEMES = {
   pa16a1: {opt:'occ.opt.pa16a1', name:'PA16 Avd 1',       born:[1988,9999], prem:{r1:6.2, r2:31.7, cap:OCC_NO_CAP, from:18, to:66}}
 };
 const OCC_SCHEME_ORDER = ['itp1','itp2','saflo','kapkl','akapkr','pa16a2','pa16a1'];
+
+// Withdrawal rules per pension (Withdrawals tab): earliest start age, default start age, shortest
+// planned withdrawal time in years. Verify yearly. PA16 Avd 2 earliest age depends on birth year
+// (61 if born 1965 or earlier, else 63). Individual pension account: default start = target age.
+const WD_RULES = {
+  itp1:{from:55,def:66,min:5}, itp2:{from:55,def:65,min:5}, saflo:{from:55,def:65,min:5},
+  kapkl:{from:61,def:67,min:10}, akapkr:{from:62,def:70,min:10},
+  pa16a2:{from:null,def:72,min:5}, pa16a1:{from:63,def:72,min:5},
+  individual:{from:55,def:null,min:5}
+};
+function wdBirthYear(){ return Math.round(getParam('birthYear')) || 1971; }
+function wdTargetAge(){ return getRiktalder(wdBirthYear()) || 65; }
+// → {kind:'pins'|'target'|'target3', from, def, min} or null (no rule)
+function wdRule(a){
+  if(!a) return null;
+  var by = wdBirthYear(), tgt = wdTargetAge();
+  if(a.type === 'state'){
+    if(a.benefitKind === 'garanti' || a.benefitKind === 'ipt') return {kind:'target', from:tgt, def:tgt, min:0};
+    if(a.delningstalScope === 'premie' || a.delningstalScope === 'inkomst') return {kind:'target3', from:tgt - 3, def:null, min:0};
+    return null;
+  }
+  if(a.type !== 'p-ins') return null;
+  var r = WD_RULES[a.scheme || 'individual'];
+  if(!r) return null;
+  var from = a.scheme === 'pa16a2' ? (by <= 1965 ? 61 : 63) : r.from;
+  return {kind:'pins', from:from, def:r.def != null ? r.def : tgt, min:a.db ? 0 : r.min};
+}
+// Default Wdrl Start year: the rule's default age, else the retirement year
+function wdDefaultYear(a){
+  var r = wdRule(a);
+  return r && r.def != null ? wdBirthYear() + r.def : Math.round(getParam('retirementYear'));
+}
+// Red messages for the Wdrl Start / Wdrl End cells ({ws, we}, null = fine)
+function wdRuleErrors(a){
+  var out = {ws:null, we:null}, r = wdRule(a);
+  if(!r) return out;
+  if(a.ws < 9999 && a.ws - wdBirthYear() < r.from)
+    out.ws = t(r.kind === 'target3' ? 'wd.err.state3' : r.kind === 'target' ? 'wd.err.target' : 'wd.err.pins', {age:r.from});
+  if(r.kind === 'pins' && r.min && isPlannedPIns(a) && a.ws < 9999 && a.we < 9998 && a.we - a.ws < r.min)
+    out.we = t('wd.err.min', {n:r.min});
+  return out;
+}
 
 // PA16 Avd 2 premium: Kåpan 2 % + PA_indiv 4.2 % (3.2 % if born before 1965).
 function occPremRates(key, birthYear){
@@ -7569,7 +7621,7 @@ function setPInsPayout(ai, mode){
     if(a.useDelningstal) return;
     a._plannedWe = a.we;
     a.useDelningstal = true; a.delningstalMode = 'tjp'; a.delningstalScope = 'tjp'; a.actuarial = true;
-    if(!(a.ws < 9999)) a.ws = Math.round(getParam('retirementYear'));
+    if(!(a.ws < 9999)) a.ws = wdDefaultYear(a);
     a.we = 9998;
   } else {
     if(!a.useDelningstal) return;
@@ -7907,7 +7959,7 @@ function buildWdTable(){
           _wdDefault = Math.round(estVal(a) / (a.we - a.ws));
         }
         tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'wd',_wdDefault,90);
-        if(a.type==='p-ins' && a.scheme) tr+=occPayoutToggle(ai, a);
+        if(a.type==='p-ins' && !a.db) tr+=occPayoutToggle(ai, a);
         // "Use delningstal" toggle only for state accounts with 'custom' scope
         // (Inkomst/Premie-scope accounts always stay on delningstal, so the
         // toggle is hidden — there's no way to turn delningstal off for them).
@@ -7921,10 +7973,11 @@ function buildWdTable(){
         }
         tr+='</td>';
       }
-      tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'ws',a.ws,70)+'</td>';
+      var _wdErr = wdRuleErrors(a);
+      tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'ws',a.ws,70,_wdErr.ws)+'</td>';
       tr+= (a.db || a.type==='state' || (a.type==='p-ins' && a.useDelningstal))
         ? '<td '+TD+'><span style="color:var(--muted)" title="'+t('occ.payout.lifelong')+'">\u221e</span></td>'
-        : '<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'we',a.we,70)+'</td>';
+        : '<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'we',a.we,70,_wdErr.we)+'</td>';
       ivs.forEach(function(iv,pidx){ tr+=wdCell(a,iv,pidx); });
       tr+='</tr>';
       rows+=tr;
@@ -8181,9 +8234,9 @@ function setWithdrawalShare(ai, share){
   recalc();
 }
 
-function wdInputHtml(ai, field, val, width){
+function wdInputHtml(ai, field, val, width, err){
   var w = width || 90;
-  var s = 'background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--gold);text-align:right;padding:2px 5px;font-size:12px;font-family:var(--font-m);width:'+w+'px';
+  var s = 'background:var(--s3);border:1px solid '+(err?'#e05555':'var(--border)')+';border-radius:3px;color:var(--gold);text-align:right;padding:2px 5px;font-size:12px;font-family:var(--font-m);width:'+w+'px';
   var isYearField = field==='ws'||field==='we';
   var display;
   if(val===9999||val===undefined||val===null){
@@ -8197,7 +8250,8 @@ function wdInputHtml(ai, field, val, width){
   }
   return '<input type="text" inputmode="numeric" value="'+display+'" style="'+s+'" '
     +'data-ai="'+ai+'" data-field="'+field+'" '
-    +'onchange="wdInputChange(this)">';
+    +'onchange="wdInputChange(this)">'
+    +(err?'<div class="wd-err">'+err+'</div>':'');
 }
 function wdInputChange(el){
   var ai    = parseInt(el.getAttribute('data-ai'));
@@ -8673,6 +8727,10 @@ function addAccount(type, scheme){
     customDelningstal: 17.26,
     wdShare: 1   // 100% utbetalningsgrad by default
   };
+  if(type === 'p-ins'){
+    // Individual pension account: lifelong from the target age (Planned/Lifelong toggle on the Withdrawals tab)
+    Object.assign(newA, {useDelningstal:true, delningstalMode:'tjp', delningstalScope:'tjp', actuarial:true, ws:wdDefaultYear(newA), we:9998});
+  }
   var lastIdx=-1;
   accounts.forEach(function(a,i){if(a.type===type) lastIdx=i;});
   accounts.splice(lastIdx>=0?lastIdx+1:accounts.length, 0, newA);
@@ -8691,7 +8749,7 @@ function addOccScheme(key){
     cs: by + Math.max(workStartAge(), sc.prem.from), ce: retY,
     openAuto:true,
     useDelningstal:true, delningstalMode:'tjp', delningstalScope:'tjp', actuarial:true,
-    wd:0, ws:retY, we:9998,
+    wd:0, ws:by + WD_RULES[key].def, we:9998,
     eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:0.00375,
     fixedRet:null, fixedRetPost:null,
     contribSalary:true, cRate1:rates.r1, cIBB1:7.5, cIBB2:rates.cap, cRate2:rates.r2,
@@ -8702,7 +8760,7 @@ function addOccScheme(key){
       name: sc.dbName + ' – ' + t('occ.name.db'), scheme: key, db: sc.db,
       serviceYears: Math.max(0, Math.min(30, (retY - by) - 28)),
       type:'p-ins', opening:0, contrib:0, cs:9999, ce:9999,
-      wd:0, ws:retY, we:9998,
+      wd:0, ws:by + WD_RULES[key].def, we:9998,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
       taxable:true, wdShare:1
@@ -8743,7 +8801,8 @@ function addStateAccount(kind){
     row = {
       name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
       benefitKind:kind, civ:0, ftid:40,
-      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY) : 9999, ce: auto ? retY : 9999, wd:0, ws:retY, we:9998,
+      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY) : 9999, ce: auto ? retY : 9999, wd:0,
+      ws: (kind === 'garanti' || kind === 'ipt') ? by + (getRiktalder(by) || 65) : retY, we:9998,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
       taxable:true, wdShare:1
@@ -10483,6 +10542,7 @@ function collectPlanState(){
   return {
     version: 3,
     assumptionsV: 2,   // saved with the Typfallsmodellen default assumptions (1,9 % returns)
+    wdRulesV: 1,       // saved with the per-scheme default withdrawal start ages (WD_RULES)
     savedAt: new Date().toISOString(),
     inputs: inputs,
     expenses: JSON.parse(JSON.stringify(expenses)),
@@ -10540,6 +10600,9 @@ function applyPlanState(state){
       // Premium pension default fund (AP7 Såfa) fee is 0,04 %; older saves carry the old 0,10 % default
       if(a.type === 'state' && a.delningstalScope === 'premie' && !a.ownEq && a.mgmt === 0.001) a.mgmt = 0.0004;
       if(a.type === 'state') a.we = 9998;   // state pensions are always lifelong
+      // Older saves: scheme accounts still on the old default start (= retirement year) get the scheme's default age
+      if(!(state.wdRulesV >= 1) && a.type === 'p-ins' && a.scheme && (a.db || a.useDelningstal) && a.ws === Math.round(getParam('retirementYear')))
+        a.ws = wdBirthYear() + WD_RULES[a.scheme].def;
       accounts.push(a);
     });
     buildAccountsTable();
@@ -10712,6 +10775,7 @@ function planTypical1980(){
   EXPENSES_INIT.forEach(function(e){ expenses.push({name:e.name, val:e.val}); });
   var retY = Math.round(getParam('retirementYear'));
   addOccScheme('itp1');
+  accounts.forEach(function(a){ if(a.scheme === 'itp1') a.ws = retY; });   // typical case: ITP 1 from the retirement age
   addStateAccount('premie');
   addStateAccount('inkomst');
   _planRebuild();
