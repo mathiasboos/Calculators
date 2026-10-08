@@ -1949,6 +1949,8 @@ en:{
   'wd.col.ret.start':'Asset at Retirement Start (SEK)',
   'wd.col.ret.end':'Asset at Retirement End (SEK)',
   'wd.col.ws':'Wdrl Start (Age)','wd.col.we':'Wdrl End (Age)',
+  'acc.ce.max':'Max age {age} for {name}',
+  'acc.ce.max.tip':'{name} pays no premiums from age {age}, so contributions end at age {age} even though the retirement age is later.',
   'wd.err.state3':'Earliest withdrawal is 3 years before target age (age {age})',
   'wd.err.target':'Earliest withdrawal is target age (age {age})',
   'wd.err.pins':'Earliest withdrawal is age {age}',
@@ -2447,6 +2449,8 @@ sv:{
   'wd.col.ret.start':'Tillgångar vid pensionstart (SEK)',
   'wd.col.ret.end':'Tillgångar vid pensionsslut (SEK)',
   'wd.col.ws':'Uttag start (ålder)','wd.col.we':'Uttag slut (ålder)',
+  'acc.ce.max':'Högsta ålder {age} för {name}',
+  'acc.ce.max.tip':'{name} betalar ingen premie från ålder {age}, så inbetalningarna slutar vid {age} år trots att pensionsåldern är senare.',
   'wd.err.state3':'Tidigast uttag är 3 år före riktåldern (ålder {age})',
   'wd.err.target':'Tidigast uttag är riktåldern (ålder {age})',
   'wd.err.pins':'Tidigast uttag är ålder {age}',
@@ -3054,6 +3058,35 @@ function wdRule(a){
 function wdDefaultYear(a){
   var r = wdRule(a), retY = Math.round(getParam('retirementYear'));
   return r ? Math.max(retY, wdBirthYear() + r.from) : retY;
+}
+// Contribution end: first age with no premium, from occPremium (ITP 1 66, ITP 2 / SAF-LO 65, KAP-KL 67,
+// PA16 Avd 2 69, PA16 Avd 1 67; AKAP-KR has no cap). Verify with occPremium yearly.
+const CE_MAX = {itp1:66, itp2:65, saflo:65, kapkl:67, pa16a2:69, pa16a1:67};
+function ceMaxYear(a){
+  return a && a.scheme && !a.db && CE_MAX[a.scheme] ? wdBirthYear() + CE_MAX[a.scheme] : null;
+}
+// Contrib End default = retirement year, but not after the scheme's last premium age
+function ceDefaultYear(a){
+  var retY = Math.round(getParam('retirementYear')), m = ceMaxYear(a);
+  return m ? Math.min(retY, m) : retY;
+}
+// State + P-insurance accounts flagged ceAuto (until the user edits Contrib End) follow the Personal tab
+function ceSyncEnd(){
+  var changed = false;
+  accounts.forEach(function(a){
+    if(!a.ceAuto || !(a.ce < 9999)) return;
+    var y = ceDefaultYear(a);
+    if(a.ce !== y){ a.ce = y; changed = true; }
+    if(a.cs > a.ce){ a.cs = a.ce; changed = true; }
+  });
+  return changed;
+}
+// Red note under Contrib End when the scheme's last premium age is the binding limit
+function ceNote(a){
+  var m = ceMaxYear(a);
+  if(!m || a.ce !== m) return '';
+  if(!(Math.round(getParam('retirementYear')) > m || a.ceClamped)) return '';
+  return '<div class="wd-err" title="'+t('acc.ce.max.tip',{name:a.name,age:m - wdBirthYear()}).replace(/"/g,'&quot;')+'">'+t('acc.ce.max',{name:a.name,age:m - wdBirthYear()})+'</div>';
 }
 // Accounts flagged wsAuto (state + P-insurance, until the user edits Wdrl Start) follow the Personal tab
 function wdSyncStart(){
@@ -4047,6 +4080,7 @@ accounts.forEach(function(a){
 // Pension accounts' Wdrl Start follows the Personal-tab retirement age (not before the earliest allowed age)
 accounts.forEach(function(a){
   if((a.type === 'state' || a.type === 'p-ins') && a.ws < 9999){ a.wsAuto = true; a.ws = wdDefaultYear(a); }
+  if((a.type === 'state' || a.type === 'p-ins') && a.ce < 9999){ a.ceAuto = true; a.ce = ceDefaultYear(a); }
 });
 persTrack();
 
@@ -4991,7 +5025,7 @@ function buildAccountsTable(){
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
         ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
         ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60)
-          + col(i,'ce',a.ce,1,60)
+          + col(i,'ce',a.ce,1,60).replace(/<\/td>$/, ceNote(a) + '</td>')
           + ((isOccPremiumAcc(a) && a.ownEq) ? col(i,'eq1',a.eq1,0.1,60) + col(i,'eq2',a.eq2,0.1,60) + col(i,'eq3',a.eq3,0.1,60)
               + col(i,'mgmt',a.mgmt,0.01,60) + occLockedCells(a, true)
           : (isOccPremiumAcc(a) || isIpEngineAcc(a)) ? occLockedCells(a) :
@@ -8087,6 +8121,7 @@ function persApplyAges(){
   document.getElementById('retirementYear').value = by + ra;
   document.getElementById('lifeYear').value = by + la;
   var _wsCh = wdSyncStart();
+  _wsCh = ceSyncEnd() || _wsCh;
   if(persRelinkAccounts() || _wsCh){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
   updateRetirementHint();
   recalc();
@@ -8147,6 +8182,7 @@ function onWorkAgeChange(){
 
 function onRetirementYearChange(){
   wdSyncStart();
+  if(ceSyncEnd()){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
   updateRetirementHint();
   recalc();
 }
@@ -8634,6 +8670,13 @@ function updateAccountField(i, field, rawVal){
       accounts[i][field] = _by + age;
       if(inp) inp.value = String(age);  // keep showing age
     }
+    if(field === 'ce'){
+      var _a = accounts[i], _m = ceMaxYear(_a);
+      _a.ceAuto = false;                     // typed: stop following the Personal tab
+      _a.ceClamped = false;
+      if(_m && _a.ce < 9999 && _a.ce > _m){ _a.ce = _m; _a.ceClamped = true; }   // not past the scheme's last premium age
+      buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
+    }
   } else {
     var n = parseFloat(rawVal.replace(',','.'));
     accounts[i][field] = isNaN(n) ? (rawVal==='—'?9999:null) : n;
@@ -8733,7 +8776,7 @@ function addAccount(type, scheme){
   var ytDef = type==='after'?0.0105:type==='p-ins'?0.00375:0.000;
   var newA = {
     name: type==='after'?'New After-Tax Account':type==='p-ins'?'New Pension Account':'New State Account',
-    type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(),
+    type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(), ceAuto: type!=='after',
     wd:0, ws:9999, we: type==='state' ? 9998 : 9999,   // state pensions are lifelong
     eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:ytDef,
     fixedRet:null, fixedRetPost:null,
@@ -8763,7 +8806,7 @@ function addOccScheme(key){
   var rows = [{
     name: sc.name, scheme: key,
     type:'p-ins', opening:0, contrib:0,
-    cs: by + Math.max(workStartAge(), sc.prem.from), ce: retY,
+    cs: by + Math.max(workStartAge(), sc.prem.from), ce: retY, ceAuto:true,
     openAuto:true,
     useDelningstal:true, delningstalMode:'tjp', delningstalScope:'tjp', actuarial:true,
     wd:0, ws:retY, wsAuto:true, we:9998,
@@ -8783,7 +8826,7 @@ function addOccScheme(key){
       taxable:true, wdShare:1
     });
   }
-  rows.forEach(function(r){ r.ws = wdDefaultYear(r); });
+  rows.forEach(function(r){ r.ws = wdDefaultYear(r); if(r.ceAuto) r.ce = ceDefaultYear(r); });
   var lastIdx=-1;
   accounts.forEach(function(a,i){if(a.type==='p-ins') lastIdx=i;});
   Array.prototype.splice.apply(accounts, [lastIdx>=0?lastIdx+1:accounts.length, 0].concat(rows));
@@ -8812,14 +8855,14 @@ function addStateAccount(kind){
     var tpl = ACCOUNTS_INIT.filter(function(x){ return x.nameKey === key; })[0];
     row = Object.assign({}, tpl, {
       opening:0, openAuto:true, contrib:0, wd:0,
-      cs: Math.min(by + workStartAge(), retY), ce: retY, ws: retY, wsAuto:true, we: 9998
+      cs: Math.min(by + workStartAge(), retY), ce: retY, ceAuto:true, ws: retY, wsAuto:true, we: 9998
     });
   } else {
     var auto = kind === 'garanti' || kind === 'ipt' || kind === 'tillagg';
     row = {
       name: t('st.opt.' + kind), nameKey:'st.opt.' + kind, type:'state', benefit:true, delningstalScope:'benefit',
       benefitKind:kind, civ:0, ftid:40,
-      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY) : 9999, ce: auto ? retY : 9999, wd:0,
+      opening:0, contrib:0, cs: auto ? Math.min(by + workStartAge(), retY) : 9999, ce: auto ? retY : 9999, ceAuto: auto, wd:0,
       ws: retY, wsAuto:true, we:9998,
       eq1:0, eq2:0, eq3:0, mgmt:0, yt:0, fixedRet:null, fixedRetPost:null,
       contribSalary:false, cRate1:0, cIBB1:7.5, cIBB2:30, cRate2:0,
@@ -10561,6 +10604,7 @@ function collectPlanState(){
   return {
     version: 3,
     assumptionsV: 2,   // saved with the Typfallsmodellen default assumptions (1,9 % returns)
+    ceRulesV: 1,       // saved with Contrib End following the retirement age (ceAuto) and CE_MAX
     wdRulesV: 2,       // saved with Wdrl Start following the retirement age (wsAuto) and WD_RULES
     savedAt: new Date().toISOString(),
     inputs: inputs,
@@ -10625,9 +10669,11 @@ function applyPlanState(state){
         var _oldDef = {itp1:66,itp2:65,saflo:65,kapkl:67,akapkr:70,pa16a2:72,pa16a1:72}[a.scheme];
         if(a.ws === Math.round(getParam('retirementYear')) || (_oldDef && a.ws === wdBirthYear() + _oldDef)) a.wsAuto = true;
       }
+      if(!(state.ceRulesV >= 1) && (a.type === 'state' || a.type === 'p-ins') && a.ce < 9999 && a.cs < 9999 &&
+         (a.ce === Math.round(getParam('retirementYear')) || a.ce === ceMaxYear(a))) a.ceAuto = true;
       accounts.push(a);
     });
-    wdSyncStart();
+    wdSyncStart(); ceSyncEnd();
     buildAccountsTable();
   }
   pgbItems.length = 0;

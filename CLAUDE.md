@@ -191,7 +191,7 @@ published, replace the workbook and re-verify everything below.
 - `planTypical1980()` — ITP 1, born 1980, 40 000 kr/month, retirement at riktålder (68),
   life year 2075, typical pensioner expenses (`EXPENSES_INIT`, 18 400 kr/month), ITP 1 +
   Premiepension + Inkomstpension with automatic (Typfallsmodellen) openings. ITP 1 Contrib End
-  shows 68, but `occPremium` stops ITP 1 premiums at 66 from 2023 (workbook rule)
+  is 66 (`CE_MAX`; `occPremium` stops ITP 1 premiums at 66 from 2023, workbook rule)
 - Personal tab works in ages: Begin work at age (`#workStartAge`, default 23), Retirement Age
   (`#retirementAge`, tick box `#retTargetAge` = follow riktålder) and Life Expectancy Age
   (`#lifeAge`, default 95). The hidden `#retirementYear` / `#lifeYear` stay the engine's source
@@ -248,6 +248,13 @@ published, replace the workbook and re-verify everything below.
   `onRetirementYearChange` / restore, and typing a Wdrl Start clears `wsAuto`. New schemes start lifelong (∞); the
   Individual pension account is lifelong by default and has the Planned/Lifelong toggle. Saves carry `wdRulesV: 2`;
   older saves flag accounts still on the retirement year (or the first version's per-scheme ages) as `wsAuto`
+- Contrib End (Assets tab) of every state and P-insurance account with a contribution window follows the Personal-tab
+  retirement age (`ceAuto`, `ceSyncEnd()` from `persApplyAges` / `onRetirementYearChange` / restore), capped at the
+  scheme's last premium age `CE_MAX` (ITP 1 66, ITP 2 and SAF-LO 65, KAP-KL 67, PA16 Avd 2 69, PA16 Avd 1 67; AKAP-KR and
+  the Individual account have no cap; verify with `occPremium` yearly). A red `.wd-err` note "Max age N for <scheme>" shows
+  under the field while the cap is the binding limit. Typing a Contrib End stops the following; a typed age above the cap is
+  set to the cap (`ceClamped`, note shown). Saves carry `ceRulesV: 1`; older saves flag accounts still on the retirement
+  year (or the cap) as `ceAuto`. After-tax accounts keep the older `persRelinkAccounts` behaviour
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
