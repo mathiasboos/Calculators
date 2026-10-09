@@ -2008,6 +2008,7 @@ en:{
   'pv.col.item':'Item',
   'pv.row.open':'Opening balance','pv.row.contrib':'Contribution',
   'pv.row.wdrl':'Withdrawal','pv.row.ret':'Portfolio return',
+  'pv.row.contrib.at':'Contrib. aft tax acc','pv.row.contrib.bt':'Contrib. bef tax acc','pv.row.contrib.bt.tip':'P-insurance and state accounts, valued after estimated tax like their balances (Tax adjusted view)',
   'pv.row.wdrl.at':'Withdr aft tax acc','pv.row.wdrl.bt':'Withdr bef tax acc','pv.row.wdrl.bt.tip':'P-insurance and state accounts, shown after estimated tax (Tax adjusted view)',
   'pv.row.yt':'Yield tax','pv.row.mf':'Management fee','pv.row.mf.short':'Mgmt fee',
   'pv.row.close':'Closing balance',
@@ -2519,6 +2520,7 @@ sv:{
   'pv.col.item':'Post',
   'pv.row.open':'Ingående saldo','pv.row.contrib':'Insättning',
   'pv.row.wdrl':'Uttag','pv.row.ret':'Avkastning',
+  'pv.row.contrib.at':'Insättning efterskattekonton','pv.row.contrib.bt':'Insättning förskattade konton','pv.row.contrib.bt.tip':'P-försäkring och statliga konton, värderade efter beräknad skatt som saldona (vyn Skattejusterad)',
   'pv.row.wdrl.at':'Uttag efterskattekonton','pv.row.wdrl.bt':'Uttag förskattade konton','pv.row.wdrl.bt.tip':'P-försäkring och statliga konton, visade efter beräknad skatt (vyn Skattejusterad)',
   'pv.row.yt':'Avkastningsskatt','pv.row.mf':'Förvaltningsavgift','pv.row.mf.short':'Förv.avg.',
   'pv.row.close':'Utgående saldo',
@@ -8462,6 +8464,18 @@ function buildPortfolioTab(){
     if(_taxAdj) bef *= _netFactorFor(y);
     return {aft: aft, bef: bef};
   }
+  // Contributions of one year, same split; Tax adjusted values the pre-tax accounts after tax like their balances (flat municipal rate)
+  function pvContribSplit(y){
+    var aft = 0, bef = 0;
+    accounts.forEach(function(a, ai){ var d = y.accDetail && y.accDetail[ai]; var c = d ? (d.contrib||0) : 0; if(a.type === 'after') aft += c; else bef += c * taxFactor(a); });
+    return {aft: aft, bef: bef};
+  }
+  // One account's contribution / withdrawal as displayed (table and chart): pre-tax accounts follow the Tax adjusted switch
+  function pvAccFlow(a, y, key){
+    var d = y.accDetail && y.accDetail[accounts.indexOf(a)]; var v = d ? (d[key]||0) : 0;
+    if(a.type === 'after' || !_taxAdj) return v;
+    return key === 'wdrl' ? v * _netFactorFor(y) : key === 'contrib' ? v * taxFactor(a) : v;
+  }
   // Apply factor only to balance rows (open/close), not flows
   function adjVal(v, key, a){
     if(key==='open'||key==='close') return Math.round(v * taxFactor(a));
@@ -8482,7 +8496,8 @@ function buildPortfolioTab(){
     var sumKey = function(y, k){ return accounts.reduce(function(s,a,ai2){ var d=y.accDetail&&y.accDetail[ai2]; var raw=d?(d[k]||0):0; return s + ((k==='open'||k==='close') ? raw*taxFactor(a) : raw); },0); };
     var ROWS2 = [
       {label:t('pv.row.open'),    color:'var(--text)', bold:true,  val:function(y){ return sumKey(y,'open'); }},
-      {label:t('pv.row.contrib'), color:'#48B866',     bold:false, val:function(y){ return sumKey(y,'contrib'); }},
+      {label:t('pv.row.contrib.at'), color:'#48B866',  bold:false, val:function(y){ return pvContribSplit(y).aft; }},
+      {label:t('pv.row.contrib.bt'), color:'#48B866',  bold:false, val:function(y){ return pvContribSplit(y).bef; }, tip:_taxAdj ? t('pv.row.contrib.bt.tip') : ''},
       {label:t('pv.row.wdrl.at'), color:'#FF5B2E',     bold:false, val:function(y){ return pvWdrlSplit(y).aft; }},
       {label:t('pv.row.wdrl.bt'), color:'#FF5B2E',     bold:false, val:function(y){ return pvWdrlSplit(y).bef; }, tip:_taxAdj ? t('pv.row.wdrl.bt.tip') : ''},
       {label:t('pv.row.ret'),     color:'#4885C4',     bold:false, val:function(y){ return sumKey(y,'grossRet'); }},
@@ -8582,13 +8597,14 @@ function buildPortfolioTab(){
 
     // Row helper
     function row(label, key, color, bold){
+      var flow = (key==='contrib' || key==='wdrl');
       var s = bold ? TD_BOLD : TD;
       var tl = TD_L.replace('font-family:var(--font-m);','') + (bold?' font-weight:700;"':'');
       html += '<tr><td '+TD_L+(bold?' style="font-weight:700;padding:4px 10px;font-size:12px;color:'+color+'"':'')+'>'+label+'</td>';
       years.forEach(function(y){
         var d = y.accDetail && y.accDetail[ai];
         var rawV = d ? (d[key]||0) : 0;
-        var v = (key==='open'||key==='close') ? Math.round(rawV*taxFactor(a)) : Math.round(rawV);
+        var v = (key==='open'||key==='close') ? Math.round(rawV*taxFactor(a)) : flow ? Math.round(pvAccFlow(a, y, key)) : Math.round(rawV);
         var formatted = v===0 ? '<span style="color:rgba(0,0,0,0.25)">0</span>' : fmtN(v);
         var colorStyle = bold ? 'color:'+color+';font-weight:700' : '';
         html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap;'+colorStyle+'">'+formatted+'</td>';
@@ -8597,8 +8613,9 @@ function buildPortfolioTab(){
     }
 
     row(t('pv.row.open'),   'open',     'var(--text)', true);
-    row(t('pv.row.contrib'),'contrib',  '#48B866',    false);
-    row(t('pv.row.wdrl'),   'wdrl',    '#FF5B2E',    false);
+    var _aftAcc = a.type === 'after';
+    row(t(_aftAcc ? 'pv.row.contrib.at' : 'pv.row.contrib.bt'),'contrib',  '#48B866',    false);
+    row(t(_aftAcc ? 'pv.row.wdrl.at' : 'pv.row.wdrl.bt'),      'wdrl',    '#FF5B2E',    false);
     row(t('pv.row.ret'),    'grossRet', '#4885C4',    false);
     row(t('pv.row.yt'),     'yieldTax','#48B866',    false);
     row(t('pv.row.mf'),     'mgmtFee', '#48B866',    false);
@@ -8617,7 +8634,7 @@ function buildPortfolioTab(){
     var _tf = taxFactor(ca);
     var ds_contrib  = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?Math.round((d.contrib||0)*_tf):0; });
     var ds_return   = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?Math.round((d.grossRet||0)*_tf):0; });
-    var ds_wd       = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?-Math.round((d.wdrl||0)*_tf):0; });
+    var ds_wd       = years.map(function(y){ return -Math.round(pvAccFlow(ca, y, 'wdrl')); });
     var ds_yt       = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?-Math.round((d.yieldTax||0)*_tf):0; });
     var ds_mf       = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?-Math.round((d.mgmtFee||0)*_tf):0; });
     var ds_closing  = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?Math.round((d.close||0)*_tf):0; });
