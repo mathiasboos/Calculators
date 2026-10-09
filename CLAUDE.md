@@ -166,11 +166,12 @@ published, replace the workbook and re-verify everything below.
   contribution start of the IP/PP/underlag accounts. Data to extend yearly: `PGB_DATA` (MPGI,
   study grant per term). The workbook's study/conscription cell formulas could not be read
   (xlsb), so the 1.38 factor and days/365 are inferred from the sheet's cached values; no
-  oracle (the HTML port has no PGB inputs). Not modelled: forward premium-pension contributions
-  from PGB (planner's own salary-based contribution), KPI scaling of the first child's PGI
+  oracle (the HTML port has no PGB inputs). Not modelled: KPI scaling of the first child's PGI
 - Assets tab Contribution cell of state accounts: Income pension shows "16 % of PGI (93 % of salary, up to 8,07 IBB)" (`ip.rule`), Premium pension (`isPpAutoAcc`) shows "2,5 % of PGI (93 % of salary, up to 8,07 IBB)"
-  (`pp.rule`) with no Fixed/Salary buttons. The projection's forward premium pension contribution is `ppSalaryContrib` = 2.5 % × min(93 % of salary, 7.5 IBB) (same as 8,07 IBB of salary; replaces the old
-  editable 2,32 % × salary rate, also used by `effectiveContrib` / `updatePInsSEK`); the balance still follows the account's own funds, fees and equity share
+  (`pp.rule`) with no Fixed/Salary buttons. The text is only an explanation (0,93 × 8,07 is not exactly 7,5 IBB). The projection's forward premium pension contribution is the workbook's `ppRatt(_occ, a, yr) × ppRgk(yr)`:
+  2,5 % of PGI (93 % of the PREVIOUS year's income, capped at 7,5 IBB, incl. PGB and `andelNya`), credited at year end in the year AFTER the income (income year `yr−1` inside the account's Contrib window, before retirement,
+  so the last right is credited in the retirement year), with the RGK interest of the year; same helper as the history and the Assets cell / `effectiveContrib` (no monthly growth of the contribution, as in `ppStep`).
+  Replaced the old editable 2,32 % × salary rate. ITP1/1980/40 000: age 68 total tax 120 195
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
   Premiepension (auto opening), Garantipension / Inkomstpensionstillägg / Tilläggspension (all calculated,
   see above), Annat (generic)

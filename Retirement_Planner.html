@@ -3805,8 +3805,6 @@ function engineStep(a, ctx, opening, contrib, y, frac){
   }
   return null;
 }
-// Forward premium pension contribution: 2.5 % of PGI (PGI = 93 % of salary, capped at 7.5 IBB = 8.07 IBB of salary)
-function ppSalaryContrib(annSalary, ibb){ return Math.min(0.93 * annSalary, 7.5 * ibb) * 0.025; }
 function isIpEngineAcc(a){
   return !!(a && a.type === 'state' && a.delningstalScope === 'inkomst' && a.ipEngine !== false);
 }
@@ -4410,7 +4408,7 @@ function renderPInsContrib(i, a){
       +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px" title="'+t('pp.rule.tip')+'">'+t('pp.rule')+'</div>'
       +'<div id="pins-sek-'+i+'" style="margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,0.1);'
       +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
-      +'\u2248 '+Math.round(ppSalaryContrib(grossSal('grossSalPre66')*12, ibb)).toLocaleString('sv-SE')+' kr/yr</div></td>';
+      +'\u2248 '+Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1)).toLocaleString('sv-SE')+' kr/yr</div></td>';
   }
   // Scheme accounts follow the agreement's rules: show them, don't offer editing.
   if(a.scheme && OCC_SCHEMES[a.scheme] && !a.db){
@@ -4528,7 +4526,7 @@ function updatePInsSEK(i){
   var b2  = (a.cIBB2 != null ? a.cIBB2 : 30.0) * ibb;
   var r1  = a.cRate1 != null ? a.cRate1 : 4.5;
   var r2  = a.cRate2 != null ? a.cRate2 : 30;
-  var sek = isPpAutoAcc(a) ? Math.round(ppSalaryContrib(sal, ibb))
+  var sek = isPpAutoAcc(a) ? Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1))
     : a.type==='state'
     ? Math.round(Math.min(sal,b1)*r1/100)
     : Math.round(Math.min(sal,b1)*r1/100 + Math.max(0,Math.min(sal,b2)-b1)*r2/100);
@@ -4540,7 +4538,7 @@ function updatePInsSEK(i){
 
 // ── Effective contribution (Fixed or Salary-based) ─────────────────────
 function effectiveContrib(a){
-  if(isPpAutoAcc(a)) return Math.round(ppSalaryContrib(grossSal('grossSalPre66') * 12, getParam('ibb') || 83400));
+  if(isPpAutoAcc(a)) return Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1));
   if(a.contribSalary){
     var ibb = getParam('ibb') || 83400;
     var sal = grossSal('grossSalPre66') * 12;
@@ -5690,7 +5688,10 @@ function runProjection(){
         } else if(isIpEngineAcc(a)){
           // Pension right for the previous year's income, credited this year
           contrib = ipRatt(_occ, a, yr);
-        } else if((a.type==='p-ins'||a.type==='state') && (a.contribSalary || isPpAutoAcc(a)) && yr>=a.cs && yr<=a.ce && yr<params.retirementYear){
+        } else if(isPpAutoAcc(a)){
+          // Typfallsmodellen (VBA ppavgift/PP_pbh): 2.5 % of PGI from the PREVIOUS year's income, credited this year with RGK interest
+          contrib = ppRatt(_occ, a, yr) * ppRgk(yr);
+        } else if((a.type==='p-ins'||a.type==='state') && a.contribSalary && yr>=a.cs && yr<=a.ce && yr<params.retirementYear){
           const ibb        = getParam('ibb')||83400;
           // Age-based salary selection
     const _salAgeThresh = params.allowanceAge || 67;
@@ -5707,7 +5708,7 @@ function runProjection(){
           const _r1 = a.cRate1 != null ? a.cRate1 : 4.5;
           const _r2 = a.cRate2 != null ? a.cRate2 : 30;
           if(a.type==='state'){
-            var _annSalC = isPpAutoAcc(a) ? ppSalaryContrib(annSalary, ibb) : Math.min(annSalary,bracket1)*_r1/100;
+            var _annSalC = Math.min(annSalary,bracket1)*_r1/100;
             contrib = contribFactor>0 ? monthlyFV(_annSalC, calcReturn(a,age,params), a.yt||0, a.mgmt||0) : _annSalC;
           } else {
             var _annPinsC = (Math.min(annSalary,bracket1)*_r1/100
