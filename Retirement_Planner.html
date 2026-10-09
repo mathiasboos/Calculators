@@ -2093,7 +2093,7 @@ en:{
   'mc.wd.acct.info':'Data is collected from the Withdrawals tab and the ACCOUNT WITHDRAWALS PER PERIOD table.',
   'mc.wd.age.info':'Data is collected from the Withdrawals tab and the AGE-BASED EXPENSE INTERVALS table.',
   'sc.notice':'Assumes constant returns each year — no market volatility. Run Monte Carlo for a realistic range of outcomes.','mc.notice':'The Scenarios tab shows the same plan under constant-return assumptions — useful as a baseline before interpreting the probability distribution here.',
-  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
+  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\nReplacement Rate: green at 70 % or more, yellow from 50 to 70 %, red below 50 %.',
   'summary.at.ret':'At retirement · ',
   'tile.phasePension':'Monthly Pension · Age {from}–{to}',
   'tile.phase.vs':'Expenses {exp} kr/mth · after tax {net} kr/mth',
@@ -2604,7 +2604,7 @@ sv:{
   'mc.wd.acct.info':'Data hämtas från Uttag-fliken och tabellen KONTOUTTAG PER PERIOD.',
   'mc.wd.age.info':'Data hämtas från Uttag-fliken och tabellen ÅLDERSBASERADE UTGIFTSINTERVALL.',
   'sc.notice':'Antar konstant avkastning varje år — ingen marknadsvolatilitet. Kör Monte Carlo för ett realistiskt utfallsintervall.','mc.notice':'Scenarier-fliken visar samma plan med konstanta avkastningsantaganden — användbart som referenspunkt innan du tolkar sannolikhetsfördelningen här.',
-  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
+  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\nKompensationsgrad: grön vid 70 % eller mer, gul från 50 till 70 %, röd under 50 %.',
   'summary.at.ret':'Vid pension · ',
   'tile.phasePension':'Månadspension · Ålder {from}–{to}',
   'tile.phase.vs':'Utgifter {exp} kr/mån · efter skatt {net} kr/mån',
@@ -6602,7 +6602,7 @@ function renderMetricTiles(id, arr){
   if(!el) return;
   el.innerHTML = arr.map(function(t){
     return '<div class="metric-tile '+(t.tile||'')+(t.cls?' st-'+t.cls:'')+'">'
-         +   '<div class="tile-label" data-tip="'+(t.tip||t.sub||'')+'">'+t.label+'</div>'
+         +   '<div class="tile-label" data-tip="'+String(t.tip||t.sub||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+t.label+'</div>'
          +   '<div class="tile-value '+(t.cls||'')+'">'+t.val+'</div>'
          +   '<div class="tile-sub">'+t.sub+'</div>'
          +   (t.extra||'')
