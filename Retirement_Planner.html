@@ -270,6 +270,13 @@ header{
 .metric-tile.emerald::before{background:var(--emerald)}
 .metric-tile.rose::before{background:var(--rose)}
 .metric-tile.sky::before{background:var(--sky)}
+/* KPI status: the frame and the top bar follow the value colour (green / yellow / red) */
+.metric-tile.st-good,.metric-tile.st-good:hover{border-color:var(--emerald)}
+.metric-tile.st-warn,.metric-tile.st-warn:hover{border-color:var(--amber)}
+.metric-tile.st-bad,.metric-tile.st-bad:hover{border-color:var(--rose)}
+.metric-tile.st-good::before{background:var(--emerald)}
+.metric-tile.st-warn::before{background:var(--amber)}
+.metric-tile.st-bad::before{background:var(--rose)}
 .tile-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .tile-value{font-family:var(--font-m);font-size:clamp(1rem,7cqw,2rem);font-weight:600;color:var(--text);line-height:1.1;overflow-wrap:break-word;word-break:break-word}
 .tile-value.good{color:var(--emerald)}
@@ -6581,7 +6588,7 @@ function renderMetricTiles(id, arr){
   var el = document.getElementById(id);
   if(!el) return;
   el.innerHTML = arr.map(function(t){
-    return '<div class="metric-tile '+(t.tile||'')+'">'
+    return '<div class="metric-tile '+(t.tile||'')+(t.cls?' st-'+t.cls:'')+'">'
          +   '<div class="tile-label" data-tip="'+(t.tip||t.sub||'')+'">'+t.label+'</div>'
          +   '<div class="tile-value '+(t.cls||'')+'">'+t.val+'</div>'
          +   '<div class="tile-sub">'+t.sub+'</div>'

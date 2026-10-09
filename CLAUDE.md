@@ -286,6 +286,7 @@ published, replace the workbook and re-verify everything below.
 - Header: the plan dropdown sits to the left, right after the subtitle. The subtitle (`#hdr-sub`, `updateHeaderSub()` from `recalc`) reads "Constant Prices · Swedish Tax Rules"
   and turns into a red "Inflation x% · Swedish Tax Rules" when the Parameters-tab inflation is not 0. KPI colours: `.tile-value.good` green, `.warn` yellow (`--amber`; `--gold` is the
   brand green in this file), `.bad` red. Saving Goal Fulfilment: green ≥ 100 %, else yellow. Replacement Rate: green ≥ 70 %, yellow 50–70 %, red < 50 %
+- KPI tile frame and top bar follow the value colour: `renderMetricTiles` adds `st-good` / `st-warn` / `st-bad` from the tile's `cls` (CSS `.metric-tile.st-*`, green / yellow / red); tiles without `cls` keep the default
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
