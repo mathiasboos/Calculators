@@ -6513,7 +6513,6 @@ function updateCharts(data){
         {label:t('chart.ds.munTax'),   data:years.map(y=>Math.round((y.cTaxMun||0)/_taxDiv())),   backgroundColor:'rgba(233,184,74,.72)'},
         {label:t('chart.ds.stateTax'), data:years.map(y=>Math.round((y.cTaxState||0)/_taxDiv())), backgroundColor:'rgba(232,79,42,.72)'},
         {label:t('chart.ds.pubFee'),   data:years.map(y=>Math.round((y.cTaxFee||0)/_taxDiv())),   backgroundColor:'rgba(74,143,204,.65)'},
-        {label:t('chart.ds.pensFee'),  data:years.map(y=>Math.round((y.cTaxPens||0)/_taxDiv())),  backgroundColor:'rgba(120,130,150,.6)'},
         {label:t('chart.ds.capTax'),   data:years.map(y=>Math.round((y.cTaxCap||0)/_taxDiv())),   backgroundColor:'rgba(142,107,191,.72)'},
       ]
     },
@@ -6533,9 +6532,9 @@ function updateCharts(data){
             var yr = years[idx]; if (!yr) return;
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:6px">' + yr.yr + ' · '+t('wd.chart.tooltip.age')+' ' + yr.age + '</div>'
-              + [['chart.ds.munTax','cTaxMun','#E9B84A'],['chart.ds.stateTax','cTaxState','#FF5B2E'],['chart.ds.pubFee','cTaxFee','#4885C4'],['chart.ds.pensFee','cTaxPens','#9aa3b5'],['chart.ds.capTax','cTaxCap','#8E6BBF']].map(function(r){
+              + [['chart.ds.munTax','cTaxMun','#E9B84A'],['chart.ds.stateTax','cTaxState','#FF5B2E'],['chart.ds.pubFee','cTaxFee','#4885C4'],['chart.ds.capTax','cTaxCap','#8E6BBF']].map(function(r){
                   return '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t(r[0])+'</span><span style="color:'+r[2]+'">' + Math.round((yr[r[1]]||0)/_taxDiv()).toLocaleString('sv-SE') + '</span></div>'; }).join('')
-              + '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)"><span style="color:#7a96be">'+t('chart.ds.totalTaxRow')+'</span><span style="color:#edf2ff">' + Math.round(((yr.cTaxMun||0)+(yr.cTaxState||0)+(yr.cTaxFee||0)+(yr.cTaxPens||0)+(yr.cTaxCap||0))/_taxDiv()).toLocaleString('sv-SE') + ' ' + (_taxChartMode==='monthly'?t('dash.period.mth'):t('dash.period.yr')) + '</span></div>'
+              + '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.1)"><span style="color:#7a96be">'+t('chart.ds.totalTaxRow')+'</span><span style="color:#edf2ff">' + Math.round(((yr.cTaxMun||0)+(yr.cTaxState||0)+(yr.cTaxFee||0)+(yr.cTaxCap||0))/_taxDiv()).toLocaleString('sv-SE') + ' ' + (_taxChartMode==='monthly'?t('dash.period.mth'):t('dash.period.yr')) + '</span></div>'
               + '<div style="font-size:10px;color:var(--muted);margin-top:3px;text-align:right">'+t('chart.tax.hint')+'</div>';
             el.style.opacity='1';
             positionTooltip(el, context.chart, tooltip);
@@ -9642,8 +9641,7 @@ function setTaxChartMode(mode){
     ds[0].data = _projYears.map(function(y){ return Math.round((y.cTaxMun||0)/d); });
     ds[1].data = _projYears.map(function(y){ return Math.round((y.cTaxState||0)/d); });
     ds[2].data = _projYears.map(function(y){ return Math.round((y.cTaxFee||0)/d); });
-    ds[3].data = _projYears.map(function(y){ return Math.round((y.cTaxPens||0)/d); });
-    ds[4].data = _projYears.map(function(y){ return Math.round((y.cTaxCap||0)/d); });
+    ds[3].data = _projYears.map(function(y){ return Math.round((y.cTaxCap||0)/d); });
     charts.tax.update();
   }
   updateTaxChartTitle();
