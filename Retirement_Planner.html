@@ -1369,18 +1369,25 @@ input[type="number"]::-webkit-outer-spin-button {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div class="card-header" data-i18n="wd.by.account">WITHDRAWALS BY ACCOUNT</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <div id="wd-chart-mode-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(245,180,40,.15);color:#48B866;font-weight:600" data-i18n="wd.badge.before.tax">BEFORE TAX</div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button id="wd-chart-tax-gross" onclick="setWdTaxMode('gross')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="acc.before.tax">Before Tax</button>
+          <button id="wd-chart-tax-net"   onclick="setWdTaxMode('net')"   style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="acc.after.tax">After Tax</button>
+        </div>
         <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
           <button id="wd-chart-btn-age"  onclick="setWdChartXMode('age')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="wd.chart.age">Age</button>
           <button id="wd-chart-btn-year" onclick="setWdChartXMode('year')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="wd.chart.year">Year</button>
         </div>
         <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-          <button id="wd-chart-btn-annual"  onclick="setWdChartPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
-          <button id="wd-chart-btn-monthly" onclick="setWdChartPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+          <button id="wd-chart-btn-annual"  onclick="setWdChartPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
+          <button id="wd-chart-btn-monthly" onclick="setWdChartPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+        </div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button onclick="downloadWdChartCSV()"   style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;cursor:pointer" data-i18n="proj.csv">⬇  CSV</button>
+          <button onclick="downloadWdChartExcel()" style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;border-left:1px solid var(--border);cursor:pointer" data-i18n="proj.xlsx">⬇  Excel</button>
         </div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:14px" data-i18n="acc.annual.wd">Annual withdrawal per account (SEK)</div>
+    <div id="wd-chart-caption" style="font-size:11px;color:var(--muted);margin-bottom:14px">Monthly withdrawal per account (kr/mth) · before tax</div>
     <div style="position:relative;height:320px"><canvas id="wd-chart-canvas"></canvas></div>
   </div>
 </div>
@@ -1795,6 +1802,7 @@ en:{
   'acc.after.tax':'After Tax',
   'acc.tax.rate':'Tax rate',
   'acc.annual.wd':'Annual withdrawal per account (SEK)',
+  'wd.cap.mth':'Monthly withdrawal per account (kr/mth)','wd.cap.yr':'Annual withdrawal per account (kr/yr)',
   'acc.all.accounts':'All Accounts',
   'acc.sum.of.all':'Sum of all accounts',
   // ── Withdrawals tab ──
@@ -2090,11 +2098,12 @@ en:{
   'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
   'summary.at.ret':'At retirement · ',
   'tile.phasePension':'Monthly Pension · Age {from}–{to}',
+  'tile.phase.vs':'Expenses {exp} kr/mth · after tax {net} kr/mth',
   'tile.phase.gogo':'Go-go years',
   'tile.phase.slowgo':'Slow-go years',
   'tile.phase.nogo':'No-go years',
   'pp.hdr':'Pension by Retirement Phase',
-  'tip.phasePension':'Distributes your entire portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nThe weights set the shape of the plan: each phase draws in proportion to its weight, so the default 100 / 90 / 80 front-loads spending into the Go-go years. Only the ratios matter — 10 / 9 / 8 gives the same result.\n\nEach year\'s draw is discounted at that year\'s blended real return, so the equity glide path is respected. Before Tax is the gross withdrawal; After Tax deducts kommunalskatt from the pension portion.\n\nMonthly, in today\'s money. Informational — no colour threshold.',
+  'tip.phasePension':'Distributes your entire portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nThe weights set the shape of the plan: each phase draws in proportion to its weight, so the default 100 / 90 / 80 front-loads spending into the Go-go years. Only the ratios matter — 10 / 9 / 8 gives the same result.\n\nEach year\'s draw is discounted at that year\'s blended real return, so the equity glide path is respected. Before Tax is the gross withdrawal; After Tax deducts kommunalskatt from the pension portion.\n\nMonthly, in today\'s money. Informational — no colour threshold.\n\n🟢 After-tax pension covers the expenses of the period\n🔴 After-tax pension is below the expenses',
 
 
 
@@ -2302,6 +2311,7 @@ sv:{
   'acc.after.tax':'Efter skatt',
   'acc.tax.rate':'Skattesats',
   'acc.annual.wd':'Årsuttag per konto (SEK)',
+  'wd.cap.mth':'Månadsuttag per konto (kr/mån)','wd.cap.yr':'Årsuttag per konto (kr/år)',
   'acc.all.accounts':'Alla konton',
   'acc.sum.of.all':'Summa alla konton',
   // ── Withdrawals tab ──
@@ -2597,11 +2607,12 @@ sv:{
   'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
   'summary.at.ret':'Vid pension · ',
   'tile.phasePension':'Månadspension · Ålder {from}–{to}',
+  'tile.phase.vs':'Utgifter {exp} kr/mån · efter skatt {net} kr/mån',
   'tile.phase.gogo':'Aktiva år (go-go)',
   'tile.phase.slowgo':'Lugnare år (slow-go)',
   'tile.phase.nogo':'Stillsamma år (no-go)',
   'pp.hdr':'Pension per pensionsfas',
-  'tip.phasePension':'Fördelar hela din portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nVikterna bestämmer planens form: varje period tar ut i proportion till sin vikt, så standardvärdet 100 / 90 / 80 frontladdar uttagen till de aktiva åren. Bara förhållandet spelar roll — 10 / 9 / 8 ger samma resultat.\n\nVarje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen. Före skatt är bruttouttaget; Efter skatt drar av kommunalskatt på pensionsdelen.\n\nBelopp per månad, i dagens penningvärde. Informativ — ingen färgtröskel.',
+  'tip.phasePension':'Fördelar hela din portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nVikterna bestämmer planens form: varje period tar ut i proportion till sin vikt, så standardvärdet 100 / 90 / 80 frontladdar uttagen till de aktiva åren. Bara förhållandet spelar roll — 10 / 9 / 8 ger samma resultat.\n\nVarje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen. Före skatt är bruttouttaget; Efter skatt drar av kommunalskatt på pensionsdelen.\n\nBelopp per månad, i dagens penningvärde. Informativ — ingen färgtröskel.\n\n🟢 Pension efter skatt täcker periodens utgifter\n🔴 Pension efter skatt är lägre än utgifterna',
 
 
 
@@ -6573,14 +6584,17 @@ function computePensionPhases(data){
     var rows = data.years.filter(function(y){
       return y.yr >= retYear && y.age >= b.from && y.age <= b.to;
     });
-    var monthly = 0;
+    var monthly = 0, net = 0, exp = 0;
     if(rows.length){
       var total = rows.reduce(function(sum, y){
         return sum + (y.taxFree||0) + ((y.wdrlPIns||0) + (y.wdrlState||0)) * tf;
       }, 0);
       monthly = total / rows.length / 12;
+      // After-tax pension (the model's own tax) and expenses over the same years: they decide the card colour
+      net = rows.reduce(function(sum, y){ return sum + (y.afterTaxIncome||0); }, 0) / rows.length / 12;
+      exp = rows.reduce(function(sum, y){ return sum + (y.expenses||0); }, 0) / rows.length / 12;
     }
-    return {from: b.from, to: b.to, key: PHASE_KEYS[i], monthly: monthly};
+    return {from: b.from, to: b.to, key: PHASE_KEYS[i], monthly: monthly, net: net, exp: exp, hasRows: rows.length > 0};
   });
 }
 
@@ -6609,8 +6623,10 @@ function buildPhaseTiles(data){
       label: t('tile.phasePension', {from: has?ph.from:'\u2014', to: has?ph.to:'\u2014'}),
       val:   has ? 'SEK '+fmt(ph.monthly) : '\u2014',
       sub:   t('tile.phase.'+PHASE_KEYS[i]) + ' \u00b7 ' + taxLbl,
-      cls:   '',
-      tile:  ['emerald','sky',''][i],
+      // green when the after-tax pension covers the expenses of the period, red when it does not
+      cls:   (has && ph.hasRows && ph.exp > 0) ? (ph.net >= ph.exp ? 'good' : 'bad') : '',
+      tile:  '',
+      extra: (has && ph.hasRows && ph.exp > 0) ? '<div class="tile-sub" style="margin-top:6px">' + t('tile.phase.vs', {exp:fmt(ph.exp), net:fmt(ph.net)}) + '</div>' : '',
       tip:   t('tip.phasePension')
     };
   });
@@ -9320,40 +9336,76 @@ function optimizeWithdrawals(){
     }, 2500);
   }
 }
-function buildWithdrawalChart(){
-  var badge=document.getElementById('wd-chart-mode-badge');
-  if(badge) badge.textContent=_wdTaxMode==='net'?t('wd.badge.after.tax'):t('wd.badge.before.tax');
-
-  var canvas = document.getElementById('wd-chart-canvas');
-  if(!canvas || !_projYears || !_projYears.length) return;
-
-  var years    = _projYears;
-  var labels   = years.map(function(y){ return _wdChartXMode === 'year' ? y.yr : y.age; });
+// Data behind the "Withdrawals by account" chart and its exports: one series per account that pays anything,
+// in the selected tax mode (Before / After tax) and period (monthly / annual)
+function wdChartData(){
+  var years = _projYears || [];
   var PAL_STATE = ['#C4B89A','#8E7B5E','#A8956E','#D4C8AA','#7A6848'];
   var PAL_PINS  = ['#4885C4','#2E6FA8','#1A4F80','#5BA8E5','#7CC0F0','#3D7AB8','#91C8F5','#276090'];
   var PAL_AFTER = ['#48B866','#28955A','#1A7044','#52D484','#70E89A','#218F50','#8AF2B0','#166838'];
   var typeCounts = {state:0,'p-ins':0,after:0};
-  var fmtK     = function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K'; };
-
-  // Build one dataset per account (only include accounts that have any withdrawal)
-  var datasets = [];
+  var div = _wdChartPeriod==='monthly' ? 12 : 1;
+  var series = [];
   accounts.forEach(function(a, ai){
     var data = years.map(function(y){
       var d = y.accDetail && y.accDetail[ai];
-      var div = _wdChartPeriod==='monthly' ? 12 : 1;
       return d ? Math.round((d.wdrl || 0) * wdTaxFactor(a) / div) : 0;
     });
-    var hasAny = data.some(function(v){ return v > 0; });
-    if(!hasAny) return;
+    if(!data.some(function(v){ return v > 0; })) return;
     var pal = a.type==='state' ? PAL_STATE : a.type==='p-ins' ? PAL_PINS : PAL_AFTER;
     var colorIdx = typeCounts[a.type] !== undefined ? typeCounts[a.type]++ : 0;
-    datasets.push({
-      label: accDisplayName(a),
-      data: data,
-      backgroundColor: pal[colorIdx % pal.length],
-      stack: 'wd',
-      borderWidth: 0
-    });
+    series.push({label: accDisplayName(a), data: data, color: pal[colorIdx % pal.length]});
+  });
+  return {years: years, series: series};
+}
+function _wdChartSyncControls(){
+  var g = document.getElementById('wd-chart-tax-gross'), n = document.getElementById('wd-chart-tax-net');
+  var net = _wdTaxMode === 'net';
+  if(g){ g.style.background = net ? 'transparent' : '#48B866'; g.style.color = net ? 'var(--muted)' : '#0f1f3d'; g.style.fontWeight = net ? '500' : '600'; }
+  if(n){ n.style.background = net ? '#48B866' : 'transparent'; n.style.color = net ? '#0f1f3d' : 'var(--muted)'; n.style.fontWeight = net ? '600' : '500'; }
+  var cap = document.getElementById('wd-chart-caption');
+  if(cap) cap.textContent = t(_wdChartPeriod==='monthly' ? 'wd.cap.mth' : 'wd.cap.yr') + ' \u00b7 ' + t(net ? 'acc.after.tax' : 'acc.before.tax').toLowerCase();
+}
+function _wdChartRows(){
+  var d = wdChartData();
+  var head = [t('wd.chart.age'), t('wd.chart.year')].concat(d.series.map(function(s){ return s.label; })).concat([t('exp.legend.total')]);
+  var rows = d.years.map(function(y, i){
+    var vals = d.series.map(function(s){ return s.data[i]; });
+    return [y.age, y.yr].concat(vals).concat([vals.reduce(function(a, v){ return a + v; }, 0)]);
+  });
+  var name = 'withdrawals_' + (_wdTaxMode==='net' ? 'after' : 'before') + '_tax_' + (_wdChartPeriod==='monthly' ? 'monthly' : 'annual');
+  return {head: head, rows: rows, name: name};
+}
+function downloadWdChartCSV(){
+  var r = _wdChartRows();
+  var esc = function(v){ v = String(v); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  var lines = [r.head.map(esc).join(';')].concat(r.rows.map(function(row){ return row.map(esc).join(';'); }));
+  var blob = new Blob(['\uFEFF' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = Object.assign(document.createElement('a'), {href:url, download:r.name + '.csv'});
+  a.click(); URL.revokeObjectURL(url);
+}
+function downloadWdChartExcel(){
+  if(typeof XLSX === 'undefined'){ alert('Excel library not loaded yet, try again in a moment.'); return; }
+  var r = _wdChartRows();
+  var ws = XLSX.utils.aoa_to_sheet([r.head].concat(r.rows));
+  ws['!cols'] = r.head.map(function(_, i){ return {wch: i < 2 ? 7 : 22}; });
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Withdrawals');
+  XLSX.writeFile(wb, r.name + '.xlsx');
+}
+
+function buildWithdrawalChart(){
+  _wdChartSyncControls();
+
+  var canvas = document.getElementById('wd-chart-canvas');
+  if(!canvas || !_projYears || !_projYears.length) return;
+
+  var cd       = wdChartData();
+  var years    = cd.years;
+  var labels   = years.map(function(y){ return _wdChartXMode === 'year' ? y.yr : y.age; });
+  var datasets = cd.series.map(function(sr){
+    return {label: sr.label, data: sr.data, backgroundColor: sr.color, stack: 'wd', borderWidth: 0};
   });
 
   if(window._wdChart) window._wdChart.destroy();
@@ -9412,7 +9464,7 @@ function buildWithdrawalChart(){
         },
         y: {
           stacked: true,
-          ticks: { color: '#64748b', callback: fmtK },
+          ticks: { color: '#64748b', callback: fmtKrTick },
           grid: { color: 'rgba(255,255,255,.05)' }
         }
       }
@@ -9482,6 +9534,7 @@ function setILSPeriod(period){
 window._wdGroupCollapsed = {after:true,'p-ins':true,state:true};
 function setWdTaxMode(mode){
   _wdTaxMode = mode;
+  _wdChartSyncControls();
   // Update top-level toggle buttons
   var bg = document.getElementById('wd-btn-gross');
   var ba = document.getElementById('wd-btn-net');
@@ -9546,7 +9599,7 @@ function updateIncomeChart(){
 }
 
 
-var _wdChartPeriod = 'annual';
+var _wdChartPeriod = 'monthly';
 function setWdChartPeriod(mode){
   _wdChartPeriod = mode;
   var ba = document.getElementById('wd-chart-btn-annual');
