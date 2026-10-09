@@ -273,7 +273,7 @@ header{
 .tile-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .tile-value{font-family:var(--font-m);font-size:clamp(1rem,7cqw,2rem);font-weight:600;color:var(--text);line-height:1.1;overflow-wrap:break-word;word-break:break-word}
 .tile-value.good{color:var(--emerald)}
-.tile-value.warn{color:var(--gold)}
+.tile-value.warn{color:var(--amber)}   /* yellow: --gold is the brand green here */
 .tile-value.bad{color:var(--rose)}
 .tile-sub{font-size:12px;color:var(--muted);margin-top:8px;font-weight:500}
 
@@ -622,21 +622,21 @@ input[type="number"]::-webkit-outer-spin-button {
     <div class="logo-icon">⚖</div>
     <div>
       <h1>Retirement Planner</h1>
-      <span>Constant Prices · Swedish Tax Rules</span>
+      <span id="hdr-sub">Constant Prices · Swedish Tax Rules</span>
     </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-    <div class="header-badge">All amounts in SEK</div>
-
     <!-- Plan presets: new plan (guided), typical cases, clear -->
     <select id="plan-preset" class="preset-attn" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case"
-      style="width:auto;max-width:260px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
+      style="width:auto;max-width:260px;margin-left:10px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
              font-size:11px;font-weight:600;letter-spacing:.04em;padding:5px 8px;cursor:pointer">
       <option value="" selected disabled hidden data-i18n-opt="preset.placeholder">Begin here to create a plan</option>
       <option value="new" data-i18n-opt="preset.new">New retirement plan</option>
       <option value="itp1-1980" data-i18n-opt="preset.itp1">ITP1, 1980, Salary 40 000</option>
       <option value="clear" data-i18n-opt="preset.clear">Clear all input data</option>
     </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+    <div class="header-badge">All amounts in SEK</div>
+
 
     <!-- Save / Load controls -->
     <div style="display:flex;align-items:center;gap:6px">
@@ -1633,6 +1633,7 @@ en:{
   'nav.dashboard':'Dashboard','nav.personal':'Personal','nav.expenses':'Expenses',
   'nav.accounts':'Assets','nav.params':'Params','nav.proj':'Projection',
   'hdr.subtitle':'Constant prices · Swedish tax rules · All amounts in SEK',
+  'hdr.sub.const':'Constant Prices','hdr.sub.infl':'Inflation {pct}%','hdr.sub.rest':'Swedish Tax Rules',
   'tile.goalTarget':'Saving Goal (Target Portfolio)',
   'tile.goalTarget.sub':'{mult}× annual expenses = target portfolio',
   'tip.goalTarget':'The target portfolio at retirement: the saving multiplier (Expenses tab, based on how many years the money must last) × your annual expenses.',
@@ -2139,6 +2140,7 @@ sv:{
   'nav.dashboard':'Översikt','nav.personal':'Personuppgifter','nav.expenses':'Utgifter',
   'nav.accounts':'Tillgångar','nav.params':'Parametrar','nav.proj':'Prognos',
   'hdr.subtitle':'Fasta priser · Svenska skatteregler · Alla belopp i SEK',
+  'hdr.sub.const':'Fasta priser','hdr.sub.infl':'Inflation {pct}%','hdr.sub.rest':'Svenska skatteregler',
   'tile.goalTarget':'Sparmål (målportfölj)',
   'tile.goalTarget.sub':'{mult}× årsutgifter = målportfölj',
   'tip.goalTarget':'Målportföljen vid pension: sparfaktorn (fliken Utgifter, beror på hur många år pengarna ska räcka) × dina årsutgifter.',
@@ -6791,8 +6793,21 @@ function updateAccountSubtotals(){
 
 let _projYears = [], _projParams = {};
 
+// Header subtitle: "Constant Prices" turns into a red "Inflation x %" when the Parameters-tab inflation is not 0
+function updateHeaderSub(){
+  var el = document.getElementById('hdr-sub'); if(!el) return;
+  var infl = getParam('inflation') || 0;
+  if(Math.abs(infl) > 0){
+    var pct = String(Math.round(infl*100)/100); if(_lang === 'sv') pct = pct.replace('.', ',');
+    el.innerHTML = '<b style="color:#ff6b5e;font-weight:700">' + t('hdr.sub.infl', {pct:pct}) + '</b> \u00b7 ' + t('hdr.sub.rest');
+  } else {
+    el.textContent = t('hdr.sub.const') + ' \u00b7 ' + t('hdr.sub.rest');
+  }
+}
+
 function recalc(){
   try{
+    updateHeaderSub();
     const data = runProjection();
     _projYears = data.years; _projParams = data.params;
     if(window._occOpeningChanged){ window._occOpeningChanged = false; buildAccountsTable(); }

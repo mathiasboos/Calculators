@@ -283,6 +283,9 @@ published, replace the workbook and re-verify everything below.
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
   control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan
+- Header: the plan dropdown sits to the left, right after the subtitle. The subtitle (`#hdr-sub`, `updateHeaderSub()` from `recalc`) reads "Constant Prices · Swedish Tax Rules"
+  and turns into a red "Inflation x% · Swedish Tax Rules" when the Parameters-tab inflation is not 0. KPI colours: `.tile-value.good` green, `.warn` yellow (`--amber`; `--gold` is the
+  brand green in this file), `.bad` red. Saving Goal Fulfilment: green ≥ 100 %, else yellow. Replacement Rate: green ≥ 70 %, yellow 50–70 %, red < 50 %
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
