@@ -168,6 +168,9 @@ published, replace the workbook and re-verify everything below.
   (xlsb), so the 1.38 factor and days/365 are inferred from the sheet's cached values; no
   oracle (the HTML port has no PGB inputs). Not modelled: forward premium-pension contributions
   from PGB (planner's own salary-based contribution), KPI scaling of the first child's PGI
+- Assets tab Contribution cell of state accounts: Income pension shows "16 % of PGI (93 % of salary, up to 8,07 IBB)" (`ip.rule`), Premium pension (`isPpAutoAcc`) shows "2,5 % of PGI (93 % of salary, up to 8,07 IBB)"
+  (`pp.rule`) with no Fixed/Salary buttons. The projection's forward premium pension contribution is `ppSalaryContrib` = 2.5 % × min(93 % of salary, 7.5 IBB) (same as 8,07 IBB of salary; replaces the old
+  editable 2,32 % × salary rate, also used by `effectiveContrib` / `updatePInsSEK`); the balance still follows the account's own funds, fees and equity share
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
   Premiepension (auto opening), Garantipension / Inkomstpensionstillägg / Tilläggspension (all calculated,
   see above), Annat (generic)

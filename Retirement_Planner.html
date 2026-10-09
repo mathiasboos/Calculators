@@ -1942,7 +1942,9 @@ en:{
   'par.occReturn':'Occupational pension schemes — real return, net of fees (%)',
   'occ.auto':'auto','occ.auto.tip':'Calculated with Typfallsmodellen from the contribution start/end age. Enter an amount to override; enter 0 to calculate again.',
   'occ.locked.tip':'Set by Typfallsmodellen for contractual pension schemes and the income pension (return and yield tax are in Parameters / the model).',
-  'ip.index':'index','ip.rule':'16 % of PGI (93 % of salary, up to 7.5 IBB)',
+  'ip.index':'index','ip.rule':'16 % of PGI (93 % of salary, up to 8.07 IBB)',
+  'pp.rule':'2.5 % of PGI (93 % of salary, up to 8.07 IBB)',
+  'pp.rule.tip':'Premium pension (Typfallsmodellen): 2.5 % of PGI is credited to the premium pension. The balance follows the account\'s own funds, fees and equity share.',
   'ip.rule.tip':'Income pension (Typfallsmodellen): pension right credited the year after the income, indexed with the pension index, less admin fee, plus inheritance gains.',
   'occ.name.db':'defined benefit',
   'occ.badge.db':'Defined benefit',
@@ -2454,7 +2456,9 @@ sv:{
   'par.occReturn':'Tjänstepensionsavtal — real avkastning, netto efter avgifter (%)',
   'occ.auto':'auto','occ.auto.tip':'Beräknas med Typfallsmodellen utifrån start- och slutålder för inbetalning. Ange ett belopp för att skriva över; ange 0 för att beräkna igen.',
   'occ.locked.tip':'Styrs av Typfallsmodellen för tjänstepensionsavtal och inkomstpension (avkastning och avkastningsskatt anges i Parametrar / modellen).',
-  'ip.index':'index','ip.rule':'16 % av PGI (93 % av lönen, upp till 7,5 IBB)',
+  'ip.index':'index','ip.rule':'16 % av PGI (93 % av lönen, upp till 8,07 IBB)',
+  'pp.rule':'2,5 % av PGI (93 % av lönen, upp till 8,07 IBB)',
+  'pp.rule.tip':'Premiepension (Typfallsmodellen): 2,5 % av PGI tillgodoförs premiepensionen. Saldot följer kontots egna fonder, avgifter och aktieandel.',
   'ip.rule.tip':'Inkomstpension (Typfallsmodellen): pensionsrätten tillgodoförs året efter inkomsten, indexeras med pensionsindex, minus administrationsavgift, plus arvsvinster.',
   'occ.name.db':'förmånsbestämd',
   'occ.badge.db':'Förmånsbestämd',
@@ -3802,6 +3806,8 @@ function engineStep(a, ctx, opening, contrib, y, frac){
   }
   return null;
 }
+// Forward premium pension contribution: 2.5 % of PGI (PGI = 93 % of salary, capped at 7.5 IBB = 8.07 IBB of salary)
+function ppSalaryContrib(annSalary, ibb){ return Math.min(0.93 * annSalary, 7.5 * ibb) * 0.025; }
 function isIpEngineAcc(a){
   return !!(a && a.type === 'state' && a.delningstalScope === 'inkomst' && a.ipEngine !== false);
 }
@@ -4399,6 +4405,14 @@ function renderPInsContrib(i, a){
       +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
       +'\u2248 '+Math.round(ipRatt(ctxI, a, START_YEAR + 1)).toLocaleString('sv-SE')+' kr/yr</div></td>';
   }
+  // Premium pension: 2.5 % of PGI, no Fixed/Salary choice
+  if(isPpAutoAcc(a)){
+    return '<td style="padding:4px;min-width:190px;vertical-align:top">'
+      +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px" title="'+t('pp.rule.tip')+'">'+t('pp.rule')+'</div>'
+      +'<div id="pins-sek-'+i+'" style="margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,0.1);'
+      +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
+      +'\u2248 '+Math.round(ppSalaryContrib(grossSal('grossSalPre66')*12, ibb)).toLocaleString('sv-SE')+' kr/yr</div></td>';
+  }
   // Scheme accounts follow the agreement's rules: show them, don't offer editing.
   if(a.scheme && OCC_SCHEMES[a.scheme] && !a.db){
     var fmtR = function(v){ return Number(v).toString().replace('.',','); };
@@ -4515,7 +4529,8 @@ function updatePInsSEK(i){
   var b2  = (a.cIBB2 != null ? a.cIBB2 : 30.0) * ibb;
   var r1  = a.cRate1 != null ? a.cRate1 : 4.5;
   var r2  = a.cRate2 != null ? a.cRate2 : 30;
-  var sek = a.type==='state'
+  var sek = isPpAutoAcc(a) ? Math.round(ppSalaryContrib(sal, ibb))
+    : a.type==='state'
     ? Math.round(Math.min(sal,b1)*r1/100)
     : Math.round(Math.min(sal,b1)*r1/100 + Math.max(0,Math.min(sal,b2)-b1)*r2/100);
   var el  = document.getElementById('pins-sek-'+i);
@@ -4526,6 +4541,7 @@ function updatePInsSEK(i){
 
 // ── Effective contribution (Fixed or Salary-based) ─────────────────────
 function effectiveContrib(a){
+  if(isPpAutoAcc(a)) return Math.round(ppSalaryContrib(grossSal('grossSalPre66') * 12, getParam('ibb') || 83400));
   if(a.contribSalary){
     var ibb = getParam('ibb') || 83400;
     var sal = grossSal('grossSalPre66') * 12;
@@ -5675,7 +5691,7 @@ function runProjection(){
         } else if(isIpEngineAcc(a)){
           // Pension right for the previous year's income, credited this year
           contrib = ipRatt(_occ, a, yr);
-        } else if((a.type==='p-ins'||a.type==='state') && a.contribSalary && yr>=a.cs && yr<=a.ce && yr<params.retirementYear){
+        } else if((a.type==='p-ins'||a.type==='state') && (a.contribSalary || isPpAutoAcc(a)) && yr>=a.cs && yr<=a.ce && yr<params.retirementYear){
           const ibb        = getParam('ibb')||83400;
           // Age-based salary selection
     const _salAgeThresh = params.allowanceAge || 67;
@@ -5692,7 +5708,7 @@ function runProjection(){
           const _r1 = a.cRate1 != null ? a.cRate1 : 4.5;
           const _r2 = a.cRate2 != null ? a.cRate2 : 30;
           if(a.type==='state'){
-            var _annSalC = Math.min(annSalary,bracket1)*_r1/100;
+            var _annSalC = isPpAutoAcc(a) ? ppSalaryContrib(annSalary, ibb) : Math.min(annSalary,bracket1)*_r1/100;
             contrib = contribFactor>0 ? monthlyFV(_annSalC, calcReturn(a,age,params), a.yt||0, a.mgmt||0) : _annSalC;
           } else {
             var _annPinsC = (Math.min(annSalary,bracket1)*_r1/100
