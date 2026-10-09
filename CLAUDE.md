@@ -310,8 +310,8 @@ published, replace the workbook and re-verify everything below.
   ("Contrib. aft tax acc" / "Contrib. bef tax acc", `pvContribSplit`): in Tax adjusted mode the pre-tax accounts' contributions are valued after tax like their balances (flat municipal rate `taxFactor`).
   The per-account tables ("Show all accounts" and single account) label those two rows by account type and apply the same rules (`pvAccFlow`). Balance rows still use the flat municipal rate
 - Portfolio Value tab: the label column is frozen in EVERY table (summary and per-account tables with "Show all accounts"); the retirement-year column is tinted (`#fbf6e8`, `pvRet` / `retBg`) and its Year header
-  carries "★ Ret", as in the Projection table. Charts mark the retirement year on the x axis as "68 ★" (Withdrawals year mode "2048 ★"): `retStarPlugin` (global, reads `options._retMark` = `retMark(years, mode)`)
-  draws it at the regular tick position, the tick callbacks use `retTick(years, idx)` (blank at that index). Wired: the six Dashboard charts, the Withdrawals chart and the Portfolio Value charts; Scenario / Monte Carlo charts are not
+  carries "★ Ret", as in the Projection table. Charts mark the retirement year on the x axis with the age (Withdrawals year mode: the year) in BOLD GOLD at the regular tick size, no star: `retStarPlugin` (global, reads `options._retMark` = one `{idx, text}` or an array, from `retMark(years, mode)`)
+  draws it at the regular tick position with the tick font, the tick callbacks use `retTick(years, idx)` / blank at the marked index. Wired: the six Dashboard charts, the Withdrawals chart, the Portfolio Value charts, the Scenarios chart (one mark per scenario retirement age) and the Monte Carlo fan and survival charts (start age = index 0; the histogram has value bins, not ages)
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),
