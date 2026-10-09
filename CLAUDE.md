@@ -283,13 +283,25 @@ published, replace the workbook and re-verify everything below.
   and `PublicAvg` 1 % up to 1,42 IBB. `row.munTax` = kommunal + begravning, `row.stateTax` = statlig + PublicAvg. No jobbskatteavdrag on pensions. The Parameters-tab
   allowance amounts and state thresholds are no longer used for pension tax (thresholds only draw the chart line). Checked against an independent
   re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
-  (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Not covered: pension drawn while still working is taxed separately from the salary; `taxAdjPort` and the
+  (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Pension drawn while working again is taxed together with the salary (see Work after retirement); `taxAdjPort` and the
   "After tax" display modes use flat tax-rate inputs; the workbook's 32,38 % municipal default is a user input here (32,4 %)
 - Salary tax before retirement uses the same age rule as the pension tax: `_ageMode = age >= xAge(yr) ? 'over' : 'under'` (workbook `Xage` drives both grundavdrag and
   jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 744 at 67), retirement year 68 =
   pension tax 112 684 (30,6 %, grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 184 = 119 868, age 69 = pension tax 70 913 after förhöjt grundavdrag (~152 000) = 77 839 total.
   Projection table has a "Salary Tax" column (`y.salaryTax`, also in the export) because the Municipal/State columns are pension tax only (0 before retirement)
   and, right after it, the same four tax-chart categories for ALL years (`cTaxMun/State/Fee/Cap`; the 7 % pension fee `cTaxPens` is computed but not shown anywhere) plus "Total Tax" (their sum); the older pension-only Municipal/State columns in the Pre-Tax group were removed from the table (the export still has them as "Municipal Tax" / "State Tax"). Export also has the new columns
+- Work after retirement (Personal tab "Work after retirement": `workAgainSal` 2025 money × `salBaseUplift`, `workAgainFrom` / `workAgainTo` ages inclusive; `workPeriod()` = {fromY, toY, sal} or null,
+  invalid = ignored with a red message; `workInPeriod`, `ctxWorking(ctx, y)` = before the first retirement OR inside the period). Typfallsmodellen has an own wage vector by age and taxes wages and pensions together.
+  Engine: `occMakeCtx` carries `work`; `occWage` returns the second salary in the period; `ipRatt` / `ppRatt` / `rightsBase` gate on `ctxWorking`; projection `_workingYr` gates contractual premiums and salary-based
+  contributions; `occPremiumFor` does not stop premiums at the pension start age while working again (the scheme's own age limits still apply: ITP 1 66, PA16 Avd 1 67, PA16 Avd 2 69, AKAP-KR none);
+  contractual rows' Contrib End (`ceBaseYear`) = max(retirement year, period end). `syncWorkRows()` (called from `recalc` and `workAgainChanged`) creates / updates / removes the two managed state accounts
+  `workRow` "Income pension 67-70y" / "Premium pension 67-70y" (`accDisplayName`, no delete button, cs/ce = period, ws = first year + 1, `recalcYearly` on the income pension: each year's rights add
+  `contrib / divisor(age)` to the annuity). Main IP / PP rows keep ce = retirement, so nothing is counted twice. Withdrawals tab: main Income / Premium pension rows get a second "Share while working" selector
+  (`wdShareWork`, `wdShareAt(a, yr, wp)`, `setWorkShare`); premium pension = balance ÷ divisor × share (held-back part stays in the balance), income pension keeps the full annuity and `statState[i].mult`
+  releases the held-back part when the share rises: `Δshare × dt0/dt(age) × 1,016^years`. Tax in years with salary AND pension: `_comb = incComputeParams(salary, 0, pension, …, BEGRAV_AVG)` (one grundavdrag, jobbskatteavdrag on the salary);
+  `totalTax` stays pension-alone, `salaryTax = combined − pension-alone` so Salary Tax + pension tax = combined tax, `cTax*` categories come from the combined result. Dashboard "Income Sources" and Income vs Expenses show the
+  salary whenever `earnedIncomePre > 0`. Not modelled: Garantipension/IPT underlag and ATP points ignore the extra rights; PGB unchanged; the Withdrawals-tab summary estimates use the plain `wdShare`;
+  replacement rate = last 5 years before the FIRST retirement. ITP1/1980, retire 65, 20 000 kr/month at 67–70: salary tax 51 178 at 67, 33 102 at 69 (förhöjt grundavdrag from 69)
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
   control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan

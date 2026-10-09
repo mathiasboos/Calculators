@@ -1018,6 +1018,19 @@ input[type="number"]::-webkit-outer-spin-button {
         </table>
         <div id="sal-uplift-hint" style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4"></div>
       </div>
+      <div id="work-again-box" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px" data-i18n="pers.work.title">Work after retirement</div>
+        <table style="width:100%;border-collapse:collapse"><tbody>
+          <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.work.sal">Gross salary (SEK/month)</td>
+            <td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="workAgainSal" value="0" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');workAgainChanged()"></td></tr>
+          <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.work.from">From age</td>
+            <td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="workAgainFrom" value="0" onchange="this.value=String(parseInt(this.value.replace(/[^0-9]/g,''))||0);workAgainChanged()"></td></tr>
+          <tr><td style="padding:4px 5px;font-size:11px;color:var(--text)" data-i18n="pers.work.to">To age</td>
+            <td style="padding:3px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:80px;text-align:right" id="workAgainTo" value="0" onchange="this.value=String(parseInt(this.value.replace(/[^0-9]/g,''))||0);workAgainChanged()"></td></tr>
+        </tbody></table>
+        <div id="work-again-hint" style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4" data-i18n="pers.work.hint">Salary after you have retired, e.g. part-time at 67–70. Pension rights and contractual premiums are earned on it, and it is taxed together with the pension.</div>
+        <div id="work-again-err" class="wd-err" style="display:none"></div>
+      </div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.salary.inc">Annual salary increase above inflation (%)</div>
         <input class="inp" type="text" inputmode="decimal" id="salaryIncrease" value="0,0" onchange="recalc()">
@@ -1927,6 +1940,10 @@ en:{
 
   // ── Personal tab ──
   'pers.sal.table.hdr':'Monthly Salary (SEK) · Age entering new year',
+  'pers.work.title':'Work after retirement','pers.work.sal':'Gross salary (SEK/month)','pers.work.from':'From age','pers.work.to':'To age',
+  'pers.work.hint':'Salary after you have retired, e.g. part-time at 67\u201370. Pension rights and contractual premiums are earned on it, and it is taxed together with the pension. 2025 money, like the salary above.',
+  'pers.work.err':'Work after retirement is ignored: From age must be at or after the retirement age, To age at least From age, and inside the life expectancy.',
+  'pers.work.suffix':'y','pers.work.share':'Share while working',
   'pers.income.tab.btn':'→ Income tab: Net salary calculator',
   'pers.sal.desc':'Description',
   'pers.sal.gross.pre':'Gross Pre-retirement',
@@ -2441,6 +2458,10 @@ sv:{
 
   // ── Personal tab ──
   'pers.sal.table.hdr':'Månadslön (SEK) · Ålder vid nytt år',
+  'pers.work.title':'Arbete efter pension','pers.work.sal':'Bruttolön (SEK/månad)','pers.work.from':'Från ålder','pers.work.to':'Till ålder',
+  'pers.work.hint':'Lön efter att du gått i pension, t.ex. deltid vid 67\u201370. Pensionsrätter och tjänstepensionspremier intjänas på lönen, och den beskattas tillsammans med pensionen. 2025 års penningvärde, som lönen ovan.',
+  'pers.work.err':'Arbete efter pension ignoreras: Från ålder måste vara vid eller efter pensionsåldern, Till ålder minst Från ålder och inom förväntad livslängd.',
+  'pers.work.suffix':' år','pers.work.share':'Andel under arbete',
   'pers.income.tab.btn':'→ Inkomsttab: Nettolönekalkylator',
   'pers.sal.desc':'Beskrivning',
   'pers.sal.gross.pre':'Bruttolön före pension',
@@ -3161,9 +3182,20 @@ function ceMaxYear(a){
   return a && a.scheme && !a.db && CE_MAX[a.scheme] ? wdBirthYear() + CE_MAX[a.scheme] : null;
 }
 // Contrib End default = retirement year, but not after the scheme's last premium age
+// Withdrawal share (utbetalningsgrad) in year yr: separate setting while working again (wdShareWork) when a work period exists
+function wdShareAt(a, yr, wp){
+  var base = a.wdShare != null ? a.wdShare : 1;
+  return (a.wdShareWork != null && wp && yr >= wp.fromY && yr <= wp.toY) ? a.wdShareWork : base;
+}
+// Year used for the "≈ kr/yr" contribution estimate: first full year, or the first right credited on a work-after-retirement row
+function contribRefYear(a){ return a && a.workRow ? a.cs + 1 : START_YEAR + 1; }
+function ceBaseYear(a){
+  var retY = Math.round(getParam('retirementYear')), w = a && a.type === 'p-ins' ? workPeriod() : null;
+  return w ? Math.max(retY, w.toY) : retY;   // contractual premiums also run through the work-after-retirement period
+}
 function ceDefaultYear(a){
-  var retY = Math.round(getParam('retirementYear')), m = ceMaxYear(a);
-  return m ? Math.min(retY, m) : retY;
+  var base = ceBaseYear(a), m = ceMaxYear(a);
+  return m ? Math.min(base, m) : base;
 }
 // State + P-insurance accounts flagged ceAuto (until the user edits Contrib End) follow the Personal tab
 function ceSyncEnd(){
@@ -3180,7 +3212,7 @@ function ceSyncEnd(){
 function ceNote(a){
   var m = ceMaxYear(a);
   if(!m || a.ce !== m) return '';
-  if(!(Math.round(getParam('retirementYear')) > m || a.ceClamped)) return '';
+  if(!(ceBaseYear(a) > m || a.ceClamped)) return '';
   // Same look as the "auto" label under Opening (9 px); absolutely placed so the input row stays aligned
   var v = {name:a.name, age:m - wdBirthYear()};
   return '<div style="position:relative;height:0;width:60px"><div style="position:absolute;right:0;top:2px;white-space:nowrap;font-size:9px;color:#e05555;text-align:right" title="'
@@ -3441,6 +3473,62 @@ const OCC_HIST = {
 //   minus payout·y^0.5.  y = 1 + fund return (history) or 1 + net real return.
 // Past wages = today's salary scaled by the historical income index.
 const OCC_START_AGE_FALLBACK = 25;
+// ── Work after retirement (second work period, e.g. age 67–70) ───────────
+// Years by+from … by+to inclusive, salary in 2026 money (like grossSal). null when off or invalid.
+function workPeriod(){
+  var sal = grossSal('workAgainSal'), fa = Math.round(getParam('workAgainFrom')), ta = Math.round(getParam('workAgainTo'));
+  if(!(sal > 0) || !(fa > 0) || !(ta >= fa)) return null;
+  var by = Math.floor(getParam('birthYear')), retY = Math.round(getParam('retirementYear')), lifeY = Math.round(getParam('lifeYear'));
+  var fromY = by + fa, toY = by + ta;
+  if(fromY < retY || (lifeY && fromY > lifeY)) return null;
+  if(lifeY) toY = Math.min(toY, lifeY);
+  return {fromY: fromY, toY: toY, fa: fa, ta: ta, sal: sal};
+}
+function workInPeriod(w, y){ return !!(w && y >= w.fromY && y <= w.toY); }
+// Still earning in year y: before the first retirement or inside the second work period
+function ctxWorking(ctx, y){ return y < ctx.retY || workInPeriod(ctx.work, y); }
+// Red message when work after retirement is filled in but invalid (and therefore ignored)
+function workAgainValidate(){
+  var err = document.getElementById('work-again-err');
+  if(!err) return;
+  var any = getParam('workAgainSal') > 0 || getParam('workAgainFrom') > 0 || getParam('workAgainTo') > 0;
+  var bad = any && !workPeriod();
+  err.style.display = bad ? '' : 'none';
+  if(bad) err.textContent = t('pers.work.err');
+}
+// Keeps the two managed state accounts "Income pension 67-70y" / "Premium pension 67-70y" in line with the period.
+// Returns true when the account list changed.
+function syncWorkRows(){
+  var w = workPeriod(), changed = false, i;
+  if(!w){
+    for(i = accounts.length - 1; i >= 0; i--) if(accounts[i].workRow){ accounts.splice(i, 1); changed = true; }
+    return changed;
+  }
+  [['inkomst', 'acc.name.income.pen'], ['premie', 'acc.name.premium.pen']].forEach(function(k){
+    var row = accounts.filter(function(a){ return a.workRow === k[0]; })[0];
+    if(!row){
+      var tpl = ACCOUNTS_INIT.filter(function(x){ return x.nameKey === k[1]; })[0];
+      row = Object.assign({}, tpl, {
+        workRow: k[0], workKey: k[1], opening: 0, openAuto: false, contrib: 0, wd: 0,
+        ceAuto: false, wsAuto: false, we: 9998, wdShare: 1, recalcYearly: k[0] === 'inkomst'
+      });
+      delete row.nameKey; row.name = t(k[1]);
+      var last = -1; accounts.forEach(function(a, ai){ if(a.type === 'state') last = ai; });
+      accounts.splice(last >= 0 ? last + 1 : accounts.length, 0, row); changed = true;
+    }
+    var vals = {cs: w.fromY, ce: w.toY, ws: w.fromY + 1, workFa: w.fa, workTa: w.ta};
+    Object.keys(vals).forEach(function(f){ if(row[f] !== vals[f]){ row[f] = vals[f]; changed = true; } });
+  });
+  return changed;
+}
+function workAgainChanged(){
+  workAgainValidate();
+  syncWorkRows();
+  ceSyncEnd();
+  buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
+  if(typeof buildWdTable === 'function') buildWdTable();
+  recalc();
+}
 function occMakeCtx(p){
   var el = document.getElementById('occReturn');
   var ret = (el && String(el.value).trim() !== '') ? getParam('occReturn')/100 : 0.017;
@@ -3448,7 +3536,7 @@ function occMakeCtx(p){
     by: Math.floor(p.birthYear), retY: Math.round(p.retirementYear),
     g: p.salaryIncrease || 0, ibbNow: getParam('ibb') || 83400,
     sal66: (p.grossSalPre66||0)*12, sal67: ((p.grossSalPre67||p.grossSalPre66)||0)*12,
-    ageThr: p.allowanceAge || 67, ret: ret
+    ageThr: p.allowanceAge || 67, ret: ret, work: workPeriod()
   };
 }
 // Like Typfallsmodellen, the monthly salary on the Personal tab is entered in 2025
@@ -3469,7 +3557,10 @@ function occIbb(ctx, y){
   return OCC_HIST.ibb[Math.max(0, y - OCC_HIST.first)];
 }
 function occWage(ctx, y){
-  if(y >= ctx.retY) return 0;
+  if(y >= ctx.retY){
+    if(!workInPeriod(ctx.work, y)) return 0;
+    return ctx.work.sal * 12 * occIncomeIdx(ctx, y) / occIncomeIdx(ctx, START_YEAR);
+  }
   var base = (y - ctx.by) < ctx.ageThr ? ctx.sal66 : ctx.sal67;
   return base * occIncomeIdx(ctx, y) / occIncomeIdx(ctx, START_YEAR);
 }
@@ -3671,8 +3762,11 @@ function occPremium(key, y, age, wage, ibb, by, wStart, pensAge){
 
 function occPensAge(a, ctx){ return (a.ws < 9999 ? a.ws : ctx.retY) - ctx.by; }
 function occPremiumFor(a, ctx, y){
+  var pa = occPensAge(a, ctx);
+  // Premiums stop when the pension starts (workbook rule) — except while working again after retirement
+  if(workInPeriod(ctx.work, y) && pa <= y - ctx.by) pa = y - ctx.by + 1;
   return occPremium(a.scheme, y, y - ctx.by, occWage(ctx, y), occIbb(ctx, y), ctx.by,
-                    Math.max(0, a.cs - ctx.by), occPensAge(a, ctx));
+                    Math.max(0, a.cs - ctx.by), pa);
 }
 
 // Balance at the start of START_YEAR from the premiums paid since a.cs.
@@ -3873,7 +3967,7 @@ function ipAvgift(y){ return y <= 1994 ? 0.185 : y <= 1998 ? 0.165 : 0.16; }
 function andelNya(born){ born = Math.floor(born); return born > 1953 ? 1 : born < 1938 ? 0 : (born - 1934) / 20; }
 function ipRatt(ctx, a, y, rate){
   var iy = y - 1;
-  if(iy >= ctx.retY) return 0;
+  if(!ctxWorking(ctx, iy)) return 0;
   var base = rightsBase(ctx, a, iy, rate != null ? 'gp' : 'ip');
   if(!(base > 0)) return 0;
   return (rate != null ? rate : ipAvgift(iy)) * base * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
@@ -4108,7 +4202,7 @@ function pgbFirstYear(ctx){ return pgbItems.length ? ctx.by + 16 : Infinity; }
 // Pension-right base of income year iy: own PGI (within the account's contribution window) + PGB.
 // type 'ip' / 'pp' / 'gp' follow the workbook's treatment while fewer than 5 PGB years exist.
 function rightsBase(ctx, a, iy, type){
-  var pgiPart = (iy >= a.cs && iy <= a.ce && iy < ctx.retY)
+  var pgiPart = (iy >= a.cs && iy <= a.ce && ctxWorking(ctx, iy))
     ? ipPgi(iy, occWage(ctx, iy), occIbb(ctx, iy), ipAt(OCC_IP.pbb, iy), ipAt(OCC_IP.fpb, iy)) : 0;
   if(!pgbItems.length) return pgiPart;
   var pgb = pgbCalc(ctx, iy).tot;
@@ -4133,7 +4227,7 @@ function ppAvgift(y){ return y <= 1994 ? 0 : y <= 1998 ? 0.02 : 0.025; }
 // Premium credited in year y from the income of year y-1.
 function ppRatt(ctx, a, y){
   var iy = y - 1;
-  if(iy >= ctx.retY) return 0;
+  if(!ctxWorking(ctx, iy)) return 0;
   var base = rightsBase(ctx, a, iy, 'pp');
   if(!(base > 0)) return 0;
   return ppAvgift(iy) * base * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
@@ -4191,7 +4285,10 @@ accounts.forEach(function(a){
 persTrack();
 
 // Helper: get display name for an account (respects nameKey for i18n)
-function accDisplayName(a){ return a && a.nameKey ? t(a.nameKey) : (a ? a.name : ''); }
+function accDisplayName(a){
+  if(a && a.workRow) return t(a.workKey) + ' ' + a.workFa + '-' + a.workTa + t('pers.work.suffix');
+  return a && a.nameKey ? t(a.nameKey) : (a ? a.name : '');
+}
 
 // ── Build expense rows ──
 const expContainer = document.getElementById('expense-rows');
@@ -4446,7 +4543,7 @@ function renderPInsContrib(i, a){
       +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px" title="'+t('ip.rule.tip')+'">'+t('ip.rule')+'</div>'
       +'<div id="pins-sek-'+i+'" style="margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,0.1);'
       +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
-      +'\u2248 '+Math.round(ipRatt(ctxI, a, START_YEAR + 1)).toLocaleString('sv-SE')+' kr/yr</div></td>';
+      +'\u2248 '+Math.round(ipRatt(ctxI, a, contribRefYear(a))).toLocaleString('sv-SE')+' kr/yr</div></td>';
   }
   // Premium pension: 2.5 % of PGI, no Fixed/Salary choice
   if(isPpAutoAcc(a)){
@@ -4454,7 +4551,7 @@ function renderPInsContrib(i, a){
       +'<div style="font-size:10px;color:var(--muted);margin-bottom:3px" title="'+t('pp.rule.tip')+'">'+t('pp.rule')+'</div>'
       +'<div id="pins-sek-'+i+'" style="margin-top:5px;padding-top:4px;border-top:1px solid rgba(0,0,0,0.1);'
       +'font-size:11px;font-family:var(--font-m);color:var(--gold);text-align:right">'
-      +'\u2248 '+Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1)).toLocaleString('sv-SE')+' kr/yr</div></td>';
+      +'\u2248 '+Math.round(ppRatt(occMakeCtx(occParamsNow()), a, contribRefYear(a))).toLocaleString('sv-SE')+' kr/yr</div></td>';
   }
   // Scheme accounts follow the agreement's rules: show them, don't offer editing.
   if(a.scheme && OCC_SCHEMES[a.scheme] && !a.db){
@@ -4572,7 +4669,7 @@ function updatePInsSEK(i){
   var b2  = (a.cIBB2 != null ? a.cIBB2 : 30.0) * ibb;
   var r1  = a.cRate1 != null ? a.cRate1 : 4.5;
   var r2  = a.cRate2 != null ? a.cRate2 : 30;
-  var sek = isPpAutoAcc(a) ? Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1))
+  var sek = isPpAutoAcc(a) ? Math.round(ppRatt(occMakeCtx(occParamsNow()), a, contribRefYear(a)))
     : a.type==='state'
     ? Math.round(Math.min(sal,b1)*r1/100)
     : Math.round(Math.min(sal,b1)*r1/100 + Math.max(0,Math.min(sal,b2)-b1)*r2/100);
@@ -4584,7 +4681,8 @@ function updatePInsSEK(i){
 
 // ── Effective contribution (Fixed or Salary-based) ─────────────────────
 function effectiveContrib(a){
-  if(isPpAutoAcc(a)) return Math.round(ppRatt(occMakeCtx(occParamsNow()), a, START_YEAR + 1));
+  if(isIpEngineAcc(a)) return Math.round(ipRatt(occMakeCtx(occParamsNow()), a, contribRefYear(a)));
+  if(isPpAutoAcc(a)) return Math.round(ppRatt(occMakeCtx(occParamsNow()), a, contribRefYear(a)));
   if(a.contribSalary){
     var ibb = getParam('ibb') || 83400;
     var sal = grossSal('grossSalPre66') * 12;
@@ -5137,7 +5235,7 @@ function buildAccountsTable(){
       tr.setAttribute('data-grp',g.type);
       if(collapsed) tr.style.display='none';
       tr.innerHTML=`
-        <td><input type="text" class="acc-name-input" value="${(a.nameKey?t(a.nameKey):a.name).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${((a.type==='state' && a.delningstalScope==='premie') || isOccPremiumAcc(a)) ? `<label title="${isOccPremiumAcc(a) ? t('occ.own.eq.tip') : t('pp.glide.tip')}" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
+        <td><input type="text" class="acc-name-input" ${a.workRow?'readonly':''} title="${accDisplayName(a).replace(/"/g,'&quot;')}" value="${accDisplayName(a).replace(/"/g,'&quot;')}" data-ai="${i}" style="background:transparent;border:none;border-bottom:1px solid transparent;color:var(--text);-webkit-text-fill-color:var(--text);font-size:13px;font-weight:600;font-family:var(--font-b);width:100%;max-width:160px;padding:1px 2px;outline:none;cursor:pointer" onfocus="this.style.borderBottomColor='var(--gold)';this.style.background='var(--s2)';this.style.cursor='text'" onblur="this.style.borderBottomColor='transparent';this.style.background='transparent';accounts[parseInt(this.getAttribute('data-ai'))].nameKey=null;accounts[parseInt(this.getAttribute('data-ai'))].name=this.value.trim()||accounts[parseInt(this.getAttribute('data-ai'))].name;buildPortfolioTab&&buildPortfolioTab();buildWdTable&&buildWdTable();buildAssetSummary&&buildAssetSummary()" onkeydown="if(event.key==='Enter')this.blur()"><span class="acc-type">${a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state')}</span>${occBadgesHtml(a)}${((a.type==='state' && a.delningstalScope==='premie') || isOccPremiumAcc(a)) ? `<label title="${isOccPremiumAcc(a) ? t('occ.own.eq.tip') : t('pp.glide.tip')}" style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);margin-top:3px;cursor:pointer;white-space:nowrap"><input type="checkbox" ${a.ownEq?'checked':''} onchange="accounts[${i}].ownEq=this.checked;buildAccountsTable();setTimeout(updateAccountSubtotals,0);recalc()" style="accent-color:#48B866;cursor:pointer">${t('pp.own.eq')}</label>` : ''}</td>
         ${(a.db||a.benefit) ? OCC_DASH_TD : col(i,'opening',a.opening,1000,100)}
         ${a.db ? renderOccDbCell(i,a) : a.benefit ? renderBenefitCell(i,a) : renderPInsContrib(i,a)}
         ${isUnderlagAcc(a) ? col(i,'cs',a.cs,1,60) + col(i,'ce',a.ce,1,60) + OCC_DASH_TD.repeat(6) : (a.db||a.benefit) ? OCC_DASH_TD.repeat(8) : col(i,'cs',a.cs,1,60).replace(/<\/td>$/, csNote(a) + '</td>')
@@ -5150,7 +5248,7 @@ function buildAccountsTable(){
           + col(i,'mgmt',a.mgmt,0.01,60)
           + col(i,'yt',a.yt,0.01,60)
           + col(i,'fixedRet',a.fixedRet,0.1,60))}
-        <td style="padding:0 4px"><button onclick="removeAccount(${i})" title="Remove account" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button></td>
+        <td style="padding:0 4px">${a.workRow ? '<span title="'+t('pers.work.title')+'" style="font-size:10px;color:var(--muted)">auto</span>' : ''}${a.workRow ? '' : `<button onclick="removeAccount(${i})" title="Remove account" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -5553,6 +5651,7 @@ function runProjection(){
     monthlySalary:   grossSal('grossSalPre66'), // backward compat alias
     grossSalPre66:   grossSal('grossSalPre66'),   // 2025 salary raised to 2026 (Typfallsmodellen)
     grossSalPre67:   grossSal('grossSalPre67'),
+    workPeriod:      workPeriod(),          // second work period (after the first retirement) or null
     netSalPre66:     getParam('netSalPre66'),
     netSalPre67:     getParam('netSalPre67'),
     grossSalRet66:   getParam('grossSalRet66'),
@@ -5595,9 +5694,12 @@ function runProjection(){
   let balances = accounts.map(a => a.opening);
   // Statutory pension fixed at the first payout year, then följsamhetsindexerad.
   let statutoryPension = accounts.map(() => null);
+  let statState = accounts.map(() => null);   // {mult, share, dt0, yr0} of a statutory annuity (share changes while working)
 
   for(let yr=START_YEAR; yr<=endYear; yr++){
     const age = yr - params.birthYear;
+    const _workingYr = yr < params.retirementYear || workInPeriod(params.workPeriod, yr);
+    const _inWorkAgain = workInPeriod(params.workPeriod, yr) && yr >= params.retirementYear;
     const contribFactor  = yr === START_YEAR ? _contribFactor1  : 1;
     const retFraction    = yr === START_YEAR ? _returnFraction1 : 1;
     // Geometric partial-year return: (1+r)^fraction - 1
@@ -5729,7 +5831,7 @@ function runProjection(){
         // Salary-based contribution for P-Insurance accounts
         if(isOccPremiumAcc(a)){
           // Typfallsmodellen premium rules; first projection year pro-rated
-          contrib = (yr>=a.cs && yr<=a.ce && yr<params.retirementYear)
+          contrib = (yr>=a.cs && yr<=a.ce && _workingYr)
             ? occPremiumFor(a, _occ, yr) * contribFactor : 0;
         } else if(isIpEngineAcc(a)){
           // Pension right for the previous year's income, credited this year
@@ -5737,7 +5839,7 @@ function runProjection(){
         } else if(isPpAutoAcc(a)){
           // Typfallsmodellen (VBA ppavgift/PP_pbh): 2.5 % of PGI from the PREVIOUS year's income, credited this year with RGK interest
           contrib = ppRatt(_occ, a, yr) * ppRgk(yr);
-        } else if((a.type==='p-ins'||a.type==='state') && a.contribSalary && yr>=a.cs && yr<=a.ce && yr<params.retirementYear){
+        } else if((a.type==='p-ins'||a.type==='state') && a.contribSalary && yr>=a.cs && yr<=a.ce && _workingYr){
           const ibb        = getParam('ibb')||83400;
           // Age-based salary selection
     const _salAgeThresh = params.allowanceAge || 67;
@@ -5748,7 +5850,8 @@ function runProjection(){
     } else {
       _baseSal = age < _salAgeThresh ? params.grossSalRet66 : (params.grossSalRet67 || params.grossSalRet66);
     }
-    const annSalary  = _baseSal*12*Math.pow(1+(_isRetired?0:(params.salaryIncrease||0)), yr-START_YEAR);
+    const annSalary  = _inWorkAgain ? params.workPeriod.sal*12*Math.pow(1+(params.salaryIncrease||0), yr-START_YEAR)
+                                    : _baseSal*12*Math.pow(1+(_isRetired?0:(params.salaryIncrease||0)), yr-START_YEAR);
           const bracket1   = (a.cIBB1 != null ? a.cIBB1 : 7.5)*ibb;
           const bracket2   = (a.cIBB2 != null ? a.cIBB2 : 30.0)*ibb;
           const _r1 = a.cRate1 != null ? a.cRate1 : 4.5;
@@ -5763,7 +5866,7 @@ function runProjection(){
           }
         } else {
           // Contributing "until retirement age" stops in the retirement year itself
-          const _annCf = (yr>=a.cs && yr<=a.ce && (yr<params.retirementYear || a.ce>params.retirementYear)) ? (a.contrib||0) : 0;
+          const _annCf = (yr>=a.cs && yr<=a.ce && (_workingYr || (a.ce>params.retirementYear && !a.ceAuto))) ? (a.contrib||0) : 0;
           contrib = monthlyFV(_annCf, calcReturn(a, age, params), a.yt||0, a.mgmt||0);
         }
         contribPreTax += contrib;
@@ -5813,22 +5916,37 @@ function runProjection(){
           // 100% / 75% / 50% / 25% / 0%.
           // Note: state pensions are intentionally NOT subject to the
           // interval override — they always follow delningstal logic.
-          var _share = (a.wdShare != null ? a.wdShare : 1);
+          var _share = wdShareAt(a, yr, params.workPeriod);
           if(a.actuarial || isIpEngineAcc(a)){
             // Statutory mechanic (Typfallsmodellen): the pension is set ONCE in
             // the first payout year as behållning / delningstal, then
             // följsamhetsindexeras for life. It is a lifelong annuity carried by
             // the collective, not a drawdown of the individual's balance, so it
             // neither accelerates downwards nor stops when the balance runs out.
+            // statutoryPension holds the FULL (100 %) annuity; statState[i].mult is the share actually paid. A constant share
+            // gives the same result as before. When the share rises again (e.g. after a work period with a lower share), the
+            // part held back is released at the divisor of that age: mult += Δshare × dt0/dt(age) × (1+förskottsränta)^years.
             if(statutoryPension[i] == null){
               var _dt0 = resolveDelningstal(a, age);
-              statutoryPension[i] = _dt0 > 0 ? Math.max(0, opening + (isIpEngineAcc(a) ? contrib : 0)) / _dt0 * _share : 0;
+              statutoryPension[i] = _dt0 > 0 ? Math.max(0, opening + (isIpEngineAcc(a) ? contrib : 0)) / _dt0 : 0;
+              statState[i] = {mult: _share, share: _share, dt0: _dt0, yr0: yr};
             } else {
               // tjänstepension is indexed with prisbasbelopp = flat in constant prices
               if(isIpEngineAcc(a)) statutoryPension[i] = statutoryPension[i] * ipIndexRatio(_occ, yr) / (1 + FOLJSAMHET_FORSKOTTSRANTA);
               else if(a.type === 'state') statutoryPension[i] = statutoryPension[i] / (1 + FOLJSAMHET_FORSKOTTSRANTA);
+              var _ss = statState[i];
+              if(a.recalcYearly && contrib > 0){
+                // yearly recalculation: the rights credited this year raise the annuity by contrib / divisor(age)
+                var _dtY = resolveDelningstal(a, age);
+                if(_dtY > 0) statutoryPension[i] += contrib / _dtY;
+              }
+              if(Math.abs(_share - _ss.share) > 1e-9){
+                var _dtN = resolveDelningstal(a, age);
+                _ss.mult += (_share - _ss.share) * (_share > _ss.share && _dtN > 0 && _ss.dt0 > 0 ? (_ss.dt0 / _dtN) * Math.pow(1 + FOLJSAMHET_FORSKOTTSRANTA, yr - _ss.yr0) : 1);
+                _ss.share = _share;
+              }
             }
-            wd = Math.round(statutoryPension[i]);
+            wd = Math.round(statutoryPension[i] * statState[i].mult);
           } else {
             var _dt = resolveDelningstal(a, age);
             wd = _dt > 0 ? Math.round(Math.max(0, opening) / _dt * _share) : 0;
@@ -5939,12 +6057,18 @@ function runProjection(){
     const _salThreshEI = params.allowanceAge || 67;
     const _baseSalEI   = !_isRetiredEI
       ? (age < _salThreshEI ? params.grossSalPre66 : (params.grossSalPre67 || params.grossSalPre66))
-      : (age < _salThreshEI ? params.grossSalRet66 : (params.grossSalRet67 || params.grossSalRet66));
-    const earnedIncomePre  = _baseSalEI * 12 * Math.pow(1+(_isRetiredEI?0:(params.salaryIncrease||0)), yr-START_YEAR);
+      : (_inWorkAgain ? params.workPeriod.sal
+        : (age < _salThreshEI ? params.grossSalRet66 : (params.grossSalRet67 || params.grossSalRet66)));
+    const earnedIncomePre  = _baseSalEI * 12 * Math.pow(1+((_isRetiredEI && !_inWorkAgain)?0:(params.salaryIncrease||0)), yr-START_YEAR);
     const _incResult       = (earnedIncomePre>0 && typeof incComputeParams==='function')
       ? incComputeParams(earnedIncomePre/12, 0, 0, _munPct, 0, 0, _ageMode) : {netto:0};
-    const earnedIncomePost = _incResult.netto;
-    const salaryTax = _incResult.totalSkatt || 0;
+    // Salary and pension in the same year (work after retirement): one combined taxable income, as in Typfallsmodellen
+    // (one grundavdrag, jobbskatteavdrag on the salary part). Pension tax stays "pension alone"; the salary carries the extra tax.
+    const _comb = (earnedIncomePre>0 && totalWdrlTaxable>0 && typeof incComputeParams==='function')
+      ? incComputeParams(earnedIncomePre/12, 0, totalWdrlTaxable/12, _munPct, 0, BEGRAV_AVG, _ageMode) : null;
+    const _cr = _comb || _incResult;
+    const salaryTax = _comb ? Math.max(0, _comb.totalSkatt - _pt.total) : (_incResult.totalSkatt || 0);
+    const earnedIncomePost = _comb ? earnedIncomePre - salaryTax : _incResult.netto;
     const totalAfterTaxIncome = earnedIncomePost + afterTaxIncome;
     const ratio     = expThisYear > 0 ? totalAfterTaxIncome/expThisYear : (annualExpenses>0 ? totalAfterTaxIncome/annualExpenses : 0);
     const wdrlRate  = totalPort > 0 ? (totalWdrlTaxable+totalWdrlFree)/totalPort : 0;
@@ -5977,14 +6101,14 @@ function runProjection(){
     row.wdrlState     = wdrlState;
     row.salaryTax     = salaryTax;
     // Chart categories, same for salary and pension years (they add up to salaryTax + totalTax)
-    row.cTaxMun   = (_incResult.kommunal||0) - (_incResult.jobbAnv||0) - (_incResult.forvAnv||0)
-                    + (_incResult.kyrkaKr||0) + (_incResult.begrKr||0) + _pt.kommunal + _pt.begrav;
+    row.cTaxMun   = (_cr.kommunal||0) - (_cr.jobbAnv||0) - (_cr.forvAnv||0)
+                    + (_cr.kyrkaKr||0) + (_cr.begrKr||0) + (_comb ? 0 : _pt.kommunal + _pt.begrav);
     // General pension fee (7 % of salary) net of its tax reduction: not a municipal tax, shown on its own
-    row.cTaxPens  = (_incResult.pensAvg||0) - (_incResult.pensRed||0);
+    row.cTaxPens  = (_cr.pensAvg||0) - (_cr.pensRed||0);
     // Capital tax = the yearly yield taxes on after-tax accounts (ISK / K-insurance) and pension accounts (avkastningsskatt)
     row.cTaxCap   = (yieldTaxK||0) + (yieldTaxP||0);
-    row.cTaxState = (_incResult.statlig||0) + _pt.statlig;
-    row.cTaxFee   = (_incResult.ps||0) + _pt.publicAvg;
+    row.cTaxState = (_cr.statlig||0) + (_comb ? 0 : _pt.statlig);
+    row.cTaxFee   = (_cr.ps||0) + (_comb ? 0 : _pt.publicAvg);
     row.munTax        = munTaxAmt;
     row.stateTax      = stateTaxAmt;
     row.totalTax      = totalTax;
@@ -6284,7 +6408,7 @@ function updateCharts(data){
       labels,
       datasets:[
         { label:t('dash.ils.salary'),
-          data: years.map(function(y){ return y.yr < params.retirementYear ? Math.round(_ilsMode==='gross' ? (y.earnedIncomePre||0) : (y.earnedIncomePost||0)) : 0; }),
+          data: years.map(function(y){ return Math.round(_ilsMode==='gross' ? (y.earnedIncomePre||0) : (y.earnedIncomePost||0)); }),
           backgroundColor:'rgba(74,143,204,0.35)',
           borderColor:'rgba(74,143,204,0.6)', borderWidth:1,
           categoryPercentage:1.0, barPercentage:1.0, stack:'income' },
@@ -6364,9 +6488,10 @@ function updateCharts(data){
             var fmtVT = function(v){ return Math.round((v||0)*_tf/_div).toLocaleString('sv-SE'); };
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:4px">'+t('wd.chart.tooltip.age')+' '+yr.age+' · '+yr.yr+'</div>'
-              + (!isRet
+              + ((!isRet || (yr.earnedIncomePre||0) > 0)
                 ? '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#4885C4">'+t('dash.ils.salary')+'</span><span style="color:#4885C4">'+fmtV(_isNet?(yr.earnedIncomePost||0):(yr.earnedIncomePre||0))+' '+_period+'</span></div>'
-                : (_isNet ? '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#48B866">'+t('dash.ils.after.acc')+'</span><span style="color:#48B866">'+fmtV(yr.taxFree)+' '+_period+'</span></div>' : '')
+                : '')
+              + (!isRet ? '' : (_isNet ? '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#48B866">'+t('dash.ils.after.acc')+'</span><span style="color:#48B866">'+fmtV(yr.taxFree)+' '+_period+'</span></div>' : '')
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#4885C4">'+t('acc.badge.pins')+'</span><span style="color:#4885C4">'+fmtVT(yr.wdrlPIns)+' '+_period+'</span></div>'
                 + '<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:#C4B89A">'+t('acc.badge.state')+'</span><span style="color:#C4B89A">'+fmtVT(yr.wdrlState)+' '+_period+'</span></div>')
               + (isRet
@@ -6921,6 +7046,8 @@ function updateHeaderSub(){
 function recalc(){
   try{
     updateHeaderSub();
+    workAgainValidate();
+    if(syncWorkRows() | ceSyncEnd()){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
     const data = runProjection();
     _projYears = data.years; _projParams = data.params;
     if(window._occOpeningChanged){ window._occOpeningChanged = false; buildAccountsTable(); }
@@ -8091,6 +8218,19 @@ function buildWdTable(){
         var _shareHtml = '<div style="display:inline-flex;gap:2px">'
           + _shareBtn(100) + _shareBtn(75) + _shareBtn(50) + _shareBtn(25) + _shareBtn(0)
           + '</div>';
+        // Separate share while working again (second work period on the Personal tab), main Income / Premium pension rows only
+        var _wpNow = workPeriod(), _workShareHtml = '';
+        if(_wpNow && !a.workRow && (_scope === 'inkomst' || _scope === 'premie')){
+          var _wsh = a.wdShareWork != null ? a.wdShareWork : _share;
+          _workShareHtml = '<div style="font-size:8px;color:var(--muted);margin-top:3px;letter-spacing:.03em" title="'+t('pers.work.hint').replace(/"/g,'&quot;')+'">'
+            + t('pers.work.share') + ' ' + _wpNow.fa + '\u2013' + _wpNow.ta + '</div><div style="display:inline-flex;gap:2px">'
+            + [100,75,50,25,0].map(function(pct){
+                var on2 = Math.abs(_wsh - pct/100) < 0.001;
+                return '<button onclick="setWorkShare('+ai+','+(pct/100)+')" style="background:'+(on2?'rgba(233,184,74,.9)':'transparent')+';color:'+(on2?'#0f1f3d':'var(--muted)')+';'
+                  +'border:1px solid '+(on2?'rgba(233,184,74,.9)':'var(--border)')+';border-radius:3px;padding:1px 4px;font-size:8px;font-weight:'+(on2?'700':'600')+';'
+                  +'letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:var(--font-b);line-height:1.3">'+pct+'%</button>';
+              }).join('') + '</div>';
+        }
         // Manual WD escape hatch only for 'custom' scope (Inkomst/Premie scopes
         // are locked into delningstal, per the original "user should not be
         // able to decide the withdrawal rate" intent for state pensions).
@@ -8111,6 +8251,7 @@ function buildWdTable(){
           +'<div style="display:inline-flex;gap:2px">'+_modesHtml+'</div>'
           + _ownInputHtml
           + _shareHtml
+          + _workShareHtml
           + _manualBtn
           +'</div>';
         tr+='<td class="wd-edit-cell wd-state-cell" style="padding:4px 5px;text-align:right">'+_badge+'</td>';
@@ -8279,7 +8420,7 @@ function persRelinkAccounts(){
   if(_lastBy == null){ persTrack(); return false; }
   var by = Math.round(getParam('birthYear')), w = workStartAge(), retY = defaultCe(), changed = false;
   accounts.forEach(function(a){
-    if(!(a.cs < 9999)) return;
+    if(!(a.cs < 9999) || a.workRow) return;
     var oldCs = _csFor(a, _lastBy, _lastWorkAge), newCs = _csFor(a, by, w);
     if(a.ce === _lastRetY && a.ce !== retY){ a.ce = retY; changed = true; }
     if(a.cs === oldCs && a.cs !== newCs){ a.cs = newCs; changed = true; }
@@ -8389,6 +8530,13 @@ function setCustomDelningstal(el){
   recalc();
 }
 
+function setWorkShare(ai, share){
+  var a = accounts[ai];
+  if(!a || a.type !== 'state') return;
+  a.wdShareWork = share;
+  buildWdTable();
+  recalc();
+}
 function setWithdrawalShare(ai, share){
   var a = accounts[ai];
   if(!a || a.type !== 'state') return;
@@ -9637,7 +9785,7 @@ function _updateILSChart(){
   var isNet = _ilsMode === 'net';
   var ds = charts.chartIncomeLifetime.data.datasets;
   // Salary: gross vs net (earnedIncomePost is already net)
-  ds[0].data = years.map(function(y){ return y.yr < params.retirementYear ? Math.round((isNet?(y.earnedIncomePost||0):(y.earnedIncomePre||0))/div) : 0; });
+  ds[0].data = years.map(function(y){ return Math.round((isNet?(y.earnedIncomePost||0):(y.earnedIncomePre||0))/div); });
   // After-tax accounts: no tax deduction (already tax-free); only meaningful
   // as a net-income line item, so hide it in Before Tax mode.
   ds[1].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.taxFree||0)/div) : 0; });
@@ -10900,6 +11048,7 @@ function applyPlanState(state){
     ['bdReturn','mc-ret-bd'].forEach(function(id){ if(id in inp && _old(inp[id], ['0,5','1,7'])) inp[id] = '1,9'; });
     if('salaryIncrease' in inp && _old(inp.salaryIncrease, ['1,0','1'])) inp.salaryIncrease = '0,0';
   }
+  ['workAgainSal','workAgainFrom','workAgainTo'].forEach(function(id){ if(!(id in inp)) inp[id] = '0'; });   // older saves: no work after retirement
   Object.keys(inp).forEach(function(id){
     var el = document.getElementById(id);
     if(!el) return;
@@ -11065,7 +11214,7 @@ function resetAssumptions(toast){
 function planClear(){
   guideClose();
   resetAssumptions();
-  ['grossSalPre66','grossSalPre67','netSalPre66','netSalPre67',
+  ['grossSalPre66','grossSalPre67','netSalPre66','netSalPre67','workAgainSal','workAgainFrom','workAgainTo',
    'inc-lon','inc-vaxling','inc-pension'
   ].forEach(function(id){ _setInp(id, '0'); });
   accounts.length = 0;
