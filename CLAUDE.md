@@ -281,6 +281,10 @@ published, replace the workbook and re-verify everything below.
   re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
   (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Not covered: pension drawn while still working is taxed separately from the salary; `taxAdjPort` and the
   "After tax" display modes use flat tax-rate inputs; the workbook's 32,38 % municipal default is a user input here (32,4 %)
+- Salary tax before retirement uses the same age rule as the pension tax: `_ageMode = age >= xAge(yr) ? 'over' : 'under'` (workbook `Xage` drives both grundavdrag and
+  jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 744 at 67), retirement year 68 =
+  pension tax 112 684 (30,6 %, grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 184 = 119 868, age 69 = pension tax 70 913 after förhöjt grundavdrag (~152 000) = 77 839 total.
+  Projection table has a "Salary Tax" column (`y.salaryTax`, also in the export) because the Municipal/State columns are pension tax only (0 before retirement)
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
   control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan
