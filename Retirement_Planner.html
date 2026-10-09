@@ -122,12 +122,12 @@ var retStarPlugin = {
     var tk = x.ticks = x.ticks || {};
     var baseColor = tk.color, baseFont = tk.font;
     tk.color = function(ctx) {
-      if (idxs.indexOf(ctx.index) >= 0) return '#D9A500';
+      if (idxs.indexOf(ctx.tick ? ctx.tick.value : ctx.index) >= 0) return '#D9A500';
       return typeof baseColor === 'function' ? baseColor(ctx) : (baseColor || '#64748b');
     };
     tk.font = function(ctx) {
       var f = typeof baseFont === 'function' ? baseFont(ctx) : Object.assign({}, baseFont || {});
-      if (idxs.indexOf(ctx.index) >= 0) f.weight = 'bold';
+      if (idxs.indexOf(ctx.tick ? ctx.tick.value : ctx.index) >= 0) f.weight = 'bold';
       return f;
     };
     tk.major = Object.assign({}, tk.major, { enabled: true });
