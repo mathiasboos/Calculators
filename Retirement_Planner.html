@@ -1633,15 +1633,14 @@ en:{
   'nav.dashboard':'Dashboard','nav.personal':'Personal','nav.expenses':'Expenses',
   'nav.accounts':'Assets','nav.params':'Params','nav.proj':'Projection',
   'hdr.subtitle':'Constant prices · Swedish tax rules · All amounts in SEK',
+  'tile.goalTarget':'Saving Goal (Target Portfolio)',
+  'tile.goalTarget.sub':'{mult}× annual expenses = target portfolio',
+  'tip.goalTarget':'The target portfolio at retirement: the saving multiplier (Expenses tab, based on how many years the money must last) × your annual expenses.',
+  'tile.portRet':'Portfolio Value After Tax at Retirement',
+  'tile.portRet.sub':'Age {age} · after-tax accounts + P-insurance/state after est. tax',
+  'tip.portRet':'Portfolio value at retirement after estimated tax: after-tax accounts + the pre-tax accounts × (1 − municipal tax). Compared with the saving goal in the card to the right.',
   'tile.goalFulfil':'Saving Goal Fulfillment',
   'tile.goalFulfil.sub':'Portfolio after tax at retirement ÷ ({mult}× expenses)',
-  'tile.wdrlRate':'Max Withdrawal Rate',
-  'tile.wdrlRate.sub':'{amt} kr/mth from savings to age {age} · excl. state pension',
-  'tile.wdrlRate.none':'No savings to withdraw from',
-  'tile.depletion':'Portfolio Runs Out',
-  'tile.depletion.never':'Lasts to age {age} (life expectancy)',
-  'tile.depletion.age':'Age {age} · savings used up',
-  'tile.depletion.none':'No savings to withdraw from',
   'tile.maxSpend':'Max Sustainable Spending',
   'tile.maxSpend.sub':'4% rule applied at retirement',
   'tile.totalTax':'Total Taxes (Retirement)',
@@ -2080,7 +2079,7 @@ en:{
   'mc.wd.acct.info':'Data is collected from the Withdrawals tab and the ACCOUNT WITHDRAWALS PER PERIOD table.',
   'mc.wd.age.info':'Data is collected from the Withdrawals tab and the AGE-BASED EXPENSE INTERVALS table.',
   'sc.notice':'Assumes constant returns each year — no market volatility. Run Monte Carlo for a realistic range of outcomes.','mc.notice':'The Scenarios tab shows the same plan under constant-return assumptions — useful as a baseline before interpreting the probability distribution here.',
-  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.wdrlRate':'The highest constant yearly withdrawal that uses up your savings exactly at life expectancy, as a % of the savings at retirement. The amount stays the same in real terms every year (year 1 = this % of the initial savings, later years = that amount adjusted for inflation). Savings = after-tax accounts + P-insurance with planned withdrawals (after estimated tax). State pensions and lifelong occupational pensions are not included, they pay on their own terms.','tip.depletion':'The year your savings (after-tax accounts + P-insurance with planned withdrawals) run out with the withdrawals set on the Withdrawals tab. State pensions and lifelong occupational pensions keep paying and are not counted.\n\n🟢 Never — the savings last to life expectancy\n🔴 Year shown — the savings run out before life expectancy','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
+  'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\n🟢 ≥ 70% — Good income replacement (EU benchmark)\n🟡 50–70% — Moderate; lifestyle adjustments may be needed\n🔴 < 50% — Low replacement; significant spending reduction required',
   'summary.at.ret':'At retirement · ',
   'tile.phasePension':'Monthly Pension · Age {from}–{to}',
   'tile.phase.gogo':'Go-go years',
@@ -2140,15 +2139,14 @@ sv:{
   'nav.dashboard':'Översikt','nav.personal':'Personuppgifter','nav.expenses':'Utgifter',
   'nav.accounts':'Tillgångar','nav.params':'Parametrar','nav.proj':'Prognos',
   'hdr.subtitle':'Fasta priser · Svenska skatteregler · Alla belopp i SEK',
+  'tile.goalTarget':'Sparmål (målportfölj)',
+  'tile.goalTarget.sub':'{mult}× årsutgifter = målportfölj',
+  'tip.goalTarget':'Målportföljen vid pension: sparfaktorn (fliken Utgifter, beror på hur många år pengarna ska räcka) × dina årsutgifter.',
+  'tile.portRet':'Portföljvärde efter skatt vid pension',
+  'tile.portRet.sub':'Ålder {age} · efterskattekonton + P-försäkring/statlig efter beräknad skatt',
+  'tip.portRet':'Portföljvärdet vid pension efter beräknad skatt: efterskattekonton + förskattade konton × (1 − kommunalskatt). Jämförs med sparmålet i kortet till höger.',
   'tile.goalFulfil':'Sparmålsuppfyllelse',
   'tile.goalFulfil.sub':'Portfölj efter skatt vid pension ÷ ({mult}× utgifter)',
-  'tile.wdrlRate':'Max uttagsnivå',
-  'tile.wdrlRate.sub':'{amt} kr/mån från sparandet till ålder {age} · exkl. statlig pension',
-  'tile.wdrlRate.none':'Inget sparande att ta uttag från',
-  'tile.depletion':'Kapitalet tar slut',
-  'tile.depletion.never':'Räcker till ålder {age} (förväntad livslängd)',
-  'tile.depletion.age':'Ålder {age} · sparandet slut',
-  'tile.depletion.none':'Inget sparande att ta uttag från',
   'tile.maxSpend':'Max Hållbart Uttag',
   'tile.maxSpend.sub':'4%-regeln tillämpas vid pension',
   'tile.totalTax':'Total Skatt (Pension)',
@@ -2587,7 +2585,7 @@ sv:{
   'mc.wd.acct.info':'Data hämtas från Uttag-fliken och tabellen KONTOUTTAG PER PERIOD.',
   'mc.wd.age.info':'Data hämtas från Uttag-fliken och tabellen ÅLDERSBASERADE UTGIFTSINTERVALL.',
   'sc.notice':'Antar konstant avkastning varje år — ingen marknadsvolatilitet. Kör Monte Carlo för ett realistiskt utfallsintervall.','mc.notice':'Scenarier-fliken visar samma plan med konstanta avkastningsantaganden — användbart som referenspunkt innan du tolkar sannolikhetsfördelningen här.',
-  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.wdrlRate':'Det högsta konstanta årsuttag som gör att sparandet tar slut exakt vid förväntad livslängd, som % av sparandet vid pensionen. Beloppet är lika stort i fasta priser varje år (år 1 = denna % av det ursprungliga sparandet, senare år = beloppet justerat för inflation). Sparande = efterskattekonton + P-försäkring med planerade uttag (efter beräknad skatt). Statlig pension och livsvarig tjänstepension ingår inte, de betalas ut på egna villkor.','tip.depletion':'Året då ditt sparande (efterskattekonton + P-försäkring med planerade uttag) tar slut med de uttag som är satta på fliken Uttag. Statlig pension och livsvarig tjänstepension fortsätter att betalas och räknas inte.\n\n🟢 Aldrig — sparandet räcker till förväntad livslängd\n🔴 År visas — sparandet tar slut före förväntad livslängd','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
+  'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\n🟢 ≥ 70% — God inkomstkvot (EU-riktmärke)\n🟡 50–70% — Måttlig; livsstilsjusteringar kan behövas\n🔴 < 50% — Låg kvot; betydande utgiftsminskning krävs',
   'summary.at.ret':'Vid pension · ',
   'tile.phasePension':'Månadspension · Ålder {from}–{to}',
   'tile.phase.gogo':'Aktiva år (go-go)',
@@ -6656,23 +6654,13 @@ function updateDashboard(data){
   const _firstRetPen = _firstRetYr ? (_firstRetYr.wdrlState||0)+(_firstRetYr.wdrlPIns||0) : 0;
   const repRate      = _finalSal>0 ? _firstRetPen/_finalSal : 0;
 
-// Savings that can be withdrawn from (after-tax + planned P-insurance); the depletion tile follows the same signal as the Maximize functions
-const _savAtRet  = retRow ? (retRow.portAfterTax||0)+(retRow.portPInsPlanned||0) : 0;
-const _savDepRow = _savAtRet >= 1 ? years.find(y=>y.yr>=params.retirementYear && ((y.portAfterTax||0)+(y.portPInsPlanned||0))<1) : null;
-const _maxWr     = maxSustainableRate(years, params);
-const _lifeAge   = params.lifeYear - params.birthYear;
-
+const _multTxt = (Math.round(mult*10)/10).toFixed(1); const _multFmt = _lang==='sv' ? _multTxt.replace('.', ',') : _multTxt;
+const _retAge  = params.retirementYear - params.birthYear;
 const top = [
+    {label:t('tile.goalTarget'),val:'SEK '+fmt(savingGoal),sub:t('tile.goalTarget.sub',{mult:_multFmt}),cls:'good',tile:'',tip:t('tip.goalTarget')},
+    {label:t('tile.portRet'),val:'SEK '+fmt(taxAdjPort),sub:t('tile.portRet.sub',{age:_retAge}),cls:taxAdjPort>=savingGoal?'good':'warn',tile:'emerald',tip:t('tip.portRet')},
     {label:t('tile.goalFulfil'),val:fmtPct(taxAdjGoalFul),sub:t('tile.goalFulfil.sub',{mult:mult}),cls:taxAdjGoalFul>=1?'good':'warn',tile:'',
      tip:t('tip.goalFulfil')},
-    {label:t('tile.wdrlRate'),
-     val:_maxWr ? fmtPct(_maxWr.rate) : '\u2014',
-     sub:_maxWr ? t('tile.wdrlRate.sub',{amt:fmt(_maxWr.annual/12), age:_lifeAge}) : t('tile.wdrlRate.none'),
-     cls:'',tile:'emerald',tip:t('tip.wdrlRate')},
-    {label:t('tile.depletion'),
-     val:_savAtRet<1 ? '\u2014' : (_savDepRow ? _savDepRow.yr : t('sc.never')),
-     sub:_savAtRet<1 ? t('tile.depletion.none') : (_savDepRow ? t('tile.depletion.age',{age:_savDepRow.age}) : t('tile.depletion.never',{age:_lifeAge})),
-     cls:_savAtRet<1 ? '' : (_savDepRow ? 'bad' : 'good'), tile:_savAtRet<1 ? '' : (_savDepRow ? 'rose' : 'emerald'), tip:t('tip.depletion')},
     {label:t('tile.repRate'),val:fmtPct(repRate),sub:t('tile.repRate.sub',{net:fmtPct(repRateNet)}),cls:repRate>=0.7?'good':repRate>=0.5?'warn':'bad',tile:'emerald',tip:t('tip.repRate')},
   ];
   const mid = buildPhaseTiles(data);
@@ -6896,33 +6884,6 @@ function setPortMode(mode){
 
 
 
-
-// ── MAX SUSTAINABLE WITHDRAWAL RATE (Dashboard tile) ────────────────────
-// Highest constant yearly withdrawal, in real terms (= inflation-adjusted), that empties the savings exactly at life
-// expectancy. Savings = after-tax accounts + P-insurance with planned withdrawals (tax-adjusted); state pensions and
-// lifelong / defined-benefit schemes pay on their own terms and are not included. Each account at its own maximum, using
-// its own yearly net return (equity glide, fees, yield tax): W = B0 / sum_k 1/prod_{j<=k}(1+r_j), withdrawn at year end.
-function maxSustainableRate(years, params){
-  var retRow = years.find(function(y){ return y.yr === params.retirementYear; });
-  var n = params.lifeYear - params.retirementYear;
-  if(!retRow || !retRow.accClosing || n <= 0) return null;
-  var retAge = params.retirementYear - params.birthYear, munR = params.munTax || 0;
-  var base = 0, net = 0;
-  accounts.forEach(function(a, i){
-    var bal = retRow.accClosing[i] || 0;
-    if(bal < 1 || a.type === 'state' || (a.type === 'p-ins' && !isPlannedPIns(a))) return;
-    var f = 1, pv = 0;
-    for(var k = 1; k <= n + 1; k++){                                       // withdrawals run through the life-expectancy year
-      var age = retAge + k - 1, r;
-      if(isOccPremiumAcc(a) && !a.ownEq) r = getParam('occReturn')/100;     // already net of fees
-      else r = calcReturn(a, age, params) - (a.yt||0) - (a.mgmt||0);
-      f *= (1 + r); pv += 1 / f;
-    }
-    var w = bal / pv, c = a.taxable ? (1 - munR) : 1;                       // pension withdrawals are taxed
-    base += bal * c; net += w * c;
-  });
-  return base >= 1 ? {rate: net / base, annual: net, base: base, years: n} : null;
-}
 
 function refreshEqHeaders(){
   const f1 = getParam('ageFrom1')||55;
