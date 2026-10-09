@@ -1586,7 +1586,7 @@ input[type="number"]::-webkit-outer-spin-button {
         <tr>
           <th colspan="2" style="background:var(--s2);border-bottom:1px solid var(--border)"></th>
           <th colspan="7"  style="background:linear-gradient(rgba(60,187,110,.13),rgba(60,187,110,.13)),var(--s1);color:#48B866;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #48B866" data-i18n="proj.grp.after">After-Tax Portfolio</th>
-          <th colspan="10" style="background:linear-gradient(rgba(74,143,204,.13),rgba(74,143,204,.13)),var(--s1);color:#4885C4;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #4885C4" data-i18n="proj.grp.pre">Pre-Tax Portfolio</th>
+          <th colspan="8" style="background:linear-gradient(rgba(74,143,204,.13),rgba(74,143,204,.13)),var(--s1);color:#4885C4;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #4885C4" data-i18n="proj.grp.pre">Pre-Tax Portfolio</th>
           <th colspan="16" style="background:var(--s2);color:var(--muted);text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)" data-i18n="proj.grp.metrics">Metrics</th>
         </tr>
         <!-- Column header row -->
@@ -1609,8 +1609,6 @@ input[type="number"]::-webkit-outer-spin-button {
           <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.mgmtPT">Mgmt Fee Pre-Tax (SEK)</th>
           <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.preTax">Withdrawal Pre-Tax Accts</th>
           <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.wdrlNet">Withdrawal After Tax</th>
-          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.mun">Municipal Tax</th>
-          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.st">State Tax</th>
           <th style="background:linear-gradient(rgba(74,143,204,.10),rgba(74,143,204,.10)),var(--s1);color:#4885C4;font-weight:700" data-i18n="proj.col.pbt">Closing Pre-Tax (SEK)</th>
           <!-- Metrics group (neutral) -->
           <th style="background:var(--s2);color:var(--muted)" data-i18n="proj.col.earnPre">Earned Income Before Tax</th>
@@ -1745,7 +1743,6 @@ en:{
   'proj.col.wdrlNet':'Withdrawal After Tax',
   'proj.col.income':'After-Tax Income','proj.col.exp':'Expenses',
   'proj.col.ratio':'Inc/Exp','proj.col.eq':'Equity %',
-  'proj.col.mun':'Municipal Tax','proj.col.st':'State Tax',
   'proj.col.wdRate':'Withdraw Rate','proj.col.goal':'Goal Fulfillment',
   'proj.tag.ret':'Retirement','proj.retired':'Retirement',
   'summary.overview':'All metrics computed at retirement year',
@@ -2258,7 +2255,6 @@ sv:{
   'proj.col.wdrlNet':'Uttag efter skatt (netto)',
   'proj.col.income':'Inkomst efter skatt','proj.col.exp':'Utgifter',
   'proj.col.ratio':'Ink/Utg','proj.col.eq':'Aktie %',
-  'proj.col.mun':'Kommunalskatt','proj.col.st':'Statlig skatt',
   'proj.col.wdRate':'Uttagsgrad','proj.col.goal':'Måluppfyllelse',
   'proj.tag.ret':'Pension','proj.retired':'Pension',
   'summary.overview':'Alla nyckeltal beräknas vid pensionsåret',
@@ -6757,8 +6753,6 @@ function updateProjectionTable(data){
       <td style="background:rgba(74,143,204,.06);color:#4885C4">${fmt(y.mgmtFeePT)}</td>
       <td style="background:rgba(74,143,204,.06);color:#4885C4">${fmt(y.taxable)}</td>
       <td style="background:rgba(74,143,204,.06);color:#4885C4">${fmt(y.withdrawalAfterTax)}</td>
-      <td style="background:rgba(74,143,204,.06);color:#4885C4">${fmt(y.munTax)}</td>
-      <td style="background:rgba(74,143,204,.06);color:#4885C4">${fmt(y.stateTax)}</td>
       <td style="background:rgba(74,143,204,.12);color:#4885C4;font-weight:600">${fmt(y.portBeforeTax)}</td>
       <td class="${y.afterTaxIncome>0?'good':''}">${fmt(y.earnedIncomePre)}</td>
       <td style="color:#FF5B2E">${fmt(y.salaryTax)}</td>
