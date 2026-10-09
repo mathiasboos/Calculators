@@ -285,6 +285,7 @@ published, replace the workbook and re-verify everything below.
   jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 744 at 67), retirement year 68 =
   pension tax 112 684 (30,6 %, grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 184 = 119 868, age 69 = pension tax 70 913 after förhöjt grundavdrag (~152 000) = 77 839 total.
   Projection table has a "Salary Tax" column (`y.salaryTax`, also in the export) because the Municipal/State columns are pension tax only (0 before retirement)
+  and, right after it, the same five tax-chart categories for ALL years (`cTaxMun/State/Fee/Pens/Cap`) plus "Total Tax" (their sum); the older Municipal/State columns in the Pre-Tax group stay pension tax only. Export has the same columns
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
   control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan

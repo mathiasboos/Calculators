@@ -1587,7 +1587,7 @@ input[type="number"]::-webkit-outer-spin-button {
           <th colspan="2" style="background:var(--s2);border-bottom:1px solid var(--border)"></th>
           <th colspan="7"  style="background:linear-gradient(rgba(60,187,110,.13),rgba(60,187,110,.13)),var(--s1);color:#48B866;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #48B866" data-i18n="proj.grp.after">After-Tax Portfolio</th>
           <th colspan="10" style="background:linear-gradient(rgba(74,143,204,.13),rgba(74,143,204,.13)),var(--s1);color:#4885C4;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #4885C4" data-i18n="proj.grp.pre">Pre-Tax Portfolio</th>
-          <th colspan="10" style="background:var(--s2);color:var(--muted);text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)" data-i18n="proj.grp.metrics">Metrics</th>
+          <th colspan="16" style="background:var(--s2);color:var(--muted);text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)" data-i18n="proj.grp.metrics">Metrics</th>
         </tr>
         <!-- Column header row -->
         <tr>
@@ -1615,6 +1615,12 @@ input[type="number"]::-webkit-outer-spin-button {
           <!-- Metrics group (neutral) -->
           <th style="background:var(--s2);color:var(--muted)" data-i18n="proj.col.earnPre">Earned Income Before Tax</th>
           <th style="background:var(--s2);color:#FF5B2E" data-i18n="proj.col.salTax">Salary Tax</th>
+          <th style="background:var(--s2);color:#E9B84A" data-i18n="chart.ds.munTax">Municipal Tax</th>
+          <th style="background:var(--s2);color:#FF5B2E" data-i18n="chart.ds.stateTax">State Tax</th>
+          <th style="background:var(--s2);color:#4885C4" data-i18n="chart.ds.pubFee">Public service fee</th>
+          <th style="background:var(--s2);color:#9aa3b5" data-i18n="chart.ds.pensFee">Pension fee (7 %)</th>
+          <th style="background:var(--s2);color:#8E6BBF" data-i18n="chart.ds.capTax">Capital tax</th>
+          <th style="background:var(--s2);color:#FF5B2E;font-weight:700" data-i18n="proj.col.totTax">Total Tax</th>
           <th style="background:var(--s2);color:#48B866" data-i18n="proj.col.earnPost">Earned Income After Tax</th>
           <th style="background:var(--s2);color:var(--muted)" data-i18n="proj.col.incPort">After-Tax Income Portfolio</th>
           <th style="background:var(--s2);color:var(--navy);font-weight:700" data-i18n="proj.col.income">After-Tax Income</th>
@@ -1846,7 +1852,7 @@ en:{
   'proj.grp.pre':'Pre-Tax Portfolio',
   'proj.grp.metrics':'Metrics',
   'proj.col.earnPre':'Earned Income Before Tax',
-  'proj.col.salTax':'Salary Tax',
+  'proj.col.salTax':'Salary Tax','proj.col.totTax':'Total Tax',
   'proj.col.earnPost':'Earned Income After Tax',
   'proj.col.incPort':'After-Tax Income Portfolio',
 
@@ -2359,7 +2365,7 @@ sv:{
   'proj.grp.pre':'Portfölj före skatt',
   'proj.grp.metrics':'Nyckeltal',
   'proj.col.earnPre':'Förvärvsinkomst före skatt',
-  'proj.col.salTax':'Skatt på lön',
+  'proj.col.salTax':'Skatt på lön','proj.col.totTax':'Total skatt',
   'proj.col.earnPost':'Förvärvsinkomst efter skatt',
   'proj.col.incPort':'Portföljinkomst efter skatt',
 
@@ -6756,6 +6762,12 @@ function updateProjectionTable(data){
       <td style="background:rgba(74,143,204,.12);color:#4885C4;font-weight:600">${fmt(y.portBeforeTax)}</td>
       <td class="${y.afterTaxIncome>0?'good':''}">${fmt(y.earnedIncomePre)}</td>
       <td style="color:#FF5B2E">${fmt(y.salaryTax)}</td>
+      <td style="color:#E9B84A">${fmt(y.cTaxMun)}</td>
+      <td style="color:#FF5B2E">${fmt(y.cTaxState)}</td>
+      <td style="color:#4885C4">${fmt(y.cTaxFee)}</td>
+      <td style="color:#9aa3b5">${fmt(y.cTaxPens)}</td>
+      <td style="color:#8E6BBF">${fmt(y.cTaxCap)}</td>
+      <td style="color:#FF5B2E;font-weight:600">${fmt((y.cTaxMun||0)+(y.cTaxState||0)+(y.cTaxFee||0)+(y.cTaxPens||0)+(y.cTaxCap||0))}</td>
       <td style="color:#48B866">${fmt(y.earnedIncomePost)}</td>
       <td style="color:var(--muted)">${fmt(y.afterTaxIncome)}</td>
       <td style="color:var(--gold);font-weight:600">${fmt(y.totalAfterTaxIncome)}</td>
@@ -7096,7 +7108,7 @@ const EXPORT_HEADERS = [
   'Yield Tax P-Insurance (SEK)','Mgmt Fee Pre-Tax (SEK)','Withdrawal Pre-Tax Accts (SEK)',
   'Withdrawal After Tax Net (SEK)','Municipal Tax (SEK)','State Tax (SEK)','Closing Pre-Tax (SEK)',
   // Metrics
-  'Earned Income Before Tax (SEK)','Salary Tax (SEK)','Earned Income After Tax (SEK)','After-Tax Income Portfolio (SEK)','After-Tax Income (SEK)','Expenses (SEK)','Inc/Exp Ratio','Equity %',
+  'Earned Income Before Tax (SEK)','Salary Tax (SEK)','Municipal Tax All Years (SEK)','State Tax All Years (SEK)','Public Service Fee (SEK)','Pension Fee (SEK)','Capital Tax (SEK)','Total Tax (SEK)','Earned Income After Tax (SEK)','After-Tax Income Portfolio (SEK)','After-Tax Income (SEK)','Expenses (SEK)','Inc/Exp Ratio','Equity %',
   'Withdrawal Rate %','Goal Fulfillment %'
 ];
 
@@ -7111,7 +7123,7 @@ function exportRows(){
     Math.round(y.yieldTaxP||0), Math.round(y.mgmtFeePT||0), Math.round(y.taxable||0),
     Math.round(y.withdrawalAfterTax||0), Math.round(y.munTax||0), Math.round(y.stateTax||0), Math.round(y.portBeforeTax||0),
     // Metrics
-    Math.round(y.earnedIncomePre||0), Math.round(y.salaryTax||0), Math.round(y.earnedIncomePost||0), Math.round(y.afterTaxIncome||0), Math.round(y.totalAfterTaxIncome||0),
+    Math.round(y.earnedIncomePre||0), Math.round(y.salaryTax||0), Math.round(y.cTaxMun||0), Math.round(y.cTaxState||0), Math.round(y.cTaxFee||0), Math.round(y.cTaxPens||0), Math.round(y.cTaxCap||0), Math.round((y.cTaxMun||0)+(y.cTaxState||0)+(y.cTaxFee||0)+(y.cTaxPens||0)+(y.cTaxCap||0)), Math.round(y.earnedIncomePost||0), Math.round(y.afterTaxIncome||0), Math.round(y.totalAfterTaxIncome||0),
     Math.round(y.expenses||0),
     +((y.ratio||0).toFixed(3)), +((y.eqPct||0)*100).toFixed(2),
     +((y.wdrlRate||0)*100).toFixed(3), +((y.goalFulfil||0)*100).toFixed(2)
