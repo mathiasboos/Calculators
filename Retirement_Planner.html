@@ -8512,6 +8512,19 @@ function buildPortfolioTable(ai){
 }
 
 
+// Scroll every Portfolio Value table so the retirement-year column sits in the middle of the visible area
+// (the frozen label column is not part of it). Needs a laid-out (visible) tab, otherwise it does nothing.
+function pvCenterRetirement(container){
+  container.querySelectorAll('div[style*="overflow-x"]').forEach(function(sc){
+    var th = sc.querySelector('th.pv-ret');
+    if(!th || !sc.clientWidth) return;
+    var first = sc.querySelector('thead th');
+    var fz = first ? first.getBoundingClientRect().width : 0;
+    var delta = th.getBoundingClientRect().left - sc.getBoundingClientRect().left;
+    var target = delta + th.getBoundingClientRect().width / 2 - (fz + (sc.clientWidth - fz) / 2);
+    sc.scrollLeft = Math.max(0, sc.scrollLeft + target);
+  });
+}
 function buildPortfolioTab(){
   var container = document.getElementById('pv-container');
   if(!container || !_projYears || !_projYears.length) return;
@@ -8599,7 +8612,7 @@ function buildPortfolioTab(){
     years.forEach(function(y){ html += '<th style="padding:3px 10px;font-size:11px;font-weight:600;color:#48B866;text-align:right;border-bottom:0;white-space:nowrap;background:'+(pvRet(y)?PV_RET_BG:'var(--s1)')+';position:sticky;top:0;z-index:1">'+y.age+'</th>'; });
     html += '</tr>'
           + '<tr><th style="'+FZ+'z-index:3;padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">'+t('wd.chart.year')+'</th>';
-    years.forEach(function(y){ html += '<th style="padding:5px 10px;font-size:11px;font-weight:600;color:#4885C4;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:'+(pvRet(y)?PV_RET_BG:'var(--s1)')+';position:sticky;top:0;z-index:1">'+retYearCell(y)+'</th>'; });
+    years.forEach(function(y){ html += '<th'+(pvRet(y)?' class="pv-ret"':'')+' style="padding:5px 10px;font-size:11px;font-weight:600;color:#4885C4;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:'+(pvRet(y)?PV_RET_BG:'var(--s1)')+';position:sticky;top:0;z-index:1">'+retYearCell(y)+'</th>'; });
     html += '</tr></thead><tbody>';
     ROWS2.forEach(function(r){
       html += '<tr><td'+(r.tip?' title="'+r.tip.replace(/"/g,'&quot;')+'"':'')+' style="'+FZ+'z-index:2;padding:4px 10px;font-size:12px;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,0.05)'+(r.bold?';font-weight:700':'')+'">'+r.label+'</td>';
@@ -8679,7 +8692,7 @@ function buildPortfolioTab(){
     years.forEach(function(y){ html += '<th '+TH.replace('color:var(--muted)','color:#48B866').replace('border-bottom:1px solid var(--border)','border-bottom:0').replace('background:var(--s1)','background:'+(pvRet(y)?PV_RET_BG:'var(--s1)'))+'>'+y.age+'</th>'; });
     html += '</tr>'
           + '<tr><th '+TH_F+'>'+t('wd.chart.year')+'</th>';
-    years.forEach(function(y){ html += '<th '+TH.replace('background:var(--s1)','background:'+(pvRet(y)?PV_RET_BG:'var(--s1)'))+'>'+retYearCell(y)+'</th>'; });
+    years.forEach(function(y){ html += '<th'+(pvRet(y)?' class="pv-ret"':'')+' '+TH.replace('background:var(--s1)','background:'+(pvRet(y)?PV_RET_BG:'var(--s1)'))+'>'+retYearCell(y)+'</th>'; });
     html += '</tr></thead><tbody>';
 
     // Row helper
@@ -8713,6 +8726,7 @@ function buildPortfolioTab(){
   });
 
   container.innerHTML = html;
+  pvCenterRetirement(container);
 
   // ── Chart: single-account mode only ──────────────────────────────
   if(!expandAll && accsToShow.length===1){
