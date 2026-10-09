@@ -294,6 +294,9 @@ published, replace the workbook and re-verify everything below.
   Income Sources Over Lifetime (After Tax), the Withdrawals chart/overview/table/exports and the monthly pension cards agree to the krona, and the Parameters-tab municipal / state tax
   drives them. The old flat "Tax rate" inputs (32 %) were removed (a hint "Tax per Parameters tab" replaces them). `taxAdjPort` (capital estimate) still uses the flat municipal rate. Income vs
   Expenses tooltip shows full amounts ("24 555 kr/mth")
+- Projection tab table: first two header rows and the Year / Age columns are frozen (`.yr-table-wrap` scrolls both ways, sticky cells with opaque backgrounds, `--yr-h1` = measured height of header row 1 via
+  `updateYrStickyOffset`). Portfolio Value tab, "All Accounts": the label column is frozen; the Withdrawal row is split into "Withdr aft tax acc" and "Withdr bef tax acc" (`pvWdrlSplit`: after-tax accounts vs P-insurance + state);
+  in Tax adjusted mode the bef row is shown after the model's tax (`_netFactorFor(y)`), and the chart's withdrawal series uses the same split. Balance rows still use the flat municipal rate
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

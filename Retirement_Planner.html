@@ -322,11 +322,19 @@ header{
 }
 
 /* ── YEAR TABLE ── */
-.yr-table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.yr-table-wrap{overflow:auto;max-height:calc(100vh - 250px);border-radius:var(--r);border:1px solid var(--border)}
 .yr-table{
-  width:100%;border-collapse:collapse;font-size:13px;
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13px;
   background:var(--s1);
 }
+/* Frozen header rows (2) and frozen Year / Age columns */
+.yr-table thead tr:first-child th{position:sticky;top:0;z-index:4}
+.yr-table thead tr:nth-child(2) th{position:sticky;top:var(--yr-h1,34px);z-index:4}
+.yr-table thead tr:first-child th:first-child{left:0;z-index:7}
+.yr-table thead tr:nth-child(2) th:nth-child(1),.yr-table tbody td:nth-child(1){position:sticky;left:0;z-index:3;min-width:104px;width:104px;max-width:104px;box-sizing:border-box}
+.yr-table thead tr:nth-child(2) th:nth-child(2),.yr-table tbody td:nth-child(2){position:sticky;left:104px;z-index:3;min-width:56px;width:56px;max-width:56px;box-sizing:border-box;border-right:1px solid var(--border)}
+.yr-table thead tr:nth-child(2) th:nth-child(-n+2){z-index:6}
+.yr-table tbody td:nth-child(-n+2){background:var(--s1)}
 .yr-table th{
   background:var(--navy);color:rgba(255,255,255,1);
   font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
@@ -1548,8 +1556,7 @@ input[type="number"]::-webkit-outer-spin-button {
     </div>
   </div>
   <div class="section-sub"><span data-i18n="proj.sub.from">Full model output from</span> <span id="proj-startyr">2026</span> <span data-i18n="proj.sub.to">to</span> <span id="proj-endyr">2070</span></div>
-  <div class="yr-table-wrap">
-      <!-- Age bracket controls -->
+  <!-- Age bracket controls -->
   <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;
               background:var(--s2);border:1px solid var(--border);border-radius:8px;
               padding:8px 16px;font-size:12px">
@@ -1571,14 +1578,15 @@ input[type="number"]::-webkit-outer-spin-button {
       onchange="recalc();refreshEqHeaders()">
     <span style="color:var(--muted);margin-left:8px"><span data-i18n="acc.bracket3">Bracket 3:</span> <span id="ageFrom3-lbl" style="color:var(--gold);font-family:var(--font-m)">74</span>+</span>
   </div>
+  <div class="yr-table-wrap">
 
   <table class="yr-table">
       <thead>
         <!-- Group header row -->
         <tr>
           <th colspan="2" style="background:var(--s2);border-bottom:1px solid var(--border)"></th>
-          <th colspan="7"  style="background:rgba(60,187,110,.13);color:#48B866;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #48B866" data-i18n="proj.grp.after">After-Tax Portfolio</th>
-          <th colspan="10" style="background:rgba(74,143,204,.13);color:#4885C4;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #4885C4" data-i18n="proj.grp.pre">Pre-Tax Portfolio</th>
+          <th colspan="7"  style="background:linear-gradient(rgba(60,187,110,.13),rgba(60,187,110,.13)),var(--s1);color:#48B866;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #48B866" data-i18n="proj.grp.after">After-Tax Portfolio</th>
+          <th colspan="10" style="background:linear-gradient(rgba(74,143,204,.13),rgba(74,143,204,.13)),var(--s1);color:#4885C4;text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid #4885C4" data-i18n="proj.grp.pre">Pre-Tax Portfolio</th>
           <th colspan="9"  style="background:var(--s2);color:var(--muted);text-align:center;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border)" data-i18n="proj.grp.metrics">Metrics</th>
         </tr>
         <!-- Column header row -->
@@ -1586,24 +1594,24 @@ input[type="number"]::-webkit-outer-spin-button {
           <th data-i18n="proj.col.yr">Year</th>
           <th data-i18n="proj.col.age">Age</th>
           <!-- After-Tax group (emerald) -->
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.openAt">Opening After-Tax (SEK)</th>
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.contribAt">Contribution After-Tax</th>
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.retAt">Return After-Tax (SEK)</th>
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.ytK">Yield Tax K-Insurance</th>
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.mgmtAT">Mgmt Fee After-Tax (SEK)</th>
-          <th style="background:rgba(60,187,110,.06);color:#48B866" data-i18n="proj.col.afterTaxWdrl">Withdrawal After-Tax Accts</th>
-          <th style="background:rgba(60,187,110,.10);color:#48B866;font-weight:700" data-i18n="proj.col.pat">Closing After-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.openAt">Opening After-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.contribAt">Contribution After-Tax</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.retAt">Return After-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.ytK">Yield Tax K-Insurance</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.mgmtAT">Mgmt Fee After-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.06),rgba(60,187,110,.06)),var(--s1);color:#48B866" data-i18n="proj.col.afterTaxWdrl">Withdrawal After-Tax Accts</th>
+          <th style="background:linear-gradient(rgba(60,187,110,.10),rgba(60,187,110,.10)),var(--s1);color:#48B866;font-weight:700" data-i18n="proj.col.pat">Closing After-Tax (SEK)</th>
           <!-- Pre-Tax group (sky blue) -->
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.openPt">Opening Pre-Tax (SEK)</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.contribPt">Contribution Pre-Tax</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.retPt">Return Pre-Tax (SEK)</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.ytP">Yield Tax P-Insurance</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.mgmtPT">Mgmt Fee Pre-Tax (SEK)</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.preTax">Withdrawal Pre-Tax Accts</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.wdrlNet">Withdrawal After Tax</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.mun">Municipal Tax</th>
-          <th style="background:rgba(74,143,204,.06);color:#4885C4" data-i18n="proj.col.st">State Tax</th>
-          <th style="background:rgba(74,143,204,.10);color:#4885C4;font-weight:700" data-i18n="proj.col.pbt">Closing Pre-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.openPt">Opening Pre-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.contribPt">Contribution Pre-Tax</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.retPt">Return Pre-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.ytP">Yield Tax P-Insurance</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.mgmtPT">Mgmt Fee Pre-Tax (SEK)</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.preTax">Withdrawal Pre-Tax Accts</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.wdrlNet">Withdrawal After Tax</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.mun">Municipal Tax</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.06),rgba(74,143,204,.06)),var(--s1);color:#4885C4" data-i18n="proj.col.st">State Tax</th>
+          <th style="background:linear-gradient(rgba(74,143,204,.10),rgba(74,143,204,.10)),var(--s1);color:#4885C4;font-weight:700" data-i18n="proj.col.pbt">Closing Pre-Tax (SEK)</th>
           <!-- Metrics group (neutral) -->
           <th style="background:var(--s2);color:var(--muted)" data-i18n="proj.col.earnPre">Earned Income Before Tax</th>
           <th style="background:var(--s2);color:#48B866" data-i18n="proj.col.earnPost">Earned Income After Tax</th>
@@ -2000,6 +2008,7 @@ en:{
   'pv.col.item':'Item',
   'pv.row.open':'Opening balance','pv.row.contrib':'Contribution',
   'pv.row.wdrl':'Withdrawal','pv.row.ret':'Portfolio return',
+  'pv.row.wdrl.at':'Withdr aft tax acc','pv.row.wdrl.bt':'Withdr bef tax acc','pv.row.wdrl.bt.tip':'P-insurance and state accounts, shown after estimated tax (Tax adjusted view)',
   'pv.row.yt':'Yield tax','pv.row.mf':'Management fee','pv.row.mf.short':'Mgmt fee',
   'pv.row.close':'Closing balance',
   'pv.type.after':'After-Tax · no income tax on withdrawal',
@@ -2510,6 +2519,7 @@ sv:{
   'pv.col.item':'Post',
   'pv.row.open':'Ingående saldo','pv.row.contrib':'Insättning',
   'pv.row.wdrl':'Uttag','pv.row.ret':'Avkastning',
+  'pv.row.wdrl.at':'Uttag efterskattekonton','pv.row.wdrl.bt':'Uttag förskattade konton','pv.row.wdrl.bt.tip':'P-försäkring och statliga konton, visade efter beräknad skatt (vyn Skattejusterad)',
   'pv.row.yt':'Avkastningsskatt','pv.row.mf':'Förvaltningsavgift','pv.row.mf.short':'Förv.avg.',
   'pv.row.close':'Utgående saldo',
   'pv.type.after':'Beskattat konto · ingen inkomstskatt på uttag',
@@ -6714,8 +6724,8 @@ function updateProjectionTable(data){
     const portClass  = y.totalPort>0?'':'bad';
 
     tr.innerHTML=`
-      <td>${y.yr}${isRet?' <span style="font-size:10px;color:var(--gold);margin-left:4px">★ Ret</span>':''}</td>
-      <td style="color:var(--muted)">${y.age}</td>
+      <td${isRet?' style="background:#fbf6e8"':''}>${y.yr}${isRet?' <span style="font-size:10px;color:var(--gold);margin-left:4px">★ Ret</span>':''}</td>
+      <td style="color:var(--muted)${isRet?';background:#fbf6e8':''}">${y.age}</td>
       <td style="background:rgba(60,187,110,.06);color:#48B866">${fmt(y.openAfterTax)}</td>
       <td style="background:rgba(60,187,110,.06);color:#48B866">${fmt(y.contribAfterTax)}</td>
       <td style="background:rgba(60,187,110,.06);color:#48B866">${fmt(y.returnAfterTax)}</td>
@@ -6745,7 +6755,15 @@ function updateProjectionTable(data){
     `;
     tbody.appendChild(tr);
   });
+  updateYrStickyOffset();
 }
+// The second frozen header row sits right under the first one: measure its height
+function updateYrStickyOffset(){
+  var th = document.querySelector('.yr-table thead tr:first-child th');
+  var tbl = document.querySelector('.yr-table');
+  if(th && tbl && th.getBoundingClientRect().height > 0) tbl.style.setProperty('--yr-h1', th.getBoundingClientRect().height + 'px');
+}
+window.addEventListener('resize', updateYrStickyOffset);
 
 // ══════════════════════════════════════════════════
 // MAIN RECALC
@@ -6855,6 +6873,7 @@ function recalc(){
 
 // ── Tab switching ──
 function switchTab(id){
+  if(id==='projection') setTimeout(updateYrStickyOffset, 0);
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
@@ -8436,6 +8455,13 @@ function buildPortfolioTab(){
   var _taxAdj = _pvMode === 'taxadj';
   // Tax factor per account: After-Tax=1, pre-tax=1-munRate
   function taxFactor(a){ return (_taxAdj && a.type!=='after') ? (1-_munR) : 1; }
+  // Withdrawals of one year: after-tax accounts / pre-tax accounts (P-insurance + state); Tax adjusted shows the latter after the model's tax
+  function pvWdrlSplit(y){
+    var aft = 0, bef = 0;
+    accounts.forEach(function(a, ai){ var d = y.accDetail && y.accDetail[ai]; var w = d ? (d.wdrl||0) : 0; if(a.type === 'after') aft += w; else bef += w; });
+    if(_taxAdj) bef *= _netFactorFor(y);
+    return {aft: aft, bef: bef};
+  }
   // Apply factor only to balance rows (open/close), not flows
   function adjVal(v, key, a){
     if(key==='open'||key==='close') return Math.round(v * taxFactor(a));
@@ -8451,31 +8477,36 @@ function buildPortfolioTab(){
   var html = '';
   // ── All Accounts summary ──────────────────────────────────────────
   if(showAllSummary && years.length){
-    var KEYS2 = ['open','contrib','wdrl','grossRet','yieldTax','mgmtFee','close'];
-    var LABELS2 = [t('pv.row.open'),t('pv.row.contrib'),t('pv.row.wdrl'),t('pv.row.ret'),t('pv.row.yt'),t('pv.row.mf'),t('pv.row.close')];
-    var COLORS2 = ['var(--text)','#48B866','#FF5B2E','#4885C4','#48B866','#48B866','var(--gold)'];
-    var BOLD2   = [true,false,false,false,false,false,true];
+    // Withdrawals split in after-tax accounts and pre-tax accounts (P-insurance + state); in Tax adjusted mode the pre-tax
+    // part is shown after the model's tax (same factor as the other after-tax views)
+    var sumKey = function(y, k){ return accounts.reduce(function(s,a,ai2){ var d=y.accDetail&&y.accDetail[ai2]; var raw=d?(d[k]||0):0; return s + ((k==='open'||k==='close') ? raw*taxFactor(a) : raw); },0); };
+    var ROWS2 = [
+      {label:t('pv.row.open'),    color:'var(--text)', bold:true,  val:function(y){ return sumKey(y,'open'); }},
+      {label:t('pv.row.contrib'), color:'#48B866',     bold:false, val:function(y){ return sumKey(y,'contrib'); }},
+      {label:t('pv.row.wdrl.at'), color:'#FF5B2E',     bold:false, val:function(y){ return pvWdrlSplit(y).aft; }},
+      {label:t('pv.row.wdrl.bt'), color:'#FF5B2E',     bold:false, val:function(y){ return pvWdrlSplit(y).bef; }, tip:_taxAdj ? t('pv.row.wdrl.bt.tip') : ''},
+      {label:t('pv.row.ret'),     color:'#4885C4',     bold:false, val:function(y){ return sumKey(y,'grossRet'); }},
+      {label:t('pv.row.yt'),      color:'#48B866',     bold:false, val:function(y){ return sumKey(y,'yieldTax'); }},
+      {label:t('pv.row.mf'),      color:'#48B866',     bold:false, val:function(y){ return sumKey(y,'mgmtFee'); }},
+      {label:t('pv.row.close'),   color:'var(--gold)', bold:true,  val:function(y){ return sumKey(y,'close'); }}
+    ];
     html += '<div class="card" style="margin-bottom:20px;overflow:hidden">';
     html += '<div class="card-header" style="margin-bottom:12px">'+t('pv.all.accounts')+'<span style="font-size:10px;color:var(--muted);margin-left:8px;font-weight:400">'+t('pv.all.sum')+'</span></div>';
-    html += '<div style="overflow-x:auto"><table style="border-collapse:collapse;min-width:100%;font-size:12px">';
+    var FZ = 'position:sticky;left:0;background:var(--s1);border-right:1px solid var(--border);min-width:150px;box-sizing:border-box;';
+    html += '<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:0;min-width:100%;font-size:12px">';
     html += '<thead>'
-          + '<tr><th style="padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:0;background:var(--s1);position:sticky;top:0;z-index:1">'+t('wd.chart.age')+'</th>';
+          + '<tr><th style="'+FZ+'z-index:3;padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:0">'+t('wd.chart.age')+'</th>';
     years.forEach(function(y){ html += '<th style="padding:3px 10px;font-size:11px;font-weight:600;color:#48B866;text-align:right;border-bottom:0;white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1">'+y.age+'</th>'; });
     html += '</tr>'
-          + '<tr><th style="padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);background:var(--s1);position:sticky;top:0;z-index:1">'+t('wd.chart.year')+'</th>';
+          + '<tr><th style="'+FZ+'z-index:3;padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">'+t('wd.chart.year')+'</th>';
     years.forEach(function(y){ html += '<th style="padding:5px 10px;font-size:11px;font-weight:600;color:#4885C4;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1">'+y.yr+'</th>'; });
     html += '</tr></thead><tbody>';
-    LABELS2.forEach(function(label, ri){
-      var bold = BOLD2[ri]; var color = COLORS2[ri];
-      html += '<tr><td style="padding:4px 10px;font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05)'+(bold?';font-weight:700':'')+'">'+label+'</td>';
+    ROWS2.forEach(function(r){
+      html += '<tr><td'+(r.tip?' title="'+r.tip.replace(/"/g,'&quot;')+'"':'')+' style="'+FZ+'z-index:2;padding:4px 10px;font-size:12px;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,0.05)'+(r.bold?';font-weight:700':'')+'">'+r.label+'</td>';
       years.forEach(function(y){
-        var total = accounts.reduce(function(s,a,ai2){
-          var d = y.accDetail&&y.accDetail[ai2];
-          var raw = d?(d[KEYS2[ri]]||0):0;
-          return s + ((KEYS2[ri]==='open'||KEYS2[ri]==='close') ? raw*taxFactor(a) : raw);
-        },0);
+        var total = r.val(y);
         var formatted = Math.round(total)===0?'<span style="color:rgba(0,0,0,0.25)">0</span>':Math.round(total).toLocaleString('sv-SE');
-        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);'+(bold?'font-weight:700;color:'+color:'')+'">'+formatted+'</td>';
+        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);'+(r.bold?'font-weight:700;color:'+r.color:'')+'">'+formatted+'</td>';
       });
       html += '</tr>';
     });
@@ -8485,7 +8516,7 @@ function buildPortfolioTab(){
     var labels2=years.map(function(y){return y.age;});
     var mk=function(k){ return years.map(function(y){ return Math.round(accounts.reduce(function(s,a,ai2){var d=y.accDetail&&y.accDetail[ai2];var raw=d?(d[k]||0):0;return s+raw*taxFactor(a);},0)); }); };
     var ds_closing2=mk('close'); var ds_contrib2=mk('contrib'); var ds_return2=mk('grossRet');
-    var ds_wd2=mk('wdrl').map(function(v){return -Math.abs(v);});
+    var ds_wd2=years.map(function(y){ var sp=pvWdrlSplit(y); return -Math.abs(Math.round(sp.aft+sp.bef)); });
     var ds_yt2=mk('yieldTax').map(function(v){return -Math.abs(v);});
     var ds_mf2=mk('mgmtFee').map(function(v){return -Math.abs(v);});
     setTimeout(function(){
