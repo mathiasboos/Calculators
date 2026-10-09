@@ -272,10 +272,10 @@ published, replace the workbook and re-verify everything below.
   Portfolio chart per mode: Total = Portfolio value + After tax Acc + Before tax Acc (no Savings goal line, tooltip without goal / vs. Goal);
   Tax-adjusted = tax-adjusted line + Savings goal + After tax Acc + "Before tax Acc, after est. tax" (portBeforeTax × (1 − munTax)), tooltip with goal / vs. Goal.
   Tax chart: Monthly/Annual toggle (`_taxChartMode`, default monthly, `setTaxChartMode`), title "Tax Per Month (kr/mth)" / "Tax Per Year (kr/yr)", kronor axis;
-  tooltip total = sum of the series. The tax chart shows four categories (the 7 % Pension fee `cTaxPens` is NOT drawn in the chart; it is still a Projection table / export column) and uses the same ones before and after retirement: `row.cTaxMun` (municipal tax after
+  tooltip total = sum of the series. The tax chart shows four categories (the 7 % Pension fee `cTaxPens` is NOT drawn in the chart or shown in the Projection table / export) and uses the same ones before and after retirement: `row.cTaxMun` (municipal tax after
   jobbskatteavdrag / förvärvsavdrag, incl. begravningsavgift), `row.cTaxState`, `row.cTaxFee` (public service fee: `ps` for salary years, `publicAvg` for pension years), `row.cTaxPens` (general 7 % pension
   fee net of its tax reduction, `pensAvg − pensRed`; it only shows when there is no tax to offset it) and `row.cTaxCap` = Capital tax (the yearly yield taxes `yieldTaxK + yieldTaxP` on after-tax
-  and pension accounts). Municipal + state + fee + pension fee add up to `salaryTax + totalTax`; capital tax comes on top (it is deducted from the account returns, not from income)
+  and pension accounts). Municipal + state + fee + pension fee add up to `salaryTax + totalTax` (the pension fee is not displayed in the chart or table, so the shown categories can fall slightly short in years it is not offset); capital tax comes on top (it is deducted from the account returns, not from income)
 - Pension income tax (`pensionTax`, `xAge`, projection ~"Swedish income tax") = Typfallsmodellen (VBA_go tax block, Skatteregler `avdrag26`, `statlig`,
   `PublicAvg`): floor100(income) − grundavdrag (`grundavdragUnder`; `grundavdragOver` from `xAge(year)` = 66 to 2023, 67 to 2026, 68 to 2028, then target
   age + 1) = taxable income; kommunalskatt (`munTax` input) + begravningsavgift `BEGRAV_AVG` 0,26 % on it, state tax (`stateTax` input) above `SKIKT` 643 000,
@@ -288,7 +288,7 @@ published, replace the workbook and re-verify everything below.
   jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 744 at 67), retirement year 68 =
   pension tax 112 684 (30,6 %, grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 184 = 119 868, age 69 = pension tax 70 913 after förhöjt grundavdrag (~152 000) = 77 839 total.
   Projection table has a "Salary Tax" column (`y.salaryTax`, also in the export) because the Municipal/State columns are pension tax only (0 before retirement)
-  and, right after it, the same five tax-chart categories for ALL years (`cTaxMun/State/Fee/Pens/Cap`) plus "Total Tax" (their sum); the older pension-only Municipal/State columns in the Pre-Tax group were removed from the table (the export still has them as "Municipal Tax" / "State Tax"). Export also has the new columns
+  and, right after it, the same four tax-chart categories for ALL years (`cTaxMun/State/Fee/Cap`; the 7 % pension fee `cTaxPens` is computed but not shown anywhere) plus "Total Tax" (their sum); the older pension-only Municipal/State columns in the Pre-Tax group were removed from the table (the export still has them as "Municipal Tax" / "State Tax"). Export also has the new columns
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
   control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan
