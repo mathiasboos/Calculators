@@ -7085,7 +7085,7 @@ function exportRows(){
 function downloadProjCSV(){
   const rows = exportRows();
   const lines = [EXPORT_HEADERS.join(';'), ...rows.map(r=>r.join(';'))];
-  const blob = new Blob(['\uFEFF'+lines.join('\n'),{type:'text/csv;charset=utf-8'}]);
+  const blob = new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
   const url  = URL.createObjectURL(blob);
   const a    = Object.assign(document.createElement('a'),{href:url,download:'retirement_projection.csv'});
   a.click(); URL.revokeObjectURL(url);
