@@ -290,6 +290,10 @@ published, replace the workbook and re-verify everything below.
 - Dashboard monthly-pension cards (`buildPhaseTiles`, `computePensionPhases`): green when the AFTER-TAX pension (`afterTaxIncome`, the model's own tax) covers the expenses of the same years, red when it does not, whichever
   Before/After tax view the card shows; the sub line lists both figures. Withdrawals chart (`wdChartData`, `buildWithdrawalChart`): Before/After tax buttons in the chart drive the same `_wdTaxMode` as the
   top toggle, default Monthly + Before tax, kronor axis (`fmtKrTick`), CSV / Excel export of exactly the plotted series (`_wdChartRows`, `;` CSV with BOM, `XLSX`)
+- After-tax views all use the model's own pension tax (`_netFactorFor(y)` = 1 − `totalTax` / `taxable` of the year; `_ilsTaxFactor(y)`, `wdTaxFactor(a, y)`): Income vs Expenses,
+  Income Sources Over Lifetime (After Tax), the Withdrawals chart/overview/table/exports and the monthly pension cards agree to the krona, and the Parameters-tab municipal / state tax
+  drives them. The old flat "Tax rate" inputs (32 %) were removed (a hint "Tax per Parameters tab" replaces them). `taxAdjPort` (capital estimate) still uses the flat municipal rate. Income vs
+  Expenses tooltip shows full amounts ("24 555 kr/mth")
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

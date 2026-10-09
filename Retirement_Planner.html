@@ -760,13 +760,7 @@ input[type="number"]::-webkit-outer-spin-button {
             <button id="ils-btn-gross" onclick="setILSMode('gross')" style="padding:3px 12px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="acc.before.tax">Before Tax</button>
             <button id="ils-btn-net"   onclick="setILSMode('net')"   style="padding:3px 12px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="acc.after.tax">After Tax</button>
           </div>
-          <div id="ils-tax-rate-wrap" style="display:none;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
-            <span data-i18n="acc.tax.rate">Tax rate</span>
-            <input id="ils-tax-rate" type="text" inputmode="decimal" value="32"
-              style="width:42px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:11px;text-align:right;padding:2px 5px"
-              onchange="_updateILSChart()">
-            <span>%</span>
-          </div>
+          <div id="ils-tax-rate-wrap" style="display:none;align-items:center;font-size:10px;color:var(--muted)" data-i18n="acc.tax.model" data-i18n-title="acc.tax.model.tip" title="Tax follows the Parameters tab">Tax per Parameters tab</div>
           <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
             <button id="ils-btn-annual"  onclick="setILSPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
             <button id="ils-btn-monthly" onclick="setILSPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
@@ -1275,13 +1269,7 @@ input[type="number"]::-webkit-outer-spin-button {
         <button id="wd-btn-net"   onclick="setWdTaxMode('net')"
           style="padding:3px 12px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="acc.after.tax">After Tax</button>
       </div>
-      <div id="wd-tax-rate-wrap" style="display:none;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
-        <span data-i18n="acc.tax.rate">Tax rate</span>
-        <input id="wd-tax-rate" type="text" inputmode="decimal" value="32"
-          style="width:42px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:11px;text-align:right;padding:2px 5px"
-          onchange="buildWdTable();buildWithdrawalChart();buildWdSummary()">
-        <span>%</span>
-      </div>
+      <div id="wd-tax-rate-wrap" style="display:none;align-items:center;font-size:10px;color:var(--muted)" data-i18n="acc.tax.model" data-i18n-title="acc.tax.model.tip" title="Tax follows the Parameters tab">Tax per Parameters tab</div>
       <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
         <button id="wd-sum-btn-annual"  onclick="setWdSummaryPeriod('annual')" data-i18n="dash.annual"
           style="padding:3px 12px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer">Annual</button>
@@ -1802,6 +1790,7 @@ en:{
   'acc.after.tax':'After Tax',
   'acc.tax.rate':'Tax rate',
   'acc.annual.wd':'Annual withdrawal per account (SEK)',
+  'acc.tax.model':'Tax per Parameters tab','acc.tax.model.tip':'After-tax amounts use the model\'s own tax on pension income (Typfallsmodellen rules, municipal and state tax from the Parameters tab), the same as the Income vs Expenses chart.',
   'wd.cap.mth':'Monthly withdrawal per account (kr/mth)','wd.cap.yr':'Annual withdrawal per account (kr/yr)',
   'acc.all.accounts':'All Accounts',
   'acc.sum.of.all':'Sum of all accounts',
@@ -2311,6 +2300,7 @@ sv:{
   'acc.after.tax':'Efter skatt',
   'acc.tax.rate':'Skattesats',
   'acc.annual.wd':'Årsuttag per konto (SEK)',
+  'acc.tax.model':'Skatt enligt Parametrar','acc.tax.model.tip':'Belopp efter skatt använder modellens egen skatt på pensionsinkomst (Typfallsmodellens regler, kommunal och statlig skatt från fliken Parametrar), samma som diagrammet Inkomst vs Utgifter.',
   'wd.cap.mth':'Månadsuttag per konto (kr/mån)','wd.cap.yr':'Årsuttag per konto (kr/år)',
   'acc.all.accounts':'Alla konton',
   'acc.sum.of.all':'Summa alla konton',
@@ -6183,9 +6173,9 @@ function updateCharts(data){
             var yr = years[idx]; if (!yr) return;
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:4px">'+t('wd.chart.tooltip.age')+' '+yr.age+' · '+yr.yr+'</div>'
-              +'<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.income')+'</span><span style="color:#48B866">'+fmtSEK((yr.totalAfterTaxIncome||0)/(_incExpMode==='monthly'?12:1))+'</span></div>'
-              +'<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.expenses')+'</span><span style="color:#FF5B2E">'+fmtSEK((yr.expenses||0)/(_incExpMode==='monthly'?12:1))+'</span></div>'
-              +'<div style="font-size:10px;color:var(--muted);margin-top:3px;text-align:right">kr / '+(_incExpMode==='monthly'?t('dash.period.mth'):t('dash.period.yr'))+'</div>';
+              +'<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.income')+'</span><span style="color:#48B866">'+Math.round((yr.totalAfterTaxIncome||0)/(_incExpMode==='monthly'?12:1)).toLocaleString('sv-SE')+' '+(_incExpMode==='monthly'?t('dash.period.mth'):t('dash.period.yr'))+'</span></div>'
+              +'<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.ds.expenses')+'</span><span style="color:#FF5B2E">'+Math.round((yr.expenses||0)/(_incExpMode==='monthly'?12:1)).toLocaleString('sv-SE')+' '+(_incExpMode==='monthly'?t('dash.period.mth'):t('dash.period.yr'))+'</span></div>'
+            ;
             el.style.opacity = '1';
             positionTooltip(el, context.chart, tooltip);
           }
@@ -6231,7 +6221,7 @@ function updateCharts(data){
           categoryPercentage:1.0, barPercentage:1.0, stack:'income' },
         { label:t('dash.ils.totalpension'),
           data: years.map(function(y){ return y.yr >= params.retirementYear
-            ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0)) * (_ilsMode==='gross'?1:_ilsTaxFactor()) / _ilsDiv())
+            ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0)) * _ilsTaxFactor(y) / _ilsDiv())
             : null; }),
           type:'line', borderColor:'#1a1a2e', borderWidth:1.5,
           borderDash:[8,5], fill:false, pointRadius:0, pointHoverRadius:0,
@@ -6282,7 +6272,7 @@ function updateCharts(data){
             var idx = tooltip.dataPoints[0].dataIndex;
             var yr = years[idx]; if(!yr) return;
             var isRet = yr.yr >= params.retirementYear;
-            var _div = _ilsDiv(); var _tf = _ilsTaxFactor(); var _isNet = _ilsMode==='net';
+            var _div = _ilsDiv(); var _tf = _ilsTaxFactor(yr); var _isNet = _ilsMode==='net';
             var _period = _ilsPeriod==='monthly' ? t('dash.period.mth') : t('dash.period.yr');
             var fmtV = function(v){ return Math.round((v||0)/_div).toLocaleString('sv-SE'); };
             var fmtVT = function(v){ return Math.round((v||0)*_tf/_div).toLocaleString('sv-SE'); };
@@ -6577,7 +6567,6 @@ function computePensionPhases(data){
   if(!data || !data.years || !data.params) return null;
   var brackets = getPensionPhaseBrackets(data.params);
   if(!brackets) return null;
-  var tf      = (typeof _ilsTaxFactor === 'function') ? _ilsTaxFactor() : 1;
   var retYear = data.params.retirementYear;
 
   return brackets.map(function(b, i){
@@ -6587,7 +6576,7 @@ function computePensionPhases(data){
     var monthly = 0, net = 0, exp = 0;
     if(rows.length){
       var total = rows.reduce(function(sum, y){
-        return sum + (y.taxFree||0) + ((y.wdrlPIns||0) + (y.wdrlState||0)) * tf;
+        return sum + (y.taxFree||0) + ((y.wdrlPIns||0) + (y.wdrlState||0)) * _ilsTaxFactor(y);
       }, 0);
       monthly = total / rows.length / 12;
       // After-tax pension (the model's own tax) and expenses over the same years: they decide the card colour
@@ -9349,7 +9338,7 @@ function wdChartData(){
   accounts.forEach(function(a, ai){
     var data = years.map(function(y){
       var d = y.accDetail && y.accDetail[ai];
-      return d ? Math.round((d.wdrl || 0) * wdTaxFactor(a) / div) : 0;
+      return d ? Math.round((d.wdrl || 0) * wdTaxFactor(a, y) / div) : 0;
     });
     if(!data.some(function(v){ return v > 0; })) return;
     var pal = a.type==='state' ? PAL_STATE : a.type==='p-ins' ? PAL_PINS : PAL_AFTER;
@@ -9436,12 +9425,12 @@ function buildWithdrawalChart(){
             return y ? t('wd.chart.tooltip.age')+' ' + y.age + '  ·  ' + y.yr : '';
           },
           label: function(ctx){
-            var unit = _wdChartPeriod==='monthly' ? ' kr/'+t('dash.period.mth') : ' kr/'+t('dash.period.yr');
+            var unit = ' ' + (_wdChartPeriod==='monthly' ? t('dash.period.mth') : t('dash.period.yr'));
             return ' ' + ctx.dataset.label + ': ' + Math.round(ctx.raw).toLocaleString('sv-SE') + unit;
           },
           footer: function(items){
             var total = items.reduce(function(s,i){ return s + (i.raw||0); }, 0);
-            var unit = _wdChartPeriod==='monthly' ? ' kr/'+t('dash.period.mth') : ' kr/'+t('dash.period.yr');
+            var unit = ' ' + (_wdChartPeriod==='monthly' ? t('dash.period.mth') : t('dash.period.yr'));
             return t('exp.legend.total')+': ' + Math.round(total).toLocaleString('sv-SE') + unit;
           }
         }}
@@ -9477,17 +9466,19 @@ var _wdTaxMode = 'gross';
 var _ilsMode = 'gross';
 var _ilsPeriod = 'monthly';
 function _ilsDiv(){ return _ilsPeriod==='monthly' ? 12 : 1; }
-function _ilsTaxFactor(){
-  if(_ilsMode !== 'net') return 1;
-  var inp = document.getElementById('ils-tax-rate');
-  var rate = parseFloat((inp&&inp.value)||'32')||32;
-  return 1 - rate/100;
+// After-tax view = the model's own tax (pensionTax, Typfallsmodellen rules, Parameters-tab municipal / state tax):
+// the share of a year's taxable pension income that is left after tax. Without a year it uses the first retirement year.
+function _netFactorFor(y){
+  if(!y && _projYears && _projParams) y = _projYears.find(function(r){ return r.yr >= _projParams.retirementYear && (r.taxable||0) > 0; });
+  return (y && y.taxable > 0) ? Math.max(0, 1 - (y.totalTax||0) / y.taxable) : 1;
+}
+function _ilsTaxFactor(y){
+  return _ilsMode !== 'net' ? 1 : _netFactorFor(y);
 }
 function _updateILSChart(){
   if(!charts.chartIncomeLifetime || !_projYears) return;
   var years = _projYears; var params = _projParams;
   var div = _ilsDiv();
-  var tf = _ilsTaxFactor();
   var isNet = _ilsMode === 'net';
   var ds = charts.chartIncomeLifetime.data.datasets;
   // Salary: gross vs net (earnedIncomePost is already net)
@@ -9497,12 +9488,12 @@ function _updateILSChart(){
   ds[1].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.taxFree||0)/div) : 0; });
   ds[1].hidden = !isNet;
   // P-Insurance: apply tax factor when net
-  ds[2].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlPIns||0)*tf/div) : 0; });
+  ds[2].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlPIns||0)*_ilsTaxFactor(y)/div) : 0; });
   // State Pension: apply tax factor when net
-  ds[3].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlState||0)*tf/div) : 0; });
+  ds[3].data = years.map(function(y){ return y.yr >= params.retirementYear ? Math.round((y.wdrlState||0)*_ilsTaxFactor(y)/div) : 0; });
   // Total pension (P-Ins + State), same tax factor as the bars above
   ds[4].data = years.map(function(y){ return y.yr >= params.retirementYear
-    ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0))*tf/div) : null; });
+    ? Math.round(((y.wdrlPIns||0)+(y.wdrlState||0))*_ilsTaxFactor(y)/div) : null; });
   // State tax threshold line: a gross-income concept, so hide it in After Tax mode.
   ds[5].data = years.map(function(y){ var thr=y.age>=(params.stateThreshAge||67)?(params.stateThresh||760500):(params.stateThresh66||660400); return Math.round(thr/div); });
   ds[5].hidden = isNet;
@@ -9549,11 +9540,9 @@ function setWdTaxMode(mode){
   var hdr=document.getElementById('wd-col-hdr');
   if(hdr) hdr.textContent = mode==='net' ? 'Withdrawal/yr (net)' : 'Withdrawal/yr';
 }
-function wdTaxFactor(a){
+function wdTaxFactor(a, y){
   if(_wdTaxMode==='gross' || a.type==='after') return 1;
-  var inp = document.getElementById('wd-tax-rate');
-  var rate = parseFloat((inp&&inp.value)||'32')||32;
-  return 1 - rate/100;
+  return _netFactorFor(y);
 }
 
 
