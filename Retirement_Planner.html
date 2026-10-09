@@ -106,33 +106,36 @@ var gradientPlugin = {
   }
 };
 
-/* 4. Retirement marker on the x axis: the age (year in year mode) in bold gold at the regular tick size, drawn at the tick position so autoSkip cannot hide it */
+/* 4. Retirement marker on the x axis: the tick label of the retirement index is drawn by Chart.js itself in bold gold (same size,
+      rotation and position as the other ticks, so it resizes with the chart). The tick is made "major" so autoSkip cannot drop it.
+      Charts opt in with options._retMark = {idx, text} (or an array of them). */
 var retStarPlugin = {
   id: 'retStar',
-  afterDraw: function(chart) {
-    var m = chart.options._retMark;
-    var sc = chart.scales && chart.scales.x;
-    if (!m || !sc) return;
-    var marks = Array.isArray(m) ? m : [m];
-    // same font and vertical position as the regular tick labels (Chart.js keeps their draw origin in _labelItems)
-    var li = sc._labelItems && sc._labelItems.filter(function(it){ return it && it.label !== '' && it.label != null && it.options && it.options.translation; })[0];
-    var size = li && li.font && li.font.size ? li.font.size : 11;
-    var fam  = li && li.font && li.font.family ? li.font.family : 'DM Mono, monospace';
-    var y = li ? li.options.translation[1] : sc.top + 18;
-    var tb = li && li.options.textBaseline ? li.options.textBaseline : 'middle';
-    var ctx = chart.ctx;
-    ctx.save();
-    ctx.font = '700 ' + size + 'px ' + fam;
-    ctx.fillStyle = '#D9A500';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = tb;
-    marks.forEach(function(mk){
-      if (!mk || mk.idx == null || mk.idx < 0) return;
-      var x = sc.getPixelForValue(mk.idx);
-      if (!isFinite(x)) return;
-      ctx.fillText(String(mk.text), x, y + (li && li.textOffset ? li.textOffset : 0));
-    });
-    ctx.restore();
+  beforeInit: function(chart) {
+    var o = chart.config.options;
+    var m = o && o._retMark;
+    if (!m) return;
+    var idxs = (Array.isArray(m) ? m : [m]).filter(function(k){ return k && k.idx != null && k.idx >= 0; }).map(function(k){ return k.idx; });
+    if (!idxs.length) return;
+    o.scales = o.scales || {};
+    var x = o.scales.x = o.scales.x || {};
+    var tk = x.ticks = x.ticks || {};
+    var baseColor = tk.color, baseFont = tk.font;
+    tk.color = function(ctx) {
+      if (idxs.indexOf(ctx.index) >= 0) return '#D9A500';
+      return typeof baseColor === 'function' ? baseColor(ctx) : (baseColor || '#64748b');
+    };
+    tk.font = function(ctx) {
+      var f = typeof baseFont === 'function' ? baseFont(ctx) : Object.assign({}, baseFont || {});
+      if (idxs.indexOf(ctx.index) >= 0) f.weight = 'bold';
+      return f;
+    };
+    tk.major = Object.assign({}, tk.major, { enabled: true });
+    var prev = x.afterBuildTicks;
+    x.afterBuildTicks = function(scale) {
+      if (prev) prev.call(this, scale);
+      scale.ticks.forEach(function(t){ t.major = idxs.indexOf(t.value) >= 0; });
+    };
   }
 };
 // {idx, text} of the retirement year in a years array (mode 'age' -> "68", 'year' -> "2048")
@@ -142,11 +145,10 @@ function retMark(years, mode) {
   if (idx < 0) return null;
   return { idx: idx, text: String(mode === 'year' ? years[idx].yr : years[idx].age) };
 }
-// x tick label: age (or year), blank at the retirement index because retStarPlugin draws it there
+// x tick label: age (or year); the retirement tick is styled by retStarPlugin
 function retTick(years, idx, mode) {
   var y = years[idx];
   if (!y) return '';
-  if (y.yr === Math.round(getParam('retirementYear'))) return '';
   return mode === 'year' ? y.yr : y.age;
 }
 
@@ -9595,7 +9597,6 @@ function buildWithdrawalChart(){
             callback: function(val, idx){
               var y = years[idx];
               if(!y) return '';
-              if(y.yr === Math.round(getParam('retirementYear'))) return '';   // drawn by retStarPlugin
               if(_wdChartXMode === 'year'){
                 // Format as 'YY (e.g. '39)
                 return "'" + String(y.yr).slice(2);
@@ -9998,7 +9999,7 @@ function buildScenarioChart(){
         }}
       },
       scales: {
-        x: { ticks:{color:'#64748b',maxRotation:45,callback:function(v, idx){ return scMarkIdx.indexOf(idx) >= 0 ? '' : this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,0.07)'} },
+        x: { ticks:{color:'#64748b',maxRotation:45,callback:function(v){ return this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,0.07)'} },
         y: { ticks:{color:'#64748b',callback:fmtK}, grid:{color:'rgba(0,0,0,0.07)'},
              title:{display:true,text:t('sc.chart.yaxis'),color:'#64748b',font:{size:10}}} 
       }
@@ -10268,7 +10269,7 @@ function runMonteCarlo(){
         }}
       },
       scales:{
-        x:{ ticks:{color:'#64748b',callback:function(v, idx){ return idx === 0 ? '' : this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,0.05)'},
+        x:{ ticks:{color:'#64748b',callback:function(v){ return this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,0.05)'},
             title:{display:true,text:t('wd.chart.age'),color:'#64748b',font:{size:10}} },
         y:{ ticks:{color:'#64748b',callback:function(v){return v>=1e6?(v/1e6).toFixed(1)+'M':Math.round(v/1e3)+'K';}},
             grid:{color:'rgba(0,0,0,0.05)'},
@@ -10329,7 +10330,7 @@ function runMonteCarlo(){
           }}
         },
         scales:{
-          x:{ ticks:{color:'#64748b',callback:function(v, idx){ return idx === 0 ? '' : this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,.05)'},
+          x:{ ticks:{color:'#64748b',callback:function(v){ return this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,.05)'},
               title:{display:true,text:t('wd.chart.age'),color:'#64748b',font:{size:10}} },
           y:{ min:0, max:100,
               ticks:{color:'#64748b', callback:function(v){return v+'%';}},
