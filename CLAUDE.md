@@ -269,9 +269,10 @@ published, replace the workbook and re-verify everything below.
   Portfolio chart per mode: Total = Portfolio value + After tax Acc + Before tax Acc (no Savings goal line, tooltip without goal / vs. Goal);
   Tax-adjusted = tax-adjusted line + Savings goal + After tax Acc + "Before tax Acc, after est. tax" (portBeforeTax × (1 − munTax)), tooltip with goal / vs. Goal.
   Tax chart: Monthly/Annual toggle (`_taxChartMode`, default monthly, `setTaxChartMode`), title "Tax Per Month (kr/mth)" / "Tax Per Year (kr/yr)", kronor axis;
-  tooltip total = sum of the three series. The tax chart uses the same three categories before and after retirement (`row.cTaxMun` = municipal tax after
-  jobbskatteavdrag / förvärvsavdrag, incl. begravningsavgift; `row.cTaxState`; `row.cTaxFee` = public service fee, `ps` for salary years and `publicAvg` for pension
-  years); they add up to `salaryTax + totalTax`. The 7 % pension fee and its reduction cancel and sit inside municipal tax
+  tooltip total = sum of the series. The tax chart uses the same five categories before and after retirement: `row.cTaxMun` (municipal tax after
+  jobbskatteavdrag / förvärvsavdrag, incl. begravningsavgift), `row.cTaxState`, `row.cTaxFee` (public service fee: `ps` for salary years, `publicAvg` for pension years), `row.cTaxPens` (general 7 % pension
+  fee net of its tax reduction, `pensAvg − pensRed`; it only shows when there is no tax to offset it) and `row.cTaxCap` = Capital tax (the yearly yield taxes `yieldTaxK + yieldTaxP` on after-tax
+  and pension accounts). Municipal + state + fee + pension fee add up to `salaryTax + totalTax`; capital tax comes on top (it is deducted from the account returns, not from income)
 - Pension income tax (`pensionTax`, `xAge`, projection ~"Swedish income tax") = Typfallsmodellen (VBA_go tax block, Skatteregler `avdrag26`, `statlig`,
   `PublicAvg`): floor100(income) − grundavdrag (`grundavdragUnder`; `grundavdragOver` from `xAge(year)` = 66 to 2023, 67 to 2026, 68 to 2028, then target
   age + 1) = taxable income; kommunalskatt (`munTax` input) + begravningsavgift `BEGRAV_AVG` 0,26 % on it, state tax (`stateTax` input) above `SKIKT` 643 000,
