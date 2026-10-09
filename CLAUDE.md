@@ -309,6 +309,9 @@ published, replace the workbook and re-verify everything below.
   in Tax adjusted mode the bef row is shown after the model's tax (`_netFactorFor(y)`), and the chart's withdrawal series uses the same split. Contribution is split the same way
   ("Contrib. aft tax acc" / "Contrib. bef tax acc", `pvContribSplit`): in Tax adjusted mode the pre-tax accounts' contributions are valued after tax like their balances (flat municipal rate `taxFactor`).
   The per-account tables ("Show all accounts" and single account) label those two rows by account type and apply the same rules (`pvAccFlow`). Balance rows still use the flat municipal rate
+- Portfolio Value tab: the label column is frozen in EVERY table (summary and per-account tables with "Show all accounts"); the retirement-year column is tinted (`#fbf6e8`, `pvRet` / `retBg`) and its Year header
+  carries "★ Ret", as in the Projection table. Charts mark the retirement year on the x axis as "68 ★" (Withdrawals year mode "2048 ★"): `retStarPlugin` (global, reads `options._retMark` = `retMark(years, mode)`)
+  draws it at the regular tick position, the tick callbacks use `retTick(years, idx)` (blank at that index). Wired: the six Dashboard charts, the Withdrawals chart and the Portfolio Value charts; Scenario / Monte Carlo charts are not
 - Expenses tab persona buttons Basic / Average / Extra (Bas / Medel / Plus) = `EXPENSE_PERSONAS`,
   minPension's typical retiree budgets (17 600 / 18 400 / 27 300 kr/month,
   https://www.minpension.se/allt-om-pensioner/ta-ut-pension/hur-mycket-pengar-behover-en-pensionar),

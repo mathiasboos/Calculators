@@ -106,7 +106,45 @@ var gradientPlugin = {
   }
 };
 
-Chart.register(crosshairPlugin, retirementLinePlugin, gradientPlugin);
+/* 4. Retirement marker on the x axis: "68 ★" (year mode "2048 ★"), drawn under the axis so it is never hidden by autoSkip */
+var retStarPlugin = {
+  id: 'retStar',
+  afterDraw: function(chart) {
+    var m = chart.options._retMark;
+    var sc = chart.scales && chart.scales.x;
+    if (!m || !sc || m.idx == null || m.idx < 0) return;
+    var x = sc.getPixelForValue(m.idx);
+    if (!isFinite(x)) return;
+    var ctx = chart.ctx;
+    ctx.save();
+    ctx.font = '700 10px DM Mono, monospace';
+    ctx.fillStyle = '#D9A500';
+    ctx.textAlign = 'center';
+    // same vertical position as the regular tick labels (Chart.js keeps their draw origin in _labelItems)
+    var li = sc._labelItems && sc._labelItems.filter(function(it){ return it && it.label !== '' && it.label != null && it.options && it.options.translation; })[0];
+    var y = li ? li.options.translation[1] : sc.top + 18;
+    var tb = li && li.options.textBaseline ? li.options.textBaseline : 'middle';
+    ctx.textBaseline = tb;
+    ctx.fillText(m.text, x, y + (li && li.textOffset ? li.textOffset : 0));
+    ctx.restore();
+  }
+};
+// {idx, text} of the retirement year in a years array (mode 'age' -> "68 ★", 'year' -> "2048 ★")
+function retMark(years, mode) {
+  var ry = Math.round(getParam('retirementYear'));
+  var idx = (years || []).findIndex(function(y){ return y.yr === ry; });
+  if (idx < 0) return null;
+  return { idx: idx, text: (mode === 'year' ? years[idx].yr : years[idx].age) + ' \u2605' };
+}
+// x tick label: age (or year), blank at the retirement index because retStarPlugin draws it there
+function retTick(years, idx, mode) {
+  var y = years[idx];
+  if (!y) return '';
+  if (y.yr === Math.round(getParam('retirementYear'))) return '';
+  return mode === 'year' ? y.yr : y.age;
+}
+
+Chart.register(crosshairPlugin, retirementLinePlugin, gradientPlugin, retStarPlugin);
 
 /* ══ FLOATING TOOLTIP ════════════════════════════════════ */
 function makeTooltipEl(id) {
@@ -5981,7 +6019,7 @@ function updatePortfolioChart(pData){
   const TICKS = {color:'#4a6180', font:{family:'DM Mono', size:10}};
   const baseInteraction = {mode:'index', intersect:false};
   const baseScales = {
-    x:{grid:GRID,ticks:{...TICKS,maxTicksLimit:10,callback:function(val,idx){const age=years[idx]?.age;return age!=null?age:'';}}}  ,
+    x:{grid:GRID,ticks:{...TICKS,maxTicksLimit:10,callback:function(val,idx){return retTick(years, idx);}}}  ,
     y:{grid:GRID,ticks:{...TICKS,callback:fmtMsekTick}}
   };
 // ── PORTFOLIO ──────────────────────────────────
@@ -6039,6 +6077,7 @@ function updatePortfolioChart(pData){
       responsive: true, maintainAspectRatio: false,
       animation: {duration: 500, easing: 'easeInOutQuart'},
       interaction: baseInteraction,
+      _retMark: retMark(years),
       _retIdx: retIdx >= 0 ? retIdx : null,
       plugins: {
         legend: {
@@ -6132,8 +6171,7 @@ function updateCharts(data){
       grid: GRID,
       ticks: {...TICKS, maxTicksLimit:10,
         callback: function(val, idx) {
-          const age = years[idx]?.age;
-          return age != null ? age : '';
+          return retTick(years, idx);
         }
       }
     },
@@ -6177,6 +6215,7 @@ function updateCharts(data){
       responsive:true, maintainAspectRatio:false,
       animation:{duration:500},
       interaction: baseInteraction,
+      _retMark: retMark(years),
       _retIdx: incRetIdx >= 0 ? incRetIdx : null,
       plugins: {
         legend:{
@@ -6221,7 +6260,7 @@ function updateCharts(data){
       },
       scales: {
         x: {...baseScales.x, ticks:{...baseScales.x.ticks,
-          callback:function(val,idx){ const age=years[idx]?.age; return age!=null?age:''; }}},
+          callback:function(val,idx){ return retTick(years, idx); }}},
         y: {...baseScales.y, ticks:{...baseScales.y.ticks, callback:fmtKrTick}}
       }
     },
@@ -6276,6 +6315,7 @@ function updateCharts(data){
       responsive:true, maintainAspectRatio:false,
       animation:{duration:400},
       interaction: baseInteraction,
+      _retMark: retMark(years),
       plugins:{
         legend:{
           labels:{
@@ -6351,7 +6391,7 @@ function updateCharts(data){
         x:{ ...baseScales.x,
           stacked:true,
           ticks:{ ...baseScales.x.ticks,
-            callback:function(val,idx){ var age=years[idx]?.age; return age!=null?age:''; }
+            callback:function(val,idx){ return retTick(years, idx); }
           }
         },
         y:{ ...baseScales.y,
@@ -6394,6 +6434,7 @@ function updateCharts(data){
       responsive:true,maintainAspectRatio:false,
       animation:{duration:500},
       interaction:baseInteraction,
+      _retMark: retMark(years),
       plugins:{
         legend:{labels:{color:'#6b85a8',font:{size:10,family:'DM Mono'},
           usePointStyle:true,pointStyle:'rect',boxWidth:12}},
@@ -6420,7 +6461,7 @@ function updateCharts(data){
       scales:{
         x:{stacked:true,grid:{color:'rgba(0,0,0,0.05)'},
            ticks:{color:'#4a6180',font:{family:'DM Mono',size:10},maxTicksLimit:10,
-             callback:function(val,idx){const age=years[idx]?.age;return age!=null?age:''}}},
+             callback:function(val,idx){return retTick(years, idx);}}},
         y:{stacked:true,grid:{color:'rgba(0,0,0,0.07)'},
            ticks:{color:'#4a6180',font:{family:'DM Mono',size:10},
              callback:fmtMsekTick}}
@@ -6463,6 +6504,7 @@ function updateCharts(data){
       responsive: true, maintainAspectRatio: false,
       animation: {duration: 500},
       interaction: baseInteraction,
+      _retMark: retMark(years),
       plugins: {
         legend: {labels:{color:'#6b85a8', font:{size:10, family:'DM Mono'}, boxWidth:14}},
         tooltip: {
@@ -6488,7 +6530,7 @@ function updateCharts(data){
           stacked: true,
           grid: {color:'rgba(0,0,0,0.05)', borderColor:'rgba(0,0,0,0.05)'},
           ticks: {color:'#4a6180', font:{family:'DM Mono', size:10}, maxTicksLimit:10,
-            callback: function(val, idx){ const age=years[idx]?.age; return age!=null?age:''; }
+            callback: function(val, idx){ return retTick(years, idx); }
           }
         },
         y: {
@@ -6520,6 +6562,7 @@ function updateCharts(data){
       responsive:true, maintainAspectRatio:false,
       animation:{duration:500},
       interaction: baseInteraction,
+      _retMark: retMark(years),
       plugins: {
         legend:{labels:{color:'#6b85a8',font:{size:10,family:'DM Mono'},boxWidth:14}},
         tooltip: {
@@ -8512,6 +8555,12 @@ function buildPortfolioTab(){
     return Math.round(v||0);
   }
   var fmtN = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
+  // Retirement year column: same tint and "★ Ret" mark as the Projection table
+  var _retYr = Math.round(getParam('retirementYear'));
+  var PV_RET_BG = '#fbf6e8';
+  function pvRet(y){ return y.yr === _retYr; }
+  function retBg(y){ return pvRet(y) ? 'background:'+PV_RET_BG+';' : ''; }
+  function retYearCell(y){ return y.yr + (pvRet(y) ? ' <span style="font-size:10px;color:var(--gold);margin-left:4px">\u2605 Ret</span>' : ''); }
   var TH = 'style="padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1"';
   var TH_L = TH.replace('text-align:right','text-align:left');
   var TD = 'style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap"';
@@ -8541,17 +8590,17 @@ function buildPortfolioTab(){
     html += '<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:0;min-width:100%;font-size:12px">';
     html += '<thead>'
           + '<tr><th style="'+FZ+'z-index:3;padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:0">'+t('wd.chart.age')+'</th>';
-    years.forEach(function(y){ html += '<th style="padding:3px 10px;font-size:11px;font-weight:600;color:#48B866;text-align:right;border-bottom:0;white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1">'+y.age+'</th>'; });
+    years.forEach(function(y){ html += '<th style="padding:3px 10px;font-size:11px;font-weight:600;color:#48B866;text-align:right;border-bottom:0;white-space:nowrap;background:'+(pvRet(y)?PV_RET_BG:'var(--s1)')+';position:sticky;top:0;z-index:1">'+y.age+'</th>'; });
     html += '</tr>'
           + '<tr><th style="'+FZ+'z-index:3;padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">'+t('wd.chart.year')+'</th>';
-    years.forEach(function(y){ html += '<th style="padding:5px 10px;font-size:11px;font-weight:600;color:#4885C4;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1">'+y.yr+'</th>'; });
+    years.forEach(function(y){ html += '<th style="padding:5px 10px;font-size:11px;font-weight:600;color:#4885C4;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:'+(pvRet(y)?PV_RET_BG:'var(--s1)')+';position:sticky;top:0;z-index:1">'+retYearCell(y)+'</th>'; });
     html += '</tr></thead><tbody>';
     ROWS2.forEach(function(r){
       html += '<tr><td'+(r.tip?' title="'+r.tip.replace(/"/g,'&quot;')+'"':'')+' style="'+FZ+'z-index:2;padding:4px 10px;font-size:12px;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,0.05)'+(r.bold?';font-weight:700':'')+'">'+r.label+'</td>';
       years.forEach(function(y){
         var total = r.val(y);
         var formatted = Math.round(total)===0?'<span style="color:rgba(0,0,0,0.25)">0</span>':Math.round(total).toLocaleString('sv-SE');
-        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);'+(r.bold?'font-weight:700;color:'+r.color:'')+'">'+formatted+'</td>';
+        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);'+retBg(y)+(r.bold?'font-weight:700;color:'+r.color:'')+'">'+formatted+'</td>';
       });
       html += '</tr>';
     });
@@ -8591,6 +8640,7 @@ function buildPortfolioTab(){
         options:{
           responsive:true,maintainAspectRatio:false,
           interaction:{mode:'index',intersect:false},
+          _retMark: retMark(years),
           plugins:{
             legend:{display:true,position:'bottom',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:6}},
             tooltip:{callbacks:{label:function(ctx){
@@ -8598,14 +8648,14 @@ function buildPortfolioTab(){
             }}}
           },
           scales:{
-            x:{stacked:true,ticks:{color:'#64748b',maxRotation:45},grid:{color:'rgba(0,0,0,0.07)'}},
+            x:{stacked:true,ticks:{color:'#64748b',maxRotation:45,callback:function(v,idx){return retTick(years,idx);}},grid:{color:'rgba(0,0,0,0.07)'}},
             y:{stacked:true,ticks:{color:'#64748b',callback:fmtK},grid:{color:'rgba(0,0,0,0.07)'}}
           }
         }
       });
       var ctxB=document.getElementById('pv-chart-bar').getContext('2d');
       if(window._pvChartBar) window._pvChartBar.destroy();
-      window._pvChartBar=new Chart(ctxB,{type:'bar',data:{labels:labels2,datasets:[{label:t('pv.row.contrib'),data:ds_contrib2,backgroundColor:'rgba(60,187,110,.8)',stack:'pos'},{label:t('pv.row.ret'),data:ds_return2,backgroundColor:'rgba(74,143,204,.8)',stack:'pos'},{label:t('pv.row.wdrl'),data:ds_wd2,backgroundColor:'rgba(232,79,42,.8)',stack:'neg'},{label:t('pv.row.yt'),data:ds_yt2,backgroundColor:'rgba(245,180,40,.7)',stack:'neg'},{label:t('pv.row.mf.short'),data:ds_mf2,backgroundColor:'rgba(245,180,40,.4)',stack:'neg'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:tipFmt}}},scales:{x:{stacked:true,ticks:{color:'#64748b',maxRotation:45},grid:{color:'rgba(0,0,0,0.07)'}},y:{stacked:true,ticks:{color:'#64748b',callback:fmtK},grid:{color:'rgba(0,0,0,0.07)'}}}}});
+      window._pvChartBar=new Chart(ctxB,{type:'bar',data:{labels:labels2,datasets:[{label:t('pv.row.contrib'),data:ds_contrib2,backgroundColor:'rgba(60,187,110,.8)',stack:'pos'},{label:t('pv.row.ret'),data:ds_return2,backgroundColor:'rgba(74,143,204,.8)',stack:'pos'},{label:t('pv.row.wdrl'),data:ds_wd2,backgroundColor:'rgba(232,79,42,.8)',stack:'neg'},{label:t('pv.row.yt'),data:ds_yt2,backgroundColor:'rgba(245,180,40,.7)',stack:'neg'},{label:t('pv.row.mf.short'),data:ds_mf2,backgroundColor:'rgba(245,180,40,.4)',stack:'neg'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},_retMark:retMark(years),plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:tipFmt}}},scales:{x:{stacked:true,ticks:{color:'#64748b',maxRotation:45,callback:function(v,idx){return retTick(years,idx);}},grid:{color:'rgba(0,0,0,0.07)'}},y:{stacked:true,ticks:{color:'#64748b',callback:fmtK},grid:{color:'rgba(0,0,0,0.07)'}}}}});
     }, 0);
   }
 
@@ -8614,15 +8664,16 @@ function buildPortfolioTab(){
     html += '<div class="card-header" style="margin-bottom:12px">'+accDisplayName(a)
       +'<span style="font-size:10px;color:var(--muted);margin-left:8px;font-weight:400;text-transform:lowercase">'
       +(a.type==='after'?t('acc.badge.after'):a.type==='p-ins'?t('acc.badge.pins'):t('acc.badge.state'))+'</span></div>';
-    html += '<div style="overflow-x:auto"><table style="border-collapse:collapse;min-width:100%;font-size:12px">';
+    html += '<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:0;min-width:100%;font-size:12px">';
 
-    // Header rows: Age then Year
+    // Header rows: Age then Year (first column frozen, retirement year marked)
+    var TH_F = TH_L.replace('position:sticky;top:0;z-index:1','position:sticky;top:0;left:0;z-index:3;border-right:1px solid var(--border);min-width:150px;box-sizing:border-box');
     html += '<thead>'
-          + '<tr><th '+TH_L+'>'+t('wd.chart.age')+'</th>';
-    years.forEach(function(y){ html += '<th '+TH.replace('color:var(--muted)','color:#48B866').replace('border-bottom:1px solid var(--border)','border-bottom:0')+'>'+y.age+'</th>'; });
+          + '<tr><th '+TH_F+'>'+t('wd.chart.age')+'</th>';
+    years.forEach(function(y){ html += '<th '+TH.replace('color:var(--muted)','color:#48B866').replace('border-bottom:1px solid var(--border)','border-bottom:0').replace('background:var(--s1)','background:'+(pvRet(y)?PV_RET_BG:'var(--s1)'))+'>'+y.age+'</th>'; });
     html += '</tr>'
-          + '<tr><th '+TH_L+'>'+t('wd.chart.year')+'</th>';
-    years.forEach(function(y){ html += '<th '+TH+'>'+y.yr+'</th>'; });
+          + '<tr><th '+TH_F+'>'+t('wd.chart.year')+'</th>';
+    years.forEach(function(y){ html += '<th '+TH.replace('background:var(--s1)','background:'+(pvRet(y)?PV_RET_BG:'var(--s1)'))+'>'+retYearCell(y)+'</th>'; });
     html += '</tr></thead><tbody>';
 
     // Row helper
@@ -8630,14 +8681,15 @@ function buildPortfolioTab(){
       var flow = (key==='contrib' || key==='wdrl');
       var s = bold ? TD_BOLD : TD;
       var tl = TD_L.replace('font-family:var(--font-m);','') + (bold?' font-weight:700;"':'');
-      html += '<tr><td '+TD_L+(bold?' style="font-weight:700;padding:4px 10px;font-size:12px;color:'+color+'"':'')+'>'+label+'</td>';
+      var tdLF = TD_L.replace('white-space:nowrap"','white-space:nowrap;position:sticky;left:0;z-index:2;background:var(--s1);border-right:1px solid var(--border);min-width:150px;box-sizing:border-box"');
+      html += '<tr><td '+tdLF+(bold?' style="font-weight:700;padding:4px 10px;font-size:12px;color:'+color+'"':'')+'>'+label+'</td>';
       years.forEach(function(y){
         var d = y.accDetail && y.accDetail[ai];
         var rawV = d ? (d[key]||0) : 0;
         var v = (key==='open'||key==='close') ? Math.round(rawV*taxFactor(a)) : flow ? Math.round(pvAccFlow(a, y, key)) : Math.round(rawV);
         var formatted = v===0 ? '<span style="color:rgba(0,0,0,0.25)">0</span>' : fmtN(v);
         var colorStyle = bold ? 'color:'+color+';font-weight:700' : '';
-        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap;'+colorStyle+'">'+formatted+'</td>';
+        html += '<td style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap;'+retBg(y)+colorStyle+'">'+formatted+'</td>';
       });
       html += '</tr>';
     }
@@ -8670,7 +8722,7 @@ function buildPortfolioTab(){
     var ds_closing  = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?Math.round((d.close||0)*_tf):0; });
     var fmtK = function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K'; };
     var tipFmt = function(ctx){ return ' '+ctx.dataset.label+': '+Math.abs(Math.round(ctx.raw)).toLocaleString('sv-SE')+' kr'; };
-    var tickFmt = { color:'#64748b', maxRotation:45 };
+    var tickFmt = { color:'#64748b', maxRotation:45, callback:function(v, idx){ return retTick(years, idx); } };
     var gridFmt = { color:'rgba(255,255,255,.05)' };
 
     // ── Chart 1: Portfolio Value line chart ──────────────────────
@@ -8690,6 +8742,7 @@ function buildPortfolioTab(){
       options: {
         responsive:true, maintainAspectRatio:false,
         interaction:{ mode:'index', intersect:false },
+        _retMark: retMark(years),
         plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:tipFmt } } },
         scales:{
           x:{ ticks:tickFmt, grid:gridFmt },
@@ -8716,6 +8769,7 @@ function buildPortfolioTab(){
       options: {
         responsive:true, maintainAspectRatio:false,
         interaction:{ mode:'index', intersect:false },
+        _retMark: retMark(years),
         plugins:{
           legend:{ labels:{ color:'#94a3b8', font:{size:11} } },
           tooltip:{ callbacks:{ label:tipFmt } }
@@ -9489,6 +9543,7 @@ function buildWithdrawalChart(){
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
+      _retMark: retMark(years, _wdChartXMode),
       plugins: {
         legend: {
           display: true,
@@ -9520,6 +9575,7 @@ function buildWithdrawalChart(){
             callback: function(val, idx){
               var y = years[idx];
               if(!y) return '';
+              if(y.yr === Math.round(getParam('retirementYear'))) return '';   // drawn by retStarPlugin
               if(_wdChartXMode === 'year'){
                 // Format as 'YY (e.g. '39)
                 return "'" + String(y.yr).slice(2);
