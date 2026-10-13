@@ -636,7 +636,7 @@ input[type="number"]::-webkit-outer-spin-button {
     color: var(--gold) !important;
   }
   /* Remove button smaller on mobile */
-  #accounts-table button[title="Remove account"] {
+  #accounts-table button.acc-remove-btn {
     width: 24px !important; height: 24px !important;
   }
   /* Card header for Accounts */
@@ -686,7 +686,7 @@ input[type="number"]::-webkit-outer-spin-button {
       <span id="hdr-sub">Constant Prices · Swedish Tax Rules</span>
     </div>
     <!-- Plan presets: new plan (guided), typical cases, clear -->
-    <select id="plan-preset" class="preset-attn" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case"
+    <select id="plan-preset" class="preset-attn" onchange="planPresetFromMenu(this)" title="Start a new plan or load a typical case" data-i18n-title="preset.tip"
       style="width:auto;max-width:260px;margin-left:10px;background:var(--s2);border:1px solid var(--gold);border-radius:6px;color:var(--text);font-family:var(--font-b);
              font-size:11px;font-weight:600;letter-spacing:.04em;padding:5px 8px;cursor:pointer">
       <option value="" selected disabled hidden data-i18n-opt="preset.placeholder">Begin here to create a plan</option>
@@ -915,7 +915,7 @@ input[type="number"]::-webkit-outer-spin-button {
       <div style="text-align:center;padding:20px 0 14px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px" data-i18n="inc.net.monthly.label">Net Monthly Salary</div>
         <div id="inc-netMonth" style="font-size:2.6rem;font-weight:700;font-family:var(--font-m);color:#48B866">—</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:4px">Gross&nbsp;<span id="inc-totalGross" style="color:var(--text);font-family:var(--font-m)">—</span>&nbsp;·&nbsp;Pension&nbsp;<span id="inc-totalPens" style="color:var(--text);font-family:var(--font-m)">—</span>&nbsp;·&nbsp;Lönväxling&nbsp;<span id="inc-totalVax" style="color:var(--text);font-family:var(--font-m)">—</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px"><span data-i18n="inc.tot.gross">Gross</span>&nbsp;<span id="inc-totalGross" style="color:var(--text);font-family:var(--font-m)">—</span>&nbsp;·&nbsp;Pension&nbsp;<span id="inc-totalPens" style="color:var(--text);font-family:var(--font-m)">—</span>&nbsp;·&nbsp;Löneväxling&nbsp;<span id="inc-totalVax" style="color:var(--text);font-family:var(--font-m)">—</span></div>
         <div style="margin-top:8px;padding:6px 14px;background:rgba(245,180,40,.08);border-radius:6px;display:inline-block"><span style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase" data-i18n="inc.total.monthly">Total Monthly Income&nbsp;</span><span id="inc-totalIncome" style="font-family:var(--font-m);font-size:1.1rem;font-weight:700;color:var(--gold)">—</span><span style="font-size:11px;color:var(--muted)" data-i18n="inc.kr.mth">&nbsp;kr/mth</span></div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px" data-i18n="inc.kr.month">kr / month</div>
       </div>
@@ -1211,9 +1211,9 @@ input[type="number"]::-webkit-outer-spin-button {
     <!-- LEFT COLUMN: Simulation Configuration -->
     <div style="display:flex;flex-direction:column;gap:14px">
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.start.age">Start Age</span> <span title="Default = Retirement Age" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-start-age" type="number" min="30" max="100" step="1" value="65" oninput="updateMCSimYears()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.start.age">Start Age</span> <span title="Default = Retirement Age" data-i18n-title="mc.start.age.hint" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-start-age" type="number" min="30" max="100" step="1" value="65" oninput="updateMCSimYears()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.end.age">End Age</span> <span title="Default = Life Expectancy Age" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-end-age" type="number" min="50" max="120" step="1" value="90" oninput="updateMCSimYears()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.end.age">End Age</span> <span title="Default = Life Expectancy Age" data-i18n-title="mc.end.age.hint" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-end-age" type="number" min="50" max="120" step="1" value="90" oninput="updateMCSimYears()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
 
       <div style="padding:10px 12px;background:var(--s2);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:12px;font-weight:600;color:var(--muted)" data-i18n="mc.sim.period">Simulation Period</span>
@@ -1241,7 +1241,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
       <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.wd.freq">Withdrawal Frequency</span></div><select id="mc-wd-freq" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m);cursor:pointer"><option value="annual" data-i18n-opt="mc.wd.freq.annual">Annually</option><option value="quarterly" data-i18n-opt="mc.wd.freq.quarterly">Quarterly</option><option value="monthly" data-i18n-opt="mc.wd.freq.monthly">Monthly</option></select></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.tax.treat">Tax Treatment</span> <span title="Pre-tax: gross withdrawals. After-tax: annual tax drag deducted from portfolio." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><select id="mc-tax-mode" onchange="mcTaxModeChange()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m);cursor:pointer"><option value="pretax" data-i18n-opt="mc.tax.pretax">Pre-tax Returns</option><option value="aftertax" data-i18n-opt="mc.tax.aftertax">After-tax Returns</option></select>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.tax.treat">Tax Treatment</span> <span title="Pre-tax: gross withdrawals. After-tax: annual tax drag deducted from portfolio." data-i18n-title="mc.tax.treat.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><select id="mc-tax-mode" onchange="mcTaxModeChange()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m);cursor:pointer"><option value="pretax" data-i18n-opt="mc.tax.pretax">Pre-tax Returns</option><option value="aftertax" data-i18n-opt="mc.tax.aftertax">After-tax Returns</option></select>
         <div id="mc-tax-drag-wrap" style="display:none;margin-top:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px" data-i18n="mc.tax.drag.lbl">Annual tax drag (%/yr)</div><input id="mc-tax-drag" type="text" inputmode="decimal" value="0,75" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.tax.drag.hint">ISK schablonbeskattning ≈ 0,5–1,0%</div></div>
       </div>
 
@@ -1260,15 +1260,15 @@ input[type="number"]::-webkit-outer-spin-button {
         <div id="mc-mu-display" style="margin-top:6px;font-size:11px;color:var(--gold);font-weight:600;text-align:right">—</div>
       </div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.eq">Real Return — Equities (%)</span> <span title="From Parameters tab. Blended with bond return, weighted by bracket equity %." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-eq" type="text" inputmode="decimal" value="1,9" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.eq">Real Return — Equities (%)</span> <span title="From Parameters tab. Blended with bond return, weighted by bracket equity %." data-i18n-title="mc.ret.eq.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-eq" type="text" inputmode="decimal" value="1,9" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.bd">Real Return — Bonds (%)</span> <span title="From Parameters tab." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-bd" type="text" inputmode="decimal" value="1,9" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.ret.bd">Real Return — Bonds (%)</span> <span title="From Parameters tab." data-i18n-title="mc.ret.bd.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-ret-bd" type="text" inputmode="decimal" value="1,9" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.ret.hint">From Parameters tab</div></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.sigma.eq">Equity Volatility σ_eq (%/yr)</span> <span title="Portfolio σ = √(eq²·σ_eq² + bd²·σ_bd²), ρ = 0" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-sigma-eq" type="text" inputmode="decimal" value="16,0" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.sigma.eq">Equity Volatility σ_eq (%/yr)</span> <span title="Portfolio σ = √(eq²·σ_eq² + bd²·σ_bd²), ρ = 0" data-i18n-title="mc.sigma.eq.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-sigma-eq" type="text" inputmode="decimal" value="16,0" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.sigma.bd">Bond Volatility σ_bd (%/yr)</span> <span title="Assuming zero correlation with equities." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-sigma-bd" type="text" inputmode="decimal" value="4,0" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.sigma.bd">Bond Volatility σ_bd (%/yr)</span> <span title="Assuming zero correlation with equities." data-i18n-title="mc.sigma.bd.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-sigma-bd" type="text" inputmode="decimal" value="4,0" oninput="updateMCMuDisplay()" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"></div>
 
-      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.inflation">Inflation (%/yr)</span> <span title="Set to 0% when using real (inflation-adjusted) returns." style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-infl" type="text" inputmode="decimal" value="0,0" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div id="mc-infl-hint" style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.infl.hint">From Parameters tab</div></div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px"><span data-i18n="mc.inflation">Inflation (%/yr)</span> <span title="Set to 0% when using real (inflation-adjusted) returns." data-i18n-title="mc.inflation.tip" style="cursor:help;color:var(--muted);font-size:11px">ⓘ</span></div><input id="mc-infl" type="text" inputmode="decimal" value="0,0" style="width:100%;padding:8px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:var(--font-m)"><div id="mc-infl-hint" style="font-size:10px;color:var(--muted);margin-top:3px" data-i18n="mc.infl.hint">From Parameters tab</div></div>
 
     </div>
   </div>
@@ -1400,7 +1400,7 @@ input[type="number"]::-webkit-outer-spin-button {
           style="padding:4px 11px;font-size:11px;font-weight:600;background:transparent;
                  border:1px solid rgba(74,143,204,.5);border-radius:6px;color:#4885C4;
                  cursor:pointer;white-space:nowrap;letter-spacing:.03em"
-          title="Set each account's annual withdrawal so Asset at Retirement End ≈ 0">
+          title="Set each account's annual withdrawal so Asset at Retirement End ≈ 0" data-i18n-title="wd.optimize.tip">
           ⚡ <span data-i18n="wd.optimize">Optimize to Zero</span>
         </button>
         <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
@@ -1558,12 +1558,12 @@ input[type="number"]::-webkit-outer-spin-button {
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.min.basic">Min. Basic Allowance ≤</td>
             <td style="padding:4px 4px;text-align:center"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:42px;text-align:center" id="allowance67Age" value="66" onchange="recalc()"></td>
-            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" id="allowance67" value="17 400" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
+            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" data-i18n-title="par.allow.unused" id="allowance67" value="17 400" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
           </tr>
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.min.enhanced">Min. Enhanced Allowance ≥</td>
             <td style="padding:4px 4px;text-align:center"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:42px;text-align:center" id="allowanceAge" value="67" onchange="recalc()"></td>
-            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" id="allowance" value="117 500" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
+            <td style="padding:4px 4px;text-align:right"><input class="inp inp-sm" type="text" inputmode="numeric" style="width:90px;text-align:right;opacity:.45" title="Not used: pension tax follows Typfallsmodellen" data-i18n-title="par.allow.unused" id="allowance" value="117 500" onchange="this.value=(parseInt(this.value.replace(/[^0-9]/g,''))||0).toLocaleString('sv-SE');recalc()"></td>
           </tr>
           <tr>
             <td style="padding:4px 6px;font-size:11px;color:var(--text)" data-i18n="par.state.thresh.lo">State Tax Threshold ≤</td>
@@ -2255,6 +2255,36 @@ en:{
   'wd.col.wdyr.net':'Withdrawal/yr (net)',
   'unit.per.mth':'/mth',
   'unit.per.yr':'/yr',
+  // ── Phone tab bar, tips, new accounts (texts that were in English only) ──
+  'mqn.dashboard':'DASHBOARD',
+  'mqn.personal':'PERSONAL',
+  'mqn.accounts':'ACCOUNTS',
+  'mqn.withdrawals':'WITHDRAW',
+  'mqn.projection':'PROJECTION',
+  'mc.tax.treat.tip':'Pre-tax: gross withdrawals. After-tax: annual tax drag deducted from portfolio.',
+  'mc.ret.eq.tip':'From Parameters tab. Blended with bond return, weighted by bracket equity %.',
+  'mc.ret.bd.tip':'From Parameters tab.',
+  'mc.sigma.eq.tip':'Portfolio σ = √(eq²·σ_eq² + bd²·σ_bd²), ρ = 0',
+  'mc.sigma.bd.tip':'Assuming zero correlation with equities.',
+  'mc.inflation.tip':'Set to 0% when using real (inflation-adjusted) returns.',
+  'exp.rename':'Rename',
+  'exp.delete':'Delete category',
+  'acc.remove':'Remove account',
+  'grp.expand':'Expand group',
+  'grp.collapse':'Collapse group',
+  'pgb.remove':'Remove',
+  'wd.dt.own.tip':'Your own divisor — annual wd = balance ÷ this number',
+  'wd.manual.wd.tip':'Switch to manual withdrawal entry',
+  'wd.year1':'Year 1',
+  'wd.use.dt.tip':'Use Pensionsmyndighetens delningstal (PFS 2024:2 / PP 2026) instead of manual wd',
+  'wd.optimize.tip':'Set each account\'s annual withdrawal so Asset at Retirement End ≈ 0',
+  'preset.tip':'Start a new plan or load a typical case',
+  'par.allow.unused':'Not used: pension tax follows Typfallsmodellen',
+  'inc.tot.gross':'Gross',
+  'acc.name.new.after':'New After-Tax Account',
+  'acc.name.new.pins':'New Pension Account',
+  'acc.name.new.state':'New State Account',
+  'exp.iv.est.tax':'~{pct}% tax on pre-tax',
 },
 sv:{
   'nav.dashboard':'Översikt','nav.personal':'Personuppgifter','nav.expenses':'Utgifter',
@@ -2809,6 +2839,36 @@ sv:{
   'wd.col.wdyr.net':'Uttag/år (netto)',
   'unit.per.mth':'/mån',
   'unit.per.yr':'/år',
+  // ── Phone tab bar, tips, new accounts (texts that were in English only) ──
+  'mqn.dashboard':'ÖVERSIKT',
+  'mqn.personal':'PERSON',
+  'mqn.accounts':'TILLGÅNGAR',
+  'mqn.withdrawals':'UTTAG',
+  'mqn.projection':'PROGNOS',
+  'mc.tax.treat.tip':'Före skatt: bruttouttag. Efter skatt: en årlig skattebelastning dras från portföljen.',
+  'mc.ret.eq.tip':'Från Parametrar-fliken. Vägs samman med obligationsavkastningen efter aktieandelen i varje åldersintervall.',
+  'mc.ret.bd.tip':'Från Parametrar-fliken.',
+  'mc.sigma.eq.tip':'Portföljens σ = √(eq²·σ_eq² + bd²·σ_bd²), ρ = 0',
+  'mc.sigma.bd.tip':'Antar ingen korrelation med aktier.',
+  'mc.inflation.tip':'Sätt till 0 % när avkastningen är real (inflationsjusterad).',
+  'exp.rename':'Byt namn',
+  'exp.delete':'Ta bort kategorin',
+  'acc.remove':'Ta bort kontot',
+  'grp.expand':'Fäll ut gruppen',
+  'grp.collapse':'Fäll ihop gruppen',
+  'pgb.remove':'Ta bort',
+  'wd.dt.own.tip':'Eget delningstal – årligt uttag = saldo ÷ detta tal',
+  'wd.manual.wd.tip':'Ange uttaget själv i stället',
+  'wd.year1':'År 1',
+  'wd.use.dt.tip':'Använd Pensionsmyndighetens delningstal (PFS 2024:2 / PP 2026) i stället för manuellt uttag',
+  'wd.optimize.tip':'Sätter varje kontos årliga uttag så att tillgångarna vid pensionsslut blir ≈ 0',
+  'preset.tip':'Börja en ny plan eller läs in ett typfall',
+  'par.allow.unused':'Används inte: pensionsskatten följer Typfallsmodellen',
+  'inc.tot.gross':'Brutto',
+  'acc.name.new.after':'Nytt beskattat konto',
+  'acc.name.new.pins':'Nytt pensionskonto',
+  'acc.name.new.state':'Ny statlig pension',
+  'exp.iv.est.tax':'~{pct} % skatt på uttag från P-försäkring',
 }};
 
 function t(key,vars){
@@ -4417,7 +4477,7 @@ function buildExpenseRows(){
     labelDiv.style.cssText='display:flex;align-items:center;gap:4px;flex:1;min-width:0;margin-right:10px;';
     labelDiv.innerHTML=
       '<span id="exp-name-'+i+'" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+displayName+'</span>'
-      +'<button onclick="startExpenseNameEdit('+i+')" title="Rename"'
+      +'<button onclick="startExpenseNameEdit('+i+')" title="'+t('exp.rename')+'"'
         +' style="background:none;border:none;cursor:pointer;padding:1px 3px;flex-shrink:0;'
         +'color:var(--muted);font-size:11px;line-height:1;opacity:0;transition:opacity .15s"'
         +' class="exp-rename-btn">✎</button>';
@@ -4431,7 +4491,7 @@ function buildExpenseRows(){
         +' onchange="expenses['+i+'].val=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;'
           +'this.value=Math.round(expenses['+i+'].val).toLocaleString(\'sv-SE\');recalc();buildExpPersona()">'
       +(canDelete
-        ? '<button onclick="deleteExpense('+i+')" title="Delete category"'
+        ? '<button onclick="deleteExpense('+i+')" title="'+t('exp.delete')+'"'
             +' style="background:none;border:none;cursor:pointer;padding:2px 4px;'
             +'color:var(--muted);font-size:16px;line-height:1;border-radius:4px;'
             +'transition:color .15s,background .15s" class="exp-delete-btn">&times;</button>'
@@ -4519,7 +4579,7 @@ function saveExpenseName(i){
   var labelDiv=inp.parentElement;
   labelDiv.innerHTML=
     '<span id="exp-name-'+i+'" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+newName+'</span>'
-    +'<button onclick="startExpenseNameEdit('+i+')" title="Rename"'
+    +'<button onclick="startExpenseNameEdit('+i+')" title="'+t('exp.rename')+'"'
       +' style="background:none;border:none;cursor:pointer;padding:1px 3px;flex-shrink:0;'
       +'color:var(--muted);font-size:11px;line-height:1;opacity:0;transition:opacity .15s"'
       +' class="exp-rename-btn">✎</button>';
@@ -5013,7 +5073,7 @@ function toggleWdGroup(type){
   var btn = document.getElementById('wd-grp-btn-'+type);
   if(btn){
     btn.innerHTML = collapsed ? '&#9658;' : '&#9660;';
-    btn.title     = collapsed ? 'Expand group' : 'Collapse group';
+    btn.title     = t(collapsed ? 'grp.expand' : 'grp.collapse');
   }
 }
 
@@ -5031,7 +5091,7 @@ function toggleAccGroup(type){
   var btn = document.getElementById('acc-grp-btn-'+type);
   if(btn){
     btn.textContent = collapsed ? '\u25B6' : '\u25BC';
-    btn.title = collapsed ? 'Expand group' : 'Collapse group';
+    btn.title = t(collapsed ? 'grp.expand' : 'grp.collapse');
   }
 }
 
@@ -5299,7 +5359,7 @@ function buildAccountsTable(){
     // Group header with toggle button
     const gr=document.createElement('tr');
     gr.innerHTML=`<td colspan="11" class="acc-group-hdr" style="user-select:none">
-      <button onclick="toggleAccGroup('${g.type}')" title="${collapsed?'Expand':'Collapse'} group"
+      <button onclick="toggleAccGroup('${g.type}')" title="${t(collapsed?'grp.expand':'grp.collapse')}"
         style="background:none;border:none;cursor:pointer;color:${grpColor};font-size:11px;
                margin-right:6px;padding:0 4px;line-height:1;vertical-align:middle;
                opacity:.75;transition:opacity .15s" onmouseenter="this.style.opacity=1"
@@ -5326,7 +5386,7 @@ function buildAccountsTable(){
           + col(i,'mgmt',a.mgmt,0.01,60)
           + col(i,'yt',a.yt,0.01,60)
           + col(i,'fixedRet',a.fixedRet,0.1,60))}
-        <td style="padding:0 4px">${a.workRow ? '<span title="'+t('pers.work.title')+'" style="font-size:10px;color:var(--muted)">auto</span>' : ''}${a.workRow ? '' : `<button onclick="removeAccount(${i})" title="Remove account" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`}</td>
+        <td style="padding:0 4px">${a.workRow ? '<span title="'+t('pers.work.title')+'" style="font-size:10px;color:var(--muted)">auto</span>' : ''}${a.workRow ? '' : `<button onclick="removeAccount(${i})" class="acc-remove-btn" title="${t('acc.remove')}" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>`}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -7930,7 +7990,7 @@ function estimateGrossWithdrawal(i){
   if(wdEl) wdEl.value=total.toLocaleString('sv-SE');
   var effRate=grossPreTax>0?(1-preTaxNet/grossPreTax)*100:0;
   var infoEl=document.getElementById('exp-iv-est-info-'+i);
-  if(infoEl){infoEl.textContent='~'+effRate.toFixed(0)+'% tax on pre-tax';infoEl.style.display='';}
+  if(infoEl){infoEl.textContent=t('exp.iv.est.tax',{pct:effRate.toFixed(0)});infoEl.style.display='';}
   refreshIvSEK(i);
 }
 
@@ -8166,7 +8226,7 @@ function buildWdTable(){
   function groupRow(label, color, type){
     var collapsed = !!(window._wdGroupCollapsed && window._wdGroupCollapsed[type]);
     var chevron   = collapsed ? '&#9658;' : '&#9660;';
-    var btn = '<button onclick="toggleWdGroup(\''+type+'\')" id="wd-grp-btn-'+type+'" title="'+(collapsed?'Expand':'Collapse')+' group" '
+    var btn = '<button onclick="toggleWdGroup(\''+type+'\')" id="wd-grp-btn-'+type+'" title="'+t(collapsed?'grp.expand':'grp.collapse')+'" '
       +'style="background:none;border:none;cursor:pointer;color:'+color+';font-size:11px;'
       +'margin-right:6px;padding:0 3px;line-height:1;vertical-align:middle;opacity:.75" '
       +'onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=\'.75\'">'+chevron+'</button>';
@@ -8278,7 +8338,7 @@ function buildWdTable(){
             +'style="width:48px;background:var(--s3);border:1px solid var(--border);'
             +'border-radius:3px;color:var(--gold);text-align:right;padding:1px 4px;'
             +'font-size:10px;font-family:var(--font-m);margin-top:2px" '
-            +'title="Your own divisor — annual wd = balance ÷ this number">';
+            +'title="'+t('wd.dt.own.tip')+'">';
         }
         // Utbetalningsgrad (withdrawal share): Swedish state-pension partial
         // pension options. Default 100% = full pension.
@@ -8317,11 +8377,11 @@ function buildWdTable(){
             +'style="background:transparent;border:1px solid rgba(72,184,102,.4);color:#48B866;'
             +'border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;letter-spacing:.04em;'
             +'text-transform:uppercase;cursor:pointer;font-family:var(--font-b);margin-top:1px" '
-            +'title="Switch to manual withdrawal entry">'+t('wd.manual.wd')+'</button>'
+            +'title="'+t('wd.manual.wd.tip')+'">'+t('wd.manual.wd')+'</button>'
           : '';
         var _badge = '<div style="display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px">'
           +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)" '
-            +'title="Year 1: '+fmtN(estVal(a))+' kr ÷ '
+            +'title="'+t('wd.year1')+': '+fmtN(estVal(a))+' kr ÷ '
             +(_dt0?_dt0.toString().replace(".",","):"–")
             +' × '+Math.round(_share*100)+'% '
             +' = '+fmtN(Math.round(_est0*wdTaxFactor(a)))+' kr">'
@@ -8349,7 +8409,7 @@ function buildWdTable(){
             +'style="background:transparent;border:1px solid var(--border);color:var(--muted);'
             +'border-radius:3px;padding:1px 4px;font-size:8px;font-weight:600;letter-spacing:.04em;'
             +'text-transform:uppercase;cursor:pointer;font-family:var(--font-b)" '
-            +'title="Use Pensionsmyndighetens delningstal (PFS 2024:2 / PP 2026) instead of manual wd">'
+            +'title="'+t('wd.use.dt.tip')+'">'
             +t('wd.use.dt')+'</button></div>';
         }
         tr+='</td>';
@@ -9166,8 +9226,9 @@ function addAccount(type, scheme){
   if(type === 'p-ins' && scheme && OCC_SCHEMES[scheme]) return addOccScheme(scheme);
   var yr = START_YEAR || new Date().getFullYear();
   var ytDef = type==='after'?0.0105:type==='p-ins'?0.00375:0.000;
+  var newKey = type==='after'?'acc.name.new.after':type==='p-ins'?'acc.name.new.pins':'acc.name.new.state';
   var newA = {
-    name: type==='after'?'New After-Tax Account':type==='p-ins'?'New Pension Account':'New State Account',
+    name: t(newKey), nameKey: newKey,
     type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(), ceAuto: type!=='after',
     wd:0, ws:9999, we: type==='state' ? 9998 : 9999,   // state pensions are lifelong
     eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:ytDef,
@@ -9371,7 +9432,7 @@ function buildPgbSection(){
     else det = lbl('pgb.f.agefrom') + inp(i, 'from', it.from, 40) + lbl('pgb.f.ageto') + inp(i, 'to', it.to, 40) + lbl('pgb.f.amount') + inp(i, 'amount', fmt(it.amount || 0), 90);
     rows += '<tr><td style="padding:6px 8px;font-weight:600;white-space:nowrap">'+name+'</td><td style="padding:6px 8px">'+det+'</td>'
       + '<td id="pgb-res-'+i+'" style="padding:6px 8px;font-size:11px;font-family:var(--font-m);color:var(--gold)"></td>'
-      + '<td style="padding:0 4px"><button onclick="removePgbItem('+i+')" title="Remove" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer">✕</button></td></tr>';
+      + '<td style="padding:0 4px"><button onclick="removePgbItem('+i+')" title="'+t('pgb.remove')+'" style="width:26px;height:26px;border-radius:50%;background:rgba(232,79,42,.12);border:1px solid rgba(232,79,42,.3);color:#FF5B2E;font-size:14px;line-height:1;cursor:pointer">✕</button></td></tr>';
   });
   host.innerHTML = pgbItems.length
     ? '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em"><th style="padding:4px 8px">'+t('pgb.col.type')+'</th><th style="padding:4px 8px">'+t('pgb.col.details')+'</th><th style="padding:4px 8px">'+t('pgb.col.result')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
@@ -11434,27 +11495,27 @@ function showPlanToast(msg, isError){
   <button onclick="switchTab('dashboard')" class="mqn-btn" data-tab="dashboard"
     style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 2px;
     display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;letter-spacing:.04em">
-    <span style="font-size:18px">📊</span>DASHBOARD
+    <span style="font-size:18px">📊</span><span data-i18n="mqn.dashboard">DASHBOARD</span>
   </button>
   <button onclick="switchTab('personal')" class="mqn-btn" data-tab="personal"
     style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 2px;
     display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;letter-spacing:.04em">
-    <span style="font-size:18px">👤</span>PERSONAL
+    <span style="font-size:18px">👤</span><span data-i18n="mqn.personal">PERSONAL</span>
   </button>
   <button onclick="switchTab('accounts')" class="mqn-btn" data-tab="accounts"
     style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 2px;
     display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;letter-spacing:.04em">
-    <span style="font-size:18px">🏦</span>ACCOUNTS
+    <span style="font-size:18px">🏦</span><span data-i18n="mqn.accounts">ACCOUNTS</span>
   </button>
   <button onclick="switchTab('withdrawals')" class="mqn-btn" data-tab="withdrawals"
     style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 2px;
     display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;letter-spacing:.04em">
-    <span style="font-size:18px">💰</span>WITHDRAW
+    <span style="font-size:18px">💰</span><span data-i18n="mqn.withdrawals">WITHDRAW</span>
   </button>
   <button onclick="switchTab('projection')" class="mqn-btn" data-tab="projection"
     style="background:none;border:none;color:var(--muted);cursor:pointer;padding:6px 2px;
     display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:600;letter-spacing:.04em">
-    <span style="font-size:18px">📈</span>PROJECTION
+    <span style="font-size:18px">📈</span><span data-i18n="mqn.projection">PROJECTION</span>
   </button>
 </nav>
 
