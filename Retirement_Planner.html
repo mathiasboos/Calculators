@@ -2285,6 +2285,44 @@ en:{
   'acc.name.new.pins':'New Pension Account',
   'acc.name.new.state':'New State Account',
   'exp.iv.est.tax':'~{pct}% tax on pre-tax',
+  // ── CSV and Excel exports ──
+  'xp.year':'Year',
+  'xp.age':'Age',
+  'xp.open.at':'Opening After-Tax (SEK)',
+  'xp.contrib.at':'Contribution After-Tax (SEK)',
+  'xp.ret.at':'Return After-Tax Gross (SEK)',
+  'xp.yt.k':'Yield Tax K-Insurance (SEK)',
+  'xp.mgmt.at':'Mgmt Fee After-Tax (SEK)',
+  'xp.wd.at':'Withdrawal After-Tax Accts (SEK)',
+  'xp.close.at':'Closing After-Tax (SEK)',
+  'xp.open.pt':'Opening Pre-Tax (SEK)',
+  'xp.contrib.pt':'Contribution Pre-Tax (SEK)',
+  'xp.ret.pt':'Return Pre-Tax Gross (SEK)',
+  'xp.yt.p':'Yield Tax P-Insurance (SEK)',
+  'xp.mgmt.pt':'Mgmt Fee Pre-Tax (SEK)',
+  'xp.wd.pt':'Withdrawal Pre-Tax Accts (SEK)',
+  'xp.wd.net':'Withdrawal After Tax Net (SEK)',
+  'xp.tax.mun':'Municipal Tax (SEK)',
+  'xp.tax.state':'State Tax (SEK)',
+  'xp.close.pt':'Closing Pre-Tax (SEK)',
+  'xp.earn.pre':'Earned Income Before Tax (SEK)',
+  'xp.tax.salary':'Salary Tax (SEK)',
+  'xp.tax.mun.all':'Municipal Tax All Years (SEK)',
+  'xp.tax.state.all':'State Tax All Years (SEK)',
+  'xp.fee.ps':'Public Service Fee (SEK)',
+  'xp.tax.cap':'Capital Tax (SEK)',
+  'xp.tax.total':'Total Tax (SEK)',
+  'xp.earn.post':'Earned Income After Tax (SEK)',
+  'xp.inc.port':'After-Tax Income Portfolio (SEK)',
+  'xp.inc.at':'After-Tax Income (SEK)',
+  'xp.exp':'Expenses (SEK)',
+  'xp.ratio':'Inc/Exp Ratio',
+  'xp.eq':'Equity %',
+  'xp.wd.rate':'Withdrawal Rate %',
+  'xp.goal':'Goal Fulfillment %',
+  'pv.badge.after':'After-Tax',
+  'pv.badge.pins':'P-Insurance',
+  'pv.badge.state':'State',
 },
 sv:{
   'nav.dashboard':'Översikt','nav.personal':'Personuppgifter','nav.expenses':'Utgifter',
@@ -2869,6 +2907,44 @@ sv:{
   'acc.name.new.pins':'Nytt pensionskonto',
   'acc.name.new.state':'Ny statlig pension',
   'exp.iv.est.tax':'~{pct} % skatt på uttag från P-försäkring',
+  // ── CSV and Excel exports ──
+  'xp.year':'År',
+  'xp.age':'Ålder',
+  'xp.open.at':'Ingående saldo efter skatt (SEK)',
+  'xp.contrib.at':'Insättning beskattade konton (SEK)',
+  'xp.ret.at':'Avkastning portfölj efter skatt, brutto (SEK)',
+  'xp.yt.k':'Avkastningsskatt K-försäkring (SEK)',
+  'xp.mgmt.at':'Förvaltningsavgift efter skatt (SEK)',
+  'xp.wd.at':'Uttag från beskattade konton (SEK)',
+  'xp.close.at':'Utgående saldo efter skatt (SEK)',
+  'xp.open.pt':'Ingående saldo före skatt (SEK)',
+  'xp.contrib.pt':'Insättning konton före skatt (SEK)',
+  'xp.ret.pt':'Avkastning portfölj före skatt, brutto (SEK)',
+  'xp.yt.p':'Avkastningsskatt P-försäkring (SEK)',
+  'xp.mgmt.pt':'Förvaltningsavgift före skatt (SEK)',
+  'xp.wd.pt':'Uttag från konton före skatt (SEK)',
+  'xp.wd.net':'Uttag efter skatt, netto (SEK)',
+  'xp.tax.mun':'Kommunalskatt (SEK)',
+  'xp.tax.state':'Statlig skatt (SEK)',
+  'xp.close.pt':'Utgående saldo före skatt (SEK)',
+  'xp.earn.pre':'Förvärvsinkomst före skatt (SEK)',
+  'xp.tax.salary':'Skatt på lön (SEK)',
+  'xp.tax.mun.all':'Kommunalskatt alla år (SEK)',
+  'xp.tax.state.all':'Statlig skatt alla år (SEK)',
+  'xp.fee.ps':'Public service-avgift (SEK)',
+  'xp.tax.cap':'Kapitalskatt (SEK)',
+  'xp.tax.total':'Total skatt (SEK)',
+  'xp.earn.post':'Förvärvsinkomst efter skatt (SEK)',
+  'xp.inc.port':'Portföljinkomst efter skatt (SEK)',
+  'xp.inc.at':'Inkomst efter skatt (SEK)',
+  'xp.exp':'Utgifter (SEK)',
+  'xp.ratio':'Ink/Utg-kvot',
+  'xp.eq':'Aktieandel %',
+  'xp.wd.rate':'Uttagsgrad %',
+  'xp.goal':'Måluppfyllelse %',
+  'pv.badge.after':'Beskattat',
+  'pv.badge.pins':'P-försäkring',
+  'pv.badge.state':'Statlig',
 }};
 
 function t(key,vars){
@@ -7427,20 +7503,18 @@ function maximizeExpIntervals(){
 }
 
 // ── PROJECTION EXPORT ─────────────────────────────────────────────────────
-const EXPORT_HEADERS = [
+// Column headers of the CSV and Excel files, in the chosen language (English as before: LANG.en 'xp.*')
+const EXPORT_HEADER_KEYS = [
   // Year / Age
-  'Year','Age',
+  'xp.year','xp.age',
   // After-Tax Portfolio
-  'Opening After-Tax (SEK)','Contribution After-Tax (SEK)','Return After-Tax Gross (SEK)',
-  'Yield Tax K-Insurance (SEK)','Mgmt Fee After-Tax (SEK)','Withdrawal After-Tax Accts (SEK)','Closing After-Tax (SEK)',
+  'xp.open.at','xp.contrib.at','xp.ret.at','xp.yt.k','xp.mgmt.at','xp.wd.at','xp.close.at',
   // Pre-Tax Portfolio
-  'Opening Pre-Tax (SEK)','Contribution Pre-Tax (SEK)','Return Pre-Tax Gross (SEK)',
-  'Yield Tax P-Insurance (SEK)','Mgmt Fee Pre-Tax (SEK)','Withdrawal Pre-Tax Accts (SEK)',
-  'Withdrawal After Tax Net (SEK)','Municipal Tax (SEK)','State Tax (SEK)','Closing Pre-Tax (SEK)',
+  'xp.open.pt','xp.contrib.pt','xp.ret.pt','xp.yt.p','xp.mgmt.pt','xp.wd.pt','xp.wd.net','xp.tax.mun','xp.tax.state','xp.close.pt',
   // Metrics
-  'Earned Income Before Tax (SEK)','Salary Tax (SEK)','Municipal Tax All Years (SEK)','State Tax All Years (SEK)','Public Service Fee (SEK)','Capital Tax (SEK)','Total Tax (SEK)','Earned Income After Tax (SEK)','After-Tax Income Portfolio (SEK)','After-Tax Income (SEK)','Expenses (SEK)','Inc/Exp Ratio','Equity %',
-  'Withdrawal Rate %','Goal Fulfillment %'
+  'xp.earn.pre','xp.tax.salary','xp.tax.mun.all','xp.tax.state.all','xp.fee.ps','xp.tax.cap','xp.tax.total','xp.earn.post','xp.inc.port','xp.inc.at','xp.exp','xp.ratio','xp.eq','xp.wd.rate','xp.goal'
 ];
+function exportHeaders(){ return EXPORT_HEADER_KEYS.map(function(k){ return t(k); }); }
 
 function exportRows(){
   return _projYears.map(y=>[
@@ -7462,7 +7536,7 @@ function exportRows(){
 
 function downloadProjCSV(){
   const rows = exportRows();
-  const lines = [EXPORT_HEADERS.join(';'), ...rows.map(r=>r.join(';'))];
+  const lines = [exportHeaders().join(';'), ...rows.map(r=>r.join(';'))];
   const blob = new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
   const url  = URL.createObjectURL(blob);
   const a    = Object.assign(document.createElement('a'),{href:url,download:'retirement_projection.csv'});
@@ -7471,9 +7545,9 @@ function downloadProjCSV(){
 
 function downloadProjExcel(){
   if(typeof XLSX==='undefined'){ alert(t('alert.xlsx.loading')); return; }
-  const ws = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...exportRows()]);
+  const ws = XLSX.utils.aoa_to_sheet([exportHeaders(), ...exportRows()]);
   // Column widths
-  ws['!cols'] = EXPORT_HEADERS.map((_,i)=>({wch:i<2?6:22}));
+  ws['!cols'] = EXPORT_HEADER_KEYS.map((_,i)=>({wch:i<2?6:22}));
   // Bold header row
   const range = XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c; c<=range.e.c; c++){
@@ -7481,7 +7555,7 @@ function downloadProjExcel(){
     if(cell) cell.s = {font:{bold:true},fill:{fgColor:{rgb:'1F3864'}},font:{color:{rgb:'FFFFFF'},bold:true}};
   }
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Projection');
+  XLSX.utils.book_append_sheet(wb, ws, t('nav.proj'));
   XLSX.writeFile(wb,'retirement_projection.xlsx');
 }
 
@@ -9165,7 +9239,7 @@ function pvGetTableData(){
       });
       return {label:label, values:values};
     });
-    result.push({accountName:a.name, type:a.type, years:years.map(function(y){return y.yr;}), rows:rows});
+    result.push({accountName:accDisplayName(a), type:a.type, years:years.map(function(y){return y.yr;}), rows:rows});
   });
   return result;
 }
@@ -9174,14 +9248,14 @@ function exportPortfolioCSV(){
   var data = pvGetTableData();
   var lines = [];
   data.forEach(function(acc){
-    lines.push(acc.accountName + ' (' + (acc.type==='after'?'After-Tax':acc.type==='p-ins'?'P-Insurance':'State') + ')');
-    lines.push(['Item'].concat(acc.years).join(';'));
+    lines.push(acc.accountName + ' (' + t(acc.type==='after'?'pv.badge.after':acc.type==='p-ins'?'pv.badge.pins':'pv.badge.state') + ')');
+    lines.push([t('pv.col.item')].concat(acc.years).join(';'));
     acc.rows.forEach(function(row){
       lines.push([row.label].concat(row.values).join(';'));
     });
     lines.push('');
   });
-  var blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  var blob = new Blob(['\uFEFF'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'portfolio_value.csv';
@@ -9194,9 +9268,9 @@ function exportPortfolioExcel(){
   var data = pvGetTableData();
   data.forEach(function(acc){
     var wsData = [];
-    var badge = acc.type==='after'?'After-Tax':acc.type==='p-ins'?'P-Insurance':'State';
+    var badge = t(acc.type==='after'?'pv.badge.after':acc.type==='p-ins'?'pv.badge.pins':'pv.badge.state');
     wsData.push([acc.accountName+' ('+badge+')']);
-    wsData.push(['Item'].concat(acc.years));
+    wsData.push([t('pv.col.item')].concat(acc.years));
     acc.rows.forEach(function(row){
       wsData.push([row.label].concat(row.values));
     });
@@ -9827,7 +9901,7 @@ function downloadWdChartExcel(){
   var ws = XLSX.utils.aoa_to_sheet([r.head].concat(r.rows));
   ws['!cols'] = r.head.map(function(_, i){ return {wch: i < 2 ? 7 : 22}; });
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Withdrawals');
+  XLSX.utils.book_append_sheet(wb, ws, t('nav.withdrawals'));
   XLSX.writeFile(wb, r.name + '.xlsx');
 }
 
