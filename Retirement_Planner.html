@@ -6280,6 +6280,10 @@ function initCharts(){
 var _lastPortData = null;
 // Axis helpers: MSEK with one decimal and no unit (4.0 / 4,0), kronor with a thousand separator (10 000)
 function fmtMsekTick(v){ var x = (v/1e6).toFixed(1); return _lang === 'sv' ? x.replace('.', ',') : x; }
+// A number from toFixed with a decimal comma in Swedish, as fmtMsekTick: "1,90" / "1.90"
+function decSv(s){ return _lang === 'sv' ? String(s).replace('.', ',') : String(s); }
+// Millions of kronor: "9,20 Mkr" in Swedish, "9.20 Mkr" in English
+function fmtMkr(v, decimals){ return decSv((v/1e6).toFixed(decimals)) + ' Mkr'; }
 function fmtKrTick(v){ return Math.round(v).toLocaleString('sv-SE'); }
 
 function updatePortfolioChart(pData){
@@ -6449,7 +6453,7 @@ function updateCharts(data){
       grid: GRID,
       ticks: {...TICKS,
         callback: function(v) {
-          if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(2)+'M';
+          if (Math.abs(v) >= 1e6) return decSv((v/1e6).toFixed(2))+'M';
           if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(0)+'K';
           return v;
         }
@@ -6786,7 +6790,7 @@ function updateCharts(data){
             if (tooltip.opacity === 0) { el.style.opacity='0'; return; }
             var idx = tooltip.dataPoints[0].dataIndex;
             var yr = years[idx]; if (!yr) return;
-            var eq = (yr.eqPct*100).toFixed(1), bd = ((1-yr.eqPct)*100).toFixed(1);
+            var eq = decSv((yr.eqPct*100).toFixed(1)), bd = decSv(((1-yr.eqPct)*100).toFixed(1));
             el.innerHTML =
               '<div style="font-size:11px;color:#6b85a8;margin-bottom:6px">'+t('wd.chart.tooltip.age')+' '+yr.age+' · '+yr.yr+'</div>'
               + '<div style="display:flex;justify-content:space-between;gap:20px"><span style="color:#7a96be">'+t('chart.tt.equities')+'</span><span style="color:#4885C4;font-weight:500">' + eq + '%</span></div>'
@@ -6871,6 +6875,8 @@ function fmt(n,decimals=0){
   if(n===null||n===undefined||isNaN(n)) return '—';
   return n.toLocaleString('sv-SE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
 }
+// An amount in kronor as the language writes it: "SEK 41 140" in English, "41 140 kr" in Swedish
+function fmtKr(n){ return _lang === 'sv' ? fmt(n) + ' kr' : 'SEK ' + fmt(n); }
 function fmtPct(v){ return isNaN(v)?'—':((v*100).toFixed(1).replace('.',','))+'%'; }
 function fmtX(v){ return isNaN(v)?'—':v.toFixed(2).replace('.',',')+'×'; }
 
@@ -6962,7 +6968,7 @@ function buildPhaseTiles(data){
     var has = !!(phases && isFinite(ph.monthly));
     return {
       label: t('tile.phasePension', {from: has?ph.from:'\u2014', to: has?ph.to:'\u2014'}),
-      val:   has ? 'SEK '+fmt(ph.monthly) : '\u2014',
+      val:   has ? fmtKr(ph.monthly) : '\u2014',
       sub:   t('tile.phase.'+PHASE_KEYS[i]) + ' \u00b7 ' + taxLbl,
       // green when the after-tax pension covers the expenses of the period, red when it does not
       cls:   (has && ph.hasRows && ph.exp > 0) ? (ph.net >= ph.exp ? 'good' : 'bad') : '',
@@ -7023,8 +7029,8 @@ function updateDashboard(data){
 const _multTxt = (Math.round(mult*10)/10).toFixed(1); const _multFmt = _lang==='sv' ? _multTxt.replace('.', ',') : _multTxt;
 const _retAge  = params.retirementYear - params.birthYear;
 const top = [
-    {label:t('tile.goalTarget'),val:'SEK '+fmt(savingGoal),sub:t('tile.goalTarget.sub',{mult:_multFmt}),cls:'good',tile:'',tip:t('tip.goalTarget')},
-    {label:t('tile.portRet'),val:'SEK '+fmt(taxAdjPort),sub:t('tile.portRet.sub',{age:_retAge}),cls:taxAdjPort>=savingGoal?'good':'warn',tile:'emerald',tip:t('tip.portRet')},
+    {label:t('tile.goalTarget'),val:fmtKr(savingGoal),sub:t('tile.goalTarget.sub',{mult:_multFmt}),cls:'good',tile:'',tip:t('tip.goalTarget')},
+    {label:t('tile.portRet'),val:fmtKr(taxAdjPort),sub:t('tile.portRet.sub',{age:_retAge}),cls:taxAdjPort>=savingGoal?'good':'warn',tile:'emerald',tip:t('tip.portRet')},
     {label:t('tile.goalFulfil'),val:fmtPct(taxAdjGoalFul),sub:t('tile.goalFulfil.sub',{mult:mult}),cls:taxAdjGoalFul>=1?'good':'warn',tile:'',
      tip:t('tip.goalFulfil')},
     {label:t('tile.repRate'),val:fmtPct(repRate),sub:t('tile.repRate.sub',{net:fmtPct(repRateNet)}),cls:repRate>=0.7?'good':repRate>=0.5?'warn':'bad',tile:'emerald',tip:t('tip.repRate')},
@@ -8922,7 +8928,7 @@ function buildPortfolioTab(){
     var ds_mf2=mk('mgmtFee').map(function(v){return -Math.abs(v);});
     setTimeout(function(){
       if(chartTitle) chartTitle.textContent=t('pv.chart.title');
-      var fmtK=function(v){return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K';};
+      var fmtK=function(v){return Math.abs(v)>=1e6?decSv((v/1e6).toFixed(1))+'M':(v/1e3).toFixed(0)+'K';};
       var tipFmt=function(ctx){return ' '+ctx.dataset.label+': '+Math.abs(Math.round(ctx.raw)).toLocaleString('sv-SE')+' kr';};
       // ── Stacked column: each account's closing balance ──────────────────
       var acctColors=['#1C6B3C','#48B866','#73D69A',
@@ -9028,7 +9034,7 @@ function buildPortfolioTab(){
     var ds_yt       = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?-Math.round((d.yieldTax||0)*_tf):0; });
     var ds_mf       = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?-Math.round((d.mgmtFee||0)*_tf):0; });
     var ds_closing  = years.map(function(y){ var d=y.accDetail&&y.accDetail[cai]; return d?Math.round((d.close||0)*_tf):0; });
-    var fmtK = function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K'; };
+    var fmtK = function(v){ return Math.abs(v)>=1e6?decSv((v/1e6).toFixed(1))+'M':(v/1e3).toFixed(0)+'K'; };
     var tipFmt = function(ctx){ return ' '+ctx.dataset.label+': '+Math.abs(Math.round(ctx.raw)).toLocaleString('sv-SE')+' kr'; };
     var tickFmt = { color:'#64748b', maxRotation:45, callback:function(v, idx){ return retTick(years, idx); } };
     var gridFmt = { color:'rgba(255,255,255,.05)' };
@@ -9560,7 +9566,7 @@ function buildExpenseChart(){
           padding:10, cornerRadius:6, displayColors:false,
           callbacks: {
             label: function(ctx) {
-              var pct = ((ctx.raw / total) * 100).toFixed(1);
+              var pct = decSv(((ctx.raw / total) * 100).toFixed(1));
               return ' ' + ctx.label + ': ' + Math.round(ctx.raw).toLocaleString('sv-SE') + ' kr (' + pct + '%)';
             }
           }
@@ -9574,7 +9580,7 @@ function buildExpenseChart(){
   var totalFmt = Math.round(total).toLocaleString('sv-SE');
   // Custom legend
   legendEl.innerHTML = items.map(function(e,i){
-    var pct = ((e.val/total)*100).toFixed(1);
+    var pct = decSv(((e.val/total)*100).toFixed(1));
     return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0">'
       + '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:'+colors[i]+'"></span>'
       + '<span style="color:var(--muted);min-width:110px">' + expName(e.name) + '</span>'
@@ -10125,7 +10131,7 @@ function buildScenarioCards(){
   var baseRetYr  = getParam('retirementYear') || '';
   var baseLifeYr = getParam('lifeYear')       || '';
 
-  function fmtM(v){ return v>=1e6?(v/1e6).toFixed(2)+'M kr':Math.round(v).toLocaleString('sv-SE')+' kr'; }
+  function fmtM(v){ return v>=1e6?decSv((v/1e6).toFixed(2))+'M kr':Math.round(v).toLocaleString('sv-SE')+' kr'; }
 
   wrap.innerHTML = _scenarios.map(function(sc,i){
     var res = runScenario(sc);
@@ -10162,7 +10168,7 @@ function buildScenarioCards(){
         +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.card.port')+'</span><span style="color:var(--text);font-family:var(--font-m)">'+fmtM(res.portAtRet)+'</span></div>'
         +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.annual.wd')+'</span><span style="color:var(--text);font-family:var(--font-m)">'+fmtM(res.annualWd)+'</span></div>'
         +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.depletion')+'</span><span style="color:'+(res.depletionYr?'#FF5B2E':'#48B866')+';font-family:var(--font-m)">'+(res.depletionYr||t('sc.never'))+'</span></div>'
-        +'<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">'+t('sc.funded')+'</span><span style="color:'+(res.funded&&res.funded>=1?'#48B866':'#FF5B2E')+';font-family:var(--font-m)">'+(res.funded?res.funded.toFixed(2)+'x':'—')+'</span></div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">'+t('sc.funded')+'</span><span style="color:'+(res.funded&&res.funded>=1?'#48B866':'#FF5B2E')+';font-family:var(--font-m)">'+(res.funded?decSv(res.funded.toFixed(2))+'x':'—')+'</span></div>'
         +'</div>' : '')
       +'</div>';
   }).join('');
@@ -10199,7 +10205,7 @@ function buildScenarioTable(){
   if(!tbl||!_projYears||!_projYears.length) return;
   var results = _scenarios.map(function(sc){ return runScenario(sc); });
   var fmtN = function(v){ return Math.round(v).toLocaleString('sv-SE'); };
-  var fmtM = function(v){ return v>=1e6?(v/1e6).toFixed(2)+'M':fmtN(v); };
+  var fmtM = function(v){ return v>=1e6?decSv((v/1e6).toFixed(2))+'M':fmtN(v); };
   var TH = 'style="padding:6px 10px;text-align:right;font-size:11px;font-weight:600;border-bottom:2px solid var(--border)"';
   var TD = 'style="padding:6px 10px;text-align:right;font-size:12px;border-bottom:1px solid rgba(0,0,0,0.07);font-family:var(--font-m)"';
   var rows = [
@@ -10213,7 +10219,7 @@ function buildScenarioTable(){
     [t('sc.port.at.end'),      function(r){ return r?fmtM(r.portAtEnd)+' kr':'—'; }],
     [t('sc.total.wd'),         function(r){ return r?fmtM(r.totalWd)+' kr':'—'; }],
     [t('sc.depletion'),        function(r){ return r?(r.depletionYr||t('sc.never')):'—'; }],
-    [t('sc.funded'),           function(r){ return r&&r.funded?r.funded.toFixed(2)+'×':'—'; }],
+    [t('sc.funded'),           function(r){ return r&&r.funded?decSv(r.funded.toFixed(2))+'×':'—'; }],
   ];
   var hdr = '<thead><tr><th style="padding:6px 10px;text-align:left;font-size:11px;font-weight:600;border-bottom:2px solid var(--border)">'+t('sc.metric')+'</th>'
     + _scenarios.map(function(sc,i){
@@ -10253,7 +10259,7 @@ function buildScenarioChart(){
       spanGaps: true
     };
   }).filter(Boolean);
-  var fmtK = function(v){ return Math.abs(v)>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K'; };
+  var fmtK = function(v){ return Math.abs(v)>=1e6?decSv((v/1e6).toFixed(1))+'M':(v/1e3).toFixed(0)+'K'; };
   // Retirement age of every scenario (each may have its own) marked on the x axis
   var _scBy2 = Math.round(getParam('birthYear')||1971);
   var scMarks = [], scSeen = {};
@@ -10499,12 +10505,12 @@ function runMonteCarlo(){
   var kpiEl = document.getElementById('mc-kpis');
   kpiEl.style.display = 'grid';
   var fmtM = function(v){
-    if(Math.abs(v)>=1e6) return (v/1e6).toFixed(2)+' Mkr';
+    if(Math.abs(v)>=1e6) return fmtMkr(v, 2);
     return Math.round(v).toLocaleString('sv-SE')+' kr';
   };
   var srClass = parseFloat(successRate)>=90?'good':parseFloat(successRate)>=70?'warn':'bad';
   kpiEl.innerHTML = [
-    ['<span class="'+srClass+'">'+successRate+'%</span>', t('mc.kpi.success'), t('mc.kpi.success.sub')],
+    ['<span class="'+srClass+'">'+decSv(successRate)+'%</span>', t('mc.kpi.success'), t('mc.kpi.success.sub')],
     [fmtM(medianFinal), t('mc.kpi.median'), t('mc.kpi.median.sub')],
     [fmtM(p10Final),    t('mc.kpi.p10'),    t('mc.kpi.p10.sub')],
     [N.toLocaleString('sv-SE'), t('mc.kpi.sims'), ''],
@@ -10551,14 +10557,14 @@ function runMonteCarlo(){
           title:function(items){ return t('wd.chart.tooltip.age')+' '+items[0].label; },
           label:function(ctx){
             var v=ctx.raw;
-            return ' '+ctx.dataset.label+': '+(v>=1e6?(v/1e6).toFixed(2)+'M':Math.round(v).toLocaleString('sv-SE'))+' kr';
+            return ' '+ctx.dataset.label+': '+(v>=1e6?decSv((v/1e6).toFixed(2))+'M':Math.round(v).toLocaleString('sv-SE'))+' kr';
           }
         }}
       },
       scales:{
         x:{ ticks:{color:'#64748b',callback:function(v){ return this.getLabelForValue(v); }}, grid:{color:'rgba(0,0,0,0.05)'},
             title:{display:true,text:t('wd.chart.age'),color:'#64748b',font:{size:10}} },
-        y:{ ticks:{color:'#64748b',callback:function(v){return v>=1e6?(v/1e6).toFixed(1)+'M':Math.round(v/1e3)+'K';}},
+        y:{ ticks:{color:'#64748b',callback:function(v){return v>=1e6?decSv((v/1e6).toFixed(1))+'M':Math.round(v/1e3)+'K';}},
             grid:{color:'rgba(0,0,0,0.05)'},
             title:{display:true,text:t('mc.chart.yaxis'),color:'#64748b',font:{size:10}} }
       }
@@ -10613,7 +10619,7 @@ function runMonteCarlo(){
           legend:{ display:false },
           tooltip:{ callbacks:{
             title: function(items){ return t('wd.chart.tooltip.age')+' '+items[0].label; },
-            label: function(ctx){ return ' '+t('mc.surv.tooltip')+': '+ctx.raw.toFixed(1)+'%'; }
+            label: function(ctx){ return ' '+t('mc.surv.tooltip')+': '+decSv(ctx.raw.toFixed(1))+'%'; }
           }}
         },
         scales:{
@@ -10657,7 +10663,7 @@ function runMonteCarlo(){
 
     // Build x-axis labels (mid-point of each bin)
     var fmtK = function(v){
-      if(v>=1e6) return (v/1e6).toFixed(1)+' Mkr';
+      if(v>=1e6) return fmtMkr(v, 1);
       if(v>=1e3) return Math.round(v/1e3)+'K';
       return Math.round(v);
     };
@@ -10691,7 +10697,7 @@ function runMonteCarlo(){
               return fmtK(bi*binSize)+' – '+fmtK((bi+1)*binSize);
             },
             label: function(ctx){
-              return ' '+t('mc.hist.freq')+': '+ctx.raw+' ('+((ctx.raw/N)*100).toFixed(1)+'%)';
+              return ' '+t('mc.hist.freq')+': '+ctx.raw+' ('+decSv(((ctx.raw/N)*100).toFixed(1))+'%)';
             }
           }}
         },
@@ -10761,14 +10767,14 @@ function runMonteCarlo(){
     ];
 
     function fmtCell(v,fmt){
-      if(fmt==='pct') return (v*100).toFixed(2)+(v<0?' %':'%');
-      if(fmt==='num') return v.toFixed(2);
+      if(fmt==='pct') return decSv((v*100).toFixed(2))+(v<0?' %':'%');
+      if(fmt==='num') return decSv(v.toFixed(2));
       if(fmt==='kr'){
         var abs=Math.abs(Math.round(v));
-        var s=abs>=1e6?(abs/1e6).toFixed(2)+" Mkr":abs.toLocaleString("sv-SE")+" kr";
+        var s=abs>=1e6?fmtMkr(abs, 2):abs.toLocaleString("sv-SE")+" kr";
         return (v<0?"-":"")+s;
       }
-      return v.toFixed(2);
+      return decSv(v.toFixed(2));
     }
 
     var TH="padding:7px 10px;font-size:10px;font-weight:600;color:var(--muted);border-bottom:2px solid var(--border);text-align:right;white-space:nowrap";
@@ -10800,7 +10806,7 @@ function runMonteCarlo(){
     // Survival line
     var survLine=document.getElementById('mc-survival-line');
     if(survLine){
-      var pct100=((N-ruinCount)/N*100).toFixed(1);
+      var pct100=decSv(((N-ruinCount)/N*100).toFixed(1));
       survLine.innerHTML='<span style="color:var(--gold);font-weight:700">'+(N-ruinCount).toLocaleString("sv-SE")+'</span> '+t('mc.perf.survival.a')+' <span style="font-weight:700">'+(N).toLocaleString("sv-SE")+'</span> '+t('mc.perf.survival.b')+' <span style="color:var(--gold);font-weight:700">('+pct100+'%)</span> '+t('mc.perf.survival.c');
     }
   })();
@@ -10815,7 +10821,7 @@ function runMonteCarlo(){
     + ['P10','P25','P50','P75','P90'].map(function(p){ return '<th style="'+TH+'">'+p+'</th>'; }).join('')+'</tr>';
   var rows = showAges.map(function(age){
     var ai = ages.indexOf(age);
-    var fmt2 = function(v){ return v<=0?'<span style="color:var(--bad)">0</span>':(v>=1e6?(v/1e6).toFixed(1)+'M':Math.round(v/1e3)+'K'); };
+    var fmt2 = function(v){ return v<=0?'<span style="color:var(--bad)">0</span>':(v>=1e6?decSv((v/1e6).toFixed(1))+'M':Math.round(v/1e3)+'K'); };
     return '<tr><td style="'+TD+';text-align:left;color:var(--muted)">'+age+'</td>'
       +[10,25,50,75,90].map(function(p){
         return '<td style="'+TD+(p===50?';font-weight:700;color:var(--gold)':'')+'">'+fmt2(bands[p][ai])+'</td>';
@@ -10879,7 +10885,7 @@ function populateMCPortValue(){
   var val     = mode==='aftertax' ? aftertax : pretax;
   var disp    = document.getElementById('mc-port-display');
   var hint    = document.getElementById('mc-port-hint');
-  var fmt     = function(v){return v>=1e6?(v/1e6).toFixed(2)+' Mkr':Math.round(v).toLocaleString('sv-SE')+' kr';};
+  var fmt     = function(v){return v>=1e6?fmtMkr(v, 2):Math.round(v).toLocaleString('sv-SE')+' kr';};
   if(disp) disp.textContent = fmt(val);
   if(hint) hint.textContent = (mode==='aftertax'?t('mc.port.aftertax'):t('mc.port.pretax'))+' · '+t('mc.port.hint.at.age')+' '+retAge;
   // Store computed value so runMonteCarlo can read it
@@ -10948,8 +10954,8 @@ function updateMCMuDisplay(){
     var mu  = eq*eqRet + bd*bdRet;
     // Portfolio σ: √(eq²·σ_eq² + bd²·σ_bd²)  [ρ=0 between eq and bd]
     var sig = Math.sqrt(eq*eq*sigEq*sigEq + bd*bd*sigBd*sigBd)*100;
-    if(bdEl)  bdEl.textContent  = bdPct+'% '+t('mc.bd.short')+' · μ = '+mu.toFixed(2)+'%';
-    if(sigEl) sigEl.textContent = 'σ = '+sig.toFixed(1)+'%';
+    if(bdEl)  bdEl.textContent  = bdPct+'% '+t('mc.bd.short')+' · μ = '+decSv(mu.toFixed(2))+'%';
+    if(sigEl) sigEl.textContent = 'σ = '+decSv(sig.toFixed(1))+'%';
   });
   // Blended μ and σ at start age
   var startEq = startAge <= brT1 ? parseFloat((document.getElementById('mc-eq1')||{}).value||0)
@@ -10959,7 +10965,7 @@ function updateMCMuDisplay(){
   var muStart  = eq0*eqRet + bd0*bdRet;
   var sigStart = Math.sqrt(eq0*eq0*sigEq*sigEq + bd0*bd0*sigBd*sigBd)*100;
   var disp = document.getElementById('mc-mu-display');
-  if(disp) disp.textContent = t('mc.at.start')+': μ = '+muStart.toFixed(2)+'%  ·  σ = '+sigStart.toFixed(1)+'%';
+  if(disp) disp.textContent = t('mc.at.start')+': μ = '+decSv(muStart.toFixed(2))+'%  ·  σ = '+decSv(sigStart.toFixed(1))+'%';
 }
 
 // ── Live update of simulation period display ─────────────────────────────────
@@ -11270,7 +11276,7 @@ function planSave(){
   var state = collectPlanState();
   try {
     localStorage.setItem('retirementPlan_v3', JSON.stringify(state));
-    var ts = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    var ts = new Date().toLocaleTimeString(_lang === 'sv' ? 'sv-SE' : [], {hour:'2-digit', minute:'2-digit'});
     showPlanToast('\u2713 ' + t('toast.saved', {time: ts}));
   } catch(e) {
     showPlanToast('\u26a0 ' + t('toast.save.failed', {msg: e.message}), true);
@@ -11479,7 +11485,7 @@ function showPlanToast(msg, isError){
     var state = JSON.parse(raw);
     if(state && state.version === 3){
       applyPlanState(state);
-      var ts = new Date(state.savedAt).toLocaleDateString([], {day:'numeric',month:'short',year:'numeric'});
+      var ts = new Date(state.savedAt).toLocaleDateString(_lang === 'sv' ? 'sv-SE' : [], {day:'numeric',month:'short',year:'numeric'});
       showPlanToast('\u21ba ' + t('toast.autorestored', {date: ts}));
     }
   } catch(e) {}
