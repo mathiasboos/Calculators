@@ -83,7 +83,7 @@ var retirementLinePlugin = {
     ctx.fillStyle = 'rgba(91,164,255,0.7)';
     ctx.font = '500 10px DM Mono, monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('Retirement', x + 5, ca.top + 14);
+    ctx.fillText(typeof t === 'function' ? t('proj.tag.ret') : 'Retirement', x + 5, ca.top + 14);
     ctx.restore();
   }
 };
@@ -682,7 +682,7 @@ input[type="number"]::-webkit-outer-spin-button {
   <div class="logo">
     <div class="logo-icon">⚖</div>
     <div>
-      <h1>Retirement Planner</h1>
+      <h1 data-i18n="hdr.title">Retirement Planner</h1>
       <span id="hdr-sub">Constant Prices · Swedish Tax Rules</span>
     </div>
     <!-- Plan presets: new plan (guided), typical cases, clear -->
@@ -696,12 +696,12 @@ input[type="number"]::-webkit-outer-spin-button {
     </select>
   </div>
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-    <div class="header-badge">All amounts in SEK</div>
+    <div class="header-badge" data-i18n="hdr.badge">All amounts in SEK</div>
 
 
     <!-- Save / Load controls -->
     <div style="display:flex;align-items:center;gap:6px">
-      <button onclick="planSave()" title="Save plan to browser"
+      <button onclick="planSave()" title="Save plan to browser" data-i18n-title="hdr.save.tip"
         style="display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--border);
                border-radius:6px;color:var(--text);font-family:var(--font-b);font-size:11px;font-weight:600;
                letter-spacing:.04em;padding:5px 11px;cursor:pointer;transition:border-color .15s,background .15s"
@@ -710,9 +710,9 @@ input[type="number"]::-webkit-outer-spin-button {
           <path d="M13 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5l-3-3z"/>
           <path d="M11 2v3H5V2M5 9h6M5 12h6"/>
         </svg>
-        Save
+        <span data-i18n="hdr.save">Save</span>
       </button>
-      <button onclick="planLoad()" title="Restore last saved plan"
+      <button onclick="planLoad()" title="Restore last saved plan" data-i18n="hdr.restore" data-i18n-title="hdr.restore.tip"
         style="background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted);
                font-family:var(--font-b);font-size:11px;font-weight:600;letter-spacing:.04em;
                padding:5px 11px;cursor:pointer;transition:border-color .15s,color .15s"
@@ -721,13 +721,13 @@ input[type="number"]::-webkit-outer-spin-button {
         Restore
       </button>
       <div style="width:1px;height:18px;background:var(--border)"></div>
-      <button onclick="planExport()" title="Export plan as JSON file"
+      <button onclick="planExport()" title="Export plan as JSON file" data-i18n="hdr.export" data-i18n-title="hdr.export.tip"
         style="background:none;border:none;color:var(--muted);font-family:var(--font-b);font-size:11px;
                font-weight:600;letter-spacing:.04em;padding:5px 6px;cursor:pointer"
         onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
         Export ↓
       </button>
-      <button onclick="planImport()" title="Import plan from JSON file"
+      <button onclick="planImport()" title="Import plan from JSON file" data-i18n="hdr.import" data-i18n-title="hdr.import.tip"
         style="background:none;border:none;color:var(--muted);font-family:var(--font-b);font-size:11px;
                font-weight:600;letter-spacing:.04em;padding:5px 6px;cursor:pointer"
         onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
@@ -1148,7 +1148,7 @@ input[type="number"]::-webkit-outer-spin-button {
       <div style="display:flex;align-items:center;gap:8px">
         <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
           <button id="pv-btn-total" onclick="setPvMode('total')" style="padding:4px 11px;font-size:11px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer"><span data-i18n="pv.btn.total">Total</span></button>
-          <button id="pv-btn-taxadj" onclick="setPvMode('taxadj')" style="padding:4px 11px;font-size:11px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer">Tax-adjusted</button>
+          <button id="pv-btn-taxadj" data-i18n="pv.btn.taxadj" onclick="setPvMode('taxadj')" style="padding:4px 11px;font-size:11px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer">Tax-adjusted</button>
         </div>
         <button onclick="exportPortfolioCSV()" style="padding:5px 12px;font-size:11px;font-weight:600;background:rgba(60,187,110,.12);border:1px solid rgba(60,187,110,.35);border-radius:6px;color:#48B866;cursor:pointer">↓ CSV</button>
         <button onclick="exportPortfolioExcel()" style="padding:5px 12px;font-size:11px;font-weight:600;background:rgba(74,143,204,.12);border:1px solid rgba(74,143,204,.35);border-radius:6px;color:#4885C4;cursor:pointer">↓ Excel</button>
@@ -2219,6 +2219,42 @@ en:{
 
 
 
+  // ── Header, save and load, messages (texts that were in English only) ──
+  'hdr.title':'Retirement Planner',
+  'hdr.badge':'All amounts in SEK',
+  'hdr.save':'Save',
+  'hdr.save.tip':'Save plan to browser',
+  'hdr.restore':'Restore',
+  'hdr.restore.tip':'Restore last saved plan',
+  'hdr.export':'Export ↓',
+  'hdr.export.tip':'Export plan as JSON file',
+  'hdr.import':'Import ↑',
+  'hdr.import.tip':'Import plan from JSON file',
+  'toast.incompatible':'Incompatible save file (version mismatch)',
+  'toast.saved':'Plan saved at {time}',
+  'toast.save.failed':'Save failed: {msg}',
+  'toast.nosaved':'No saved plan found in this browser',
+  'toast.restored':'Plan restored',
+  'toast.restore.failed':'Restore failed: {msg}',
+  'toast.exported':'Exported {file}',
+  'toast.imported':'Imported: {file}',
+  'toast.import.failed':'Import failed: {msg}',
+  'toast.autorestored':'Plan auto-restored (saved {date})',
+  'alert.life.after.ret':'Life Expectancy Year must be after Retirement Year.',
+  'alert.run.first':'Run a calculation first.',
+  'alert.xlsx.loading':'Excel library not loaded yet, try again in a moment.',
+  'alert.xlsx.missing':'Excel export not available — use CSV instead.',
+  'alert.run.projection':'Please run a projection first.',
+  'proj.tag.ret.short':'Ret',
+  'exp.add':'+ Add category',
+  'exp.new':'New Category',
+  'sc.card.port':'Port. at retirement',
+  'mc.bd.short':'Bd',
+  'mc.at.start':'At start age',
+  'wd.col.wdyr':'Withdrawal/yr',
+  'wd.col.wdyr.net':'Withdrawal/yr (net)',
+  'unit.per.mth':'/mth',
+  'unit.per.yr':'/yr',
 },
 sv:{
   'nav.dashboard':'Översikt','nav.personal':'Personuppgifter','nav.expenses':'Utgifter',
@@ -2737,6 +2773,42 @@ sv:{
 
 
 
+  // ── Header, save and load, messages (texts that were in English only) ──
+  'hdr.title':'Pensionsplaneraren',
+  'hdr.badge':'Alla belopp i kronor',
+  'hdr.save':'Spara',
+  'hdr.save.tip':'Spara planen i webbläsaren',
+  'hdr.restore':'Återställ',
+  'hdr.restore.tip':'Hämta den senast sparade planen',
+  'hdr.export':'Exportera ↓',
+  'hdr.export.tip':'Spara planen som en JSON-fil',
+  'hdr.import':'Importera ↑',
+  'hdr.import.tip':'Läs in en plan från en JSON-fil',
+  'toast.incompatible':'Filen kan inte läsas (fel version)',
+  'toast.saved':'Planen sparades {time}',
+  'toast.save.failed':'Kunde inte spara: {msg}',
+  'toast.nosaved':'Ingen sparad plan i den här webbläsaren',
+  'toast.restored':'Planen är återställd',
+  'toast.restore.failed':'Kunde inte återställa: {msg}',
+  'toast.exported':'Exporterade {file}',
+  'toast.imported':'Inläst: {file}',
+  'toast.import.failed':'Kunde inte läsa in: {msg}',
+  'toast.autorestored':'Den sparade planen är inläst (sparad {date})',
+  'alert.life.after.ret':'Livslängdsåret måste vara efter pensionsåret.',
+  'alert.run.first':'Gör en beräkning först.',
+  'alert.xlsx.loading':'Excel-funktionen är inte laddad än. Försök igen om en stund.',
+  'alert.xlsx.missing':'Excel-export går inte just nu – använd CSV i stället.',
+  'alert.run.projection':'Gör en prognos först.',
+  'proj.tag.ret.short':'Pension',
+  'exp.add':'+ Lägg till kategori',
+  'exp.new':'Ny kategori',
+  'sc.card.port':'Portfölj vid pension',
+  'mc.bd.short':'Obl',
+  'mc.at.start':'Vid startålder',
+  'wd.col.wdyr':'Uttag/år',
+  'wd.col.wdyr.net':'Uttag/år (netto)',
+  'unit.per.mth':'/mån',
+  'unit.per.yr':'/år',
 }};
 
 function t(key,vars){
@@ -4395,7 +4467,7 @@ function buildExpenseRows(){
       +'transition:border-color .15s,color .15s"'
       +' onmouseover="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--text)\'"'
       +' onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--muted)\'">'
-      +'+ Add category'
+      +t('exp.add')
     +'</button>';
   expContainer.appendChild(addRow);
 }
@@ -4407,7 +4479,7 @@ function expName(name){
 }
 
 function addExpense(){
-  expenses.push({name:'New Category', val:0});
+  expenses.push({name:t('exp.new'), val:0});
   buildExpenseRows();
   recalc();
   // Immediately open the name editor on the new row
@@ -6934,7 +7006,7 @@ function updateProjectionTable(data){
     const portClass  = y.totalPort>0?'':'bad';
 
     tr.innerHTML=`
-      <td${isRet?' style="background:#fbf6e8"':''}>${y.yr}${isRet?' <span style="font-size:10px;color:var(--gold);margin-left:4px">★ Ret</span>':''}</td>
+      <td${isRet?' style="background:#fbf6e8"':''}>${y.yr}${isRet?' <span style="font-size:10px;color:var(--gold);margin-left:4px">★ '+t('proj.tag.ret.short')+'</span>':''}</td>
       <td style="color:var(--muted)${isRet?';background:#fbf6e8':''}">${y.age}</td>
       <td style="background:rgba(60,187,110,.06);color:#48B866">${fmt(y.openAfterTax)}</td>
       <td style="background:rgba(60,187,110,.06);color:#48B866">${fmt(y.contribAfterTax)}</td>
@@ -7172,14 +7244,14 @@ function maximizeWithdrawals(){
   const n = lifeYr - retYr;
 
   if(n <= 0){
-    alert('Life Expectancy Year must be after Retirement Year.');
+    alert(t('alert.life.after.ret'));
     return;
   }
 
   // Get per-account closing balances at the retirement year
   const retYrRow = _projYears.find(y => y.yr === retYr);
   if(!retYrRow || !retYrRow.accClosing){
-    alert('Run a calculation first.'); return;
+    alert(t('alert.run.first')); return;
   }
 
   const eqRet = getParam('eqReturn') / 100;
@@ -7233,12 +7305,12 @@ function maximizeExpIntervals(){
   const retYr  = getParam('retirementYear');
   const lifeYr = getParam('lifeYear');
   if(lifeYr <= retYr){
-    alert('Life Expectancy Year must be after Retirement Year.');
+    alert(t('alert.life.after.ret'));
     return;
   }
   const retYrRow = _projYears.find(y => y.yr === retYr);
   if(!retYrRow){
-    alert('Run a calculation first.'); return;
+    alert(t('alert.run.first')); return;
   }
 
   var baseAmt = expAgeIntervals.map(function(iv){ return iv.amount||0; });
@@ -7332,7 +7404,7 @@ function downloadProjCSV(){
 }
 
 function downloadProjExcel(){
-  if(typeof XLSX==='undefined'){ alert('Excel library not loaded yet, try again in a moment.'); return; }
+  if(typeof XLSX==='undefined'){ alert(t('alert.xlsx.loading')); return; }
   const ws = XLSX.utils.aoa_to_sheet([EXPORT_HEADERS, ...exportRows()]);
   // Column widths
   ws['!cols'] = EXPORT_HEADERS.map((_,i)=>({wch:i<2?6:22}));
@@ -7808,7 +7880,7 @@ function updateSavingGoalRef(){
   var me=document.getElementById('savingMultiplier');
   if(me) me.value=String(Math.round(mult*10)/10).replace('.',',');
   var re2=document.getElementById('sg-ret-years');
-  if(re2) re2.textContent=yrs+' years';
+  if(re2) re2.textContent=yrs+' '+t('exp.years');
   SG_REF.forEach(function(r){
     var tr=document.getElementById('sg-ref-'+r.y); if(!tr) return;
     var active=(yrs>=r.y-2&&yrs<=r.y+2)||(r.y===SG_REF[0].y&&yrs<r.y)||(r.y===SG_REF[SG_REF.length-1].y&&yrs>r.y);
@@ -8735,7 +8807,7 @@ function buildPortfolioTab(){
   var PV_RET_BG = '#fbf6e8';
   function pvRet(y){ return y.yr === _retYr; }
   function retBg(y){ return pvRet(y) ? 'background:'+PV_RET_BG+';' : ''; }
-  function retYearCell(y){ return y.yr + (pvRet(y) ? ' <span style="font-size:10px;color:var(--gold);margin-left:4px">\u2605 Ret</span>' : ''); }
+  function retYearCell(y){ return y.yr + (pvRet(y) ? ' <span style="font-size:10px;color:var(--gold);margin-left:4px">\u2605 ' + t('proj.tag.ret.short') + '</span>' : ''); }
   var TH = 'style="padding:5px 10px;font-size:11px;font-weight:600;color:var(--muted);text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--s1);position:sticky;top:0;z-index:1"';
   var TH_L = TH.replace('text-align:right','text-align:left');
   var TD = 'style="padding:4px 10px;text-align:right;font-family:var(--font-m);font-size:12px;border-bottom:1px solid rgba(0,0,0,0.05);white-space:nowrap"';
@@ -9051,7 +9123,7 @@ function exportPortfolioCSV(){
 }
 
 function exportPortfolioExcel(){
-  if(typeof XLSX==='undefined'){ alert('Excel export not available — use CSV instead.'); return; }
+  if(typeof XLSX==='undefined'){ alert(t('alert.xlsx.missing')); return; }
   var wb = XLSX.utils.book_new();
   var data = pvGetTableData();
   data.forEach(function(acc){
@@ -9550,7 +9622,7 @@ function optimizeWithdrawals(){
     var btnE = document.getElementById('wd-optimize-btn');
     if(btnE){ btnE.textContent='Unavailable when intervals active'; btnE.style.color='#FF5B2E'; }
     setTimeout(function(){ var b=document.getElementById('wd-optimize-btn');
-      if(b){ b.textContent='\u26a1 Optimize to Zero'; b.style.color='#4885C4'; } }, 2500);
+      if(b){ b.innerHTML='\u26a1 <span data-i18n="wd.optimize">'+t('wd.optimize')+'</span>'; b.style.color='#4885C4'; } }, 2500);
     return;
   }
 
@@ -9629,7 +9701,7 @@ function optimizeWithdrawals(){
     btn.style.color = changed ? '#48B866' : 'var(--muted)';
     setTimeout(function(){
       var b = document.getElementById('wd-optimize-btn');
-      if(b){ b.textContent='\u26a1 Optimize to Zero'; b.style.color='#4885C4'; }
+      if(b){ b.innerHTML='\u26a1 <span data-i18n="wd.optimize">'+t('wd.optimize')+'</span>'; b.style.color='#4885C4'; }
     }, 2500);
   }
 }
@@ -9683,7 +9755,7 @@ function downloadWdChartCSV(){
   a.click(); URL.revokeObjectURL(url);
 }
 function downloadWdChartExcel(){
-  if(typeof XLSX === 'undefined'){ alert('Excel library not loaded yet, try again in a moment.'); return; }
+  if(typeof XLSX === 'undefined'){ alert(t('alert.xlsx.loading')); return; }
   var r = _wdChartRows();
   var ws = XLSX.utils.aoa_to_sheet([r.head].concat(r.rows));
   ws['!cols'] = r.head.map(function(_, i){ return {wch: i < 2 ? 7 : 22}; });
@@ -9847,7 +9919,7 @@ function setWdTaxMode(mode){
   buildWithdrawalChart();
   buildWdSummary();
   var hdr=document.getElementById('wd-col-hdr');
-  if(hdr) hdr.textContent = mode==='net' ? 'Withdrawal/yr (net)' : 'Withdrawal/yr';
+  if(hdr) hdr.textContent = mode==='net' ? t('wd.col.wdyr.net') : t('wd.col.wdyr');
 }
 function wdTaxFactor(a, y){
   if(_wdTaxMode==='gross' || a.type==='after') return 1;
@@ -9892,7 +9964,7 @@ function updateIncomeChart(){
   charts.income.data.datasets[0].data = years.map(function(y){ return Math.round((y.totalAfterTaxIncome||0)/div); });
   charts.income.data.datasets[1].data = years.map(function(y){ return Math.round((y.expenses||0)/div); });
   charts.income.options.plugins.tooltip.callbacks.label = function(ctx){
-    return ' '+ctx.dataset.label+': '+Math.round(ctx.raw).toLocaleString('sv-SE')+' kr'+(_incExpMode==='monthly'?'/mth':'/yr');
+    return ' '+ctx.dataset.label+': '+Math.round(ctx.raw).toLocaleString('sv-SE')+' kr'+(_incExpMode==='monthly'?t('unit.per.mth'):t('unit.per.yr'));
   };
   charts.income.update();
 }
@@ -10026,7 +10098,7 @@ function buildScenarioCards(){
       )
       // Results
       +(res ? '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">'
-        +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">Port. at retirement</span><span style="color:var(--text);font-family:var(--font-m)">'+fmtM(res.portAtRet)+'</span></div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.card.port')+'</span><span style="color:var(--text);font-family:var(--font-m)">'+fmtM(res.portAtRet)+'</span></div>'
         +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.annual.wd')+'</span><span style="color:var(--text);font-family:var(--font-m)">'+fmtM(res.annualWd)+'</span></div>'
         +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--muted)">'+t('sc.depletion')+'</span><span style="color:'+(res.depletionYr?'#FF5B2E':'#48B866')+';font-family:var(--font-m)">'+(res.depletionYr||t('sc.never'))+'</span></div>'
         +'<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--muted)">'+t('sc.funded')+'</span><span style="color:'+(res.funded&&res.funded>=1?'#48B866':'#FF5B2E')+';font-family:var(--font-m)">'+(res.funded?res.funded.toFixed(2)+'x':'—')+'</span></div>'
@@ -10187,7 +10259,7 @@ var _mcSurvChart = null;
 var _mcHistChart = null;
 
 function runMonteCarlo(){
-  if(!_projYears||!_projYears.length){ alert('Please run a projection first.'); return; }
+  if(!_projYears||!_projYears.length){ alert(t('alert.run.projection')); return; }
 
   var _simsSel = document.getElementById('mc-sims-mode');
   var _simsVal = (_simsSel && _simsSel.value!=='custom')
@@ -10815,7 +10887,7 @@ function updateMCMuDisplay(){
     var mu  = eq*eqRet + bd*bdRet;
     // Portfolio σ: √(eq²·σ_eq² + bd²·σ_bd²)  [ρ=0 between eq and bd]
     var sig = Math.sqrt(eq*eq*sigEq*sigEq + bd*bd*sigBd*sigBd)*100;
-    if(bdEl)  bdEl.textContent  = bdPct+'% Bd · μ = '+mu.toFixed(2)+'%';
+    if(bdEl)  bdEl.textContent  = bdPct+'% '+t('mc.bd.short')+' · μ = '+mu.toFixed(2)+'%';
     if(sigEl) sigEl.textContent = 'σ = '+sig.toFixed(1)+'%';
   });
   // Blended μ and σ at start age
@@ -10826,7 +10898,7 @@ function updateMCMuDisplay(){
   var muStart  = eq0*eqRet + bd0*bdRet;
   var sigStart = Math.sqrt(eq0*eq0*sigEq*sigEq + bd0*bd0*sigBd*sigBd)*100;
   var disp = document.getElementById('mc-mu-display');
-  if(disp) disp.textContent = 'At start age: μ = '+muStart.toFixed(2)+'%  ·  σ = '+sigStart.toFixed(1)+'%';
+  if(disp) disp.textContent = t('mc.at.start')+': μ = '+muStart.toFixed(2)+'%  ·  σ = '+sigStart.toFixed(1)+'%';
 }
 
 // ── Live update of simulation period display ─────────────────────────────────
@@ -11039,7 +11111,7 @@ function collectPlanState(){
 
 function applyPlanState(state){
   if(!state || !state.version || state.version < 3){
-    showPlanToast('⚠ Incompatible save file (version mismatch)', true);
+    showPlanToast('⚠ ' + t('toast.incompatible'), true);
     return false;
   }
 
@@ -11138,21 +11210,21 @@ function planSave(){
   try {
     localStorage.setItem('retirementPlan_v3', JSON.stringify(state));
     var ts = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    showPlanToast('\u2713 Plan saved at ' + ts);
+    showPlanToast('\u2713 ' + t('toast.saved', {time: ts}));
   } catch(e) {
-    showPlanToast('\u26a0 Save failed: ' + e.message, true);
+    showPlanToast('\u26a0 ' + t('toast.save.failed', {msg: e.message}), true);
   }
 }
 
 function planLoad(){
   var raw;
   try { raw = localStorage.getItem('retirementPlan_v3'); } catch(e) {}
-  if(!raw){ showPlanToast('No saved plan found in this browser', true); return; }
+  if(!raw){ showPlanToast(t('toast.nosaved'), true); return; }
   try {
     var ok = applyPlanState(JSON.parse(raw));
-    if(ok) showPlanToast('\u2713 Plan restored');
+    if(ok) showPlanToast('\u2713 ' + t('toast.restored'));
   } catch(e) {
-    showPlanToast('\u26a0 Restore failed: ' + e.message, true);
+    showPlanToast('\u26a0 ' + t('toast.restore.failed', {msg: e.message}), true);
   }
 }
 
@@ -11166,7 +11238,7 @@ function planExport(){
   a.href = url; a.download = 'retirement-plan-' + date + '.json';
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
-  showPlanToast('\u2713 Exported retirement-plan-' + date + '.json');
+  showPlanToast('\u2713 ' + t('toast.exported', {file: 'retirement-plan-' + date + '.json'}));
 }
 
 function planImport(){
@@ -11180,9 +11252,9 @@ function planImport(){
     reader.onload = function(e){
       try {
         var ok = applyPlanState(JSON.parse(e.target.result));
-        if(ok) showPlanToast('\u2713 Imported: ' + file.name);
+        if(ok) showPlanToast('\u2713 ' + t('toast.imported', {file: file.name}));
       } catch(err) {
-        showPlanToast('\u26a0 Import failed: ' + err.message, true);
+        showPlanToast('\u26a0 ' + t('toast.import.failed', {msg: err.message}), true);
       }
     };
     reader.readAsText(file);
@@ -11347,7 +11419,7 @@ function showPlanToast(msg, isError){
     if(state && state.version === 3){
       applyPlanState(state);
       var ts = new Date(state.savedAt).toLocaleDateString([], {day:'numeric',month:'short',year:'numeric'});
-      showPlanToast('\u21ba Plan auto-restored (saved ' + ts + ')');
+      showPlanToast('\u21ba ' + t('toast.autorestored', {date: ts}));
     }
   } catch(e) {}
 })();
