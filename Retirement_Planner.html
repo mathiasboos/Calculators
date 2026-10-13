@@ -4334,7 +4334,7 @@ function buildExpenseRows(){
   expContainer.innerHTML = '';
   const canDelete = expenses.length > 1;
   expenses.forEach((e,i)=>{
-    const displayName = t('exp.'+e.name)||e.name;
+    const displayName = expName(e.name);
     const div=document.createElement('div');
     div.className='input-row';
     div.style.cssText='position:relative;';
@@ -4398,6 +4398,12 @@ function buildExpenseRows(){
       +'+ Add category'
     +'</button>';
   expContainer.appendChild(addRow);
+}
+
+// The name of an expense category: the translation of a built-in one, or the name the user gave it.
+function expName(name){
+  var key = 'exp.' + name, text = t(key);
+  return text === key ? name : text;
 }
 
 function addExpense(){
@@ -9376,7 +9382,7 @@ function buildExpenseChart(){
     '#6AAEDE','#8DD6A0','#F7C95A','#F08060','#D4CCB0','#2E8A54'
   ];
 
-  var labels  = items.map(function(e){ return (typeof t==='function'?t('exp.'+e.name):'')||e.name; });
+  var labels  = items.map(function(e){ return expName(e.name); });
   var values  = items.map(function(e){ return e.val||0; });
   var colors  = items.map(function(_,i){ return COLORS[i % COLORS.length]; });
 
@@ -9438,7 +9444,7 @@ function buildExpenseChart(){
     var pct = ((e.val/total)*100).toFixed(1);
     return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0">'
       + '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:'+colors[i]+'"></span>'
-      + '<span style="color:var(--muted);min-width:110px">' + ((typeof t==='function'?t('exp.'+e.name):'')||e.name) + '</span>'
+      + '<span style="color:var(--muted);min-width:110px">' + expName(e.name) + '</span>'
       + '<span style="font-family:var(--font-m);color:var(--text);margin-left:auto;padding-left:10px">'
         + Math.round(e.val).toLocaleString('sv-SE') + ' kr</span>'
       + '<span style="color:var(--muted);width:42px;text-align:right">' + pct + '%</span>'
