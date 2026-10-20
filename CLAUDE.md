@@ -335,6 +335,11 @@ published, replace the workbook and re-verify everything below.
 
 **Typfallsmodellen (`reference/Typfallsmodellen_v4.8.xlsb` + its VBA) is the first source to consult and to implement in Retirement_Planner.html** — pension rules, contributions, tax and rounding follow the workbook exactly; a planner-specific approximation is only acceptable where the workbook has no equivalent, and must be documented as such. Explanatory UI text may round or simplify (e.g. "up to 8,07 IBB"), the calculation must not.
 
+**Credit Pensionsmyndigheten.** Pensionsmyndigheten's licence for Typfallsmodellen: "Du får sprida och modifiera verktyget men du ska ange Pensionsmyndigheten som källa."
+(https://www.pensionsmyndigheten.se/statistik-och-rapporter/pensionsmodellen/typfallsmodellen). Retirement_Planner.html therefore has a source line under every tab (`<footer id="src-credit">`, keys `foot.*`) and an
+"About" tab (`#tab-about`, keys `about.*`, EN/SV) that names Pensionsmyndigheten as the source, lists what is taken from Typfallsmodellen, what is developed for the planner (charts, budget, Withdrawals planning,
+Scenarios, Monte Carlo, Income tab, presets) and the other sources (Skatteverket, SCB, minpension.se). Keep those lists current when features are added or the workbook version changes, and never remove the credit.
+
 When fixing or verifying calculation logic, **treat Excel as the source of truth**. If a formula in an HTML file diverges from the reference Excel model, the HTML is wrong.
 
 ## Git workflow
