@@ -957,8 +957,9 @@ function onProgChange() { applyAvkSkatt(); recalc(); }
 
 /* ── Read params ── */
 /* ── Bidirectional Premie / Flytt sync ── */
-function vp(id){const el=document.getElementById(id);return el?parseFloat((el.value||'0').replace(',','.'))||0:0;}
-function sv2(id,val){const el=document.getElementById(id);if(el)el.value=String(Math.round(val)).replace('.',',');}
+function numParse(v){return parseFloat(String(v||'0').replace(/[\s\u00a0]/g,'').replace(',','.'));}
+function vp(id){const el=document.getElementById(id);return el?numParse(el.value)||0:0;}
+function sv2(id,val){const el=document.getElementById(id);if(el)el.value=grpInt(String(Math.round(val)));}
 function syncTotalVol(){const a=Math.max(1,Math.round(vp('p-antal')));sv2('p-vol',vp('p-premie')*a);}
 function syncTotalFlytt(){const a=Math.max(1,Math.round(vp('p-antal')));sv2('p-flytotal',vp('p-flytt')*a);}
 function onPremieInput(source){
@@ -1311,19 +1312,39 @@ function vFmt(n) {
   if (!isFinite(n)) return '0';
   // Show up to 9 significant decimals, strip trailing zeros
   var s = n.toFixed(9).replace(/\.?0+$/, '');
-  return s.replace('.', ',');
+  return grpInt(s.replace('.', ','));
 }
-// Typed or pasted "." becomes the Swedish decimal comma (parsing accepts both)
+// Thousands separator (space) for integer part, decimal comma kept
+function grpInt(str) {
+  var m = /^(-?)(\d+)(,\d*)?$/.exec(str);
+  return m ? m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (m[3] || '') : str;
+}
+var KR_INPUT = /^(p-(vol|premie|flytotal|flytt|fast|adm|akost)|scpv-\d+-(premie|flytt)|scov-\d+-(fast|adm))$/;
+// Typed or pasted "." becomes the Swedish decimal comma (parsing accepts both); kr fields get "500 000"
 document.addEventListener('input', function(e) {
   var el = e.target;
   if (el.tagName !== 'INPUT' || (el.type !== 'text' && el.type !== '')) return;
-  if (!/(^|\s)(param-input|ov-inp)(\s|$)/.test(el.className) || !el.value || el.value.indexOf('.') < 0) return;
-  var s = el.selectionStart;
-  var v = el.value.replace(/\./g, ',');
+  if (!/(^|\s)(param-input|ov-inp)(\s|$)/.test(el.className)) return;
+  var kr = KR_INPUT.test(el.id), v = el.value, s = el.selectionStart;
+  if (!v || (v.indexOf('.') < 0 && !kr)) return;
+  var before = v.slice(0, s).replace(/[\s\u00a0]/g, '').length;
+  v = v.replace(/[\s\u00a0]/g, '').replace(/\./g, ',');
   var i = v.indexOf(',');
-  el.value = v.slice(0, i + 1) + v.slice(i + 1).replace(/,/g, '');
-  el.setSelectionRange(s, s);
+  if (i >= 0) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/,/g, '');
+  if (kr) v = grpInt(v);
+  if (v === el.value) return;
+  el.value = v;
+  var pos = 0, cnt = 0;
+  while (pos < v.length && cnt < before) { if (!/\s/.test(v[pos])) cnt++; pos++; }
+  el.setSelectionRange(pos, pos);
 }, true);
+// Format the kr inputs' initial values
+function fmtKrInputs() {
+  document.querySelectorAll('input.param-input, input.ov-inp').forEach(function(el) {
+    if (KR_INPUT.test(el.id)) el.value = grpInt(el.value.replace(/[\s\u00a0]/g, ''));
+  });
+}
+fmtKrInputs();
 
 
 /* ── Excel export (SheetJS) ── */
@@ -1584,7 +1605,7 @@ function applyPreset() {
 /* Side-panel value (display units, e.g. % as typed) for a scenario field */
 function scenSidVal(sid) { return vParse(sid); }
 function scenOvSid(ov) { return 'p-' + (ov.key === 'flytt_ers' ? 'flytt-ers' : ov.key); }
-function scenFmtInp(n) { return String(Math.round(n*1e6)/1e6).replace('.', ','); }
+function scenFmtInp(n) { return grpInt(String(Math.round(n*1e6)/1e6).replace('.', ',')); }
 
 /* Follow the side panel: fields still at their previous default take the new
    side-panel value; fields the user edited keep their value (and are highlighted
@@ -1599,7 +1620,7 @@ function scenSyncFromSidebar(force) {
     items.forEach(it => {
       const el = document.getElementById(it.id);
       if (!el) return;
-      const cur = parseFloat((el.value||'0').replace(',','.')) || 0;
+      const cur = numParse(el.value) || 0;
       const prevDef = parseFloat(el.dataset.def) || 0;
       if (force || Math.abs(cur-prevDef) < 0.0001) { el.value = scenFmtInp(it.def); el.dataset.def = it.def; el.classList.remove('ov-changed'); }
       else { el.dataset.def = it.def; scenMarkChanged(el); }
@@ -1683,9 +1704,9 @@ function scenMakeCol(i) {
       </div>
       <div class="scen-params">
         <div class="scen-params-ttl">${LANG==='sv'?'Kontrakt &amp; Duration':'Contract &amp; Duration'}</div>
-        ${SC_PARAMS.map(p=>{const sid=document.getElementById(p.sid);const defVal=sid?parseFloat((sid.value||'0').replace(',','.'))||0:0;return`<div class="ov-row">
+        ${SC_PARAMS.map(p=>{const sid=document.getElementById(p.sid);const defVal=sid?numParse(sid.value)||0:0;return`<div class="ov-row">
           <span class="ov-lbl">${LANG==='sv'?p.label:p.labelEn}</span>
-          <input class="ov-inp" id="scpv-${i}-${p.key}" value="${String(defVal).replace('.',',')}" data-def="${defVal}" onchange="scenOvChange(this)" oninput="scenMarkChanged(this)">
+          <input class="ov-inp" id="scpv-${i}-${p.key}" value="${scenFmtInp(defVal)}" data-def="${defVal}" onchange="scenOvChange(this)" oninput="scenMarkChanged(this)">
           <span class="ov-unit">${p.unit}</span>
         </div>`;}).join('')}
         <div class="scen-params-ttl" style="margin-top:8px">${LANG==='sv'?'Avgifter &amp; Kostnader':'Fees &amp; Costs'}</div>
@@ -1766,7 +1787,7 @@ function scenMarkChanged(el) {
     el.value = v.replace('.', ',').replace(/\.+/g, '');
   }
   const def = parseFloat(el.dataset.def);
-  const cur = parseFloat((el.value||'0').replace(',','.')) || 0;
+  const cur = numParse(el.value) || 0;
   el.classList.toggle('ov-changed', Math.abs(cur - def) > 0.0001);
 }
 function scenOvChange(el) { scenMarkChanged(el); scenRecalc(); }
@@ -1774,7 +1795,7 @@ function scenReset(si) {
   SC_PARAMS.forEach(sp => {
     const el = document.getElementById(`scpv-${si}-${sp.key}`);
     const sid = document.getElementById(sp.sid);
-    if (el && sid) { el.value = sid.value; el.dataset.def = parseFloat((sid.value||'0').replace(',','.'))||0; el.classList.remove('ov-changed'); }
+    if (el && sid) { el.value = sid.value; el.dataset.def = numParse(sid.value)||0; el.classList.remove('ov-changed'); }
   });
   SC_OVERRIDE.forEach(p => {
     const el = document.getElementById(`scov-${si}-${p.key}`);
@@ -1789,13 +1810,13 @@ function scenGetParams(si) {
   SC_PARAMS.forEach(sp => {
     const el = document.getElementById(`scpv-${si}-${sp.key}`);
     if (!el) return;
-    const raw = parseFloat((el.value||'0').replace(',','.')) || 0;
+    const raw = numParse(el.value) || 0;
     p[sp.key] = sp.int ? Math.max(1, Math.round(raw)) : sp.pct ? raw / 100 : raw;
   });
   SC_OVERRIDE.forEach(ov => {
     const el = document.getElementById(`scov-${si}-${ov.key}`);
     if (!el) return;
-    const raw = parseFloat((el.value||'0').replace(',','.')) || 0;
+    const raw = numParse(el.value) || 0;
     p[ov.key] = ov.pct ? raw / 100 : raw;
   });
   return p;
@@ -2111,7 +2132,7 @@ function scenBuildExportData(full=false) {
   SC_PARAMS.forEach(sp => {
     const vals = scSlots.map(i => {
       const el = document.getElementById(`scpv-${i}-${sp.key}`);
-      return el ? (parseFloat((el.value||'0').replace(',','.')) || 0) : 0;
+      return el ? (numParse(el.value) || 0) : 0;
     });
     settingsRows.push([LANG==='sv'?sp.label:sp.labelEn, sp.unit, ...vals]);
   });
@@ -2121,7 +2142,7 @@ function scenBuildExportData(full=false) {
   SC_OVERRIDE.forEach(ov => {
     const vals = scSlots.map(i => {
       const el = document.getElementById(`scov-${i}-${ov.key}`);
-      return el ? (parseFloat((el.value||'0').replace(',','.')) || 0) : ov.def;
+      return el ? (numParse(el.value) || 0) : ov.def;
     });
     settingsRows.push([LANG==='sv'?ov.label:ov.labelEn, ov.unit, ...vals]);
   });
