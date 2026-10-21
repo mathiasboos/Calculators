@@ -556,6 +556,7 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
         <div class="scen-stab" onclick="scenSubTab('charts')" data-i18n="scen.tab.charts">📈 Diagram</div>
       </div>
       <div style="display:flex;gap:6px;padding-bottom:2px;">
+        <button class="hbtn" onclick="scenImportAll()" title="Overwrite all scenarios with the side-panel figures / Skriv över alla scenarier med sidopanelens värden" style="font-size:11px;padding:4px 10px;color:var(--navy);border-color:var(--border);background:var(--bg);">⇦ Import / Importera</button>
         <button class="hbtn" onclick="scenExportCSV()" style="font-size:11px;padding:4px 10px;color:var(--navy);border-color:var(--border);background:var(--bg);">↓ CSV</button>
         <button class="hbtn primary" onclick="scenExportExcel()" style="font-size:11px;padding:4px 10px;">↓ Excel</button>
       </div>
@@ -1298,6 +1299,8 @@ function recalc() {
   updateKPIs(data,p);
   updateCharts(data);
   updateTable(data);
+  const grid=document.getElementById('scen-grid');
+  if (grid && grid.children.length) { scenSyncFromSidebar(false); scenRecalc(); }
 }
 
 // Init — wait for full page load so async Chart.js is ready
@@ -1604,58 +1607,36 @@ function applyPreset() {
 
 
 
-/* Sync scenario overrides when a product preset is applied */
-function scenSyncFromPreset(q) {
-  // Map preset keys to SC_OVERRIDE keys
-  const presetMap = {
-    fond: q.fond, rorl: q.rorl, fast: q.fast, prema: q.prema,
-    ater: q.ater, seb: q.seb, adm: q.adm, pkost: q.pkost,
-    skost: q.skost, upfront: q.upfront, flytt_ers: 0
-  };
+/* Side-panel value (display units, e.g. % as typed) for a scenario field */
+function scenSidVal(sid) { return vParse(sid); }
+function scenOvSid(ov) { return 'p-' + (ov.key === 'flytt_ers' ? 'flytt-ers' : ov.key); }
+function scenFmtInp(n) { return String(Math.round(n*1e6)/1e6).replace('.', ','); }
 
-  // Update SC_OVERRIDE defaults so green-highlight logic stays correct
-  SC_OVERRIDE.forEach(ov => {
-    if (presetMap[ov.key] !== undefined) ov.def = presetMap[ov.key];
-  });
-
-  // If scenario columns are already built, update each column's input values
-  // and re-run changed-state marking
+/* Follow the side panel: fields still at their previous default take the new
+   side-panel value; fields the user edited keep their value (and are highlighted
+   against the new default). force=true overwrites every field (Import button). */
+function scenSyncFromSidebar(force) {
   const grid = document.getElementById('scen-grid');
-  if (grid && grid.children.length) {
-    for (let i = 0; i < 3; i++) {
-      SC_PARAMS.forEach(sp => {
-        const el = document.getElementById(`scpv-${i}-${sp.key}`);
-        const sid = document.getElementById(sp.sid);
-        if (!el || !sid) return;
-        const curVal = parseFloat((el.value||'0').replace(',','.'))||0;
-        const prevDef = parseFloat(el.dataset.def)||0;
-        const newDef = parseFloat((sid.value||'0').replace(',','.'))||0;
-        if (Math.abs(curVal-prevDef)<0.0001) { el.value=sid.value; el.dataset.def=newDef; el.classList.remove('ov-changed'); }
-        else { el.dataset.def=newDef; scenMarkChanged(el); }
-      });
-      SC_OVERRIDE.forEach(ov => {
-        const el = document.getElementById(`scov-${i}-${ov.key}`);
-        if (!el) return;
-        // Only update if the field hasn't been manually changed from previous default
-        const curVal = parseFloat((el.value || '0').replace(',', '.')) || 0;
-        const prevDef = parseFloat(el.dataset.def) || 0;
-        const isUnchanged = Math.abs(curVal - prevDef) < 0.0001;
-        if (isUnchanged) {
-          // Follow the new preset value
-          el.value = String(ov.def).replace('.', ',');
-          el.dataset.def = ov.def;
-          el.classList.remove('ov-changed');
-        } else {
-          // Field was manually changed — just update the baseline def so
-          // the changed-highlight stays accurate relative to new preset
-          el.dataset.def = ov.def;
-          scenMarkChanged(el);
-        }
-      });
-    }
-    scenRecalc();
+  SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
+  if (!grid || !grid.children.length) return;
+  for (let i = 0; i < 3; i++) {
+    const items = SC_PARAMS.map(sp => ({id:`scpv-${i}-${sp.key}`, def:scenSidVal(sp.sid)}))
+      .concat(SC_OVERRIDE.map(ov => ({id:`scov-${i}-${ov.key}`, def:ov.def})));
+    items.forEach(it => {
+      const el = document.getElementById(it.id);
+      if (!el) return;
+      const cur = parseFloat((el.value||'0').replace(',','.')) || 0;
+      const prevDef = parseFloat(el.dataset.def) || 0;
+      if (force || Math.abs(cur-prevDef) < 0.0001) { el.value = scenFmtInp(it.def); el.dataset.def = it.def; el.classList.remove('ov-changed'); }
+      else { el.dataset.def = it.def; scenMarkChanged(el); }
+    });
   }
 }
+/* Import button: overwrite all scenarios with the side-panel figures */
+function scenImportAll() { scenSyncFromSidebar(true); scenRecalc(); }
+
+/* Kept for the preset code path */
+function scenSyncFromPreset() { scenSyncFromSidebar(false); scenRecalc(); }
 
 /* ══════════════════════════════════════════
    SCENARIO TAB
@@ -1694,6 +1675,8 @@ let scChartsBuilt = false;
 function scenBuildCols() {
   const grid = document.getElementById('scen-grid');
   if (!grid) return;
+  if (grid.children.length) { scenSyncFromSidebar(false); return; }
+  SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
   for (let i = 0; i < 3; i++) {
     if (i === 2 && !scenCVisible) {
       // Show add-placeholder instead
@@ -1724,7 +1707,7 @@ function scenBuildCols() {
         <div class="scen-params-ttl" style="margin-top:8px">${LANG==='sv'?'Avgifter &amp; Kostnader':'Fees &amp; Costs'}</div>
         ${SC_OVERRIDE.map(p=>`<div class="ov-row">
           <span class="ov-lbl">${LANG==='sv'?p.label:p.labelEn}</span>
-          <input class="ov-inp" id="scov-${i}-${p.key}" value="${String(p.def).replace('.',',')}" data-def="${p.def}" onchange="scenOvChange(this)" oninput="scenMarkChanged(this)">
+          <input class="ov-inp" id="scov-${i}-${p.key}" value="${scenFmtInp(p.def)}" data-def="${p.def}" onchange="scenOvChange(this)" oninput="scenMarkChanged(this)">
           <span class="ov-unit">${p.unit}</span>
         </div>`).join('')}
       </div>
@@ -1773,7 +1756,7 @@ function scenReset(si) {
   });
   SC_OVERRIDE.forEach(p => {
     const el = document.getElementById(`scov-${si}-${p.key}`);
-    if (el) { el.value = String(p.def).replace('.',','); el.classList.remove('ov-changed'); }
+    if (el) { el.value = scenFmtInp(p.def); el.dataset.def = p.def; el.classList.remove('ov-changed'); }
   });
   scenRecalc();
 }
