@@ -1635,6 +1635,28 @@ function scenSyncFromSidebar(force) {
 /* Import button: overwrite all scenarios with the side-panel figures */
 function scenImportAll() { scenSyncFromSidebar(true); scenRecalc(); }
 
+/* Safety net: sidebar values can be set from code (presets, total-volume sync,
+   formatting) without going through recalc(), so watch them while the Scenario
+   tab is open and re-sync as soon as any of them changes. */
+let _scenSig = '';
+function scenSidebarSig() {
+  return SC_PARAMS.map(sp => scenSidVal(sp.sid)).concat(SC_OVERRIDE.map(ov => scenSidVal(scenOvSid(ov)))).join('|');
+}
+function scenWatchSidebar() {
+  const panel = document.getElementById('tab-scenario');
+  if (!panel || !panel.classList.contains('active')) return;
+  const grid = document.getElementById('scen-grid');
+  if (!grid || !grid.children.length) return;
+  const sig = scenSidebarSig();
+  if (sig === _scenSig) return;
+  _scenSig = sig;
+  scenSyncFromSidebar(false);
+  scenRecalc();
+}
+setInterval(scenWatchSidebar, 300);
+document.addEventListener('input', e => { if (e.target && /^p-/.test(e.target.id || '')) scenWatchSidebar(); }, true);
+document.addEventListener('change', e => { if (e.target && /^p-/.test(e.target.id || '')) scenWatchSidebar(); }, true);
+
 /* Kept for the preset code path */
 function scenSyncFromPreset() { scenSyncFromSidebar(false); scenRecalc(); }
 
