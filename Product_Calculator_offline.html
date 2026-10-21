@@ -1313,27 +1313,16 @@ function vFmt(n) {
   var s = n.toFixed(9).replace(/\.?0+$/, '');
   return s.replace('.', ',');
 }
-// Auto-convert comma→period in all number inputs on keypress
-document.addEventListener('keydown', function(e) {
-  if (e.key !== ',') return;
-  var el = e.target;
-  if (el.tagName !== 'INPUT') return;
-  e.preventDefault();
-  var v = el.value || '', s = el.selectionStart || 0;
-  if (!v.includes('.') && !v.includes(',')) {
-    el.value = v.slice(0, s) + ',' + v.slice(s);
-    el.setSelectionRange(s + 1, s + 1);
-  }
-}, true);
-// Also handle paste with comma
+// Typed or pasted "." becomes the Swedish decimal comma (parsing accepts both)
 document.addEventListener('input', function(e) {
   var el = e.target;
-  if (el.tagName !== 'INPUT') return;
-  if (el.value && el.value.includes(',')) {
-    var s = el.selectionStart;
-    el.value = el.value.replace(',', '.');
-    el.setSelectionRange(s, s);
-  }
+  if (el.tagName !== 'INPUT' || (el.type !== 'text' && el.type !== '')) return;
+  if (!/(^|\s)(param-input|ov-inp)(\s|$)/.test(el.className) || !el.value || el.value.indexOf('.') < 0) return;
+  var s = el.selectionStart;
+  var v = el.value.replace(/\./g, ',');
+  var i = v.indexOf(',');
+  el.value = v.slice(0, i + 1) + v.slice(i + 1).replace(/,/g, '');
+  el.setSelectionRange(s, s);
 }, true);
 
 
