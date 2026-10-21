@@ -143,13 +143,11 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
 .totals-row td.pos{color:#48B866!important;}
 
 /* ── SCENARIO TAB ── */
-.scen-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-bottom:18px;align-items:start;}
 .scen-col{border:2px solid var(--border);border-radius:8px;overflow:hidden;}
-.scen-col.sc0{border-color:#48B866;}.scen-col.sc1{border-color:#4885C4;}.scen-col.sc2{border-color:#c48000;}
+.scen-col{border-color:var(--scc,var(--border));}
 .scen-hd{padding:8px 12px;display:flex;align-items:center;gap:8px;}
-.scen-hd.sc0{background:rgba(72,184,102,.1);border-bottom:1px solid #48B866;}
-.scen-hd.sc1{background:rgba(72,133,196,.1);border-bottom:1px solid #4885C4;}
-.scen-hd.sc2{background:rgba(196,128,0,.1);border-bottom:1px solid #c48000;}
+.scen-hd{background:color-mix(in srgb,var(--scc) 10%,transparent);border-bottom:1px solid var(--scc);}
 .scen-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .scen-name-inp{flex:1;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--navy);border:none;background:transparent;outline:none;min-width:0;}
 .scen-rst{background:none;border:none;cursor:pointer;color:var(--mid);font-size:11px;padding:2px 6px;border-radius:3px;}
@@ -189,7 +187,8 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
 .scen-cmp-table tr:last-child td{border-bottom:none;}
 .scen-cmp-table tr:hover td{background:#f5f8ff;}
 .scen-cmp-table .sc-win{font-weight:700;}
-.scc0{color:#48B866;}.scc1{color:#4885C4;}.scc2{color:#c48000;}
+.scc0{color:#48B866;}.scc1{color:#4885C4;}.scc2{color:#c48000;}.scc3{color:#8e5bd0;}.scc4{color:#d6457a;}.scc5{color:#1fa5a5;}.scc6{color:#7a8b2e;}.scc7{color:#b5533c;}
+.scen-del[disabled]{display:none;}
 .sc-best{font-size:8.5px;background:#48B866;color:#fff;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;}
 .sc-worst{font-size:8.5px;background:var(--red);color:#fff;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;}
 .scen-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
@@ -575,36 +574,21 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
       <div class="scen-cmp-section">
         <div class="scen-cmp-title" data-i18n="scen.sum.kpi">Nyckeltal — Scenariejämförelse</div>
         <table class="scen-cmp-table">
-          <thead><tr>
-            <th>Nyckeltal</th>
-            <th class="scr" id="sc-th0">Scenario A</th>
-            <th class="scr" id="sc-th1">Scenario B</th>
-            <th class="scr" id="sc-th2">Scenario C</th>
-          </tr></thead>
+          <thead><tr id="sc-thr-kpi"><th>Nyckeltal</th></tr></thead>
           <tbody id="sc-kpi-body"></tbody>
         </table>
       </div>
       <div class="scen-cmp-section">
         <div class="scen-cmp-title" data-i18n="scen.sum.rev">Intäkter &amp; Kostnader</div>
         <table class="scen-cmp-table">
-          <thead><tr>
-            <th>Post</th>
-            <th class="scr" id="sc-th0b">Scenario A</th>
-            <th class="scr" id="sc-th1b">Scenario B</th>
-            <th class="scr" id="sc-th2b">Scenario C</th>
-          </tr></thead>
+          <thead><tr id="sc-thr-rev"><th>Post</th></tr></thead>
           <tbody id="sc-rev-body"></tbody>
         </table>
       </div>
       <div class="scen-cmp-section">
         <div class="scen-cmp-title" data-i18n="scen.sum.margin">Marginalanalys</div>
         <table class="scen-cmp-table">
-          <thead><tr>
-            <th>Mått</th>
-            <th class="scr" id="sc-th0c">Scenario A</th>
-            <th class="scr" id="sc-th1c">Scenario B</th>
-            <th class="scr" id="sc-th2c">Scenario C</th>
-          </tr></thead>
+          <thead><tr id="sc-thr-margin"><th>Mått</th></tr></thead>
           <tbody id="sc-margin-body"></tbody>
         </table>
       </div>
@@ -1619,7 +1603,7 @@ function scenSyncFromSidebar(force) {
   const grid = document.getElementById('scen-grid');
   SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
   if (!grid || !grid.children.length) return;
-  for (let i = 0; i < 3; i++) {
+  for (const i of scSlots) {
     const items = SC_PARAMS.map(sp => ({id:`scpv-${i}-${sp.key}`, def:scenSidVal(sp.sid)}))
       .concat(SC_OVERRIDE.map(ov => ({id:`scov-${i}-${ov.key}`, def:ov.def})));
     items.forEach(it => {
@@ -1663,8 +1647,9 @@ function scenSyncFromPreset() { scenSyncFromSidebar(false); scenRecalc(); }
 /* ══════════════════════════════════════════
    SCENARIO TAB
 ══════════════════════════════════════════ */
-const SC_COLORS = ['#48B866','#4885C4','#c48000'];
-const SC_BG     = ['rgba(72,184,102,.15)','rgba(72,133,196,.15)','rgba(196,128,0,.15)'];
+const SC_MAX = 8;
+const SC_COLORS = ['#48B866','#4885C4','#c48000','#8e5bd0','#d6457a','#1fa5a5','#7a8b2e','#b5533c'];
+const SC_BG     = ['rgba(72,184,102,.15)','rgba(72,133,196,.15)','rgba(196,128,0,.15)','rgba(142,91,208,.15)','rgba(214,69,122,.15)','rgba(31,165,165,.15)','rgba(122,139,46,.15)','rgba(181,83,60,.15)'];
 const SC_OVERRIDE = [
   {key:'fond',     label:'Fondavgift (snitt)',   labelEn:'Fund Fee (avg)',          unit:'%',  def:1,     pct:true},
   {key:'rorl',     label:'Rörlig avgift',        labelEn:'Variable Fee',            unit:'%',  def:0.65,  pct:true},
@@ -1688,36 +1673,23 @@ const SC_PARAMS = [
   {key:'annulAvtal',label:'Annullation avtal',     labelEn:'Lapse rate (policies)', unit:'%',  sid:'p-annul-avtal',int:false, pct:true},
   {key:'annul',     label:'Annullation premie',    labelEn:'Lapse rate (premium)',  unit:'%',  sid:'p-annul',      int:false, pct:true},
 ];
-const SC_DEFAULT_NAMES = ['Scenario A','Scenario B','Scenario C'];
-let scenCVisible = true; // Scenario C can be toggled
-let scData = [null,null,null];
+const SC_DEFAULT_NAMES = ['A','B','C','D','E','F','G','H'].map(l => 'Scenario ' + l);
+let scSlots = [0,1,2]; // active scenario slots (a slot keeps its id, colour and values when others are removed)
+let scData = new Array(SC_MAX).fill(null);
 let scChartsBuilt = false;
 
-/* Build the three scenario columns */
-function scenBuildCols() {
-  const grid = document.getElementById('scen-grid');
-  if (!grid) return;
-  if (grid.children.length) { scenSyncFromSidebar(false); return; }
-  SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
-  for (let i = 0; i < 3; i++) {
-    if (i === 2 && !scenCVisible) {
-      // Show add-placeholder instead
-      const ph = document.createElement('div');
-      ph.className = 'scen-add-col';
-      ph.id = 'scen-add-ph';
-      ph.onclick = scenAddC;
-      ph.innerHTML = `<div class="scen-add-lbl"><span>+</span>${LANG==='sv'?'Lägg till Scenario C':'Add Scenario C'}</div>`;
-      grid.appendChild(ph);
-      continue;
-    }
-    const col = document.createElement('div');
-    col.className = `scen-col sc${i}`;
-    col.innerHTML = `
+/* Build one scenario column for slot i */
+function scenMakeCol(i) {
+  const col = document.createElement('div');
+  col.className = `scen-col sc${i}`;
+  col.id = `scen-col-${i}`;
+  col.style.setProperty('--scc', SC_COLORS[i]);
+  col.innerHTML = `
       <div class="scen-hd sc${i}">
         <div class="scen-dot" style="background:${SC_COLORS[i]}"></div>
         <input class="scen-name-inp" id="sc-name-${i}" value="${SC_DEFAULT_NAMES[i]}" onchange="scenRecalc()">
         <button class="scen-rst" onclick="scenReset(${i})" title="${LANG==='sv'?'Återställ till default':'Reset to default'}">↺</button>
-        ${i===2?`<button class="scen-del" onclick="scenDeleteC()" title="${LANG==='sv'?'Ta bort Scenario C':'Remove Scenario C'}">×</button>`:''}
+        <button class="scen-del" onclick="scenDelete(${i})" title="${LANG==='sv'?'Ta bort scenario':'Remove scenario'}">×</button>
       </div>
       <div class="scen-params">
         <div class="scen-params-ttl">${LANG==='sv'?'Kontrakt &amp; Duration':'Contract &amp; Duration'}</div>
@@ -1736,24 +1708,62 @@ function scenBuildCols() {
       <div class="scen-kpi-grid" id="sc-kpi-${i}">
         <div class="scen-kpi-cell" style="grid-column:1/-1;color:var(--mid);font-size:11px;padding:8px 12px">${LANG==='sv'?'Beräknar…':'Calculating…'}</div>
       </div>`;
-    grid.appendChild(col);
-  }
+  return col;
 }
 
-function scenDeleteC() {
-  scenCVisible = false;
-  scData[2] = null;
-  scChartsBuilt = false;
+/* "+ Add scenario" placeholder, shown while fewer than SC_MAX scenarios exist */
+function scenAddPlaceholder() {
+  const ph = document.createElement('div');
+  ph.className = 'scen-add-col';
+  ph.id = 'scen-add-ph';
+  ph.onclick = scenAdd;
+  ph.innerHTML = `<div class="scen-add-lbl"><span>+</span>${LANG==='sv'?'Lägg till scenario':'Add scenario'}</div>`;
+  return ph;
+}
+
+/* Keep the × buttons and the add placeholder in step with the number of scenarios */
+function scenRefreshGrid() {
   const grid = document.getElementById('scen-grid');
-  if (grid) grid.innerHTML = '';
-  scenBuildCols();
+  if (!grid) return;
+  grid.querySelectorAll('.scen-del').forEach(b => { b.disabled = scSlots.length <= 2; });
+  let ph = document.getElementById('scen-add-ph');
+  if (scSlots.length >= SC_MAX) { if (ph) ph.remove(); }
+  else if (!ph) grid.appendChild(scenAddPlaceholder());
+}
+
+/* Build the scenario columns */
+function scenBuildCols() {
+  const grid = document.getElementById('scen-grid');
+  if (!grid) return;
+  if (grid.children.length) { scenSyncFromSidebar(false); return; }
+  SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
+  scSlots.forEach(i => grid.appendChild(scenMakeCol(i)));
+  scenRefreshGrid();
+}
+
+function scenDelete(i) {
+  if (scSlots.length <= 2) return;
+  scSlots = scSlots.filter(s => s !== i);
+  scData[i] = null;
+  const col = document.getElementById(`scen-col-${i}`);
+  if (col) col.remove();
+  scenRefreshGrid();
   scenRecalc();
 }
-function scenAddC() {
-  scenCVisible = true;
+function scenAdd() {
+  if (scSlots.length >= SC_MAX) return;
+  const i = [...Array(SC_MAX).keys()].find(k => !scSlots.includes(k));
   const grid = document.getElementById('scen-grid');
-  if (grid) grid.innerHTML = '';
-  scenBuildCols();
+  if (!grid) return;
+  SC_OVERRIDE.forEach(ov => { ov.def = scenSidVal(scenOvSid(ov)); });
+  scSlots.push(i);
+  scSlots.sort((x, y) => x - y);
+  const ph = document.getElementById('scen-add-ph');
+  const col = scenMakeCol(i);
+  // keep columns in slot order, placeholder last
+  const next = scSlots.slice(scSlots.indexOf(i) + 1).map(k => document.getElementById(`scen-col-${k}`)).find(Boolean);
+  grid.insertBefore(col, next || ph || null);
+  scenRefreshGrid();
   scenRecalc();
 }
 
@@ -1807,17 +1817,15 @@ function scenGetName(si) {
 
 /* Main recalc for scenario tab */
 function scenRecalc() {
-  const nScen = scenCVisible ? 3 : 2;
-  for (let i = 0; i < nScen; i++) scData[i] = compute(scenGetParams(i));
-  if (!scenCVisible) scData[2] = null;
+  scData = new Array(SC_MAX).fill(null);
+  scSlots.forEach(i => { scData[i] = compute(scenGetParams(i)); });
   scenUpdateCards();
   scenUpdateTables();
   if (scChartsBuilt) scenUpdateCharts();
 }
 
 function scenUpdateCards() {
-  const nScen = scenCVisible ? 3 : 2;
-  for (let i = 0; i < nScen; i++) {
+  for (const i of scSlots) {
     if (!scData[i]) continue;
     const d = scData[i], p = scenGetParams(i);
     const pct = d.cumNPV / (p.antal * p.premie);
@@ -1849,12 +1857,18 @@ function scenUpdateCards() {
       <div class="scen-kpi-cell"><div class="scen-kpi-lbl">${LANG==='sv'?'Total Flytt/Startkapital':'Total Transfer/Start Cap.'}</div>
         <div class="scen-kpi-val pos">${scenFmt(Math.round(p.flytt*p.antal))} kr</div>
         <div class="scen-kpi-sub">${p.antal} × ${scenFmt(p.flytt)} kr</div></div>`;
-    const nm = scenGetName(i);
-    ['sc-th'+i,'sc-th'+i+'b','sc-th'+i+'c'].forEach(id=>{
-      const h=document.getElementById(id);
-      if(h) { h.innerHTML=`<span style="color:${SC_COLORS[i]}">●</span> ${nm}`; h.style.display=''; }
-    });
   }
+}
+
+/* Column headers of the three summary tables (one per active scenario) */
+function scenRenderHeads() {
+  const first = {kpi:'Nyckeltal', rev:'Post', margin:'Mått'};
+  Object.keys(first).forEach(k => {
+    const tr = document.getElementById('sc-thr-' + k);
+    if (!tr) return;
+    tr.innerHTML = `<th>${first[k]}</th>` + scSlots.map(i =>
+      `<th class="scr"><span style="color:${SC_COLORS[i]}">●</span> ${scenGetName(i).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</th>`).join('');
+  });
 }
 
 /* Formatting helpers (pure values, not element IDs) */
@@ -1881,16 +1895,12 @@ function scenRow(label, vals, ffn, hi=true) {
   return `<tr><td class="sclbl">${label}</td>${vals.map((v,i)=>
     v==null ? '' :
     `<td class="scr scc${i} ${bws[ci++]==='best'?'sc-win':''}">${ffn(v)}${scenBadge(bws[ci-1])}</td>`).join('')}</tr>`;
-  // Hide/show C column headers in summary tables
-  ['sc-th2','sc-th2b','sc-th2c'].forEach(id=>{
-    const h=document.getElementById(id);
-    if(h) h.style.display = scenCVisible?'':'none';
-  });
 }
 
 function scenUpdateTables() {
-  const params = [0,1,2].map(i => scenCVisible||i<2 ? scenGetParams(i) : null);
-  // Wrap scData access to return null for hidden scenario C
+  scenRenderHeads();
+  const params = scData.map((_, i) => scSlots.includes(i) ? scenGetParams(i) : null);
+  // Wrap scData access to return null for unused scenario slots
   const sd = (i, fn) => (scData[i] ? fn(scData[i]) : null);
   // totQ/totR etc — sum from rows
   const totals = scData.map(d => d ? {
@@ -1941,7 +1951,7 @@ function scDc(k) { if(scCharts[k]){scCharts[k].destroy();scCharts[k]=null;} }
 function scenMakeLeg(containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = [0,1,2].filter(i=>!!scData[i]).map(i=>`<div class="scen-leg-item">
+  el.innerHTML = scSlots.filter(i=>!!scData[i]).map(i=>`<div class="scen-leg-item">
     <div class="scen-leg-dot" style="background:${SC_COLORS[i]}"></div>
     <span>${scenGetName(i)}</span></div>`).join('');
 }
@@ -2040,7 +2050,7 @@ function scenExportExcel() {
 
   // Sheet 1: Inställningar
   const ws1 = XLSX.utils.aoa_to_sheet(settingsRows);
-  ws1['!cols'] = [{wch:32},{wch:5},{wch:18},{wch:18},{wch:18}];
+  ws1['!cols'] = [{wch:32},{wch:5},...scSlots.map(()=>({wch:18}))];
   // Bold header rows
   settingsRows.forEach((row, ri) => {
     if (row.length === 1 || (ri === 0)) {
@@ -2054,7 +2064,7 @@ function scenExportExcel() {
 
   // Sheet 2: Sammanfattning
   const ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
-  ws2['!cols'] = [{wch:32},{wch:18},{wch:18},{wch:18}];
+  ws2['!cols'] = [{wch:32},...scSlots.map(()=>({wch:18}))];
   XLSX.utils.book_append_sheet(wb, ws2, 'Sammanfattning');
 
   // Sheet 3: Kassaflöde per år
@@ -2066,9 +2076,10 @@ function scenExportExcel() {
 }
 
 function scenBuildExportData(full=false) {
-  const names = [0,1,2].map(i => scenGetName(i));
+  const names = scSlots.map(i => scenGetName(i));
   const shared = getP();
-  const params = [0,1,2].map(i => scenGetParams(i));
+  const sdx = scSlots.map(i => scData[i]);
+  const params = scSlots.map(i => scenGetParams(i));
 
   /* ── INSTÄLLNINGAR ── */
   const settingsRows = [];
@@ -2101,14 +2112,14 @@ function scenBuildExportData(full=false) {
     ['Utbetalningstid',     'år', shared.uttid],
   ];
   sharedParams.forEach(([lbl, unit, val]) => {
-    settingsRows.push([lbl, unit, val, val, val]);
+    settingsRows.push([lbl, unit, ...names.map(() => val)]);
   });
 
   // Per-scenario contract/duration
   settingsRows.push([]);
   settingsRows.push([LANG==='sv'?'— Kontrakt & Duration —':'— Contract & Duration —']);
   SC_PARAMS.forEach(sp => {
-    const vals = [0,1,2].map(i => {
+    const vals = scSlots.map(i => {
       const el = document.getElementById(`scpv-${i}-${sp.key}`);
       return el ? (parseFloat((el.value||'0').replace(',','.')) || 0) : 0;
     });
@@ -2118,7 +2129,7 @@ function scenBuildExportData(full=false) {
   settingsRows.push([]);
   settingsRows.push([LANG==='sv'?'— Scenariospecifika avgifter & kostnader —':'— Scenario-specific fees & costs —']);
   SC_OVERRIDE.forEach(ov => {
-    const vals = [0,1,2].map(i => {
+    const vals = scSlots.map(i => {
       const el = document.getElementById(`scov-${i}-${ov.key}`);
       return el ? (parseFloat((el.value||'0').replace(',','.')) || 0) : ov.def;
     });
@@ -2135,17 +2146,17 @@ function scenBuildExportData(full=false) {
 
   // KPIs
   summaryRows.push(['— Nyckeltal —']);
-  summaryRows.push(['Nuvärde totalt (kr)',   ...scData.map(d => d?Math.round(d.cumNPV):0)]);
-  summaryRows.push(['NV per kontrakt (kr)',  ...scData.map((d,i) => d&&params[i]?Math.round(d.cumNPV/params[i].antal):0)]);
-  summaryRows.push(['NV % av premie',        ...scData.map((d,i) => d&&params[i]?p2n(d.cumNPV/(params[i].antal*params[i].premie)*100):0)]);
-  summaryRows.push(['Resultat totalt (kr)',  ...scData.map(d => d?Math.round(d.cumRes):0)]);
-  summaryRows.push(['Intäkter totalt (kr)',  ...scData.map(d => d?Math.round(d.totIntakt):0)]);
-  summaryRows.push(['Kostnader totalt (kr)', ...scData.map(d => d?Math.round(d.totKostn):0)]);
+  summaryRows.push(['Nuvärde totalt (kr)',   ...sdx.map(d => d?Math.round(d.cumNPV):0)]);
+  summaryRows.push(['NV per kontrakt (kr)',  ...sdx.map((d,i) => d&&params[i]?Math.round(d.cumNPV/params[i].antal):0)]);
+  summaryRows.push(['NV % av premie',        ...sdx.map((d,i) => d&&params[i]?p2n(d.cumNPV/(params[i].antal*params[i].premie)*100):0)]);
+  summaryRows.push(['Resultat totalt (kr)',  ...sdx.map(d => d?Math.round(d.cumRes):0)]);
+  summaryRows.push(['Intäkter totalt (kr)',  ...sdx.map(d => d?Math.round(d.totIntakt):0)]);
+  summaryRows.push(['Kostnader totalt (kr)', ...sdx.map(d => d?Math.round(d.totKostn):0)]);
 
   // Revenue breakdown
   summaryRows.push([]);
   summaryRows.push(['— Intäkter & Kostnader —']);
-  const totals = scData.map((d,i) => d ? ({
+  const totals = sdx.map((d,i) => d ? ({
     totQ: d.rows.reduce((s,r)=>s+(r.Q||0),0),
     totR: d.rows.reduce((s,r)=>s+(r.R||0),0),
     totS: d.rows.reduce((s,r)=>s+(r.S||0),0),
@@ -2157,26 +2168,26 @@ function scenBuildExportData(full=false) {
   summaryRows.push(['Fast avgift (tot, kr)',     ...totals.map(t => t?Math.round(t.totS):0)]);
   summaryRows.push(['Premieavgift (tot, kr)',    ...totals.map(t => t?Math.round(t.totT):0)]);
   summaryRows.push(['Adm. & OH kost (tot, kr)', ...totals.map(t => t?Math.round(t.totV):0)]);
-  summaryRows.push(['Premie totalt (kr)',        ...scData.map(d => d?Math.round(d.totPrem):0)]);
-  summaryRows.push(['Upfrontkostnad (kr)',       ...scData.map(d => d?Math.round(d.upfrontKost):0)]);
+  summaryRows.push(['Premie totalt (kr)',        ...sdx.map(d => d?Math.round(d.totPrem):0)]);
+  summaryRows.push(['Upfrontkostnad (kr)',       ...sdx.map(d => d?Math.round(d.upfrontKost):0)]);
 
   // Margins
   summaryRows.push([]);
   summaryRows.push(['— Marginalanalys —']);
-  summaryRows.push(['NV-marginal % (NV/Intäkter)',  ...scData.map(d => d&&d.totIntakt>0?p2n(d.cumNPV/d.totIntakt*100):0)]);
-  summaryRows.push(['Resultatmarginal %',           ...scData.map(d => d&&d.totIntakt>0 ? p2n(d.cumRes/d.totIntakt*100) : 0)]);
-  summaryRows.push(['Fondavgift % av intäkter',     ...totals.map((t,i) => t&&scData[i]&&scData[i].totIntakt>0 ? p2n(t.totQ/scData[i].totIntakt*100) : 0)]);
-  summaryRows.push(['Rörlig % av intäkter',         ...totals.map((t,i) => t&&scData[i]&&scData[i].totIntakt>0 ? p2n(t.totR/scData[i].totIntakt*100) : 0)]);
-  summaryRows.push(['Fast avgift % av intäkter',    ...totals.map((t,i) => t&&scData[i]&&scData[i].totIntakt>0 ? p2n(t.totS/scData[i].totIntakt*100) : 0)]);
-  summaryRows.push(['Adm. & OH % av intäkter',      ...totals.map((t,i) => t&&scData[i]&&scData[i].totIntakt>0 ? p2n(Math.abs(t.totV)/scData[i].totIntakt*100) : 0)]);
+  summaryRows.push(['NV-marginal % (NV/Intäkter)',  ...sdx.map(d => d&&d.totIntakt>0?p2n(d.cumNPV/d.totIntakt*100):0)]);
+  summaryRows.push(['Resultatmarginal %',           ...sdx.map(d => d&&d.totIntakt>0 ? p2n(d.cumRes/d.totIntakt*100) : 0)]);
+  summaryRows.push(['Fondavgift % av intäkter',     ...totals.map((t,i) => t&&sdx[i]&&sdx[i].totIntakt>0 ? p2n(t.totQ/sdx[i].totIntakt*100) : 0)]);
+  summaryRows.push(['Rörlig % av intäkter',         ...totals.map((t,i) => t&&sdx[i]&&sdx[i].totIntakt>0 ? p2n(t.totR/sdx[i].totIntakt*100) : 0)]);
+  summaryRows.push(['Fast avgift % av intäkter',    ...totals.map((t,i) => t&&sdx[i]&&sdx[i].totIntakt>0 ? p2n(t.totS/sdx[i].totIntakt*100) : 0)]);
+  summaryRows.push(['Adm. & OH % av intäkter',      ...totals.map((t,i) => t&&sdx[i]&&sdx[i].totIntakt>0 ? p2n(Math.abs(t.totV)/sdx[i].totIntakt*100) : 0)]);
 
   /* ── KASSAFLÖDE per år (long format) ── */
   const cashflowRows = [];
   cashflowRows.push(['År', 'Scenario', 'Intäkter', 'Kostnader', 'Resultat', 'Nuvärde', 'Ack. NV', 'Ack. Resultat']);
-  for (let i = 0; i < 3; i++) {
+  for (const i of scSlots) {
     if (!scData[i]) continue;
     scData[i].rows.forEach(r => {
-      cashflowRows.push([r.y, names[i], Math.round(r.intakt), Math.round(r.kostn),
+      cashflowRows.push([r.y, scenGetName(i), Math.round(r.intakt), Math.round(r.kostn),
         Math.round(r.result), Math.round(r.npv), Math.round(r.cumNPV), Math.round(r.cumRes)]);
     });
   }
