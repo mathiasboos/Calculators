@@ -1246,7 +1246,7 @@ function resetDefaults() {
   document.getElementById('sel-bet').value=DEF.bet;
   document.getElementById('sel-typ').value=DEF.typ;
   document.getElementById('sel-skatt').value=DEF.skatt;
-  [['p-premie',DEF.premie],['p-antal',DEF.antal],['p-vxt',DEF.vxt],['p-xprem',DEF.xprem],
+  [['p-premie',DEF.premie],['p-antal',DEF.antal],['p-flytt',DEF.flytt],['p-flytt-ers',DEF.flytt_ers],['p-vxt',DEF.vxt],['p-xprem',DEF.xprem],
    ['p-annul-avtal',DEF.annulAvtal],['p-annul',DEF.annul],['p-kap',DEF.kap],['p-infl',DEF.infl],
    ['p-diskint',DEF.diskint],['p-diskkost',DEF.diskkost],['p-pron',DEF.pron],
    ['p-fond',DEF.fond],['p-rorl',DEF.rorl],['p-fast',DEF.fast],
@@ -1258,6 +1258,7 @@ function resetDefaults() {
   document.getElementById('p-upfrontnv').checked=DEF.upfrontnv;
   document.getElementById('p-pretid').disabled=false;
   document.getElementById('premdur-lock').style.display='none';
+  syncTotalVol(); syncTotalFlytt();
   updateProductUI(); applyAvkSkatt(); recalc();
 }
 
