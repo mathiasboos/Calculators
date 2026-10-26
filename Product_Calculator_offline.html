@@ -1491,6 +1491,8 @@ function recalc() {
 
 // Init — wait for full page load so async Chart.js is ready
 function init(){
+  document.getElementById('sel-preset').value='UL L T ES';
+  applyPreset();
   updateProductUI();
   applyAvkSkatt();
   applyLang();
