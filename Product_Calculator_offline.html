@@ -672,6 +672,11 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
       <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.res">Resultat — total</div><div class="sum-val" id="plan-k-res">—</div><div class="sum-sub" id="plan-k-res-sub"></div></div>
       <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.xfer">Kapital som flyttas ut</div><div class="sum-val" id="plan-k-xfer">—</div><div class="sum-sub" id="plan-k-xfer-sub"></div></div>
     </div>
+    <div class="three-col" style="margin-bottom:16px">
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.pct">Nuvärde (% av premie)</div><div class="sum-val" id="plan-k-pct">—</div><div class="sum-sub" data-i18n="plan.k.pct.sub">Nuvärde ÷ total premievolym</div></div>
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.vol">Total premievolym</div><div class="sum-val" id="plan-k-vol">—</div><div class="sum-sub" id="plan-k-vol-sub"></div></div>
+      <div class="sum-card"><div class="sum-lbl" id="plan-k-stock-lbl">Kvarvarande kontrakt</div><div class="sum-val" id="plan-k-stock">—</div><div class="sum-sub" data-i18n="plan.k.stock.sub">Av ursprunglig portfölj</div></div>
+    </div>
     <div class="two-col">
       <div class="chart-container">
         <div class="chart-title" data-i18n="plan.c1.title">Resultat per år</div>
@@ -812,7 +817,9 @@ const T = {
     'p.pretid.lock':'(Engång=1)','p.idxkost':'Index adm. kostnad','p.upfrontnv':'Upfront i NV cashflow',
     'tab.cashflow':'Kassaflöde','tab.fond':'Fondvärde','tab.arsr':'Årsresultat',
     'tab.npv':'Nuvärde','tab.scenario':'Scenario','tab.tabell':'Datatabell',
-    'tab.plan':'Exit Plan','plan.title':'Exit Plan — kund som lämnar efter N år','plan.desc':'Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.',
+    'tab.plan':'Exit Plan',
+    'plan.k.pct':'Nuvärde (% av premie)','plan.k.pct.sub':'Nuvärde ÷ total premievolym','plan.k.vol':'Total premievolym','plan.k.vol.sub':'Premie år 1–{n}','plan.k.stock':'Kvarvarande kontrakt år {n}','plan.k.stock.sub':'Av ursprunglig portfölj, efter överflytt',
+    'plan.title':'Exit Plan — kund som lämnar efter N år','plan.desc':'Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.',
     'plan.exit':'Exit efter','plan.custom':'Eget','plan.years':'år','plan.share':'Flyttas ut','plan.annul':'Annullation före exit',
     'plan.k.npv':'Nuvärde — total','plan.k.res':'Resultat — total','plan.k.xfer':'Kapital som flyttas ut',
     'plan.k.npv.sub':'Före exit {a} · efter exit {b}','plan.k.res.sub':'Före exit {a} · efter exit {b}','plan.k.xfer.sub':'{p} % av {c} kr · {r} kr stannar kvar',
@@ -883,7 +890,9 @@ const T = {
     'p.pretid.lock':'(Single=1)','p.idxkost':'Index Admin. Cost','p.upfrontnv':'Upfront in PV Cashflow',
     'tab.cashflow':'Cash Flow','tab.fond':'Fund Value','tab.arsr':'Annual Results',
     'tab.npv':'Present Value','tab.scenario':'Scenario','tab.tabell':'Data Table',
-    'tab.plan':'Exit Plan','plan.title':'Exit Plan — customer leaves after N years','plan.desc':'Premium inflow with no cancellation until the exit year. At exit all premium is cancelled (100%) and the chosen share of the capital moves to a new provider. After that revenue is only fees on the remaining capital. Fees and costs come from the left panel.',
+    'tab.plan':'Exit Plan',
+    'plan.k.pct':'Present value (% of premium)','plan.k.pct.sub':'Present value ÷ total premium volume','plan.k.vol':'Total premium volume','plan.k.vol.sub':'Premium years 1–{n}','plan.k.stock':'Remaining policies year {n}','plan.k.stock.sub':'Of original portfolio, after transfer',
+    'plan.title':'Exit Plan — customer leaves after N years','plan.desc':'Premium inflow with no cancellation until the exit year. At exit all premium is cancelled (100%) and the chosen share of the capital moves to a new provider. After that revenue is only fees on the remaining capital. Fees and costs come from the left panel.',
     'plan.exit':'Exit after','plan.custom':'Custom','plan.years':'yrs','plan.share':'Transferred out','plan.annul':'Cancellation before exit',
     'plan.k.npv':'Present value — total','plan.k.res':'Result — total','plan.k.xfer':'Capital transferred out',
     'plan.k.npv.sub':'Before exit {a} · after exit {b}','plan.k.res.sub':'Before exit {a} · after exit {b}','plan.k.xfer.sub':'{p}% of {c} kr · {r} kr stays',
@@ -1363,6 +1372,14 @@ function planRecalc() {
   document.getElementById('plan-k-xfer').textContent=kr(d.totXfer);
   document.getElementById('plan-k-xfer-sub').textContent=t('plan.k.xfer.sub')
     .replace('{p}',fmt(noExit?0:share*100,share*100%1?1:0)).replace('{c}',fmt(Math.round(cap))).replace('{r}',fmt(Math.round(noExit?cap:cap-d.totXfer)));
+
+  const vol=d.totPrem, stockRow=rows.find(r=>r.y===Math.min(ex,rows.length));
+  const stockLeft=stockRow?(stockRow.B*(noExit?1:1-share))/p.antal:0;
+  document.getElementById('plan-k-pct').textContent=vol>0?fmtPct(d.cumNPV/vol,2):'—';
+  document.getElementById('plan-k-vol').textContent=kr(vol);
+  document.getElementById('plan-k-vol-sub').textContent=t('plan.k.vol.sub').replace('{n}',Math.min(p.pretid,rows.length));
+  document.getElementById('plan-k-stock-lbl').textContent=t('plan.k.stock').replace('{n}',Math.min(ex,rows.length));
+  document.getElementById('plan-k-stock').textContent=fmtPct(stockLeft,1);
 
   // Table
   const cols=t('plan.cols').split(',');
