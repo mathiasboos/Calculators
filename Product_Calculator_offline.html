@@ -655,9 +655,12 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
           <input class="param-input" id="plan-exit-custom" type="text" inputmode="decimal" value="7" style="display:none;width:46px" onchange="planRecalc()">
           <span class="param-unit" data-i18n="plan.years">år</span></label>
         <label><span data-i18n="plan.share">Flyttas ut</span>
-          <select class="pp-sel" id="plan-share" onchange="planRecalc()">
+          <select class="pp-sel" id="plan-share" onchange="planShareChange()">
             <option value="25">25 %</option><option value="50">50 %</option><option value="75">75 %</option><option value="100" selected>100 %</option>
-          </select></label>
+            <option value="custom" data-i18n-opt="plan.custom">Eget</option>
+          </select>
+          <input class="param-input" id="plan-share-custom" type="text" inputmode="decimal" value="60" style="display:none;width:46px" onchange="planRecalc()">
+          <span class="param-unit" id="plan-share-pct" style="display:none">%</span></label>
         <label><span data-i18n="plan.annul">Annullation före exit</span>
           <input class="param-input" id="plan-annul" type="text" inputmode="decimal" value="0" style="width:46px" onchange="planRecalc()">
           <span class="param-unit">%</span></label>
@@ -1310,6 +1313,17 @@ function planExitYear(p) {
   const n=Math.round(sel==='custom'?vParse('plan-exit-custom'):+sel);
   return Math.max(1,n);
 }
+function planShare() {
+  const sel=document.getElementById('plan-share').value;
+  const v=sel==='custom'?vParse('plan-share-custom'):+sel;
+  return Math.min(100,Math.max(0,v))/100;
+}
+function planShareChange() {
+  const c=document.getElementById('plan-share').value==='custom';
+  document.getElementById('plan-share-custom').style.display=c?'':'none';
+  document.getElementById('plan-share-pct').style.display=c?'':'none';
+  planRecalc();
+}
 function planExitChange() {
   document.getElementById('plan-exit-custom').style.display=document.getElementById('plan-exit').value==='custom'?'':'none';
   planRecalc();
@@ -1326,11 +1340,10 @@ function planParams(exitYear, share) {
   return p;
 }
 function planRun(exitYear, share) { return compute(planParams(exitYear,share)); }
-const PLAN_SHARES=[0.25,0.5,0.75,1];
 let planCharts={};
 function planRecalc() {
   const base=getP();
-  const ex=planExitYear(), share=+document.getElementById('plan-share').value/100;
+  const ex=planExitYear(), share=planShare();
   const p=planParams(ex,share), d=compute(p), rows=d.rows;
   const noExit=!p.exitYear;
   const kr=n=>fmt(Math.round(n))+t('chart.kr');
@@ -1349,7 +1362,7 @@ function planRecalc() {
   const exRow=rows.find(r=>r.y===ex), cap=exRow?exRow.O:0;
   document.getElementById('plan-k-xfer').textContent=kr(d.totXfer);
   document.getElementById('plan-k-xfer-sub').textContent=t('plan.k.xfer.sub')
-    .replace('{p}',fmt(noExit?0:share*100)).replace('{c}',fmt(Math.round(cap))).replace('{r}',fmt(Math.round(noExit?cap:cap-d.totXfer)));
+    .replace('{p}',fmt(noExit?0:share*100,share*100%1?1:0)).replace('{c}',fmt(Math.round(cap))).replace('{r}',fmt(Math.round(noExit?cap:cap-d.totXfer)));
 
   // Table
   const cols=t('plan.cols').split(',');
@@ -1384,14 +1397,17 @@ function planRecalc() {
     scales:{x:{ticks:{...TICK,autoSkip:true,maxTicksLimit:20},grid:{display:false}},y:{ticks:{...TICK,callback:TK}}}}});
 
   // Comparison matrices: exit years x transfer share
+  const PLAN_SHARES=[0.25,0.5,0.75,1];
+  if(!PLAN_SHARES.some(x=>Math.abs(x-share)<1e-9)) PLAN_SHARES.push(share);
+  PLAN_SHARES.sort((a,b)=>a-b);
   const exits=[3,5,10]; if(!exits.includes(ex)) exits.push(ex);
   exits.sort((a,b)=>a-b);
   const calc=exits.map(e=>PLAN_SHARES.map(s=>{const r=planRun(e,s);return{npv:r.cumNPV,res:r.cumRes};}));
   const build=(id,key)=>{
     const best=PLAN_SHARES.map((_,j)=>Math.max(...calc.map(row=>row[j][key])));
-    document.getElementById(id).innerHTML=`<tr><th>${t('plan.th.exityr')}</th>${PLAN_SHARES.map(s=>`<th class="scr">${fmt(s*100)} %</th>`).join('')}</tr>`+
+    document.getElementById(id).innerHTML=`<tr><th>${t('plan.th.exityr')}</th>${PLAN_SHARES.map(s=>`<th class="scr">${fmt(s*100,s*100%1?1:0)} %</th>`).join('')}</tr>`+
       exits.map((e,i)=>`<tr><td class="sclbl">${e} ${t('plan.years')}</td>${PLAN_SHARES.map((s,j)=>{
-        const c=[];if(e===ex&&s===share)c.push('plan-sel');if(calc[i][j][key]===best[j]&&exits.length>1)c.push('plan-best');
+        const c=[];if(e===ex&&Math.abs(s-share)<1e-9)c.push('plan-sel');if(calc[i][j][key]===best[j]&&exits.length>1)c.push('plan-best');
         return `<td class="scr ${c.join(' ')}">${kr(calc[i][j][key])}</td>`;}).join('')}</tr>`).join('');
   };
   build('plan-matrix-npv','npv'); build('plan-matrix-res','res');
