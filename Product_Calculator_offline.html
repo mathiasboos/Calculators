@@ -451,7 +451,7 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
     <div class="tab" onclick="switchTab('arsr')"     data-i18n="tab.arsr">Årsresultat</div>
     <div class="tab" onclick="switchTab('npv')"      data-i18n="tab.npv">Nuvärde</div>
     <div class="tab" onclick="switchTab('scenario')" data-i18n="tab.scenario">Scenario</div>
-    <div class="tab" onclick="switchTab('plan')"     data-i18n="tab.plan">Plan</div>
+    <div class="tab" onclick="switchTab('plan')"     data-i18n="tab.plan">Exit Plan</div>
     <div class="tab" onclick="switchTab('tabell')"   data-i18n="tab.tabell">Datatabell</div>
   </div>
 
@@ -644,7 +644,7 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
   <!-- PLAN -->
   <div class="tab-panel" id="tab-plan">
     <div class="chart-container">
-      <div class="chart-title" data-i18n="plan.title">Plan — kund som lämnar efter N år</div>
+      <div class="chart-title" data-i18n="plan.title">Exit Plan — kund som lämnar efter N år</div>
       <div class="chart-sub" data-i18n="plan.desc">Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.</div>
       <div class="plan-ctl">
         <label><span data-i18n="plan.exit">Exit efter</span>
@@ -812,7 +812,7 @@ const T = {
     'p.pretid.lock':'(Engång=1)','p.idxkost':'Index adm. kostnad','p.upfrontnv':'Upfront i NV cashflow',
     'tab.cashflow':'Kassaflöde','tab.fond':'Fondvärde','tab.arsr':'Årsresultat',
     'tab.npv':'Nuvärde','tab.scenario':'Scenario','tab.tabell':'Datatabell',
-    'tab.plan':'Plan','plan.title':'Plan — kund som lämnar efter N år','plan.desc':'Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.',
+    'tab.plan':'Exit Plan','plan.title':'Exit Plan — kund som lämnar efter N år','plan.desc':'Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.',
     'plan.exit':'Exit efter','plan.custom':'Eget','plan.years':'år','plan.share':'Flyttas ut','plan.annul':'Annullation före exit',
     'plan.k.npv':'Nuvärde — total','plan.k.res':'Resultat — total','plan.k.xfer':'Kapital som flyttas ut',
     'plan.k.npv.sub':'Före exit {a} · efter exit {b}','plan.k.res.sub':'Före exit {a} · efter exit {b}','plan.k.xfer.sub':'{p} % av {c} kr · {r} kr stannar kvar',
@@ -883,7 +883,7 @@ const T = {
     'p.pretid.lock':'(Single=1)','p.idxkost':'Index Admin. Cost','p.upfrontnv':'Upfront in PV Cashflow',
     'tab.cashflow':'Cash Flow','tab.fond':'Fund Value','tab.arsr':'Annual Results',
     'tab.npv':'Present Value','tab.scenario':'Scenario','tab.tabell':'Data Table',
-    'tab.plan':'Plan','plan.title':'Plan — customer leaves after N years','plan.desc':'Premium inflow with no cancellation until the exit year. At exit all premium is cancelled (100%) and the chosen share of the capital moves to a new provider. After that revenue is only fees on the remaining capital. Fees and costs come from the left panel.',
+    'tab.plan':'Exit Plan','plan.title':'Exit Plan — customer leaves after N years','plan.desc':'Premium inflow with no cancellation until the exit year. At exit all premium is cancelled (100%) and the chosen share of the capital moves to a new provider. After that revenue is only fees on the remaining capital. Fees and costs come from the left panel.',
     'plan.exit':'Exit after','plan.custom':'Custom','plan.years':'yrs','plan.share':'Transferred out','plan.annul':'Cancellation before exit',
     'plan.k.npv':'Present value — total','plan.k.res':'Result — total','plan.k.xfer':'Capital transferred out',
     'plan.k.npv.sub':'Before exit {a} · after exit {b}','plan.k.res.sub':'Before exit {a} · after exit {b}','plan.k.xfer.sub':'{p}% of {c} kr · {r} kr stays',
