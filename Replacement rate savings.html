@@ -186,7 +186,14 @@
     border-radius: var(--radius-sm); outline: none;
     transition: border-color .2s;
   }
-  input:focus { border-color: var(--teal-bright); background: #fff; }
+  select {
+    width: 100%; padding: 9px 12px;
+    font-family: 'Menlo', 'Consolas', 'SF Mono', monospace;
+    font-size: 14px; font-weight: 500; color: var(--navy);
+    background: var(--sand); border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); outline: none;
+  }
+  select:focus, input:focus { border-color: var(--teal-bright); background: #fff; }
   .input-hint { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
   .section-label {
@@ -318,6 +325,12 @@
             </div>
           </div>
 
+          <div class="field">
+            <label for="kommun_sel" data-t="label_kommun"></label>
+            <select id="kommun_sel" onchange="recalc()"></select>
+            <span class="input-hint" data-t="hint_kommun"></span>
+          </div>
+
           <div class="section-label" data-t="section_horizon"></div>
 
           <div class="field-row">
@@ -338,10 +351,17 @@
             <input type="text" id="existing_capital" value="150 000" oninput="recalc()">
           </div>
 
-          <div class="field">
-            <label data-t="label_return"></label>
-            <input type="text" id="return_rate" value="2,1" oninput="recalc()">
-            <span class="input-hint" data-t="hint_return"></span>
+          <div class="field-row">
+            <div class="field">
+              <label data-t="label_return"></label>
+              <input type="text" id="return_rate" value="1,7" oninput="recalc()">
+              <span class="input-hint" data-t="hint_return"></span>
+            </div>
+            <div class="field">
+              <label data-t="label_inflation"></label>
+              <input type="text" id="inflation" value="0" oninput="recalc()">
+              <span class="input-hint" data-t="hint_inflation"></span>
+            </div>
           </div>
 
         </div>
@@ -466,8 +486,13 @@ const T = {
     section_capital:    'Kapital & avkastning',
     label_capital_net:  'Befintligt sparkapital (netto)',
     label_capital_gross:'Befintligt sparkapital (brutto)',
-    label_return:       'Avkastning % / år',
-    hint_return:        'Branschstandard 2,1 %',
+    label_kommun:       'Kommun',
+    hint_kommun:        'Kommunalskatt 2026 (SCB). Statlig skatt över skiktgränsen.',
+    kommun_avg:         'Genomsnitt (Typfallsmodellen) – 32,38 %',
+    label_return:       'Real avkastning % / år',
+    hint_return:        'Prognosstandard 1,7 % (efter avgifter)',
+    label_inflation:    'Årlig inflation %',
+    hint_inflation:     '0 % = fasta priser',
     results_title:      'Resultat',
     r_forecast_label:   'Prognostiserad\nårsinkomst',
     r_desired_label:    'Önskad\nårsinkomst',
@@ -480,7 +505,7 @@ const T = {
     td_lump:            'Engångsbetalning nu',
     badge_recommended:  'Rekommenderat',
     badge_alternative:  'Alternativ',
-    footnote:           'Avkastningsantagande baserat på branschstandard. Ränteintensitet beräknas som r / (1 − e<sup>−rn</sup>) för utbetalningsfas. Nettoinkomst beräknad med 33 % platt kommunalskatt.',
+    footnote:           'Beräkningen följer Pensionsmyndighetens Typfallsmodellen (källa: Pensionsmyndigheten): årligt uttag = kapital × (1 + real avkastning)<sup>n/2</sup> ÷ n över n utbetalningsår, och sparandet läggs in under året (halvårsvägd). Pensionsskatt enligt Typfallsmodellen: grundavdrag (under 66), kommunalskatt, begravningsavgift 0,26 %, statlig skatt 20 % över skiktgränsen 643 000 kr och 1 % allmän avgift (utan jobbskatteavdrag). Priser är fasta vid 0 % inflation; vid annan inflation är sparbeloppen nominella. Avkastningsskatt är inte medräknad.',
     chart_title:        'Sparkapitalets tillväxt',
     chart_tab_stacked:  'Samlat',
     chart_tab_line:     'Kurvor',
@@ -514,8 +539,13 @@ const T = {
     section_capital:    'Capital & return',
     label_capital_net:  'Existing savings capital (net)',
     label_capital_gross:'Existing savings capital (gross)',
-    label_return:       'Return % / year',
-    hint_return:        'Industry standard 2.1%',
+    label_kommun:       'Municipality',
+    hint_kommun:        'Municipal tax 2026 (SCB). State tax above the skiktgräns.',
+    kommun_avg:         'Average (Typfallsmodellen) – 32.38 %',
+    label_return:       'Real fund yield % / year',
+    hint_return:        'Forecast standard 1.7% (after fees)',
+    label_inflation:    'Annual inflation %',
+    hint_inflation:     '0% = constant prices',
     results_title:      'Results',
     r_forecast_label:   'Forecasted\nannual income',
     r_desired_label:    'Desired\nannual income',
@@ -528,7 +558,7 @@ const T = {
     td_lump:            'Lump sum today',
     badge_recommended:  'Recommended',
     badge_alternative:  'Alternative',
-    footnote:           'Return assumption based on industry standard. Force of interest calculated as r / (1 − e<sup>−rn</sup>) for payout phase. Net income calculated using 33% flat municipal tax rate.',
+    footnote:           'Calculation follows Pensionsmyndigheten\'s Typfallsmodellen (source: Pensionsmyndigheten): yearly payout = capital × (1 + real yield)<sup>n/2</sup> ÷ n over n payout years, and savings are added during the year (mid-year weighting). Pension tax as in Typfallsmodellen: grundavdrag (under 66), municipal tax, funeral fee 0.26%, 20% state tax above the skiktgräns of SEK 643,000 and the 1% public fee (no jobbskatteavdrag). Prices are constant at 0% inflation; at other inflation the savings amounts are nominal. Yield tax is not included.',
     chart_title:        'Portfolio growth over time',
     chart_tab_stacked:  'Stacked',
     chart_tab_line:     'Lines',
@@ -573,6 +603,7 @@ function applyLang() {
   document.getElementById('capital_label').textContent =
     mode === 'netto' ? t('label_capital_net') : t('label_capital_gross');
 
+  buildKommunSelect();
   // Rerender results (suffix /mån vs /mo)
   recalc();
 }
@@ -595,17 +626,56 @@ function fmt(n) {
 }
 function fmtKr(n) { return fmt(n) + ' kr'; }
 
-// ── Tax (33% flat kommunalskatt, matching Excel) ──
-function netIncome(gross) { return gross * (1 - 0.33); }
+// ── Pension income tax = Typfallsmodellen (Skatteregler 2026, Retirement_Planner.html pensionTax). Verify yearly. ──
+const PBB = 59200, IBB = 83400;
+const SKIKT = 643000;                 // statlig skatt-gräns (beskattningsbar inkomst)
+const STATE_RATE = 0.20;
+const BEGRAV_AVG = 0.0026;            // begravningsavgift
+const PUBLIC_AVG_RATE = 0.01;         // PublicAvg
+const PUBLIC_AVG_CAP = 1.42 * IBB;
+const KOMMUN_DEFAULT = 32.38;         // Typfallsmodellen's default municipal tax
+const ceil100  = n => Math.ceil(n / 100) * 100;
+const floor100 = n => Math.floor(n / 100) * 100;
 
-// ── Continuous-rate helpers (matching Excel EXP formulas) ──
-function toContRate(d) { return Math.log(1 + d); }
-function pvAnn(r, n) {
-  if (r === 0 || n === 0) return n;
-  return (1 - Math.exp(-r * n)) / r;
+// Totala kommunala skattesatser 2026 (kommun + region), SCB 2025-12-15
+const KOMMUNSKATT = {
+"Ale":32.80,"Alingsås":32.84,"Alvesta":33.42,"Aneby":33.85,"Arboga":33.29,"Arjeplog":34.84,"Arvidsjaur":34.14,"Arvika":34.03,"Askersund":34.15,"Avesta":33.95,"Bengtsfors":34.40,"Berg":34.22,"Bjurholm":35.00,"Bjuv":32.17,"Boden":33.94,"Bollebygd":33.07,"Bollnäs":33.37,"Borgholm":33.44,"Borlänge":34.40,"Borås":32.79,"Botkyrka":32.23,"Boxholm":33.37,"Bromölla":33.74,"Bräcke":35.09,"Burlöv":31.27,"Båstad":31.41,"Dals-Ed":34.69,"Danderyd":30.58,"Degerfors":35.30,"Dorotea":35.65,"Eda":34.55,"Ekerö":31.45,"Eksjö":34.02,"Emmaboda":33.82,"Enköping":33.05,"Eskilstuna":32.85,"Eslöv":31.72,"Essunga":33.05,"Fagersta":32.99,"Falkenberg":32.50,"Falköping":33.43,"Falun":34.05,"Filipstad":34.55,"Finspång":33.70,"Flen":33.10,"Forshaga":34.63,"Färgelanda":34.39,"Gagnef":34.27,"Gislaved":33.75,"Gnesta":32.95,"Gnosjö":34.00,"Gotland":33.60,"Grums":34.78,"Grästorp":33.47,"Gullspång":33.97,"Gällivare":33.89,"Gävle":33.77,"Göteborg":32.60,"Götene":33.60,"Habo":33.93,"Hagfors":34.30,"Hallsberg":33.85,"Hallstahammar":32.69,"Halmstad":32.38,"Hammarö":35.05,"Haninge":31.28,"Haparanda":33.84,"Heby":34.21,"Hedemora":34.15,"Helsingborg":31.39,"Herrljunga":33.62,"Hjo":33.48,"Hofors":34.37,"Huddinge":31.71,"Hudiksvall":33.12,"Hultsfred":33.77,"Hylte":33.85,"Håbo":33.30,"Hällefors":34.35,"Härjedalen":34.17,"Härnösand":34.63,"Härryda":31.98,"Hässleholm":32.38,"Höganäs":30.91,"Högsby":34.07,"Hörby":32.26,"Höör":32.63,"Jokkmokk":34.29,"Järfälla":31.52,"Jönköping":33.40,"Kalix":33.89,"Kalmar":33.67,"Karlsborg":32.80,"Karlshamn":33.80,"Karlskoga":34.30,"Karlskrona":33.69,"Karlstad":33.55,"Katrineholm":32.95,"Kil":34.63,"Kinda":33.00,"Kiruna":34.39,"Klippan":31.93,"Knivsta":32.62,"Kramfors":34.43,"Kristianstad":32.64,"Kristinehamn":34.25,"Krokom":33.87,"Kumla":33.84,"Kungsbacka":32.58,"Kungsör":32.91,"Kungälv":32.92,"Kävlinge":29.59,"Köping":33.04,"Laholm":32.80,"Landskrona":31.42,"Laxå":35.00,"Lekeberg":33.73,"Leksand":33.80,"Lerum":32.03,"Lessebo":33.81,"Lidingö":29.67,"Lidköping":32.74,"Lilla Edet":33.85,"Lindesberg":34.60,"Linköping":31.75,"Ljungby":33.07,"Ljusdal":33.87,"Ljusnarsberg":33.80,"Lomma":30.72,"Ludvika":34.05,"Luleå":33.84,"Lund":32.42,"Lycksele":34.90,"Lysekil":33.94,"Malmö":32.42,"Malung-Sälen":34.45,"Malå":35.20,"Mariestad":32.74,"Mark":32.99,"Markaryd":33.31,"Mellerud":34.08,"Mjölby":33.45,"Mora":34.32,"Motala":33.25,"Mullsjö":34.10,"Munkedal":34.86,"Munkfors":34.30,"Mölndal":31.99,"Mönsterås":34.07,"Mörbylånga":34.07,"Nacka":30.11,"Nora":34.55,"Norberg":33.54,"Nordanstig":34.02,"Nordmaling":35.10,"Norrköping":33.30,"Norrtälje":32.05,"Norsjö":35.20,"Nybro":34.19,"Nykvarn":32.30,"Nyköping":32.25,"Nynäshamn":32.18,"Nässjö":34.30,"Ockelbo":34.27,"Olofström":33.75,"Orsa":34.30,"Orust":33.69,"Osby":33.99,"Oskarshamn":34.21,"Ovanåker":33.37,"Oxelösund":33.05,"Pajala":34.74,"Partille":31.36,"Perstorp":31.99,"Piteå":33.59,"Ragunda":34.92,"Robertsfors":35.00,"Ronneby":33.68,"Rättvik":33.80,"Sala":33.19,"Salem":32.00,"Sandviken":33.12,"Sigtuna":31.83,"Simrishamn":31.69,"Sjöbo":32.10,"Skara":33.38,"Skellefteå":34.45,"Skinnskatteberg":33.34,"Skurup":31.60,"Skövde":33.09,"Smedjebacken":34.44,"Sollefteå":34.68,"Sollentuna":30.45,"Solna":29.70,"Sorsele":35.45,"Sotenäs":33.47,"Staffanstorp":30.12,"Stenungsund":33.12,"Stockholm":30.55,"Storfors":34.98,"Storuman":34.95,"Strängnäs":32.50,"Strömstad":33.39,"Strömsund":34.92,"Sundbyberg":31.58,"Sundsvall":33.88,"Sunne":33.75,"Surahammar":33.19,"Svalöv":31.92,"Svedala":31.42,"Svenljunga":33.53,"Säffle":33.80,"Säter":34.30,"Sävsjö":33.68,"Söderhamn":33.17,"Söderköping":33.53,"Södertälje":32.38,"Sölvesborg":33.86,"Tanum":33.04,"Tibro":33.19,"Tidaholm":33.55,"Tierp":33.00,"Timrå":34.38,"Tingsryd":34.00,"Tjörn":33.19,"Tomelilla":31.79,"Torsby":34.30,"Torsås":33.79,"Tranemo":32.98,"Tranås":33.77,"Trelleborg":31.58,"Trollhättan":33.84,"Trosa":32.03,"Tyresö":31.83,"Täby":29.88,"Töreboda":33.20,"Uddevalla":33.64,"Ulricehamn":32.53,"Umeå":34.65,"Upplands Väsby":31.75,"Upplands-Bro":31.73,"Uppsala":32.85,"Uppvidinge":33.80,"Vadstena":34.35,"Vaggeryd":33.25,"Valdemarsvik":34.03,"Vallentuna":31.23,"Vansbro":34.28,"Vara":33.25,"Varberg":31.73,"Vaxholm":31.63,"Vellinge":29.68,"Vetlanda":33.77,"Vilhelmina":35.50,"Vimmerby":34.22,"Vindeln":35.20,"Vingåker":33.50,"Vårgårda":33.09,"Vänersborg":33.69,"Vännäs":35.20,"Värmdö":31.31,"Värnamo":33.28,"Västervik":33.02,"Västerås":31.24,"Växjö":32.19,"Ydre":34.10,"Ystad":31.29,"Åmål":33.94,"Ånge":34.62,"Åre":33.92,"Årjäng":34.25,"Åsele":35.45,"Åstorp":31.47,"Åtvidaberg":33.94,"Älmhult":33.86,"Älvdalen":34.77,"Älvkarleby":34.40,"Älvsbyn":33.79,"Ängelholm":31.35,"Öckerö":33.04,"Ödeshög":33.95,"Örebro":33.65,"Örkelljunga":30.24,"Örnsköldsvik":33.85,"Östersund":33.72,"Österåker":28.93,"Östhammar":33.30,"Östra Göinge":32.17,"Överkalix":34.14,"Övertorneå":33.84
+};
+
+function grundavdragUnder(ffi) {
+  let ga;
+  if (ffi <= 0.99 * PBB)       ga = 0.423 * PBB;
+  else if (ffi <= 2.72 * PBB)  ga = 0.423 * PBB + 0.20 * (ffi - 0.99 * PBB);
+  else if (ffi <= 3.11 * PBB)  ga = 0.77 * PBB;
+  else if (ffi <= 7.88 * PBB)  ga = 0.77 * PBB - 0.10 * (ffi - 3.11 * PBB);
+  else                         ga = 0.293 * PBB;
+  return ceil100(Math.min(ga, ffi));
+}
+// Tax on one year's pension income (no age input → ordinary grundavdrag, no jobbskatteavdrag on pensions)
+function pensionTax(income, munRate) {
+  const ffi = floor100(Math.max(0, income));
+  if (ffi <= 0) return 0;
+  const besk = Math.max(0, ffi - grundavdragUnder(ffi));
+  const kommunal  = Math.floor(besk * munRate);
+  const begrav    = Math.floor(besk * BEGRAV_AVG);
+  const statlig   = Math.floor(Math.max(0, besk - SKIKT) * STATE_RATE);
+  const publicAvg = Math.floor(Math.min(besk, PUBLIC_AVG_CAP) * PUBLIC_AVG_RATE + 0.5);
+  return kommunal + begrav + statlig + publicAvg;
+}
+function munRate() {
+  const v = document.getElementById('kommun_sel').value;
+  return (v === '' ? KOMMUN_DEFAULT : KOMMUNSKATT[v]) / 100;
+}
+function buildKommunSelect() {
+  const sel = document.getElementById('kommun_sel');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">' + t('kommun_avg') + '</option>' +
+    Object.keys(KOMMUNSKATT).sort((a, b) => a.localeCompare(b, 'sv'))
+      .map(k => '<option value="' + k + '">' + k + ' – ' + KOMMUNSKATT[k].toFixed(2).replace('.', lang === 'sv' ? ',' : '.') + ' %</option>').join('');
+  sel.value = cur;
 }
 
-// ── Core calculation ──
+// ── Core calculation (Typfallsmodellen: real fund yield y, inflation π, payout = B·(1+y)^(n/2)/n) ──
 function calculate() {
   const salary   = parseNum(document.getElementById('salary').value) || 0;
   const fPct     = parseNum(document.getElementById('forecast_pct').value) / 100 || 0;
@@ -613,44 +683,39 @@ function calculate() {
   const yearsTo  = parseNum(document.getElementById('years_to').value) || 0;
   const yearsOut = parseNum(document.getElementById('years_out').value) || 0;
   const capital  = parseNum(document.getElementById('existing_capital').value) || 0;
-  const discRate = parseNum(document.getElementById('return_rate').value) / 100 || 0.021;
+  const yReal    = parseNum(document.getElementById('return_rate').value) / 100;
+  const y        = isNaN(yReal) ? 0.017 : yReal;
+  const infl     = parseNum(document.getElementById('inflation').value) / 100 || 0;
 
-  const r     = toContRate(discRate);
-  const pvOut = pvAnn(r, yearsOut);
-  const pvIn  = pvAnn(r, yearsTo);
-  const disc  = Math.exp(-r * yearsTo);
+  const iNom = (1 + y) * (1 + infl) - 1;        // nominal return
+  const mr   = munRate();
+  const taxed = x => mode === 'netto' ? x - pensionTax(x, mr) : x;
 
-  const grossForecast = salary * fPct;
-  const grossDesired  = salary * dPct;
+  // Payout factor of the workbook (IPS/ISK branch of VBA_go): (1+y)^(n/2) / n
+  const pf = yearsOut > 0 ? Math.pow(1 + y, yearsOut / 2) / yearsOut : NaN;
 
-  let forecastIncome, desiredIncome, incomeWithCapital, incomeGap;
+  const forecastIncome = taxed(salary * fPct);
+  const desiredIncome  = taxed(salary * dPct);
+  // Existing capital grows at the nominal return; in today's money that is (1+y)^N
+  const incomeWithCapital = forecastIncome + capital * Math.pow(1 + y, yearsTo) * pf;
+  const incomeGap = Math.max(0, desiredIncome - incomeWithCapital);
 
-  if (mode === 'netto') {
-    forecastIncome    = netIncome(grossForecast);
-    desiredIncome     = netIncome(grossDesired);
-    const fvCap       = capital * Math.exp(r * yearsTo);
-    incomeWithCapital = forecastIncome + fvCap / pvOut;
-    incomeGap         = Math.max(0, desiredIncome - incomeWithCapital);
-  } else {
-    forecastIncome    = grossForecast;
-    desiredIncome     = grossDesired;
-    const fvCap       = capital * Math.exp(r * yearsTo);
-    incomeWithCapital = forecastIncome + fvCap / pvOut;
-    incomeGap         = Math.max(0, desiredIncome - incomeWithCapital);
-  }
-
-  // Excel formulas:
-  //   Engångsbetalning = gap * pvOut * disc              → ROUND(-2)
-  //   Månadssparande   = Engångsbetalning / pvIn / 12    → ROUND(-1)
-  const lumpRaw    = incomeGap * pvOut * disc;
-  const monthlyRaw = lumpRaw / pvIn / 12;
+  // Required balance at retirement (nominal) and its value today
+  const balNom  = incomeGap * Math.pow(1 + infl, yearsTo) / pf;
+  const lumpRaw = balNom / Math.pow(1 + iNom, yearsTo);
+  // Yearly contribution C added during the year (mid-year weighting, as the workbook's premium·y^0.5)
+  const fvFactor = yearsTo > 0
+    ? Array.from({ length: Math.round(yearsTo) }, (_, k) => Math.pow(1 + iNom, yearsTo - (k + 1) + 0.5)).reduce((a, b) => a + b, 0)
+    : NaN;
+  const yearlyRaw  = balNom / fvFactor;
+  const monthlyRaw = yearlyRaw / 12;
   const lumpSum    = Math.round(lumpRaw / 100) * 100;
   const monthly    = Math.round(monthlyRaw / 10) * 10;
   const totalPaid  = monthly * yearsTo * 12;
 
   return { forecastIncome, desiredIncome, incomeWithCapital, incomeGap,
            lumpSum, monthly, monthlyRaw, lumpRaw, totalPaid,
-           yearsTo, capital, r, pvOut, pvIn, disc };
+           yearsTo, capital, iNom };
 }
 
 // ── Update DOM ──
@@ -670,22 +735,18 @@ function recalc() {
 
 // ── Chart ──
 function buildChartData(d) {
-  const { yearsTo, capital, r, monthlyRaw } = d;
+  const { yearsTo, capital, iNom, monthlyRaw } = d;
   const years = [], existingGrowth = [], savingsContrib = [], compounding = [];
+  const C = monthlyRaw * 12;
 
-  for (let y = 0; y <= yearsTo; y++) {
-    years.push(y === 0 ? t('chart_now') : `${t('chart_year')} ${y}`);
+  for (let yr = 0; yr <= yearsTo; yr++) {
+    years.push(yr === 0 ? t('chart_now') : `${t('chart_year')} ${yr}`);
 
-    const fvCap = capital * Math.exp(r * y);
-    const nM = y * 12;
+    const fvCap = capital * Math.pow(1 + iNom, yr);
     let fvSav = 0;
-    if (r > 0 && nM > 0) {
-      fvSav = monthlyRaw * (Math.exp(r * y) - 1) / (Math.exp(r / 12) - 1);
-    } else {
-      fvSav = monthlyRaw * nM;
-    }
-    const paid   = monthlyRaw * nM;
-    const cmpd   = Math.max(0, fvSav - paid);
+    for (let k = 1; k <= yr; k++) fvSav += C * Math.pow(1 + iNom, yr - k + 0.5);
+    const paid = isNaN(C) ? 0 : C * yr;
+    const cmpd = isNaN(fvSav) ? 0 : Math.max(0, fvSav - paid);
 
     existingGrowth.push(Math.round(fvCap));
     savingsContrib.push(Math.round(paid));
