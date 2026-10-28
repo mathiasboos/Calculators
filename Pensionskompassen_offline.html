@@ -66,6 +66,10 @@
       .header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       canvas { max-width:100%; }
     }
+    .header { position: relative; }
+    .lang-toggle { position: absolute; top: 12px; right: 14px; display: inline-flex; gap: 3px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 3px; }
+    .lang-btn { padding: 4px 11px; font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: rgba(255,255,255,.8); background: none; border: none; border-radius: 5px; cursor: pointer; }
+    .lang-btn.active { background: #fff; color: #1b5c36; }
   </style>
 </head>
 <body>
@@ -73,6 +77,7 @@
 
   <!-- Header -->
   <div class="header">
+    <div class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></div>
     <!-- Compass logo -->
     <div style="text-align:center;margin-bottom:14px">
       <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -472,7 +477,7 @@
 
     <!-- CTA buttons -->
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      <button onclick="showToast('✓ Tack! Din prognos är sparad.')"
+      <button onclick="showToast(tr('✓ Tack! Din prognos är sparad.','✓ Thank you! Your forecast is saved.'))"
         style="background:#e84a26;color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
         Jag känner mig klar!
       </button>
@@ -550,6 +555,48 @@
 </script>
 
 <script>
+
+// ── Språk / Language ─────────────────────────────────────────────────────
+let lang = 'sv';
+try { if (localStorage.getItem('pension-lang') === 'en') lang = 'en'; } catch (e) {}
+const tr = (sv, en) => lang === 'en' ? en : sv;
+const loc = () => lang === 'en' ? 'en-GB' : 'sv-SE';
+const dec = (n, d) => { const v = n.toFixed(d); return lang === 'en' ? v : v.replace('.', ','); };
+const NOT_L = '(?![a-zA-ZåäöÅÄÖ])';
+// Translate unit words in dynamically built Swedish strings
+function X(v) {
+  if (lang !== 'en') return v;
+  return String(v)
+    .replace(/^livet ut$/, 'lifelong')
+    .replace(/ kr\/mån/g, ' SEK/month')
+    .replace(new RegExp(' kr' + NOT_L + '(?!/)', 'g'), ' SEK')
+    .replace(/ mkr/g, ' MSEK')
+    .replace(new RegExp(' år till', 'g'), ' years to')
+    .replace(new RegExp(' år' + NOT_L, 'g'), ' years');
+}
+const DICT_EN = {"din hjälp på vägen": "your help along the way", "Din information": "Your information", "Din ålder": "Your age", "år": "years", "Månadslön före skatt": "Monthly salary before tax", "kr/mån": "SEK/month", "Labba med:": "Experiment with:", "Uppskattat belopp": "Estimated amount", "Generella antaganden utifrån ålder och lön": "General assumptions based on age and salary", "Pensionskapital du fyller i själv": "Pension capital you enter yourself", "Tjänstepension (kr)": "Occupational pension (SEK)", "Allmän pension (kr)": "Public pension (SEK)", "Uppskattat pensionskapital idag": "Estimated pension capital today", "Varav": "Of which", "i tjänstepension och": "in occupational pension and", "i allmän pension": "in public pension", "Uttagsinställningar": "Withdrawal settings", "När vill du börja ta ut tjänstepension?": "When do you want to start withdrawing occupational pension?", "När vill du börja ta ut allmän pension?": "When do you want to start withdrawing public pension?", "Riktålder": "Guideline age", "⚠️ Uttag innan riktåldern (": "⚠️ Withdrawal before the guideline age (", ") ger lägre månadsbelopp livet ut": ") gives a lower monthly amount for life", "år) ger lägre månadsbelopp livet ut": "years) gives a lower monthly amount for life", "Beräknad allmän pension:": "Estimated public pension:", "(delningstal": "(annuity divisor", ")": ")", "Hur vill du ta ut din pension?": "How do you want to withdraw your pension?", "I olika uttagsperioder": "In different withdrawal periods", "Exempelvis ett högre belopp de första aktiva åren": "For example a higher amount in the first active years", "Jämnt fördelat livet ut": "Evenly distributed for life", "Samma belopp varje månad till 95 år": "The same amount every month until age 95", "Börja labba": "Start experimenting", "PERIOD 1": "PERIOD 1", "PERIOD 2": "PERIOD 2", "Från": "From", "år →": "years →", "år till": "years to", "Till vilken ålder ska perioden gälla?": "Until what age should the period apply?", "Önskad pension per månad (före skatt)": "Desired pension per month (before tax)", "Livet ut": "Lifelong", "Livet ut (till 95 år)": "Lifelong (to age 95)", "PERIOD 3 — LIVET UT": "PERIOD 3 — LIFELONG", "→ 95 år": "→ 95 years", "Allmän pension:": "Public pension:", "✅ Tjänstepensionskapital kvar: ca": "✅ Occupational pension capital left: approx.", "⚠️ Tjänstepensionskapitalet är förbrukat i period 1–2": "⚠️ The occupational pension capital is used up in periods 1–2", "För högt uttagsbelopp": "Withdrawal amount too high", "Enligt inkomstskattelagen måste tjänstepension betalas ut under minst fem år.": "According to the Swedish Income Tax Act, occupational pension must be paid out over at least five years.", "Med de val du gjort räcker inte kapitalet i fem år.": "With the choices you have made, the capital does not last five years.", "Din pensionsprognos": "Your pension forecast", "Månadsbelopp (kr) per ålder": "Monthly amount (SEK) by age", "Sammanfattning": "Summary", "Period 1": "Period 1", "Period 2": "Period 2", "Tjänstepension:": "Occupational pension:", "Period 3 – Livet ut": "Period 3 – Lifelong", "–95 år": "–95 years", "✅ Kapital kvar: ca": "✅ Capital left: approx.", "Jämnt fördelat": "Evenly distributed", "Uttagsplaneraren · Simulera pension": "Withdrawal planner · Simulate pension", "Din möjliga framtida pension": "Your possible future pension", "Totalt pensionskapital idag": "Total pension capital today", "Estimat löpande inbetalningar": "Estimated ongoing contributions", "0 kr/mån": "0 SEK/month", "Utfrån belopp": "By amount", "Utfrån tid": "By time", "Se hur olika månadsbelopp påverkar": "See how different monthly amounts affect the", "tiden": "duration", "för dina utbetalningar": "of your payouts", "Månadsbelopp (kr/mån) → ålder när kapitalet tar slut": "Monthly amount (SEK/month) → age when the capital runs out", "Se hur olika utbetalningstid påverkar": "See how different payout periods affect the", "beloppet": "amount", "Utbetalningstid (år) → månadsbelopp (kr/mån)": "Payout period (years) → monthly amount (SEK/month)", "Se hur olika avkastning under utbetalningstiden påverkar hur länge du får pensionsutbetalningar": "See how different returns during the payout period affect how long you receive pension payments", "Estimerat pensionskapital om du startar utbetalning vid": "Estimated pension capital if you start payouts at", "Jag känner mig klar!": "I feel done!", "Gör ett nytt pensionsestimat": "Make a new pension estimate", "Läs om hur du kan påverka din framtida pension": "Read about how you can influence your future pension", "Spara prognos": "Save forecast", "Kopiera delbar länk": "Copy shareable link", "Alla inställningar sparas i länken — dela eller bokmärk": "All settings are saved in the link — share or bookmark", "Ladda ned diagram (PNG)": "Download chart (PNG)", "Sparar prognos-diagrammet som bildfil": "Saves the forecast chart as an image file", "Skriv ut / Spara som PDF": "Print / Save as PDF", "Skriver ut eller sparar prognos + sammanfattning som PDF": "Prints or saves the forecast + summary as a PDF", "Beräkningarna är förenklade uppskattningar och ska inte ses som finansiell rådgivning.": "The calculations are simplified estimates and should not be regarded as financial advice.", "Allmän pension beräknas med delningstal från Pensionsmyndigheten.": "Public pension is calculated with annuity divisors from the Swedish Pensions Agency.", "✓ Länk kopierad!": "✓ Link copied!"};
+const SRC_T = new WeakMap();
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.title = tr('Pensionskompassen', 'Pension Compass');
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => {
+    const par = n.parentNode;
+    if (!par || par.closest('script,style,.lang-toggle')) return;
+    if (!SRC_T.has(n)) {
+      const t = n.nodeValue.trim().replace(/\s+/g, ' ');
+      if (!(t in DICT_EN)) return;
+      SRC_T.set(n, n.nodeValue);
+    }
+    const sv = SRC_T.get(n);
+    const key = sv.trim().replace(/\s+/g, ' ');
+    n.nodeValue = lang === 'en' ? sv.replace(sv.trim(), DICT_EN[key]) : sv;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+}
+
 // ── Lookup tables ────────────────────────────────────────────────────────
 const DELNINGSTAL = {
   61:21.12,62:20.56,63:20.01,64:19.46,65:18.90,66:18.35,67:17.81,68:17.26,
@@ -602,17 +649,17 @@ function getApRules(age) {
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, isNaN(v) ? lo : v)); }
 function fmtAmount(n) {
   // Swedish thousands separator (non-breaking space)
-  return new Intl.NumberFormat('sv-SE').format(Math.round(n || 0));
+  return new Intl.NumberFormat(loc()).format(Math.round(n || 0));
 }
 function parseAmount(v) {
   // Strip all whitespace and non-digit chars, then parse
   return parseInt(String(v).replace(/[\s\u00A0]/g, '').replace(/[^\d]/g, ''), 10) || 0;
 }
-function fmt(n) { return new Intl.NumberFormat('sv-SE').format(Math.round(n||0)); }
+function fmt(n) { return new Intl.NumberFormat(loc()).format(Math.round(n||0)); }
 function fmtM(n) {
-  if (!n || n < 0) return '0 kr';
-  if (n >= 1000000) return (n/1000000).toFixed(2).replace('.',',') + ' mkr';
-  return fmt(n) + ' kr';
+  if (!n || n < 0) return tr('0 kr', '0 SEK');
+  if (n >= 1000000) return dec(n/1000000, 2) + tr(' mkr', ' MSEK');
+  return fmt(n) + tr(' kr', ' SEK');
 }
 
 // Wire a formatted-text amount input + optional range slider
@@ -804,7 +851,7 @@ function makePeriodPlugin(opts) {
         ctx.fillText('P2', (divX1 + Math.min(divX2, chartArea.right)) / 2, y);
       }
       if (!opts.p2Life && divX2 < chartArea.right - 20) {
-        ctx.fillText('Livet ut', (divX2 + chartArea.right) / 2, y);
+        ctx.fillText(tr('Livet ut','Lifelong'), (divX2 + chartArea.right) / 2, y);
       }
 
       // Vertical dividers
@@ -838,25 +885,25 @@ function doRenderChart() {
 
     const ctx = canvas.getContext('2d');
     const hatch = makeHatch(ctx);
-    const nf = v => new Intl.NumberFormat('sv-SE').format(Math.round(v||0));
+    const nf = v => new Intl.NumberFormat(loc()).format(Math.round(v||0));
 
     // Period name for a given age
     function periodName(age) {
-      if (S.wMode!=='periods') return age+' år';
+      if (S.wMode!=='periods') return age+tr(' år',' yrs');
       const p2e = S.p2Life ? 96 : +S.p2End;
       if (age>=+S.tpStart && age<+S.p1End) return 'P1';
       if (age>=+S.p1End   && age<p2e)      return 'P2';
-      return 'Livet ut';
+      return tr('Livet ut','Lifelong');
     }
 
     _chartInst = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: chartRows.map(r => r.age%5===0 ? r.age+' år' : ''),
+        labels: chartRows.map(r => r.age%5===0 ? r.age+tr(' år',' yrs') : ''),
         datasets: [
-          { label:'Allmän pension', data:chartRows.map(r=>Math.round(r.ap)),            backgroundColor:'#7ba8d9', stack:'a' },
-          { label:'Tjänstepension', data:chartRows.map(r=>Math.round(r.tp)),            backgroundColor:'#e84a26', stack:'a' },
-          { label:'Pengar saknas',  data:chartRows.map(r=>Math.round(r.missing||0)),    backgroundColor:hatch,     stack:'a' }
+          { label:tr('Allmän pension','Public pension'), data:chartRows.map(r=>Math.round(r.ap)),            backgroundColor:'#7ba8d9', stack:'a' },
+          { label:tr('Tjänstepension','Occupational pension'), data:chartRows.map(r=>Math.round(r.tp)),            backgroundColor:'#e84a26', stack:'a' },
+          { label:tr('Pengar saknas','Money missing'),  data:chartRows.map(r=>Math.round(r.missing||0)),    backgroundColor:hatch,     stack:'a' }
         ]
       },
       options: {
@@ -875,18 +922,18 @@ function doRenderChart() {
             callbacks: {
               title(items) {
                 const r = chartRows[items[0].dataIndex];
-                return r ? r.age+' år  ('+periodName(r.age)+')' : '';
+                return r ? r.age+tr(' år',' yrs')+'  ('+periodName(r.age)+')' : '';
               },
               label(item) {
                 if (item.raw <= 0) return null;
-                return item.dataset.label+': '+nf(item.raw)+' kr/mån';
+                return item.dataset.label+': '+nf(item.raw)+tr(' kr/mån',' SEK/month');
               },
               footer(items) {
                 const r = chartRows[items[0].dataIndex];
                 if (!r) return '';
                 const total = Math.round(r.ap+r.tp);
-                const lines = ['─────────────────', 'Totalt: '+nf(total)+' kr/mån'];
-                if ((r.missing||0) > 0) lines.push('(saknas '+nf(r.missing)+' kr/mån)');
+                const lines = ['─────────────────', tr('Totalt: ','Total: ')+nf(total)+tr(' kr/mån',' SEK/month')];
+                if ((r.missing||0) > 0) lines.push(tr('(saknas ','(missing ')+nf(r.missing)+tr(' kr/mån',' SEK/month')+')');
                 return lines;
               }
             }
@@ -904,7 +951,7 @@ function doRenderChart() {
 
 // ── DOM helpers ──────────────────────────────────────────────────────────
 function el(id)   { return document.getElementById(id); }
-function txt(id,v){ const e=el(id); if(e) e.textContent=v; }
+function txt(id,v){ const e=el(id); if(e) e.textContent=X(v); }
 function vis(id,v){ const e=el(id); if(e) e.classList.toggle('hidden',!v); }
 function setAttr(id,a,v){ const e=el(id); if(e) e.setAttribute(a,v); }
 function setRadio(btnId, circId, on) {
@@ -1048,11 +1095,14 @@ function update() {
         '<div style="background:#fff8f0;border:1px solid #f9c8a8;border-radius:12px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start">' +
           '<div style="font-size:28px;line-height:1;flex-shrink:0">😞</div>' +
           '<div>' +
-            '<div style="font-weight:800;color:#c0391a;font-size:14px;margin-bottom:6px">Pensionskapitalet räcker inte</div>' +
+            '<div style="font-weight:800;color:#c0391a;font-size:14px;margin-bottom:6px">'+tr('Pensionskapitalet räcker inte','The pension capital is not enough')+'</div>' +
             '<div style="color:#555;font-size:13px;line-height:1.6">' +
-              'Med de val du gjort räcker tjänstepensionen till du fyller <strong>' + runsOutAge + ' år</strong>. ' +
+              tr('Med de val du gjort räcker tjänstepensionen till du fyller <strong>' + runsOutAge + ' år</strong>. ' +
               'Du behöver justera dina val om tjänstepensionen ska räcka till ' + endAge + ' år ' +
-              '(det saknas ca <strong>' + fmtM(totalMissing) + '</strong>).' +
+              '(det saknas ca <strong>' + fmtM(totalMissing) + '</strong>).',
+              'With the choices you have made, the occupational pension lasts until you turn <strong>' + runsOutAge + '</strong>. ' +
+              'You need to adjust your choices if the occupational pension is to last until age ' + endAge + ' ' +
+              '(approx. <strong>' + fmtM(totalMissing) + '</strong> is missing).') +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1070,9 +1120,9 @@ function update() {
               '</svg>' +
             '</div>' +
             '<div>' +
-              '<div style="font-weight:800;font-size:14px;color:#1b5c36;margin-bottom:5px">Pensionskapital kvar att fördela</div>' +
+              '<div style="font-weight:800;font-size:14px;color:#1b5c36;margin-bottom:5px">'+tr('Pensionskapital kvar att fördela','Pension capital left to allocate')+'</div>' +
               '<div style="font-size:13px;color:#555;line-height:1.65">' +
-                'Det finns ca <strong>' + fmtM(remaining) + '</strong> i tjänstepensionskapital kvar att fördela.' +
+                tr('Det finns ca <strong>' + fmtM(remaining) + '</strong> i tjänstepensionskapital kvar att fördela.','There is approx. <strong>' + fmtM(remaining) + '</strong> of occupational pension capital left to allocate.') +
               '</div>' +
             '</div>' +
           '</div>';
@@ -1165,27 +1215,29 @@ function updateUtbetalning() {
   const annRet   = UT.ret;
   const gi = id => document.getElementById(id);
 
-  if (gi('ut-cap-total'))     gi('ut-cap-total').textContent     = fmtAmount(cap.tpNow+cap.apNow)+' kr';
+  if (gi('ut-cap-total'))     gi('ut-cap-total').textContent     = fmtAmount(cap.tpNow+cap.apNow)+tr(' kr',' SEK');
   if (gi('ut-start-age-lbl')) gi('ut-start-age-lbl').textContent = startAge;
-  if (gi('ut-capital-lbl'))   gi('ut-capital-lbl').textContent   = fmtAmount(capital)+' kr';
-  if (gi('ut-return-val'))    gi('ut-return-val').textContent    = UT.ret.toFixed(1).replace('.',',')+' %';
+  if (gi('ut-capital-lbl'))   gi('ut-capital-lbl').textContent   = fmtAmount(capital)+tr(' kr',' SEK');
+  if (gi('ut-return-val'))    gi('ut-return-val').textContent    = dec(UT.ret,1)+tr(' %','%');
 
   if (UT.tab === 'belopp') {
     const M = UT.belopp;
-    if (gi('ut-belopp-val')) gi('ut-belopp-val').textContent = fmtAmount(M)+' kr/mån';
+    if (gi('ut-belopp-val')) gi('ut-belopp-val').textContent = fmtAmount(M)+tr(' kr/mån',' SEK/month');
     const mo     = _monthsLeft(capital, M, annRet);
     const ageEnd = mo===Infinity ? '95+' : Math.round(startAge + mo/12);
     if (gi('ut-result-lbl')) gi('ut-result-lbl').innerHTML =
-      'Vid utbetalning av <strong>'+fmtAmount(M)+' kr/mån</strong> kommer pensionen räcka till du är circa<br>'+
-      '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+ageEnd+' år</span>';
+      tr('Vid utbetalning av <strong>'+fmtAmount(M)+' kr/mån</strong> kommer pensionen räcka till du är circa<br>',
+         'With a payout of <strong>'+fmtAmount(M)+' SEK/month</strong> the pension will last until you are approximately<br>')+
+      '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+ageEnd+tr(' år',' years')+'</span>';
     _renderUtBelopp(capital, startAge, annRet);
   } else {
     const yrs = UT.tid;
-    if (gi('ut-tid-val')) gi('ut-tid-val').textContent = yrs+' år';
+    if (gi('ut-tid-val')) gi('ut-tid-val').textContent = yrs+tr(' år',' years');
     const M = Math.round(_monthlyForYears(capital, yrs, annRet));
     if (gi('ut-result-lbl')) gi('ut-result-lbl').innerHTML =
-      'Vid utbetalning under <strong>'+yrs+' år</strong> kommer månadsbeloppet vara circa<br>'+
-      '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+fmtAmount(M)+' kr/mån</span>';
+      tr('Vid utbetalning under <strong>'+yrs+' år</strong> kommer månadsbeloppet vara circa<br>',
+         'With a payout over <strong>'+yrs+' years</strong> the monthly amount will be approximately<br>')+
+      '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+fmtAmount(M)+tr(' kr/mån',' SEK/month')+'</span>';
     _renderUtTid(capital, startAge, annRet);
   }
 }
@@ -1207,12 +1259,12 @@ function _renderUtBelopp(capital, startAge, annRet) {
     type:'bar', data:{ labels, datasets:[{ data:ageData, backgroundColor:colors, borderRadius:3, barPercentage:0.85 }] },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{
-        title: i => labels[i[0].dataIndex]+'/mån',
-        label: i => 'Räcker till: '+i.raw+' år' }}},
+        title: i => labels[i[0].dataIndex]+tr('/mån','/month'),
+        label: i => tr('Räcker till: '+i.raw+' år','Lasts until: '+i.raw+' years') }}},
       scales:{
         x:{ grid:{display:false}, border:{display:false}, ticks:{font:{size:9},color:'#888',maxRotation:45} },
         y:{ grid:{color:'#f0f0f0'}, border:{display:false}, min:startAge-1,
-            ticks:{font:{size:10},color:'#888'}, title:{display:true,text:'ålder',font:{size:10},color:'#aaa'} }
+            ticks:{font:{size:10},color:'#888'}, title:{display:true,text:tr('ålder','age'),font:{size:10},color:'#aaa'} }
       }
     }
   });
@@ -1225,13 +1277,13 @@ function _renderUtTid(capital, startAge, annRet) {
   const durs=[5,10,15,20,25,30,35,40];
   _utC2 = new Chart(canvas.getContext('2d'), {
     type:'bar',
-    data:{ labels:durs.map(d=>d+' år'),
+    data:{ labels:durs.map(d=>d+tr(' år',' yrs')),
       datasets:[{ data:durs.map(d=>Math.round(_monthlyForYears(capital,d,annRet))),
         backgroundColor:durs.map(d=>d===UT.tid?'#1b5c36':'#e8a0aa'), borderRadius:3, barPercentage:0.8 }] },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{callbacks:{
-        title: i => durs[i[0].dataIndex]+' år',
-        label: i => fmtAmount(i.raw)+' kr/mån' }}},
+        title: i => durs[i[0].dataIndex]+tr(' år',' years'),
+        label: i => fmtAmount(i.raw)+tr(' kr/mån',' SEK/month') }}},
       scales:{
         x:{ grid:{display:false}, border:{display:false}, ticks:{font:{size:10},color:'#888'} },
         y:{ grid:{color:'#f0f0f0'}, border:{display:false},
@@ -1256,22 +1308,22 @@ function copyLink() {
   const url = window.location.href;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url)
-      .then(() => showToast('✓ Länk kopierad!'))
-      .catch(() => { prompt('Kopiera länken:', url); });
+      .then(() => showToast(tr('✓ Länk kopierad!','✓ Link copied!')))
+      .catch(() => { prompt(tr('Kopiera länken:','Copy the link:'), url); });
   } else {
-    prompt('Kopiera länken:', url);
+    prompt(tr('Kopiera länken:','Copy the link:'), url);
   }
 }
 
 function downloadChart() {
-  if (!_chartInst) { showToast('Diagrammet är inte redo'); return; }
+  if (!_chartInst) { showToast(tr('Diagrammet är inte redo','The chart is not ready')); return; }
   try {
     const url = _chartInst.toBase64Image('image/png', 1.0);
     const a = document.createElement('a');
-    a.href = url; a.download = 'pensionsprognos.png';
+    a.href = url; a.download = tr('pensionsprognos.png','pension-forecast.png');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    showToast('✓ Diagram sparat!');
-  } catch(e) { showToast('Kunde inte spara diagram'); }
+    showToast(tr('✓ Diagram sparat!','✓ Chart saved!'));
+  } catch(e) { showToast(tr('Kunde inte spara diagram','Could not save the chart')); }
 }
 function syncPair(inputId, sliderId, key, lo, hi, amtStep) {
   const inp=el(inputId), sld=el(sliderId);
@@ -1388,6 +1440,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (_utSld) _utSld.addEventListener('input', function(){ UT.tid=+this.value;    updateUtbetalning(); });
   if (_urSld) _urSld.addEventListener('input', function(){ UT.ret=+this.value;    updateUtbetalning(); });
 
+  function setLang(l) {
+    lang = l;
+    try { localStorage.setItem('pension-lang', l); } catch (e) {}
+    applyStatic();
+    update();
+  }
+  document.querySelectorAll('.lang-btn').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.dataset.lang); }); });
+  applyStatic();
   update();
 });
 </script>
