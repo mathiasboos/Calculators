@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
 <title>Ränta på ränta – fristående version</title>
-<meta name="description" content="Se hur ditt sparande växer med ränta på ränta. Fristående version av kalkylatorn Ränta på ränta från pensionslyft.se." />
+<meta id="meta-desc" name="description" content="Se hur ditt sparande växer med ränta på ränta. Fristående version av kalkylatorn Ränta på ränta från pensionslyft.se." />
 <style>
 :root {
   --bg: #fff; --fg: #0f2034; --primary: #0c2a49; --primary-fg: #fbf9f4; --muted: #f5f4f1; --muted-fg: #545f6c;
@@ -22,6 +22,10 @@ a { color: var(--primary); }
 header.top { border-bottom: 1px solid var(--border); }
 header.top .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-top: 14px; padding-bottom: 14px; }
 .brand { font-weight: 700; font-size: 1.125rem; letter-spacing: -0.02em; color: var(--primary); text-decoration: none; }
+.lang-toggle { display: inline-flex; gap: 4px; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 3px; align-self: center; }
+.lang-btn { padding: 4px 12px; font: inherit; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted-fg); background: none; border: none; border-radius: 5px; cursor: pointer; }
+.lang-btn.active { background: var(--primary); color: var(--primary-fg); }
+.lang-btn:not(.active):hover { color: var(--fg); }
 .eyebrow { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); }
 h1 { font-size: clamp(1.25rem, 6vw, 2.5rem); line-height: 1.1; letter-spacing: -0.022em; margin: 8px 0 8px; font-weight: 600; overflow-wrap: anywhere; hyphens: auto; }
 .intro { max-width: 46rem; color: var(--muted-fg); margin: 0 0 24px; }
@@ -97,17 +101,17 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 <header class="top">
   <div class="wrap">
     <a class="brand" href="https://pensionslyft.se/ranta-pa-ranta">Pensionslyft</a>
-    <span class="eyebrow">Fristående version</span>
+    <span class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></span>
   </div>
 </header>
 <main class="wrap">
-  <p class="eyebrow" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
-  <h1>Ränta på ränta</h1>
-  <p class="intro">Se hur ditt sparande växer med ränta på ränta, efter avgift och avkastningsskatt, och vad du behöver spara varje månad för att nå ett sparmål. Allt räknas i din webbläsare, och inget skickas någonstans.</p>
+  <p class="eyebrow" id="eyebrow-main" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
+  <h1 id="h1">Ränta på ränta</h1>
+  <p class="intro" id="intro">Se hur ditt sparande växer med ränta på ränta, efter avgift och avkastningsskatt, och vad du behöver spara varje månad för att nå ett sparmål. Allt räknas i din webbläsare, och inget skickas någonstans.</p>
   <div id="app" class="layout"><noscript>Kalkylatorn kräver JavaScript.</noscript></div>
 </main>
 <footer>
-  <div class="wrap">
+  <div class="wrap" id="foot">
     Beräkningen är en uppskattning och inte individuell rådgivning. Avkastningen är inte garanterad. Den här filen är en fristående kopia av
     <a href="https://pensionslyft.se/ranta-pa-ranta">Ränta på ränta på pensionslyft.se</a>, där du alltid hittar den senaste versionen.
   </div>
@@ -173,30 +177,28 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
   }
 
   // ../../../../../../home/user/pensionslyft/src/lib/format.ts
-  var sek = new Intl.NumberFormat("sv-SE", {
-    style: "currency",
-    currency: "SEK",
-    maximumFractionDigits: 0
-  });
-  var num = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 0 });
+  var lang = "sv";
+  try { if (localStorage.getItem("pension-lang") === "en") lang = "en"; } catch (e) {}
+  var tr = (sv, en) => lang === "en" ? en : sv;
+  var loc = () => lang === "en" ? "en-GB" : "sv-SE";
+  var num = { format: (v) => new Intl.NumberFormat(loc(), { maximumFractionDigits: 0 }).format(v) };
   function formatSek(value) {
-    return sek.format(Math.round(value));
+    const n = num.format(Math.round(value));
+    return lang === "en" ? `SEK\xA0${n}` : `${n}\xA0kr`;
   }
   function formatPercent(value, digits) {
-    return `${new Intl.NumberFormat("sv-SE", {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits
-    }).format(value)} %`;
+    const n = new Intl.NumberFormat(loc(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+    return lang === "en" ? `${n}%` : `${n} %`;
   }
-  var compact = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 1 });
   function groupDigits(text) {
     const cleaned = text.replace(/[^\d,.]/g, "");
-    const point = cleaned.search(/[.,]/);
+    const point = lang === "en" ? cleaned.indexOf(".") : cleaned.search(/[.,]/);
     const whole = (point === -1 ? cleaned : cleaned.slice(0, point)).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
-    return point === -1 ? grouped : `${grouped},${cleaned.slice(point + 1).replace(/\D/g, "")}`;
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, lang === "en" ? "," : "\xA0");
+    return point === -1 ? grouped : `${grouped}${lang === "en" ? "." : ","}${cleaned.slice(point + 1).replace(/\D/g, "")}`;
   }
   function parseAmount(text) {
+    if (lang === "en") return parseFloat(text.replace(/[\s,]/g, ""));
     return parseFloat(text.replace(/\s/g, "").replace(",", "."));
   }
   function stepValue(value, step, direction, min = 0, max = Infinity) {
@@ -207,62 +209,69 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 
   // rpr.ts
   var state = { startCapital: 5e4, monthlyDeposit: 2500, goal: null, years: 20, annualReturn: 7, annualFee: 0.3, yieldTax: 1.05, chart: "totalt" };
-  var CHARTS = [
-    { value: "ranta", label: "R\xE4nta p\xE5 r\xE4nta" },
-    { value: "totalt", label: "Totalt belopp" },
-    { value: "sparmal", label: "Sparm\xE5l" },
-    { value: "arsfloden", label: "\xC5rsfl\xF6den" }
+  var charts = () => [
+    { value: "ranta", label: tr("R\xE4nta p\xE5 r\xE4nta", "Compound interest") },
+    { value: "totalt", label: tr("Totalt belopp", "Total amount") },
+    { value: "sparmal", label: tr("Sparm\xE5l", "Savings goal") },
+    { value: "arsfloden", label: tr("\xC5rsfl\xF6den", "Annual flows") }
   ];
   var C = { navy: "var(--c1)", gold: "var(--c2)", steel: "#4a73a3", teal: "var(--c4)", brick: "#a8503a" };
   var $ = (id) => document.getElementById(id);
   var esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   function amountField(id, label, key, step, extra = "") {
     return `<div class="field"><div class="fieldhead"><label for="${id}">${label}</label>${extra}</div><div class="row">
-    <button type="button" class="step" data-step="${key}" data-dir="-1" aria-label="Minska ${label.toLowerCase()} med ${num.format(step)} kr">\u2212</button>
-    <div class="num"><input id="${id}" data-key="${key}" data-stepby="${step}" type="text" inputmode="numeric" autocomplete="off" /><span>kr</span></div>
-    <button type="button" class="step" data-step="${key}" data-dir="1" aria-label="\xD6ka ${label.toLowerCase()} med ${num.format(step)} kr">+</button></div>`;
+    <button type="button" class="step" data-step="${key}" data-dir="-1" aria-label="${tr("Minska", "Decrease")} ${label.toLowerCase()} ${tr("med", "by")} ${num.format(step)} ${tr("kr", "SEK")}">\u2212</button>
+    <div class="num"><input id="${id}" data-key="${key}" data-stepby="${step}" type="text" inputmode="numeric" autocomplete="off" /><span>${tr("kr", "SEK")}</span></div>
+    <button type="button" class="step" data-step="${key}" data-dir="1" aria-label="${tr("\xD6ka", "Increase")} ${label.toLowerCase()} ${tr("med", "by")} ${num.format(step)} ${tr("kr", "SEK")}">+</button></div>`;
   }
   function slider(id, label, key, min, max, step, hint = "") {
     return `<div class="field"><div class="sliderhead"><label class="lab" for="${id}">${label}</label><output id="${id}-out" for="${id}"></output></div>
     <input id="${id}" data-key="${key}" type="range" min="${min}" max="${max}" step="${step}" />${hint ? `<p class="hint">${hint}</p>` : ""}</div>`;
   }
-  $("app").innerHTML = `
-  <form class="card inputs" onsubmit="return false" aria-label="Indata">
-    ${amountField("start-capital", "Startkapital", "startCapital", 1e4)}</div>
-    ${amountField("monthly-deposit", "M\xE5nadssparande", "monthlyDeposit", 100)}<p class="hint" id="deposit-hint"></p></div>
-    ${amountField("goal", "Sparm\xE5l", "goal", 1e4, '<button type="button" class="linkbtn" id="goal-reset" hidden>\xC5terst\xE4ll</button>')}<p class="goalnote" id="goal-note"></p></div>
-    ${slider("years", "Sparhorisont", "years", 1, 50, 1)}
-    ${slider("return", "F\xF6rv\xE4ntad avkastning", "annualReturn", 0, 12, 0.1)}
-    ${slider("fee", "\xC5rlig avgift", "annualFee", 0, 2.5, 0.05)}
-    ${slider("tax", "Avkastningsskatt", "yieldTax", 0, 3, 0.05, "Schablonskatten p\xE5 investeringssparkonto och kapitalf\xF6rs\xE4kring, per \xE5r av kapitalet.")}
+  function buildUI() {
+    const wasOpen = $("table-card") ? $("table-card").open : false;
+    $("app").innerHTML = `
+  <form class="card inputs" onsubmit="return false" aria-label="${tr("Indata", "Inputs")}">
+    ${amountField("start-capital", tr("Startkapital", "Starting capital"), "startCapital", 1e4)}</div>
+    ${amountField("monthly-deposit", tr("M\xE5nadssparande", "Monthly saving"), "monthlyDeposit", 100)}<p class="hint" id="deposit-hint"></p></div>
+    ${amountField("goal", tr("Sparm\xE5l", "Savings goal"), "goal", 1e4, '<button type="button" class="linkbtn" id="goal-reset" hidden>${tr("\xC5terst\xE4ll", "Reset")}</button>')}<p class="goalnote" id="goal-note"></p></div>
+    ${slider("years", tr("Sparhorisont", "Time horizon"), "years", 1, 50, 1)}
+    ${slider("return", tr("F\xF6rv\xE4ntad avkastning", "Expected return"), "annualReturn", 0, 12, 0.1)}
+    ${slider("fee", tr("\xC5rlig avgift", "Annual fee"), "annualFee", 0, 2.5, 0.05)}
+    ${slider("tax", tr("Avkastningsskatt", "Tax on returns"), "yieldTax", 0, 3, 0.05, tr("Schablonskatten p\xE5 investeringssparkonto och kapitalf\xF6rs\xE4kring, per \xE5r av kapitalet.", "The standard (schablon) tax on an investment savings account (ISK) and capital insurance, per year on the capital."))}
   </form>
   <div class="col">
     <section class="card chart">
       <div class="head"><h2 id="chart-title"></h2>
-        <div class="sel"><label for="chart" class="lab" style="display:block;font-size:.875rem;font-weight:500;margin-bottom:6px">V\xE4lj diagram</label><select id="chart">${CHARTS.map((c) => `<option value="${c.value}">${c.label}</option>`).join("")}</select></div></div>
+        <div class="sel"><label for="chart" class="lab" style="display:block;font-size:.875rem;font-weight:500;margin-bottom:6px">${tr("V\xE4lj diagram", "Choose chart")}</label><select id="chart">${charts().map((c) => `<option value="${c.value}">${c.label}</option>`).join("")}</select></div></div>
       <ul class="legend" id="legend" style="margin-top:12px"></ul>
-      <div class="plot" id="plot"><svg id="svg" viewBox="0 0 800 340" role="img" aria-label="Diagram, se tabellen nedan"></svg><div class="tooltip" id="tip"></div></div>
+      <div class="plot" id="plot"><svg id="svg" viewBox="0 0 800 340" role="img" aria-label="${tr("Diagram, se tabellen nedan", "Chart, see the table below")}"></svg><div class="tooltip" id="tip"></div></div>
       <p class="caption" id="caption"></p>
     </section>
     <div class="stats" id="stats" aria-live="polite"></div>
-    <details class="card table" id="table-card">
-      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">Ladda ner CSV</button></span></summary>
+    <details class="card table" id="table-card"${wasOpen ? " open" : ""}>
+      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button></span></summary>
       <div class="scroll"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
     </details>
   </div>`;
+    bind();
+    syncSliders();
+    render();
+    if (resizeObs) { resizeObs.disconnect(); resizeObs.observe($("plot")); shown = $("plot").clientWidth; }
+  }
   var rows = [];
   var cols = [];
   function columns(simple) {
     return [
-      { label: "\xC5r", value: (r) => r.year, plain: true },
-      { label: "Ing\xE5ende kapital", value: (r) => r.opening },
-      { label: "Ins\xE4ttningar", value: (r) => r.deposits },
-      { label: "R\xE4nta", value: (r) => r.growth },
-      { label: "\xC5rlig avgift", value: (r) => r.fees },
-      { label: "Avkastningsskatt", value: (r) => r.tax },
-      { label: "Utg\xE5ende kapital", value: (r) => r.closing },
+      { label: tr("\xC5r", "Year"), value: (r) => r.year, plain: true },
+      { label: tr("Ing\xE5ende kapital", "Opening capital"), value: (r) => r.opening },
+      { label: tr("Ins\xE4ttningar", "Deposits"), value: (r) => r.deposits },
+      { label: tr("R\xE4nta", "Interest"), value: (r) => r.growth },
+      { label: tr("\xC5rlig avgift", "Annual fee"), value: (r) => r.fees },
+      { label: tr("Avkastningsskatt", "Tax on returns"), value: (r) => r.tax },
+      { label: tr("Utg\xE5ende kapital", "Closing capital"), value: (r) => r.closing },
       { label: simple, value: (r) => r.simpleInterest },
-      { label: "R\xE4nta-p\xE5-r\xE4nta totalt", value: (r) => r.compoundInterest }
+      { label: tr("R\xE4nta-p\xE5-r\xE4nta totalt", "Compound interest total"), value: (r) => r.compoundInterest }
     ];
   }
   function render() {
@@ -274,57 +283,57 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     const result = calculateCompound({ ...base, monthlyDeposit: effective });
     rows = result.rows;
     const netRate = formatPercent(result.netReturn, 2);
-    const simpleKey = `Enkel r\xE4nta (${netRate})`;
-    cols = columns(`Enkel r\xE4nta totalt (${netRate})`);
+    const simpleKey = tr(`Enkel r\xE4nta (${netRate})`, `Simple interest (${netRate})`);
+    cols = columns(tr(`Enkel r\xE4nta totalt (${netRate})`, `Simple interest total (${netRate})`));
     const final = result.finalCapital;
     const dep = $("monthly-deposit");
     dep.disabled = s.goal !== null;
     if (document.activeElement !== dep) dep.value = groupDigits(String(Math.round(effective)));
-    $("deposit-hint").textContent = s.goal !== null ? "Ber\xE4knat fr\xE5n sparm\xE5let." : "";
+    $("deposit-hint").textContent = s.goal !== null ? tr("Ber\xE4knat fr\xE5n sparm\xE5let.", "Calculated from the savings goal.") : "";
     const goal = $("goal");
     if (document.activeElement !== goal) goal.value = groupDigits(String(Math.round((_a = s.goal) != null ? _a : final)));
     $("goal-reset").hidden = s.goal === null;
-    $("goal-note").textContent = s.goal === null ? "F\xF6ljer slutkapitalet. Skriv in ett belopp, till exempel 1 000 000 kr, s\xE5 r\xE4knas m\xE5nadssparandet fram." : required === 0 ? `Startkapitalet ensamt ger redan ${formatSek(s.goal)} efter ${s.years} \xE5r.` : `Du beh\xF6ver spara ${formatSek(required != null ? required : 0)} i m\xE5naden i ${s.years} \xE5r f\xF6r att n\xE5 ${formatSek(s.goal)}.`;
+    $("goal-note").textContent = s.goal === null ? tr("F\xF6ljer slutkapitalet. Skriv in ett belopp, till exempel 1 000 000 kr, s\xE5 r\xE4knas m\xE5nadssparandet fram.", "Follows the final capital. Enter an amount, for example SEK 1,000,000, and the monthly saving is calculated.") : required === 0 ? tr(`Startkapitalet ensamt ger redan ${formatSek(s.goal)} efter ${s.years} \xE5r.`, `The starting capital alone already gives ${formatSek(s.goal)} after ${s.years} years.`) : tr(`Du beh\xF6ver spara ${formatSek(required != null ? required : 0)} i m\xE5naden i ${s.years} \xE5r f\xF6r att n\xE5 ${formatSek(s.goal)}.`, `You need to save ${formatSek(required != null ? required : 0)} per month for ${s.years} years to reach ${formatSek(s.goal)}.`);
     $("stats").innerHTML = [
-      ["Startkapital", result.startCapital, ""],
-      ["+ M\xE5nadssparande", result.totalDeposits, ""],
-      ["+ R\xE4nta", result.totalGrowth, ""],
-      ["\u2212 \xC5rlig avgift", result.totalFees, ""],
-      ["\u2212 Avkastningsskatt", result.totalTax, ""],
-      ["= Slutkapital", result.finalCapital, "hl"]
+      [tr("Startkapital", "Starting capital"), result.startCapital, ""],
+      [tr("+ M\xE5nadssparande", "+ Monthly saving"), result.totalDeposits, ""],
+      [tr("+ R\xE4nta", "+ Interest"), result.totalGrowth, ""],
+      [tr("\u2212 \xC5rlig avgift", "\u2212 Annual fee"), result.totalFees, ""],
+      [tr("\u2212 Avkastningsskatt", "\u2212 Tax on returns"), result.totalTax, ""],
+      [tr("= Slutkapital", "= Final capital"), result.finalCapital, "hl"]
     ].map(([l, v, c]) => `<div class="stat ${c}"><div class="eyebrow">${l}</div><div class="v">${formatSek(v)}</div></div>`).join("");
-    $("table-title").textContent = `\xC5r f\xF6r \xE5r (${rows.length} \xE5r)`;
+    $("table-title").textContent = tr(`\xC5r f\xF6r \xE5r (${rows.length} \xE5r)`, `Year by year (${rows.length} years)`);
     $("thead").innerHTML = cols.map((c) => `<th scope="col">${esc(c.label)}</th>`).join("");
     $("tbody").innerHTML = rows.map((r) => `<tr>${cols.map((c) => `<td>${c.plain ? c.value(r) : num.format(Math.round(c.value(r)))}</td>`).join("")}</tr>`).join("");
     const years = rows.map((r) => String(r.year));
     let plot;
     if (s.chart === "ranta") {
-      plot = { kind: "stack", labels: years, title: (i) => `\xC5r ${years[i]}`, fmt: formatSek, series: [
-        { name: "Startkapital", color: C.navy, values: rows.map(() => Math.round(s.startCapital)) },
-        { name: "Sparande", color: C.gold, values: rows.map((r) => Math.round(r.cumulativeDeposits)) },
+      plot = { kind: "stack", labels: years, title: (i) => `${tr("\xC5r", "Year")} ${years[i]}`, fmt: formatSek, series: [
+        { name: tr("Startkapital", "Starting capital"), color: C.navy, values: rows.map(() => Math.round(s.startCapital)) },
+        { name: tr("Sparande", "Savings"), color: C.gold, values: rows.map((r) => Math.round(r.cumulativeDeposits)) },
         { name: simpleKey, color: C.steel, values: rows.map((r) => Math.round(r.simpleInterest)) },
-        { name: "R\xE4nta-p\xE5-r\xE4nta", color: C.teal, values: rows.map((r) => Math.round(r.compoundInterest)) }
+        { name: tr("R\xE4nta-p\xE5-r\xE4nta", "Compound interest"), color: C.teal, values: rows.map((r) => Math.round(r.compoundInterest)) }
       ] };
     } else if (s.chart === "totalt") {
-      plot = { kind: "line", labels: ["0", ...years], title: (i) => i === 0 ? "Idag" : `\xC5r ${i}`, fmt: formatSek, caption: "Sparhorisont (\xE5r)", series: [
-        { name: "Totalt belopp", color: C.navy, values: [Math.round(s.startCapital), ...rows.map((r) => Math.round(r.closing))] }
+      plot = { kind: "line", labels: ["0", ...years], title: (i) => i === 0 ? tr("Idag", "Today") : `${tr("\xC5r", "Year")} ${i}`, fmt: formatSek, caption: tr("Sparhorisont (\xE5r)", "Time horizon (years)"), series: [
+        { name: tr("Totalt belopp", "Total amount"), color: C.navy, values: [Math.round(s.startCapital), ...rows.map((r) => Math.round(r.closing))] }
       ] };
     } else if (s.chart === "sparmal") {
       const share = rows.map((r) => final > 0 ? r.closing / final * 100 : 0);
       const half = (_c = (_b = rows.find((_, i) => share[i] >= 50)) == null ? void 0 : _b.year) != null ? _c : s.years;
-      plot = { kind: "share", labels: years, title: (i) => `\xC5r ${years[i]}`, fmt: (v) => formatPercent(v, 1), half, caption: `M\xF6rka omr\xE5det visar n\xE4r h\xE4lften av ditt slutv\xE4rde skapas (\xE5r 1\u2013${half}).`, yMax: 100, series: [
-        { name: "Kumulativ andel", color: C.navy, values: share }
+      plot = { kind: "share", labels: years, title: (i) => `${tr("\xC5r", "Year")} ${years[i]}`, fmt: (v) => formatPercent(v, 1), half, caption: tr(`M\xF6rka omr\xE5det visar n\xE4r h\xE4lften av ditt slutv\xE4rde skapas (\xE5r 1\u2013${half}).`, `The dark area shows when half of your final value is created (years 1\u2013${half}).`), yMax: 100, series: [
+        { name: tr("Kumulativ andel", "Cumulative share"), color: C.navy, values: share }
       ] };
     } else {
-      plot = { kind: "stack", labels: ["Start", ...years], title: (i) => i === 0 ? "Start" : `\xC5r ${i}`, fmt: (v) => v === 0 ? "\u2013" : formatSek(v), series: [
-        { name: "Startkapital", color: C.navy, values: [Math.round(s.startCapital), ...rows.map(() => 0)] },
-        { name: "M\xE5nadssparande", color: C.steel, values: [0, ...rows.map((r) => Math.round(r.deposits))] },
-        { name: "R\xE4nta", color: C.teal, values: [0, ...rows.map((r) => Math.round(r.growth))] },
-        { name: "\xC5rlig avgift", color: C.brick, values: [0, ...rows.map((r) => -Math.round(r.fees))] },
-        { name: "Skatt", color: C.gold, values: [0, ...rows.map((r) => -Math.round(r.tax))] }
+      plot = { kind: "stack", labels: [tr("Start", "Start"), ...years], title: (i) => i === 0 ? tr("Start", "Start") : `${tr("\xC5r", "Year")} ${i}`, fmt: (v) => v === 0 ? "\u2013" : formatSek(v), series: [
+        { name: tr("Startkapital", "Starting capital"), color: C.navy, values: [Math.round(s.startCapital), ...rows.map(() => 0)] },
+        { name: tr("M\xE5nadssparande", "Monthly saving"), color: C.steel, values: [0, ...rows.map((r) => Math.round(r.deposits))] },
+        { name: tr("R\xE4nta", "Interest"), color: C.teal, values: [0, ...rows.map((r) => Math.round(r.growth))] },
+        { name: tr("\xC5rlig avgift", "Annual fee"), color: C.brick, values: [0, ...rows.map((r) => -Math.round(r.fees))] },
+        { name: tr("Skatt", "Tax"), color: C.gold, values: [0, ...rows.map((r) => -Math.round(r.tax))] }
       ] };
     }
-    $("chart-title").textContent = CHARTS.find((c) => c.value === s.chart).label;
+    $("chart-title").textContent = charts().find((c) => c.value === s.chart).label;
     $("caption").textContent = (_d = plot.caption) != null ? _d : "";
     $("legend").innerHTML = plot.kind === "line" || plot.kind === "share" ? "" : plot.series.map((x) => `<li><i style="background:${x.color}"></i>${esc(x.name)}</li>`).join("");
     last = plot;
@@ -416,7 +425,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     svg.onpointerleave = hide;
   }
   var display = {
-    years: (v) => `${v} \xE5r`,
+    years: (v) => `${v} ${tr("\xE5r", "years")}`,
     return: (v) => formatPercent(v, 1),
     fee: (v) => formatPercent(v, 2),
     tax: (v) => formatPercent(v, 2)
@@ -430,91 +439,112 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     const sc = $("start-capital");
     if (document.activeElement !== sc) sc.value = groupDigits(String(state.startCapital));
   }
-  document.querySelectorAll("input[data-key]").forEach((input) => {
-    const key = input.dataset.key;
-    input.addEventListener("input", () => {
-      if (input.type === "range") state[key] = parseFloat(input.value);
-      else {
-        input.value = groupDigits(input.value);
-        const v = parseAmount(input.value);
-        const value = Number.isFinite(v) ? Math.max(0, v) : 0;
-        if (key === "goal") state.goal = input.value.trim() === "" ? null : value;
-        else state[key] = value;
-      }
+  function bind() {
+    document.querySelectorAll("input[data-key]").forEach((input) => {
+      const key = input.dataset.key;
+      input.addEventListener("input", () => {
+        if (input.type === "range") state[key] = parseFloat(input.value);
+        else {
+          input.value = groupDigits(input.value);
+          const v = parseAmount(input.value);
+          const value = Number.isFinite(v) ? Math.max(0, v) : 0;
+          if (key === "goal") state.goal = input.value.trim() === "" ? null : value;
+          else state[key] = value;
+        }
+        syncSliders();
+        render();
+      });
+      input.addEventListener("blur", () => {
+        if (input.type !== "range") render();
+      });
+    });
+    $("goal-reset").addEventListener("click", () => {
+      state.goal = null;
       syncSliders();
       render();
     });
-    input.addEventListener("blur", () => {
-      if (input.type !== "range") render();
-    });
-  });
-  $("goal-reset").addEventListener("click", () => {
-    state.goal = null;
-    syncSliders();
-    render();
-  });
-  $("chart").value = state.chart;
-  $("chart").addEventListener("change", (e) => {
-    state.chart = e.target.value;
-    render();
-  });
-  document.querySelectorAll("button.step").forEach((button) => {
-    const key = button.dataset.step;
-    const dir = Number(button.dataset.dir);
-    const input = document.querySelector(`input[data-key="${key}"]`);
-    const stepBy = Number(input.dataset.stepby);
-    const go = () => {
-      if (input.disabled) return;
-      const shown2 = parseAmount(input.value);
-      const next = stepValue(Number.isFinite(shown2) ? shown2 : 0, stepBy, dir, 0);
-      if (key === "goal") state.goal = next;
-      else state[key] = next;
-      input.value = groupDigits(String(next));
-      syncSliders();
+    $("chart").value = state.chart;
+    $("chart").addEventListener("change", (e) => {
+      state.chart = e.target.value;
       render();
-    };
-    let timer, repeat;
-    const stop = () => {
-      window.clearTimeout(timer);
-      window.clearInterval(repeat);
-    };
-    button.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      go();
-      timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
     });
-    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
-    button.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+    document.querySelectorAll("button.step").forEach((button) => {
+      const key = button.dataset.step;
+      const dir = Number(button.dataset.dir);
+      const input = document.querySelector(`input[data-key="${key}"]`);
+      const stepBy = Number(input.dataset.stepby);
+      const go = () => {
+        if (input.disabled) return;
+        const shown2 = parseAmount(input.value);
+        const next = stepValue(Number.isFinite(shown2) ? shown2 : 0, stepBy, dir, 0);
+        if (key === "goal") state.goal = next;
+        else state[key] = next;
+        input.value = groupDigits(String(next));
+        syncSliders();
+        render();
+      };
+      let timer, repeat;
+      const stop = () => {
+        window.clearTimeout(timer);
+        window.clearInterval(repeat);
+      };
+      button.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
         e.preventDefault();
         go();
-      }
+        timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
+      });
+      ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
+      button.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
     });
-  });
-  $("csv").addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const csv = [cols.map((c) => c.label).join(";"), ...rows.map((r) => cols.map((c) => Math.round(c.value(r))).join(";"))].join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "ranta-pa-ranta.csv";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1e3);
-  });
-  syncSliders();
-  render();
-  var shown = $("plot").clientWidth;
-  new ResizeObserver(() => {
+    $("csv").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const csv = [cols.map((c) => c.label).join(";"), ...rows.map((r) => cols.map((c) => Math.round(c.value(r))).join(";"))].join("\r\n");
+      const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = tr("ranta-pa-ranta.csv", "compound-interest.csv");
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    });
+  }
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.title = tr("R\xE4nta p\xE5 r\xE4nta – frist\xE5ende version", "Compound Interest – standalone version");
+    $("meta-desc").setAttribute("content", tr("Se hur ditt sparande v\xE4xer med r\xE4nta p\xE5 r\xE4nta. Frist\xE5ende version av kalkylatorn R\xE4nta p\xE5 r\xE4nta fr\xE5n pensionslyft.se.", "See how your savings grow with compound interest. Standalone version of the Compound Interest calculator from pensionslyft.se."));
+    $("eyebrow-main").textContent = tr("Pensionslyft \xB7 Kalkylatorer", "Pensionslyft \xB7 Calculators");
+    $("h1").textContent = tr("R\xE4nta p\xE5 r\xE4nta", "Compound Interest");
+    $("intro").textContent = tr("Se hur ditt sparande v\xE4xer med r\xE4nta p\xE5 r\xE4nta, efter avgift och avkastningsskatt, och vad du beh\xF6ver spara varje m\xE5nad f\xF6r att n\xE5 ett sparm\xE5l. Allt r\xE4knas i din webbl\xE4sare, och inget skickas n\xE5gonstans.", "See how your savings grow with compound interest, after fees and tax on returns, and what you need to save each month to reach a savings goal. Everything is calculated in your browser, and nothing is sent anywhere.");
+    $("foot").innerHTML = tr('Ber\xE4kningen \xE4r en uppskattning och inte individuell r\xE5dgivning. Avkastningen \xE4r inte garanterad. Den h\xE4r filen \xE4r en frist\xE5ende kopia av <a href="https://pensionslyft.se/ranta-pa-ranta">R\xE4nta p\xE5 r\xE4nta p\xE5 pensionslyft.se</a>, d\xE4r du alltid hittar den senaste versionen.', 'The calculation is an estimate and is not individual advice. Returns are not guaranteed. This file is a standalone copy of <a href="https://pensionslyft.se/ranta-pa-ranta">Compound Interest on pensionslyft.se</a> (in Swedish), where you will always find the latest version.');
+    document.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("active", b.dataset.lang === lang));
+  }
+  function setLang(l) {
+    lang = l;
+    try { localStorage.setItem("pension-lang", l); } catch (e) {}
+    applyStatic();
+    buildUI();
+  }
+  document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  var shown = 0;
+  var resizeObs = null;
+  applyStatic();
+  buildUI();
+  shown = $("plot").clientWidth;
+  resizeObs = new ResizeObserver(() => {
     const w = $("plot").clientWidth;
     if (w !== shown && last) {
       shown = w;
       draw(last);
     }
-  }).observe($("plot"));
+  });
+  resizeObs.observe($("plot"));
 })();
-
 </script>
 </body>
 </html>
