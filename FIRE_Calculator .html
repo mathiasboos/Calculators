@@ -25,6 +25,10 @@ input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: none; b
 
 /* ── Desktop layout ── */
 .page { padding: 28px 28px 32px; max-width: 1200px; margin: 0 auto; }
+.lang-toggle { margin-left: auto; display: inline-flex; gap: 3px; background: #13182a; border: 1px solid #2a3050; border-radius: 8px; padding: 3px; align-self: center; }
+.lang-btn { padding: 4px 11px; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); background: none; border: none; border-radius: 5px; cursor: pointer; }
+.lang-btn.active { background: var(--gold); color: #0b0f1c; }
+.lang-btn:not(.active):hover { color: var(--text); }
 .header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
 .title { font-family: var(--serif); font-weight: 700; font-size: 36px; color: var(--gold); letter-spacing: -0.02em; line-height: 1; }
 .subtitle { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 20px; color: #8a94a8; }
@@ -118,16 +122,17 @@ tr:hover td { background: #141c30; }
 <div class="page" id="page">
 
   <div class="header">
-    <span class="title">FIRE Calculator</span>
-    <span class="subtitle">Financial Independence, Retire Early</span>
+    <span class="title" data-t="title">FIRE Calculator</span>
+    <span class="subtitle" data-t="subtitle">Financial Independence, Retire Early</span>
+    <span class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></span>
   </div>
-  <p class="tagline">Adjust the parameters below to project your path to financial freedom</p>
+  <p class="tagline" data-t="tagline">Adjust the parameters below to project your path to financial freedom</p>
 
   <!-- Tab bar (mobile only) -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="mobTab('inputs',this)">⚙ Inputs</button>
-    <button class="tab-btn" onclick="mobTab('results',this)">◈ Results</button>
-    <button class="tab-btn" onclick="mobTab('table',this)">≡ Table</button>
+    <button class="tab-btn active" onclick="mobTab('inputs',this)" data-t="tab_inputs">⚙ Inputs</button>
+    <button class="tab-btn" onclick="mobTab('results',this)" data-t="tab_results">◈ Results</button>
+    <button class="tab-btn" onclick="mobTab('table',this)" data-t="tab_table">≡ Table</button>
   </div>
 
   <div class="main-grid">
@@ -135,15 +140,15 @@ tr:hover td { background: #141c30; }
     <!-- LEFT -->
     <div class="left-panel" id="mob-inputs">
       <div class="card">
-        <div class="card-label">◈ Parameters</div>
+        <div class="card-label" data-t="params">◈ Parameters</div>
         <div id="sliders"></div>
       </div>
       <div class="card">
-        <div class="card-label">◈ Return Summary</div>
-        <div class="return-row"><span class="return-label">Gross Return</span><span class="return-val" id="ret-gross" style="color:#60a5fa"></span></div>
-        <div class="return-row"><span class="return-label">− Yield Tax</span><span class="return-val" id="ret-tax" style="color:#f87171"></span></div>
-        <div class="return-row"><span class="return-label">− Portfolio Fees</span><span class="return-val" id="ret-fees" style="color:#f87171"></span></div>
-        <div class="return-row"><span class="return-label">= Net Return</span><span class="return-val" id="ret-net" style="color:#4ade80"></span></div>
+        <div class="card-label" data-t="retsum">◈ Return Summary</div>
+        <div class="return-row"><span class="return-label" data-t="r1">Gross Return</span><span class="return-val" id="ret-gross" style="color:#60a5fa"></span></div>
+        <div class="return-row"><span class="return-label" data-t="r2">− Yield Tax</span><span class="return-val" id="ret-tax" style="color:#f87171"></span></div>
+        <div class="return-row"><span class="return-label" data-t="r3">− Portfolio Fees</span><span class="return-val" id="ret-fees" style="color:#f87171"></span></div>
+        <div class="return-row"><span class="return-label" data-t="r4">= Net Return</span><span class="return-val" id="ret-net" style="color:#4ade80"></span></div>
       </div>
     </div>
 
@@ -156,12 +161,12 @@ tr:hover td { background: #141c30; }
           <div class="kpi-sub" id="kpiFireSub"></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">FIRE Target</div>
+          <div class="kpi-label" data-t="k_target">FIRE Target</div>
           <div class="kpi-value" id="kpiTarget" style="color:#f0c040">—</div>
           <div class="kpi-sub" id="kpiTargetSub"></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Monthly Savings</div>
+          <div class="kpi-label" data-t="k_sav">Monthly Savings</div>
           <div class="kpi-value" id="kpiSavings" style="color:#a78bfa">—</div>
           <div class="kpi-sub" id="kpiSavingsSub"></div>
         </div>
@@ -169,7 +174,7 @@ tr:hover td { background: #141c30; }
 
       <div class="card" id="milestonesCard" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Portfolio Progress to FIRE</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase" data-t="progress">Portfolio Progress to FIRE</span>
           <span style="font-family:var(--mono);font-size:11px;color:var(--gold)" id="progressLabel"></span>
         </div>
         <div class="milestones" id="milestones"></div>
@@ -177,11 +182,11 @@ tr:hover td { background: #141c30; }
 
       <div class="card">
         <div class="chart-header">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">◈ Portfolio Growth Projection</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase" data-t="growth">◈ Portfolio Growth Projection</span>
           <div class="chart-legend">
-            <span style="color:#f0c040">● Nominal</span>
-            <span style="color:#f87171">● FIRE Target</span>
-            <span style="color:#22c55e">┊ FIRE Age</span>
+            <span style="color:#f0c040" data-t="lg1">● Nominal</span>
+            <span style="color:#f87171" data-t="lg2">● FIRE Target</span>
+            <span style="color:#22c55e" data-t="lg3">┊ FIRE Age</span>
           </div>
         </div>
         <div style="position:relative;height:240px;width:100%">
@@ -202,11 +207,7 @@ tr:hover td { background: #141c30; }
         </div>
         <div class="table-wrap" id="tableWrap" style="display:none">
           <table>
-            <thead><tr>
-              <th>Year</th><th>Age</th><th>Monthly Salary</th><th>Monthly Savings</th>
-              <th>Yearly Savings</th><th>Portfolio (Open)</th><th>ROI</th>
-              <th>Taxes</th><th>Fees</th><th>Portfolio (Close)</th><th>FIRE Target</th><th>Gap</th>
-            </tr></thead>
+            <thead><tr id="theadRow"></tr></thead>
             <tbody id="tableBody"></tbody>
           </table>
         </div>
@@ -214,31 +215,59 @@ tr:hover td { background: #141c30; }
     </div>
 
   </div>
-  <div class="footer">Projections are estimates and do not constitute financial advice · Returns are not guaranteed</div>
+  <div class="footer" data-t="footer">Projections are estimates and do not constitute financial advice · Returns are not guaranteed</div>
 </div>
 
 <script>
+let lang = 'en';
+try { if (localStorage.getItem('pension-lang') === 'sv') lang = 'sv'; } catch (e) {}
+const T = (en, sv) => lang === 'sv' ? sv : en;
+const SV = {
+  title: 'FIRE-kalkylator', subtitle: 'Ekonomiskt oberoende, tidig pension',
+  tagline: 'Justera parametrarna nedan för att se vägen till ekonomisk frihet',
+  tab_inputs: '⚙ Indata', tab_results: '◈ Resultat', tab_table: '≡ Tabell',
+  params: '◈ Parametrar', retsum: '◈ Avkastningssammanfattning',
+  r1: 'Bruttoavkastning', r2: '− Avkastningsskatt', r3: '− Portföljavgifter', r4: '= Nettoavkastning',
+  k_target: 'FIRE-mål', k_sav: 'Månadssparande',
+  progress: 'Portföljens framsteg mot FIRE', growth: '◈ Portföljens tillväxt',
+  lg1: '● Nominellt', lg2: '● FIRE-mål', lg3: '┊ FIRE-ålder',
+  footer: 'Prognoserna är uppskattningar och utgör inte finansiell rådgivning · Avkastningen är inte garanterad'
+};
+const EN_SRC = {};
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = T('FIRE Calculator', 'FIRE-kalkylator');
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.dataset.t;
+    if (!(k in EN_SRC)) EN_SRC[k] = el.textContent;
+    el.textContent = lang === 'sv' ? SV[k] : EN_SRC[k];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.getElementById('theadRow').innerHTML = TABLE_HEADERS().map(h => '<th>' + h + '</th>').join('');
+}
 const params = {
   currentAge:20, monthlySalary:40000, savingsRatio:0.5,
   savingsGoalMultiple:25, portfolioReturn:0.061,
   initialPortfolio:0, yieldTaxK:0.0105, portfolioFees:0.0025,
 };
-function fmtN(n){return new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(n);}
-function fmtP(n){return`${(n*100).toFixed(2)}%`;}
+function fmtN(n){return new Intl.NumberFormat(lang==='sv'?'sv-SE':'en-US',{maximumFractionDigits:0}).format(n);}
+function fmtP(n){const v=(n*100).toFixed(2);return lang==='sv'?`${v.replace('.',',')} %`:`${v}%`;}
 
-const SLIDERS=[
-  {key:'currentAge',        label:'Current Age',               min:15,   max:60,    step:1,     fmt:v=>`${v} yrs`},
-  {key:'monthlySalary',     label:'Monthly Salary (after tax)',min:5000, max:200000,step:1000,  fmt:v=>fmtN(v), hint:()=>`Save ${fmtN(params.monthlySalary*params.savingsRatio)}/mo · Spend ${fmtN(params.monthlySalary*(1-params.savingsRatio))}/mo`},
-  {key:'savingsRatio',      label:'Savings Ratio',             min:0.05, max:0.95,  step:0.01,  fmt:fmtP},
-  {key:'savingsGoalMultiple',label:'FIRE Multiple',            min:10,   max:50,    step:1,     fmt:v=>`${v}×`, hint:()=>'25× = 4% withdrawal rule'},
+const SLIDERS=()=>[
+  {key:'currentAge',        label:T('Current Age','Nuvarande ålder'),               min:15,   max:60,    step:1,     fmt:v=>`${v} ${T('yrs','år')}`},
+  {key:'monthlySalary',     label:T('Monthly Salary (after tax)','Månadslön (efter skatt)'),min:5000, max:200000,step:1000,  fmt:v=>fmtN(v), hint:()=>T(`Save ${fmtN(params.monthlySalary*params.savingsRatio)}/mo · Spend ${fmtN(params.monthlySalary*(1-params.savingsRatio))}/mo`,`Spara ${fmtN(params.monthlySalary*params.savingsRatio)}/mån · Spendera ${fmtN(params.monthlySalary*(1-params.savingsRatio))}/mån`)},
+  {key:'savingsRatio',      label:T('Savings Ratio','Sparkvot'),             min:0.05, max:0.95,  step:0.01,  fmt:fmtP},
+  {key:'savingsGoalMultiple',label:T('FIRE Multiple','FIRE-multipel'),            min:10,   max:50,    step:1,     fmt:v=>`${v}×`, hint:()=>T('25× = 4% withdrawal rule','25× = 4 %-regeln för uttag')},
   null,
-  {key:'portfolioReturn',   label:'Portfolio Return p.a.',     min:0.01, max:0.15,  step:0.001, fmt:fmtP},
-  {key:'portfolioFees',     label:'Portfolio Fees p.a.',       min:0,    max:0.02,  step:0.0005,fmt:fmtP},
-  {key:'yieldTaxK',         label:'ISK Yield Tax p.a.',        min:0,    max:0.03,  step:0.0005,fmt:fmtP, hint:()=>'Swedish K-insurance tax'},
-  {key:'initialPortfolio',  label:'Initial Portfolio',         min:0,    max:2000000,step:10000,fmt:v=>fmtN(v), hint:()=>'Current savings/investments'},
+  {key:'portfolioReturn',   label:T('Portfolio Return p.a.','Portföljens avkastning per år'),     min:0.01, max:0.15,  step:0.001, fmt:fmtP},
+  {key:'portfolioFees',     label:T('Portfolio Fees p.a.','Portföljavgifter per år'),       min:0,    max:0.02,  step:0.0005,fmt:fmtP},
+  {key:'yieldTaxK',         label:T('ISK Yield Tax p.a.','ISK-schablonskatt per år'),        min:0,    max:0.03,  step:0.0005,fmt:fmtP, hint:()=>T('Swedish K-insurance tax','Schablonskatt på kapitalförsäkring')},
+  {key:'initialPortfolio',  label:T('Initial Portfolio','Startportfölj'),         min:0,    max:2000000,step:10000,fmt:v=>fmtN(v), hint:()=>T('Current savings/investments','Nuvarande sparande/placeringar')},
 ];
 const slidersEl=document.getElementById('sliders');
-SLIDERS.forEach(s=>{
+function buildSliders(){
+slidersEl.innerHTML='';
+SLIDERS().forEach(s=>{
   if(!s){const d=document.createElement('div');d.style.cssText='height:1px;background:#1e2840;margin:14px 0';slidersEl.appendChild(d);return;}
   const w=document.createElement('div');w.className='slider-group';
   w.innerHTML=`<div class="slider-header"><label class="slider-label">${s.label}</label><span class="slider-value" id="val-${s.key}">${s.fmt(params[s.key])}</span></div><input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${params[s.key]}" id="sl-${s.key}">${s.hint?`<div class="slider-hint" id="hint-${s.key}">${s.hint()}</div>`:''}`;
@@ -250,6 +279,7 @@ SLIDERS.forEach(s=>{
     update();
   });
 });
+}
 
 function computeProjection(){
   const{currentAge,monthlySalary,savingsRatio,savingsGoalMultiple,portfolioReturn,initialPortfolio,yieldTaxK,portfolioFees}=params;
@@ -276,8 +306,8 @@ function buildChart(rows,fireAge){
   chart=new Chart(ctx,{
     type:'line',
     data:{labels:data.map(r=>r.age),datasets:[
-      {label:'FIRE Target',data:data.map(r=>r.nt),borderColor:'#f87171',borderWidth:1.5,borderDash:[5,3],backgroundColor:'rgba(248,113,113,0.07)',fill:true,pointRadius:0,tension:0.4},
-      {label:'Portfolio',data:data.map(r=>r.closing),borderColor:'#f0c040',borderWidth:2,backgroundColor:'rgba(240,192,64,0.15)',fill:true,pointRadius:0,tension:0.4},
+      {label:T('FIRE Target','FIRE-mål'),data:data.map(r=>r.nt),borderColor:'#f87171',borderWidth:1.5,borderDash:[5,3],backgroundColor:'rgba(248,113,113,0.07)',fill:true,pointRadius:0,tension:0.4},
+      {label:T('Portfolio','Portfölj'),data:data.map(r=>r.closing),borderColor:'#f0c040',borderWidth:2,backgroundColor:'rgba(240,192,64,0.15)',fill:true,pointRadius:0,tension:0.4},
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
@@ -306,7 +336,7 @@ function buildChart(rows,fireAge){
 }
 
 let tableOpen=false,cachedRows=[];
-const TABLE_HEADERS=['Year','Age','Monthly Salary','Monthly Savings','Yearly Savings','Portfolio (Open)','ROI','Taxes','Fees','Portfolio (Close)','FIRE Target','Gap'];
+const TABLE_HEADERS=()=>[T('Year','År'),T('Age','Ålder'),T('Monthly Salary','Månadslön'),T('Monthly Savings','Månadssparande'),T('Yearly Savings','Årssparande'),T('Portfolio (Open)','Portfölj (ingående)'),T('ROI','Avkastning'),T('Taxes','Skatt'),T('Fees','Avgifter'),T('Portfolio (Close)','Portfölj (utgående)'),T('FIRE Target','FIRE-mål'),T('Gap','Gap')];
 function rowToArray(r){return[r.yr,r.age,r.salary,r.ms,r.ys,r.opening,r.roi,r.taxes,r.fees,r.closing,r.nt,r.gap];}
 
 function toggleTable(){
@@ -316,14 +346,14 @@ function toggleTable(){
   if(chart)setTimeout(()=>chart.resize(),0);
 }
 function downloadCSV(){
-  const lines=[TABLE_HEADERS.join(',')];
-  cachedRows.forEach(r=>lines.push(rowToArray(r).join(',')));
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download='fire-projection.csv';a.click();
+  const lines=[TABLE_HEADERS().join(lang==='sv'?';':',')];
+  cachedRows.forEach(r=>lines.push(rowToArray(r).join(lang==='sv'?';':',')));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'}));a.download=T('fire-projection.csv','fire-prognos.csv');a.click();
 }
 function downloadXLSX(){
-  const ws=XLSX.utils.aoa_to_sheet([TABLE_HEADERS,...cachedRows.map(rowToArray)]);
-  ws['!cols']=TABLE_HEADERS.map((_,i)=>({wch:i<=1?6:16}));
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'FIRE Projection');XLSX.writeFile(wb,'fire-projection.xlsx');
+  const ws=XLSX.utils.aoa_to_sheet([TABLE_HEADERS(),...cachedRows.map(rowToArray)]);
+  ws['!cols']=TABLE_HEADERS().map((_,i)=>({wch:i<=1?6:16}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,T('FIRE Projection','FIRE-prognos'));XLSX.writeFile(wb,T('fire-projection.xlsx','fire-prognos.xlsx'));
 }
 function buildTable(rows){
   cachedRows=rows;
@@ -334,7 +364,7 @@ function buildTable(rows){
     tr.innerHTML=`<td>${r.yr}</td><td style="color:${isFire?'#4ade80':'#dde2ee'}">${r.age}${isFireMoment?' 🔥':''}</td><td>${fmtN(r.salary)}</td><td>${fmtN(r.ms)}</td><td>${fmtN(r.ys)}</td><td>${fmtN(r.opening)}</td><td style="color:#4ade80">${fmtN(r.roi)}</td><td style="color:#f87171">${fmtN(r.taxes)}</td><td style="color:#f87171">${fmtN(r.fees)}</td><td style="color:#f0c040;font-weight:600">${fmtN(r.closing)}</td><td>${fmtN(r.nt)}</td><td style="color:${r.gap<=0?'#4ade80':'#f87171'}">${fmtN(r.gap)}</td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('tableToggleLabel').textContent=`◈ Year-by-Year Projection (${rows.length} years)`;
+  document.getElementById('tableToggleLabel').textContent=T(`◈ Year-by-Year Projection (${rows.length} years)`,`◈ År för år (${rows.length} år)`);
 }
 
 function update(){
@@ -348,19 +378,19 @@ function update(){
   const kpiCard=document.getElementById('kpiFireCard');
   if(fireAge){
     kpiCard.className='kpi-card fire fire-pulse';
-    document.getElementById('kpiFireLabel').textContent='✦ FIRE Age';
+    document.getElementById('kpiFireLabel').textContent=T('✦ FIRE Age','✦ FIRE-ålder');
     document.getElementById('kpiFireVal').innerHTML=`<span style="font-size:44px">${fireAge}</span>`;
-    document.getElementById('kpiFireSub').textContent=`In ${fireYear} years`;
+    document.getElementById('kpiFireSub').textContent=T(`In ${fireYear} years`,`Om ${fireYear} år`);
   }else{
     kpiCard.className='kpi-card';
-    document.getElementById('kpiFireLabel').textContent='FIRE Age';
-    document.getElementById('kpiFireVal').innerHTML=`<span style="font-size:18px;color:#4a5270">Not reached in 70 yrs</span>`;
+    document.getElementById('kpiFireLabel').textContent=T('FIRE Age','FIRE-ålder');
+    document.getElementById('kpiFireVal').innerHTML=`<span style="font-size:18px;color:#4a5270">${T('Not reached in 70 yrs','Uppnås inte inom 70 år')}</span>`;
     document.getElementById('kpiFireSub').textContent='';
   }
   document.getElementById('kpiTarget').textContent=fmtN(fireAge?fireTarget:rows[0]?.nt);
-  document.getElementById('kpiTargetSub').textContent=`${fmtN(monthlyExpenses)}/mo × 12 × ${params.savingsGoalMultiple}×`;
+  document.getElementById('kpiTargetSub').textContent=`${fmtN(monthlyExpenses)}/${T('mo','mån')} × 12 × ${params.savingsGoalMultiple}×`;
   document.getElementById('kpiSavings').textContent=fmtN(params.monthlySalary*params.savingsRatio);
-  document.getElementById('kpiSavingsSub').textContent=`${fmtN(params.monthlySalary*params.savingsRatio*12)}/yr · ${fmtP(params.savingsRatio)} ratio`;
+  document.getElementById('kpiSavingsSub').textContent=T(`${fmtN(params.monthlySalary*params.savingsRatio*12)}/yr · ${fmtP(params.savingsRatio)} ratio`,`${fmtN(params.monthlySalary*params.savingsRatio*12)}/år · sparkvot ${fmtP(params.savingsRatio)}`);
 
   const msCard=document.getElementById('milestonesCard');
   msCard.style.display=fireAge?'':'none';
@@ -370,7 +400,7 @@ function update(){
     [25,50,75,100].forEach(m=>{
       const row=rows.find(r=>r.closing/r.nt*100>=m);
       const div=document.createElement('div');div.className='milestone'+(row?' reached':'');
-      div.innerHTML=`<div class="milestone-pct">${m}%</div><div class="milestone-age">${row?`Age ${row.age}`:'—'}</div>`;
+      div.innerHTML=`<div class="milestone-pct">${m}%</div><div class="milestone-age">${row?`${T('Age','Ålder')} ${row.age}`:'—'}</div>`;
       ms.appendChild(div);
     });
   }
@@ -381,6 +411,16 @@ function update(){
   buildChart(rows,fireAge);
   buildTable(rows);
 }
+function setLang(l){
+  lang=l;
+  try{localStorage.setItem('pension-lang',l);}catch(e){}
+  applyStatic();
+  buildSliders();
+  update();
+}
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+applyStatic();
+buildSliders();
 update();
 
 // ── Tab switching (mobile only) ──
