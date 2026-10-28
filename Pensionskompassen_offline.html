@@ -70,6 +70,13 @@
     .lang-toggle { position: absolute; top: 12px; right: 14px; display: inline-flex; gap: 3px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; padding: 3px; }
     .lang-btn { padding: 4px 11px; font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: rgba(255,255,255,.8); background: none; border: none; border-radius: 5px; cursor: pointer; }
     .lang-btn.active { background: #fff; color: #1b5c36; }
+  .yr-btn{font:inherit;font-size:12px;font-weight:600;padding:5px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#333;cursor:pointer}
+  .yr-btn:hover{background:#f4f4f4}
+  .yr-scroll{max-height:24rem;overflow:auto;border-top:1px solid #eee}
+  table.yr{width:100%;border-collapse:collapse;font-size:12px}
+  table.yr th,table.yr td{text-align:right;white-space:nowrap;padding:6px 12px;border-bottom:1px solid #f0f0f0}
+  table.yr th:first-child,table.yr td:first-child{text-align:left}
+  table.yr thead th{position:sticky;top:0;background:#f7f7f7;font-weight:600}
   </style>
 </head>
 <body>
@@ -336,6 +343,20 @@
     <div style="position:relative;height:240px">
       <canvas id="pension-chart"></canvas>
     </div>
+  </div>
+
+  <!-- År-för-år-tabell -->
+  <div class="card" id="yr-card" style="padding:0">
+    <details open>
+      <summary style="cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:16px 20px;list-style:none">
+        <span class="section-title" id="yr-title" style="margin:0">År för år</span>
+        <span style="display:flex;gap:6px">
+          <button type="button" class="yr-btn" id="yr-csv">Ladda ner CSV</button>
+          <button type="button" class="yr-btn" id="yr-xls">Ladda ner Excel</button>
+        </span>
+      </summary>
+      <div class="yr-scroll"><table class="yr"><thead id="yr-head"></thead><tbody id="yr-body"></tbody></table></div>
+    </details>
   </div>
 
   <!-- Chart warning / success message -->
@@ -801,6 +822,36 @@ const S = {
 };
 
 // ── Chart ────────────────────────────────────────────────────────────────
+// ── År-för-år-tabell med nedladdning (CSV / Excel) ──
+let _yrCols=[], _yrRows=[];
+function renderYearTable(rows) {
+  _yrCols = [tr('Ålder','Age'), tr('Allmän pension','Public pension'), tr('Tjänstepension','Occupational pension'),
+             tr('Totalt','Total'), tr('Pengar saknas','Money missing'), tr('Kvarvarande kapital','Remaining capital')];
+  _yrRows = rows.map(r => [r.age, r.ap, r.tp, r.ap + r.tp, r.missing || 0, r.tpBal]);
+  el('yr-title').textContent = tr('År för år – kr/mån (','Year by year – SEK/month (') + rows.length + tr(' år)',' years)');
+  el('yr-csv').textContent = tr('Ladda ner CSV','Download CSV');
+  el('yr-xls').textContent = tr('Ladda ner Excel','Download Excel');
+  el('yr-head').innerHTML = '<tr>' + _yrCols.map(c => '<th>' + c + '</th>').join('') + '</tr>';
+  el('yr-body').innerHTML = _yrRows.map(r => '<tr>' + r.map((v,i) => '<td>' + (i === 0 ? v : fmt(v)) + '</td>').join('') + '</tr>').join('');
+}
+function yrDownload(name, type, content) {
+  const url = URL.createObjectURL(new Blob([content], {type}));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+el('yr-csv').addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const csv = [_yrCols.join(';'), ..._yrRows.map(r => r.map(Math.round).join(';'))].join('\r\n');
+  yrDownload(tr('pensionskompassen.csv','pension-compass.csv'), 'text/csv;charset=utf-8', '\uFEFF' + csv);
+});
+el('yr-xls').addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + _yrCols.map(c => '<th>' + c + '</th>').join('') + '</tr>' +
+    _yrRows.map(r => '<tr>' + r.map(v => '<td>' + Math.round(v) + '</td>').join('') + '</tr>').join('') + '</table></body></html>';
+  yrDownload(tr('pensionskompassen.xls','pension-compass.xls'), 'application/vnd.ms-excel;charset=utf-8', html);
+});
+
 let _chartInst=null, _chartTimer=null;
 function scheduleRender() { clearTimeout(_chartTimer); _chartTimer=setTimeout(doRenderChart,60); }
 
@@ -879,6 +930,7 @@ function doRenderChart() {
     const sim=runSimulation(cap.tp,cap.ap,+S.tpStart,+S.apStart,S.wMode,+S.p1End,+S.p1Amt,+S.p2End,+S.p2Amt,S.p2Life);
     const startA=Math.min(+S.tpStart,+S.apStart);
     const allRows = sim.rows;
+    renderYearTable(allRows);
     const chartRows = allRows.filter(d=>d.age%2===0||d.age%5===0||d.age===startA);
 
     if (_chartInst) { _chartInst.destroy(); _chartInst=null; }

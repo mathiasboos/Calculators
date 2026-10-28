@@ -198,6 +198,17 @@
         letter-spacing:.05em;border-bottom:none;color:var(--accent)}
   td .small{display:block;font-size:.76rem;color:var(--ink-soft);font-weight:400}
 
+
+  /* År för år-tabell */
+  .yr-dl{margin-left:auto;display:flex;gap:6px}
+  .yr-btn{font:inherit;font-size:.78rem;font-weight:600;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+  .yr-btn:hover{background:var(--panel)}
+  .yr-scroll{max-height:24rem;overflow:auto;margin-top:12px;border-top:1px solid var(--line)}
+  table.yr{margin-top:0;font-size:.8rem}
+  table.yr th,table.yr td{text-align:right;white-space:nowrap;padding:6px 10px;font-weight:500;border-bottom:1px solid #f0f0f0}
+  table.yr th:first-child,table.yr td:first-child{text-align:left}
+  table.yr thead th{position:sticky;top:0;background:var(--panel);font-weight:700}
+
   /* Graf */
   .chart-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);
         box-shadow:0 1px 3px rgba(0,0,0,.04);padding:26px 28px}
@@ -531,6 +542,11 @@
             </table>
           </div>
         </div>
+
+        <details class="calc-details" id="yrCard">
+  <summary><span id="yrTitle">År för år</span><span class="yr-dl"><button type="button" class="yr-btn" id="yrCsv">Ladda ner CSV</button><button type="button" class="yr-btn" id="yrXls">Ladda ner Excel</button></span></summary>
+  <div class="yr-scroll"><table class="yr"><thead id="yrHead"></thead><tbody id="yrBody"></tbody></table></div>
+</details>
 
         <details class="calc-details">
           <summary>Visa detaljerad beräkning</summary>
@@ -1576,6 +1592,47 @@ const SCEN_COLORS = {4:"#fac110", 6:"#48b866", 8:"#ff5b2e"};
 const PAD_L = 8, PAD_R = 8, PAD_T = 12, PAD_B = 26, CH_H = 240;
 let hoverIdx = null;
 
+// ===== År-för-år-tabell med nedladdning (CSV / Excel) =====
+let yrCols = [], yrRows = [], yrKey = "";
+function renderYearTable(){
+  const d = (function(){
+    if(!chartData) return null;
+    const sv = LANG === "sv", {years, retPct} = chartData;
+    const {main, inb, scen, active} = buildSeries();
+    const cols = [sv?"År":"Year", sv?"Inbetalt":"Paid in", sv?"Avkastning":"Return", (sv?"Kapital ":"Capital ") + retPct + " %", ...active.map(p => (sv?"Kapital ":"Capital ") + p + " %")];
+    const rows = [];
+    for(let y = 1; y <= years; y++) rows.push([y, inb[y], main[y] - inb[y], main[y], ...active.map(p => scen[p][y])]);
+    return {sig: [chartData, active], cols, rows};
+  })();
+  if(!d) return;
+  const key = JSON.stringify([d.sig, LANG]);
+  if(key === yrKey) return;
+  yrKey = key;
+  yrCols = d.cols; yrRows = d.rows;
+  document.getElementById("yrTitle").textContent = ((sv, en) => LANG === "en" ? en : sv)("År för år (" + d.rows.length + " år)", "Year by year (" + d.rows.length + " years)");
+  document.getElementById("yrCsv").textContent = ((sv, en) => LANG === "en" ? en : sv)("Ladda ner CSV", "Download CSV");
+  document.getElementById("yrXls").textContent = ((sv, en) => LANG === "en" ? en : sv)("Ladda ner Excel", "Download Excel");
+  document.getElementById("yrHead").innerHTML = "<tr>" + yrCols.map(c => "<th>" + c + "</th>").join("") + "</tr>";
+  document.getElementById("yrBody").innerHTML = yrRows.map(r => "<tr>" + r.map((v,i) => "<td>" + (i === 0 ? v : Math.round(v).toLocaleString("sv-SE")) + "</td>").join("") + "</tr>").join("");
+}
+function yrDownload(name, type, content){
+  const url = URL.createObjectURL(new Blob([content], {type}));
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+document.getElementById("yrCsv").addEventListener("click", e => {
+  e.preventDefault(); e.stopPropagation();
+  const csv = [yrCols.join(";"), ...yrRows.map(r => r.map(Math.round).join(";"))].join("\r\n");
+  yrDownload(((sv, en) => LANG === "en" ? en : sv)("lonevaxling-ar-for-ar.csv", "salary-exchange-year-by-year.csv"), "text/csv;charset=utf-8", "\uFEFF" + csv);
+});
+document.getElementById("yrXls").addEventListener("click", e => {
+  e.preventDefault(); e.stopPropagation();
+  const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + yrCols.map(c => "<th>" + c + "</th>").join("") + "</tr>" +
+    yrRows.map(r => "<tr>" + r.map(v => "<td>" + Math.round(v) + "</td>").join("") + "</tr>").join("") + "</table></body></html>";
+  yrDownload(((sv, en) => LANG === "en" ? en : sv)("lonevaxling-ar-for-ar.xls", "salary-exchange-year-by-year.xls"), "application/vnd.ms-excel;charset=utf-8", html);
+});
+
 // ===== Simuleringsmotor: år-för-år med fondavgift + avkastningsskatt =====
 // Returnerar array [kapital vid år0=0, år1, år2, ..., årtotalYears]
 function simSeries(premie, grossPct, totalYears, t, fondavgift, avkastningsskatt){
@@ -1619,6 +1676,7 @@ function buildSeries(){
 
 function drawChart(){
   if(!chartData) return;
+  renderYearTable();
   const cv = $("growthChart");
   const ctx = cv.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
