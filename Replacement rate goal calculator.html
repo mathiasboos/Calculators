@@ -135,8 +135,8 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
   <p class="intro" data-t="subtitle"></p>
   <div class="toolbar">
     <div class="seg" role="group">
-      <button type="button" class="tab-btn active" id="tab-netto" onclick="switchMode('netto', this)" data-t="tab_net"></button>
-      <button type="button" class="tab-btn" id="tab-brutto" onclick="switchMode('brutto', this)" data-t="tab_gross"></button>
+      <button type="button" class="tab-btn active" id="tab-brutto" onclick="switchMode('brutto', this)" data-t="tab_gross"></button>
+      <button type="button" class="tab-btn" id="tab-netto" onclick="switchMode('netto', this)" data-t="tab_net"></button>
     </div>
   </div>
 
@@ -163,7 +163,11 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       </div>
       <div class="field">
         <label for="kommun_sel" data-t="label_kommun"></label>
-        <select id="kommun_sel" onchange="recalc()"></select>
+        <select id="kommun_sel" onchange="syncKommun(); recalc()"></select>
+        <div id="kommun_own_wrap" hidden style="margin-top:12px">
+          <label for="kommun_own" data-t="kommun_own_label"></label>
+          <div class="num"><input id="kommun_own" type="text" inputmode="decimal" autocomplete="off" value="32,38" oninput="recalc()"><span>%</span></div>
+        </div>
         <p class="hint" data-t="hint_kommun"></p>
       </div>
 
@@ -179,7 +183,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 
       <div class="eyebrow group-title" data-t="section_capital"></div>
       <div class="field">
-        <label id="capital_label" for="existing_capital" data-t="label_capital_net"></label>
+        <label id="capital_label" for="existing_capital" data-t="label_capital_gross"></label>
         <div class="row">
           <button type="button" class="step" data-step="existing_capital" data-dir="-1">&minus;</button>
           <div class="num"><input id="existing_capital" type="text" inputmode="numeric" autocomplete="off" value="150 000" data-stepby="10000"><span>kr</span></div>
@@ -187,8 +191,12 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
         </div>
       </div>
       <div class="field">
-        <div class="sliderhead"><label class="lab" for="return_rate" data-t="label_return"></label><output id="return_rate-out"></output></div>
-        <input id="return_rate" type="range" min="0" max="8" step="0.1" value="1.7">
+        <label for="return_sel" data-t="label_return"></label>
+        <select id="return_sel" onchange="syncReturn(); recalc()"></select>
+        <div id="return_own" hidden style="margin-top:12px">
+          <div class="sliderhead"><label class="lab" for="return_rate" data-t="ret_own_label"></label><output id="return_rate-out"></output></div>
+          <input id="return_rate" type="range" min="0" max="8" step="0.1" value="4.5">
+        </div>
         <p class="hint" data-t="hint_return"></p>
       </div>
       <div class="field">
@@ -258,7 +266,7 @@ const T = {
     section_situation:  'Din situation',
     label_salary:       'Årslön (före skatt)',
     label_forecast_pct: 'Prognos pension %',
-    hint_forecast:      'Från minpension.se',
+    hint_forecast:      'Kompensationsgrad (andel av slutlön före skatt) från <a href="https://www.minpension.se/" target="_blank" rel="noopener">minpension.se</a>',
     label_desired_pct:  'Önskad pensionsnivå %',
     hint_desired:       'Andel av lön före skatt',
     section_horizon:    'Sparhorisont',
@@ -271,7 +279,12 @@ const T = {
     hint_kommun:        'Kommunalskatt 2026 (SCB). Statlig skatt över skiktgränsen.',
     kommun_avg:         'Genomsnitt (Typfallsmodellen) – 32,38 %',
     label_return:       'Real avkastning % / år',
-    hint_return:        'Prognosstandard 1,7 % (efter avgifter)',
+    hint_return:        'Avkastning vid 0 % inflation: nominell avkastning minus 2 %.',
+    ret_own:            'Egen avkastning',
+    ret_own_label:      'Egen real avkastning',
+    kommun_own:         'Egen kommunalskatt',
+    kommun_own_label:   'Egen kommunalskatt (%)',
+    ret_opts:           ['100 % aktier', '75 % aktier, 25 % räntor', '50 % aktier, 50 % räntor', '100 % räntor'],
     label_inflation:    'Årlig inflation %',
     hint_inflation:     '0 % = fasta priser',
     results_title:      'Resultat',
@@ -338,7 +351,7 @@ const T = {
     section_situation:  'Your situation',
     label_salary:       'Annual salary (before tax)',
     label_forecast_pct: 'Pension forecast %',
-    hint_forecast:      'From minpension.se',
+    hint_forecast:      'Replacement rate (share of final salary before tax) from <a href="https://www.minpension.se/" target="_blank" rel="noopener">minpension.se</a>',
     label_desired_pct:  'Desired pension level %',
     hint_desired:       'Share of salary before tax',
     section_horizon:    'Savings horizon',
@@ -351,7 +364,12 @@ const T = {
     hint_kommun:        'Municipal tax 2026 (SCB). State tax above the skiktgräns.',
     kommun_avg:         'Average (Typfallsmodellen) – 32.38 %',
     label_return:       'Real fund yield % / year',
-    hint_return:        'Forecast standard 1.7% (after fees)',
+    hint_return:        'Yield with zero inflation: nominal return minus 2%.',
+    ret_own:            'Own return',
+    ret_own_label:      'Own real return',
+    kommun_own:         'Own municipal tax',
+    kommun_own_label:   'Own municipal tax (%)',
+    ret_opts:           ['100% equities', '75% equities, 25% bonds', '50% equities, 50% bonds', '100% bonds'],
     label_inflation:    'Annual inflation %',
     hint_inflation:     '0% = constant prices',
     results_title:      'Results',
@@ -413,7 +431,7 @@ const T = {
 
 // ── State ──
 let lang = 'sv';
-let mode = 'netto';
+let mode = 'brutto';
 let chartType = 'stacked';
 let growthChart = null;
 
@@ -439,6 +457,7 @@ function applyLang() {
     mode === 'netto' ? t('label_capital_net') : t('label_capital_gross');
 
   buildKommunSelect();
+  buildReturnSelect();
   // Rerender results (suffix /mån vs /mo)
   recalc();
 }
@@ -518,15 +537,39 @@ function pensionTax(income, munRate) {
 }
 function munRate() {
   const v = document.getElementById('kommun_sel').value;
+  if (v === '__own') {
+    const r = parseNum(document.getElementById('kommun_own').value);
+    return Math.min(60, Math.max(0, isNaN(r) ? KOMMUN_DEFAULT : r)) / 100;
+  }
   return (v === '' ? KOMMUN_DEFAULT : KOMMUNSKATT[v]) / 100;
+}
+function syncKommun() {
+  document.getElementById('kommun_own_wrap').hidden = document.getElementById('kommun_sel').value !== '__own';
+}
+const RET_VALUES = ['4.5', '3.5', '2.5', '0.5'];   // nominal 6.5 / 5.5 / 4.5 / 2.5 minus 2 % inflation
+function buildReturnSelect() {
+  const sel = document.getElementById('return_sel');
+  const cur = sel.value || '4.5';
+  const comma = v => lang === 'sv' ? v.replace('.', ',') : v;
+  sel.innerHTML = RET_VALUES.map((v, i) => `<option value="${v}">${comma(v)} % – ${t('ret_opts')[i]}</option>`).join('') +
+    `<option value="own">${t('ret_own')}</option>`;
+  sel.value = cur;
+  syncReturn();
+}
+function syncReturn() {
+  const sel = document.getElementById('return_sel');
+  const own = sel.value === 'own';
+  document.getElementById('return_own').hidden = !own;
+  if (!own) document.getElementById('return_rate').value = sel.value;
 }
 function buildKommunSelect() {
   const sel = document.getElementById('kommun_sel');
   const cur = sel.value;
-  sel.innerHTML = '<option value="">' + t('kommun_avg') + '</option>' +
+  sel.innerHTML = '<option value="">' + t('kommun_avg') + '</option><option value="__own">' + t('kommun_own') + '</option>' +
     Object.keys(KOMMUNSKATT).sort((a, b) => a.localeCompare(b, 'sv'))
       .map(k => '<option value="' + k + '">' + k + ' – ' + KOMMUNSKATT[k].toFixed(2).replace('.', lang === 'sv' ? ',' : '.') + ' %</option>').join('');
   sel.value = cur;
+  syncKommun();
 }
 
 // ── Core calculation (Typfallsmodellen: real fund yield y, inflation π, payout = B·(1+y)^(n/2)/n) ──
@@ -751,13 +794,13 @@ function renderCompare() {
     return `<div><div class="bar-label"><span>${label}</span><span>${fmt(net)} / ${fmt(gross)} kr</span></div>
       <div class="bar"><i class="net" style="width:${pct}%"></i><i class="tax" style="width:${100 - pct}%"></i></div></div>`;
   };
-  const row = (label, fn, unit) => `<tr><td>${label}</td><td class="${mode === 'netto' ? 'on' : ''}">${fmt(fn(n))}${unit}</td><td class="${mode === 'brutto' ? 'on' : ''}">${fmt(fn(g))}${unit}</td></tr>`;
+  const row = (label, fn, unit) => `<tr><td>${label}</td><td class="${mode === 'brutto' ? 'on' : ''}">${fmt(fn(g))}${unit}</td><td class="${mode === 'netto' ? 'on' : ''}">${fmt(fn(n))}${unit}</td></tr>`;
   document.getElementById('cmp').innerHTML = `
     <h2>${t('cmp_title')}</h2>
     <p>${t('cmp_expl_' + mode)}</p>
     <div class="bars">${bar(t('cmp_bar_forecast'), n.forecastGross, n.forecastIncome)}${bar(t('cmp_bar_desired'), n.desiredGross, n.desiredIncome)}</div>
     <div class="bar-legend"><span><i style="background:var(--c1)"></i>${t('cmp_after')}</span><span><i style="background:var(--c2)"></i>${t('cmp_tax')}</span><span>${t('cmp_bar_note')}</span></div>
-    <table class="cmpt"><thead><tr><th></th><th class="${mode === 'netto' ? 'on' : ''}">${t('tab_net')}</th><th class="${mode === 'brutto' ? 'on' : ''}">${t('tab_gross')}</th></tr></thead><tbody>
+    <table class="cmpt"><thead><tr><th></th><th class="${mode === 'brutto' ? 'on' : ''}">${t('tab_gross')}</th><th class="${mode === 'netto' ? 'on' : ''}">${t('tab_net')}</th></tr></thead><tbody>
       ${row(t('cmp_r_forecast'), x => x.forecastIncome, ' kr')}
       ${row(t('cmp_r_desired'), x => x.desiredIncome, ' kr')}
       ${row(t('cmp_r_withcap'), x => x.incomeWithCapital, ' kr')}
@@ -770,9 +813,13 @@ function renderCompare() {
 
 // ── Defaults (same for both tabs; switching tab never touches the inputs) ──
 const DEFAULTS = { salary: '500 000', forecast_pct: '70', desired_pct: '80', years_to: '15', years_out: '15',
-                   existing_capital: '150 000', return_rate: '1.7', inflation: '0' };
+                   existing_capital: '150 000', return_rate: '4.5', inflation: '0' };
 function resetValues() {
   Object.keys(DEFAULTS).forEach(id => { document.getElementById(id).value = DEFAULTS[id]; });
+  document.getElementById('return_sel').value = DEFAULTS.return_rate;
+  document.getElementById('kommun_sel').value = '';
+  document.getElementById('kommun_own').value = '32,38';
+  syncKommun(); syncReturn();
   recalc();
 }
 
@@ -799,7 +846,7 @@ function switchChart(type, btn) {
 
 // ── Controls ──
 document.querySelectorAll('input[type=range]').forEach(el => el.addEventListener('input', recalc));
-document.querySelectorAll('input[type=text]').forEach(el => {
+document.querySelectorAll('input[data-stepby]').forEach(el => {
   el.addEventListener('input', () => { el.value = groupDigits(el.value); recalc(); });
   el.addEventListener('blur', () => { el.value = groupDigits(el.value) || '0'; recalc(); });
 });
