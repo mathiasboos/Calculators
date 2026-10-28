@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
 <title>Nettolönkalkylatorn 2026 – fristående version</title>
-<meta name="description" content="Se vad som blir kvar efter skatt 2026, steg för steg. Fristående version av Nettolönkalkylatorn från pensionslyft.se." />
+<meta id="meta-desc" name="description" content="Se vad som blir kvar efter skatt 2026, steg för steg. Fristående version av Nettolönkalkylatorn från pensionslyft.se." />
 <style>
 :root {
   --bg: #fff; --fg: #0f2034; --primary: #0c2a49; --primary-fg: #fbf9f4; --muted: #f5f4f1; --muted-fg: #545f6c;
@@ -155,19 +155,25 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
 .compact label { font-size: 0.75rem; } .field .hint { margin-top: 4px; }
 .reset { width: 100%; height: 36px; border: 1px solid var(--input); border-radius: 6px; background: #fff; font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; } .reset:hover { background: var(--muted); }
 @media print { button, .tooltip { display: none; } details.table { display: none; } }
+.lang-toggle { display: inline-flex; gap: 4px; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 3px; align-self: center; }
+.lang-btn { padding: 4px 12px; font: inherit; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted-fg); background: none; border: none; border-radius: 5px; cursor: pointer; }
+.lang-btn.active { background: var(--primary); color: var(--primary-fg); }
+.lang-btn:not(.active):hover { color: var(--fg); }
+.btn { height: 32px; border: 1px solid var(--input); border-radius: 6px; background: #fff; color: var(--fg); font: inherit; font-size: 0.8125rem; padding: 0 12px; cursor: pointer; }
+.btn:hover { background: var(--muted); }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="https://pensionslyft.se/nettolonkalkylator">Pensionslyft</a>
-    <span class="eyebrow">Fristående version</span>
+    <span class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></span>
   </div>
 </header>
 <main class="wrap">
-  <p class="eyebrow" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
-  <h1>Nettolönkalkylator 2026</h1>
-  <p class="intro">Se vad som blir kvar efter skatt 2026, steg för steg, med kommunalskatt, avdrag och avgifter. Beräkningen följer Skatteverkets tekniska beskrivning och räknas direkt i din webbläsare.</p>
+  <p class="eyebrow" id="eyebrow-main" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
+  <h1 id="h1">Nettolönkalkylator 2026</h1>
+  <p class="intro" id="intro">Se vad som blir kvar efter skatt 2026, steg för steg, med kommunalskatt, avdrag och avgifter. Beräkningen följer Skatteverkets tekniska beskrivning och räknas direkt i din webbläsare.</p>
   <div id="app" class="layout"><noscript>Kalkylatorn kräver JavaScript.</noscript></div>
 </main>
 <footer>
@@ -175,7 +181,7 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
 </footer>
 <script>
 (() => {
-  // ../../../../../../home/user/pensionslyft/src/data/kommunalskatt-2026.json
+  // kommunalskatt-2026.json
   var kommunalskatt_2026_default = {
     Ale: 32.8,
     Alings\u00E5s: 32.84,
@@ -469,7 +475,7 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
     \u00D6vertorne\u00E5: 33.84
   };
 
-  // ../../../../../../home/user/pensionslyft/src/lib/format.ts
+  // format.ts
   var sek = new Intl.NumberFormat("sv-SE", {
     style: "currency",
     currency: "SEK",
@@ -493,7 +499,7 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
     return Math.min(max, Math.max(min, next * step));
   }
 
-  // ../../../../../../home/user/pensionslyft/src/lib/nettolon.ts
+  // nettolon.ts
   var PBB = 59200;
   var IBB = 83400;
   var SKIKT = 643e3;
@@ -885,78 +891,81 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
       rows
     };
   }
-  function rowCells(x) {
-    const sum = x.cls === "gross" || x.cls === "sumrow" || x.cls === "netrow";
-    const sign = (v) => v > 0 ? "+" : v < 0 ? "\u2212" : "";
-    return {
-      m: sum ? fmt(Math.abs(x.m)) : sign(x.m) + fmt(Math.abs(x.m)),
-      y: sum ? fmt(Math.abs(x.y)) : sign(x.y) + fmt(Math.abs(x.y))
-    };
-  }
 
   // nl.ts
   var RATES = kommunalskatt_2026_default;
-  var KOMMUNER = Object.keys(RATES).sort((a, b) => a.localeCompare(b, "sv"));
   var SCB_URL = "https://www.scb.se/hitta-statistik/statistik-efter-amne/offentlig-ekonomi/finanser-for-den-kommunala-sektorn/kommunalskatterna/pong/tabell-och-diagram/totala-kommunala-skattesatser-2026-kommunvis/";
-  var NB = "\xA0";
+  var NB = " ";
   var state = { ...DEFAULTS };
   var kommunName = "";
   var begrChoice = String(DEFAULTS.begrPct);
+  var lang = "sv";
+  try {
+    if (localStorage.getItem("pension-lang") === "en") lang = "en";
+  } catch (e) {
+  }
+  var tr = (sv, en) => lang === "en" ? en : sv;
+  var KOMMUNER = Object.keys(RATES).sort((a, b) => a.localeCompare(b, "sv"));
   var $ = (id) => document.getElementById(id);
   var esc = (s) => s.replace(/[&<>"]/g, (c2) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c2]);
   var ext = (href, text2) => `<a class="ext" href="${href}" target="_blank" rel="noopener">${text2}</a>`;
+  var fmtL = (n) => lang === "en" ? new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(Math.round(n)) : fmt(n);
+  var rateL = (n) => lang === "en" ? String(n) : fmtRate(n);
+  var groupL = (t) => lang === "en" ? t.replace(/\D/g, "").replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",") : groupDigits(t);
+  var parseL = (t) => lang === "en" ? parseFloat(t.replace(/,/g, "")) : parseAmount(t);
+  var unit = (u) => lang === "en" ? u.replace("kr/m\xE5n", "SEK/month").replace("kr/\xE5r", "SEK/year").replace(/^kr$/, "SEK") : u;
+  var pctEn = (s) => s.replace(",", ".").replace(/ %/, "%");
   function field(id, label, key, suffix, o = {}) {
     var _a2;
-    const buttons = (dir) => o.stepBy ? `<button type="button" class="step" data-step="${key}" data-dir="${dir}" aria-label="${dir > 0 ? "\xD6ka" : "Minska"} ${esc(label.toLowerCase())} med ${num.format(o.stepBy)} kr">${dir > 0 ? "+" : "\u2212"}</button>` : "";
+    const buttons = (dir) => o.stepBy ? `<button type="button" class="step" data-step="${key}" data-dir="${dir}" aria-label="${tr(dir > 0 ? "\xD6ka" : "Minska", dir > 0 ? "Increase" : "Decrease")} ${esc(label.toLowerCase())} ${tr("med", "by")} ${lang === "en" ? "SEK " : ""}${fmtL(o.stepBy)}${lang === "en" ? "" : " kr"}">${dir > 0 ? "+" : "\u2212"}</button>` : "";
     return `<div class="field${o.compact ? " compact" : ""}"><div class="lbl"><label for="${id}">${label}</label>${(_a2 = o.action) != null ? _a2 : ""}</div>${o.hint ? `<p class="hint">${o.hint}</p>` : ""}
-    <div class="row" style="margin-top:${o.compact ? 4 : 8}px">${buttons(-1)}<div class="num"><input id="${id}" data-key="${key}" ${o.decimal ? 'data-decimal="1"' : ""} ${o.stepBy ? `data-stepby="${o.stepBy}"` : ""} type="text" inputmode="decimal" autocomplete="off" /><span>${suffix}</span></div>${buttons(1)}</div></div>`;
+    <div class="row" style="margin-top:${o.compact ? 4 : 8}px">${buttons(-1)}<div class="num"><input id="${id}" data-key="${key}" ${o.decimal ? 'data-decimal="1"' : ""} ${o.stepBy ? `data-stepby="${o.stepBy}"` : ""} type="text" inputmode="decimal" autocomplete="off" /><span>${unit(suffix)}</span></div>${buttons(1)}</div></div>`;
   }
   var sw = (id, label, hint, key) => `<div class="sw"><div><label for="${id}"><b>${label}</b></label><span>${hint}</span></div><button id="${id}" data-sw="${key}" type="button" role="switch" aria-checked="false"></button></div>`;
-  $("app").innerHTML = `
-  <div class="card inputs" style="min-width:0">
-    <div><h2 class="sm">Indata</h2><p class="hint">Justera v\xE4rdena \u2014 allt r\xE4knas om direkt.</p></div>
-    ${field("lon", "Bruttol\xF6n per m\xE5nad", "lon", "kr/m\xE5n", { stepBy: 1e3 })}
-    <div style="display:grid;gap:8px">
-      <div class="field"><div class="lbl"><label for="kommun-lista">Kommunal skattesats</label>${ext(SCB_URL, "SCB:s lista \u2197")}</div>
-        <select id="kommun-lista" style="margin-top:8px"><option value="">\u2014 V\xE4lj kommun (fyller i 2026 \xE5rs sats) \u2014</option>${KOMMUNER.map((k) => `<option value="${esc(k)}">${esc(k)} \u2014 ${RATES[k].toFixed(2).replace(".", ",")} %</option>`).join("")}</select></div>
-      ${field("kommun", "Skattesats i procent", "kommun", "%", { decimal: true, compact: true })}
-    </div>
-    ${field("vaxling", "Bruttol\xF6neavdrag", "vaxling", "kr/m\xE5n", { hint: "l\xF6nev\xE4xling, bil, cykel etc.", stepBy: 100 })}
-    ${field("pension", "Pensionsinkomst", "pension", "kr/m\xE5n", { stepBy: 1e3 })}
-    <div role="radiogroup" aria-labelledby="alder-l"><p id="alder-l" style="margin:0 0 8px;font-size:.875rem;font-weight:500">\xC5lder vid \xE5rets ing\xE5ng</p>
-      <div class="seg"><button type="button" role="radio" data-over="0" aria-checked="true">Under 66 \xE5r</button><button type="button" role="radio" data-over="1" aria-checked="false">66 \xE5r +</button></div></div>
-    <div class="sep">${sw("kyrka", "Kyrkoavgift", "Medlem i Svenska kyrkan / trossamfund", "kyrkaOn")}
-      <div id="kyrka-box">${field("kyrkaPct", "Avgift", "kyrkaPct", "%", { decimal: true, compact: true, action: ext("https://www.svenskakyrkan.se/medlem/kyrkoavgiften", "Hitta din f\xF6rsamling \u2197") })}</div></div>
-    <div class="sep">${sw("begr", "Begravningsavgift", "tre regimer i Sverige \u2013 v\xE4lj nedan", "begrOn")}
-      <div id="begr-box" style="display:grid;gap:12px"><select id="begr-lista" aria-label="Regim f\xF6r begravningsavgift">${BEGRAVNING.map((b) => `<option value="${b.value}">${esc(b.label)}</option>`).join("")}<option value="">\u2014 Egen sats \u2014</option></select>
-        ${field("begrPct", "Avgift", "begrPct", "%", { decimal: true, compact: true, action: ext("https://www.svenskakyrkan.se/begravning/begravningsavgiften", "Om avgiften \u2197") })}</div></div>
-    <details class="fold small"><summary><h2>Kapital, r\xE4nteavdrag &amp; ROT/RUT</h2></summary><div class="in">
-      ${field("kapInk", "R\xE4nta & utdelning", "kapInk", "kr/\xE5r", { hint: "r\xE4nteinkomst, aktieutdelning", stepBy: 1e3 })}
-      ${field("iskUnderlag", "Kapitalunderlag ISK / Kapitalf\xF6rs\xE4kring", "iskUnderlag", "kr", { hint: "fribelopp 300 000 kr, schablonr\xE4nta 3,55 %", stepBy: 1e4 })}
-      ${field("aktievinst", "Aktievinst (marknadsnoterad)", "aktievinst", "kr/\xE5r", { hint: "realiserad vinst, aktier/fonder", stepBy: 1e3 })}
-      ${field("aktieforlust", "Aktief\xF6rlust (marknadsnoterad)", "aktieforlust", "kr/\xE5r", { hint: "kvittas mot vinst, rest kvoteras 70 %", stepBy: 1e3 })}
-      ${field("rantUtg", "R\xE4nteutgifter / \xF6vriga avdrag", "rantUtg", "kr/\xE5r", { hint: "avdragsgill r\xE4nta (100 %)", stepBy: 1e3 })}
-      ${field("rotArb", "ROT-arbete (arbetskostnad)", "rotArb", "kr/\xE5r", { hint: "30 %, max 50 000 kr reduktion", stepBy: 1e3 })}
-      ${field("rutArb", "RUT-arbete (arbetskostnad)", "rutArb", "kr/\xE5r", { hint: "50 %, gemensamt tak 75 000 kr", stepBy: 1e3 })}
-      ${field("taxvarde", "Taxeringsv\xE4rde (sm\xE5hus)", "taxvarde", "kr", { hint: "0,75 %, takbelopp 10 425 kr", stepBy: 1e4 })}
-      ${sw("nybyggt", "Nybyggt hus", "v\xE4rde\xE5r 2012+, avgiftsfritt i 15 \xE5r", "nybyggt")}
-    </div></details>
-    <button type="button" class="reset" id="reset">\xC5terst\xE4ll till exempel</button>
-  </div>
-  <div class="col">
-    <div class="hero"><div class="eyebrow" style="opacity:.7">Netto i handen efter skatt</div>
-      <div class="big" aria-live="polite"><span id="net-month"></span><small>kr/m\xE5n</small></div>
-      <div class="meta"><span>\u2248 <b id="net-year"></b> kr/\xE5r</span><span>bruttol\xF6neavdrag: <b id="vax-year"></b> kr/\xE5r</span></div>
-      <dl><div><dd id="eff"></dd><dt>Effektiv skatt</dt></div><div><dd id="marg"></dd><dt>Marginalskatt</dt></div><div><dd id="tot"></dd><dt>Skatt &amp; avgift / m\xE5n</dt></div></dl></div>
-    <div><div class="bar" id="bar" role="img"><span id="b1" style="background:#0c2a49"></span><span id="b2" style="background:#9c4438"></span><span id="b3" style="background:#a18142"></span></div>
-      <ul class="legend" style="margin-top:8px;gap:4px 20px"><li><i style="background:#0c2a49"></i>Netto</li><li><i style="background:#9c4438"></i>Skatt &amp; avgifter</li><li><i style="background:#a18142"></i>Bruttol\xF6neavdrag</li></ul></div>
-    <div class="bryt"><i id="bryt-dot"></i><p id="bryt-text"></p></div>
-    <details class="fold" id="steps"><summary><h2>Ber\xE4kning steg f\xF6r steg</h2><span>Belopp i kr</span></summary>
-      <div class="steps"><table><thead><tr><th scope="col">Post</th><th scope="col">Per m\xE5nad</th><th scope="col">Per \xE5r</th></tr></thead><tbody id="rows"></tbody></table></div></details>
-    <details class="fold"><summary><h2>Formler, antaganden och 2026 \xE5rs parametrar</h2></summary><div class="notes" id="notes"></div></details>
-  </div>`;
+  var BEGR_EN = { 0.292: "Rest of Sweden (Church of Sweden) \u2014 0.292%", 0.07: "City of Stockholm \u2014 0.07%", 0.285: "Tran\xE5s municipality \u2014 0.285%" };
   var c = (s) => `<code>${s}</code>`;
-  $("notes").innerHTML = `
+  function notes() {
+    return lang === "en" ? `
+<p>The model replicates the Swedish Tax Agency's technical description for income year 2026 (tax table, column${NB}1 for employees under 66${NB}years). Everything is calculated on a yearly basis and divided by 12.</p>
+<h3>1\u20135 \xB7 Basis</h3><ul>
+<li>Annual income = gross salary \xD7 12. The gross salary deduction (salary exchange to pension, company car, bike etc.) is deducted <em>before</em> tax and also lowers the basis for the earned income tax credit and the general pension charge.</li>
+<li>Pension income is taxed as earned income but gives no earned income tax credit and carries no general pension charge.</li>
+<li>Assessed earned income (FFI) = annual salary \u2212 gross salary deduction + pension income.</li>
+<li>Basic allowance (under 66, based on FFI), rounded <em>up</em> to whole SEK${NB}100:<ul>
+<li>${c("\u226458,608: 25,041.60")}</li><li>${c("\u2264161,024: 25,041.60 + 20% \xD7 (FFI\u221258,608)")}</li><li>${c("\u2264184,112: 45,584")}</li><li>${c("\u2264466,496: 45,584 \u2212 10% \xD7 (FFI\u2212184,112)")}</li><li>${c("&gt;466,496: 17,345.60")}</li></ul></li>
+<li>For 66+ the increased basic allowance is used, according to the Tax Agency's 11-step table.</li>
+<li>Taxable earned income (BFI) = FFI \u2212 basic allowance.</li></ul>
+<h3>6\u20137 \xB7 Income tax</h3><ul>
+<li>Municipal tax = BFI \xD7 municipal tax rate.</li>
+<li>State tax = 20% \xD7 (BFI \u2212 643${NB}000). The <b>bracket limit</b> of SEK${NB}643${NB}000 applies to the <em>taxable</em> income (after the basic allowance). Since the gross salary is <em>before</em> the basic allowance, the calculator shows the <b>threshold</b> instead = bracket limit + basic allowance, that is the gross salary at which state tax starts:</li>
+<li>Under 66: 643${NB}000 + 17${NB}400 = ${c("SEK 660,400/year")} (\u2248 SEK${NB}55,033/month).</li>
+<li>66 +: 643${NB}000 + 117${NB}500 = ${c("SEK 760,500/year")} (\u2248 SEK${NB}63,375/month) \u2014 a higher basic allowance gives a higher threshold.</li></ul>
+<h3>8 \xB7 Earned income tax credit (jobbskatteavdrag)</h3>
+<p>A tax reduction for earned income, under 66. ${c("AI")} = earned income (\u2248 FFI, rounded down to 100), ${c("GA")} = basic allowance, ${c("KI")} = municipal tax rate. The reduction can only be set off against municipal tax.</p><ul>
+<li>${c("AI \u2264 53,872")}: (AI \u2212 GA) \xD7 KI</li><li>${c("\u2264 191,808")}: (53,872 + 38.74% \xD7 (AI \u2212 53,872) \u2212 GA) \xD7 KI</li><li>${c("\u2264 478,336")}: (107,329.60 + 25.10% \xD7 (AI \u2212 191,808) \u2212 GA) \xD7 KI</li><li>${c("&gt; 478,336")}: (179,198.40 \u2212 GA) \xD7 KI</li></ul>
+<p>For 66+: 22% of AI up to 103${NB}600, then 0.2635${NB}PBB + 7% of AI, max SEK${NB}37,254.56.</p>
+<h3>9\u201311 \xB7 Fees &amp; other reductions</h3><ul>
+<li>Church fee = BFI \xD7 rate (members only). Funeral fee = BFI \xD7 rate (everyone).</li>
+<li>General pension charge = 7% \xD7 min(earned income, 673${NB}038). Pension income carries no charge. It is matched by a <em>tax reduction of 100%</em>, so the net effect is SEK${NB}0 for normal salaries.</li>
+<li>Tax reduction for earned income: 0.75% \xD7 (BFI \u2212 40${NB}000), max SEK${NB}1${NB}500/year.</li>
+<li>Public service fee = 1% \xD7 BFI, max SEK${NB}1${NB}184/year.</li></ul>
+<h3>Capital, ISK/KF, share losses &amp; ROT/RUT</h3><ul>
+<li>ISK/capital insurance: standard income = (capital base \u2212 free amount SEK${NB}300${NB}000) \xD7 the standard rate ${c("3.55%")} (government borrowing rate 30 Nov 2025, 2.55% + 1 percentage point; floor 1.25%). The free amount applies per person, in total for all ISK accounts and capital insurances. The standard income counts as ordinary capital income and can be set off against interest expenses and the counted share losses.</li>
+<li>Share gains and losses are first set off fully against each other in the share pool. An <em>unmatched</em> share loss counts for ${c("70%")} before it enters capital.</li>
+<li>A surplus of capital (interest + dividends + ISK/KF standard income + net share gain \u2212 interest expenses) is taxed at ${c("30%")}.</li>
+<li>A deficit of capital gives a tax reduction: ${c("30%")} up to SEK${NB}100${NB}000, ${c("21%")} on the part above SEK${NB}100${NB}000.</li>
+<li>ROT = 30% of the labour cost (max SEK${NB}50${NB}000). RUT = 50% (max SEK${NB}75${NB}000). Shared cap SEK${NB}75${NB}000/year, of which at most SEK${NB}50${NB}000 ROT.</li></ul>
+<h3>Municipal property fee</h3><ul>
+<li>Houses: ${c("0.75%")} of the assessed value, capped at ${c("SEK" + NB + "10,425")} (income year 2026). The cap applies from an assessed value of SEK${NB}1${NB}390${NB}000.</li>
+<li>Newly built with value year 2012 or later: no fee for the first 15 years.</li>
+<li>Pensioner limit (66 +): the fee is limited to ${c("4%")} of (BFI + capital surplus), but at least the floor amount ${c("SEK" + NB + "4,042")}. The reduction is calculated before the other tax reductions.</li>
+<li>Order of set-off: property fee reduction (pensioner) \u2192 pension charge \u2192 earned income tax credit \u2192 tax reduction for earned income \u2192 capital deficit \u2192 ROT/RUT. The property fee is part of the pool that the last two may be set off against; the funeral/church fee and the general pension charge are not. Never more than the remaining tax.</li>
+<li>The model shows the <em>tax effect</em>. The interest cost (the cash outflow) is not deducted from the net \u2014 as in the Tax Agency's service.</li></ul>
+<h3>2026 parameters</h3><ul>
+<li>Price base amount SEK${NB}59${NB}200 \xB7 Income base amount SEK${NB}83${NB}400</li>
+<li>State tax bracket limit SEK${NB}643${NB}000 (threshold SEK${NB}660${NB}400 / SEK${NB}760${NB}500 for 66+)</li>
+<li>Average municipal tax \u2248 32.41% (can vary 28\u201335% depending on the municipality)</li></ul>
+<p style="padding-top:16px;font-size:.75rem">Source: the Swedish Tax Agency (Skatteverket), <em>Technical description \u2026 income year 2026</em> (SKV 433, 2025-12-10), <a href="https://www.skatteverket.se/privat/skatter/beloppochprocent/2026" target="_blank" rel="noopener">Amounts and percentages 2026</a> and the rules for ROT/RUT deductions and the municipal property fee. Simplifications: unlisted share losses (5/6 counting) are not handled, the property fee only for a wholly owned house for the whole year (no free land/half cap), no seaman's income or regional reduction, even income all year. The result corresponds to the final tax; the preliminary tax on the pay slip may differ slightly. A calculation aid, not tax advice.</p>` : `
 <p>Modellen replikerar Skatteverkets tekniska beskrivning f\xF6r inkomst\xE5r 2026 (skattetabell, kolumn${NB}1 f\xF6r anst\xE4llda under 66${NB}\xE5r). Allt ber\xE4knas p\xE5 \xE5rsbasis och divideras med 12.</p>
 <h3>1\u20135 \xB7 Underlag</h3><ul>
 <li>\xC5rsinkomst = bruttol\xF6n \xD7 12. Bruttol\xF6neavdrag (l\xF6nev\xE4xling till pension, f\xF6rm\xE5nsbil, cykel m.m.) dras av <em>f\xF6re</em> skatt och s\xE4nker \xE4ven underlaget f\xF6r jobbskatteavdrag och allm\xE4n pensionsavgift.</li>
@@ -997,13 +1006,147 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
 <li>Skiktgr\xE4ns statlig skatt 643${NB}000${NB}kr (brytpunkt 660${NB}400${NB}kr / 760${NB}500${NB}kr f\xF6r 66+)</li>
 <li>Genomsnittlig kommunalskatt \u2248 32,41% (kan variera 28\u201335% beroende p\xE5 kommun)</li></ul>
 <p style="padding-top:16px;font-size:.75rem">K\xE4lla: Skatteverket, <em>Teknisk beskrivning \u2026 inkomst\xE5r 2026</em> (SKV 433, 2025-12-10), <a href="https://www.skatteverket.se/privat/skatter/beloppochprocent/2026" target="_blank" rel="noopener">Belopp och procent 2026</a> samt reglerna f\xF6r rot-/rutavdrag och kommunal fastighetsavgift. F\xF6renklingar: onoterade aktief\xF6rluster (5/6-kvotering) hanteras ej, fastighetsavgift endast f\xF6r hel\xE4gt sm\xE5hus hela \xE5ret (ej ofri grund/halvt takbelopp), ingen sj\xF6inkomst eller regional reduktion, j\xE4mn inkomst hela \xE5ret. Resultatet motsvarar slutlig skatt; prelimin\xE4rskatten p\xE5 l\xF6nebeskedet kan avvika n\xE5got. Ber\xE4kningsst\xF6d, inte skatter\xE5dgivning.</p>`;
-  $("foot").innerHTML = `Ber\xE4kningen \xE4r en uppskattning och inte skatter\xE5dgivning. Den h\xE4r filen \xE4r en frist\xE5ende kopia av <a href="https://pensionslyft.se/nettolonkalkylator">Nettol\xF6nkalkylatorn p\xE5 pensionslyft.se</a>, d\xE4r du alltid hittar den senaste versionen.`;
+  }
+  var NAME_EN = {
+    "Brutto m\xE5nadsl\xF6n": "Gross monthly salary",
+    "\xC5rsinkomst l\xF6n": "Annual salary income",
+    "Bruttol\xF6neavdrag": "Gross salary deduction",
+    "Pensionsinkomst": "Pension income",
+    "Fastst\xE4lld f\xF6rv\xE4rvsinkomst": "Assessed earned income",
+    "Grundavdrag": "Basic allowance",
+    "Beskattningsbar inkomst": "Taxable income",
+    "Kommunalskatt": "Municipal tax",
+    "Statlig skatt": "State tax",
+    "ISK/KF schablonint\xE4kt": "ISK/KF standard income",
+    "Skatt p\xE5 kapital\xF6verskott": "Tax on capital surplus",
+    "Fastighetsavgift": "Property fee",
+    "Jobbskatteavdrag": "Earned income tax credit",
+    "Skattereduktion f\xF6rv\xE4rvsinkomst": "Tax reduction, earned income",
+    "Allm\xE4n pensionsavgift": "General pension charge",
+    "Skattered. fastighetsavgift": "Tax reduction, property fee",
+    "Skattered. underskott kapital": "Tax reduction, capital deficit",
+    "ROT-/RUT-avdrag": "ROT/RUT deduction",
+    "Kyrkoavgift": "Church fee",
+    "Begravningsavgift": "Funeral fee",
+    "Public service-avgift": "Public service fee",
+    "Netto i handen": "Net take-home pay"
+  };
+  var SUB_EN = [
+    [/^Indata$/, "Input"],
+    [/^bruttolön × 12$/, "gross salary \xD7 12"],
+    [/^löneväxling, bil m\.m\. – före skatt$/, "salary exchange, company car etc. \u2013 before tax"],
+    [/^skattepliktig, utbetald pension$/, "taxable pension paid out"],
+    [/^FFI = lön − bruttolöneavdrag \+ pension$/, "FFI = salary \u2212 gross salary deduction + pension"],
+    [/^förhöjt grundavdrag \(66\+\)$/, "increased basic allowance (66+)"],
+    [/^ordinarie, baserat på FFI$/, "ordinary, based on FFI"],
+    [/^BFI = FFI − grundavdrag$/, "BFI = FFI \u2212 basic allowance"],
+    [/ \(öretal bortfaller\)$/, " (fractions of a krona dropped)"],
+    [/^20 % över brytpunkt (.+) kr\/år$/, "20% above the threshold $1 SEK/year"],
+    [/→ kapitalinkomst$/, "\u2192 capital income"],
+    [/^30 % av (.+) kr — (.+)$/, "30% of $1 SEK \u2014 $2"],
+    [/okvittad aktieförlust kvoterad till 70 % \((.+) kr\)/, "unmatched share loss counted at 70% ($1 SEK)"],
+    [/^inkl\. ISK\/KF-schablonintäkt$/, "incl. ISK/KF standard income"],
+    [/^ränta, utdelning, aktievinst$/, "interest, dividends, share gains"],
+    [/^nybyggt – avgiftsfritt i 15 år$/, "newly built \u2013 fee-free for 15 years"],
+    [/^takbelopp (.+) kr \(0,75 % > tak\)$/, "cap $1 SEK (0,75% > cap)"],
+    [/^0,75 % av (.+) kr$/, "0,75% of $1 SEK"],
+    [/^endast på arbetsinkomst, ej pension$/, "on earned income only, not pension"],
+    [/^0,75 % över 40 000, max 1 500$/, "0,75% above 40 000, max 1 500"],
+    [/^7 % av arbetsinkomst − 100 % red\./, "7% of earned income \u2212 100% reduction"],
+    [/ \(avgift (.+) − reduktion (.+)\)$/, " (charge $1 \u2212 reduction $2)"],
+    [/^pensionärsspärr: 4 % av inkomst, min 4 042$/, "pensioner cap: 4% of income, min 4 042"],
+    [/^30 % ≤100 000, 21 % däröver \(underskott (.+) kr\)$/, "30% up to 100 000, 21% above (deficit $1 SEK)"],
+    [/^hushållsarbete – tak 75 000 kr \(ROT max 50 000\)$/, "household work \u2013 cap SEK 75 000 (ROT max 50 000)"],
+    [/^ej medlem$/, "not a member"],
+    [/^1 % av BFI, max 1 184$/, "1% of BFI, max 1 184"],
+    [/^inkomst − total skatt & avgift$/, "income \u2212 total tax & fees"],
+    [/^lön \+ pension efter skatt$/, "salary + pension after tax"]
+  ];
+  var numbersEn = (s) => s.replace(/(\d),(\d)/g, "$1.$2").replace(/\d{1,3}(?:[  ]\d{3})+/g, (m) => m.replace(/[  ]/g, ",")).replace(/(\d)[  ]%/g, "$1%");
+  var subText = (sv) => {
+    if (lang === "sv") return sv;
+    let out = sv;
+    for (const [re, en] of SUB_EN) out = out.replace(re, en);
+    return numbersEn(out);
+  };
+  var nameText = (sv) => {
+    var _a2;
+    return lang === "en" ? (_a2 = NAME_EN[sv]) != null ? _a2 : sv : sv;
+  };
+  var lastRows = [];
+  function buildUI() {
+    $("app").innerHTML = `
+  <div class="card inputs" style="min-width:0">
+    <div><h2 class="sm">${tr("Indata", "Inputs")}</h2><p class="hint">${tr("Justera v\xE4rdena \u2014 allt r\xE4knas om direkt.", "Adjust the values \u2014 everything is recalculated instantly.")}</p></div>
+    ${field("lon", tr("Bruttol\xF6n per m\xE5nad", "Gross salary per month"), "lon", "kr/m\xE5n", { stepBy: 1e3 })}
+    <div style="display:grid;gap:8px">
+      <div class="field"><div class="lbl"><label for="kommun-lista">${tr("Kommunal skattesats", "Municipal tax rate")}</label>${ext(SCB_URL, tr("SCB:s lista \u2197", "Statistics Sweden's list \u2197"))}</div>
+        <select id="kommun-lista" style="margin-top:8px"><option value="">${tr("\u2014 V\xE4lj kommun (fyller i 2026 \xE5rs sats) \u2014", "\u2014 Choose municipality (fills in the 2026 rate) \u2014")}</option>${KOMMUNER.map((k) => `<option value="${esc(k)}">${esc(k)} \u2014 ${lang === "en" ? RATES[k].toFixed(2) : RATES[k].toFixed(2).replace(".", ",")}${lang === "en" ? "%" : " %"}</option>`).join("")}</select></div>
+      ${field("kommun", tr("Skattesats i procent", "Tax rate in percent"), "kommun", "%", { decimal: true, compact: true })}
+    </div>
+    ${field("vaxling", tr("Bruttol\xF6neavdrag", "Gross salary deduction"), "vaxling", "kr/m\xE5n", { hint: tr("l\xF6nev\xE4xling, bil, cykel etc.", "salary exchange, company car, bike etc."), stepBy: 100 })}
+    ${field("pension", tr("Pensionsinkomst", "Pension income"), "pension", "kr/m\xE5n", { stepBy: 1e3 })}
+    <div role="radiogroup" aria-labelledby="alder-l"><p id="alder-l" style="margin:0 0 8px;font-size:.875rem;font-weight:500">${tr("\xC5lder vid \xE5rets ing\xE5ng", "Age at the start of the year")}</p>
+      <div class="seg"><button type="button" role="radio" data-over="0" aria-checked="true">${tr("Under 66 \xE5r", "Under 66")}</button><button type="button" role="radio" data-over="1" aria-checked="false">${tr("66 \xE5r +", "66 +")}</button></div></div>
+    <div class="sep">${sw("kyrka", tr("Kyrkoavgift", "Church fee"), tr("Medlem i Svenska kyrkan / trossamfund", "Member of the Church of Sweden / a faith community"), "kyrkaOn")}
+      <div id="kyrka-box">${field("kyrkaPct", tr("Avgift", "Fee"), "kyrkaPct", "%", { decimal: true, compact: true, action: ext("https://www.svenskakyrkan.se/medlem/kyrkoavgiften", tr("Hitta din f\xF6rsamling \u2197", "Find your parish \u2197")) })}</div></div>
+    <div class="sep">${sw("begr", tr("Begravningsavgift", "Funeral fee"), tr("tre regimer i Sverige \u2013 v\xE4lj nedan", "three regimes in Sweden \u2013 choose below"), "begrOn")}
+      <div id="begr-box" style="display:grid;gap:12px"><select id="begr-lista" aria-label="${tr("Regim f\xF6r begravningsavgift", "Funeral fee regime")}">${BEGRAVNING.map((b) => {
+      var _a2;
+      return `<option value="${b.value}">${esc(lang === "en" ? (_a2 = BEGR_EN[b.value]) != null ? _a2 : b.label : b.label)}</option>`;
+    }).join("")}<option value="">${tr("\u2014 Egen sats \u2014", "\u2014 Own rate \u2014")}</option></select>
+        ${field("begrPct", tr("Avgift", "Fee"), "begrPct", "%", { decimal: true, compact: true, action: ext("https://www.svenskakyrkan.se/begravning/begravningsavgiften", tr("Om avgiften \u2197", "About the fee \u2197")) })}</div></div>
+    <details class="fold small"><summary><h2>${tr("Kapital, r\xE4nteavdrag &amp; ROT/RUT", "Capital, interest deduction &amp; ROT/RUT")}</h2></summary><div class="in">
+      ${field("kapInk", tr("R\xE4nta & utdelning", "Interest & dividends"), "kapInk", "kr/\xE5r", { hint: tr("r\xE4nteinkomst, aktieutdelning", "interest income, share dividends"), stepBy: 1e3 })}
+      ${field("iskUnderlag", tr("Kapitalunderlag ISK / Kapitalf\xF6rs\xE4kring", "Capital base ISK / capital insurance (KF)"), "iskUnderlag", "kr", { hint: tr("fribelopp 300 000 kr, schablonr\xE4nta 3,55 %", "free amount SEK 300,000, standard rate 3.55%"), stepBy: 1e4 })}
+      ${field("aktievinst", tr("Aktievinst (marknadsnoterad)", "Share gain (listed)"), "aktievinst", "kr/\xE5r", { hint: tr("realiserad vinst, aktier/fonder", "realised gain, shares/funds"), stepBy: 1e3 })}
+      ${field("aktieforlust", tr("Aktief\xF6rlust (marknadsnoterad)", "Share loss (listed)"), "aktieforlust", "kr/\xE5r", { hint: tr("kvittas mot vinst, rest kvoteras 70 %", "offset against gains, the rest counts at 70%"), stepBy: 1e3 })}
+      ${field("rantUtg", tr("R\xE4nteutgifter / \xF6vriga avdrag", "Interest expenses / other deductions"), "rantUtg", "kr/\xE5r", { hint: tr("avdragsgill r\xE4nta (100 %)", "deductible interest (100%)"), stepBy: 1e3 })}
+      ${field("rotArb", tr("ROT-arbete (arbetskostnad)", "ROT work (labour cost)"), "rotArb", "kr/\xE5r", { hint: tr("30 %, max 50 000 kr reduktion", "30%, max SEK 50,000 reduction"), stepBy: 1e3 })}
+      ${field("rutArb", tr("RUT-arbete (arbetskostnad)", "RUT work (labour cost)"), "rutArb", "kr/\xE5r", { hint: tr("50 %, gemensamt tak 75 000 kr", "50%, shared cap SEK 75,000"), stepBy: 1e3 })}
+      ${field("taxvarde", tr("Taxeringsv\xE4rde (sm\xE5hus)", "Assessed value (house)"), "taxvarde", "kr", { hint: tr("0,75 %, takbelopp 10 425 kr", "0.75%, cap SEK 10,425"), stepBy: 1e4 })}
+      ${sw("nybyggt", tr("Nybyggt hus", "Newly built house"), tr("v\xE4rde\xE5r 2012+, avgiftsfritt i 15 \xE5r", "value year 2012+, fee-free for 15 years"), "nybyggt")}
+    </div></details>
+    <button type="button" class="reset" id="reset">${tr("\xC5terst\xE4ll till exempel", "Reset to example")}</button>
+  </div>
+  <div class="col">
+    <div class="hero"><div class="eyebrow" style="opacity:.7">${tr("Netto i handen efter skatt", "Net take-home pay after tax")}</div>
+      <div class="big" aria-live="polite"><span id="net-month"></span><small>${unit("kr/m\xE5n")}</small></div>
+      <div class="meta"><span>\u2248 <b id="net-year"></b> ${unit("kr/\xE5r")}</span><span>${tr("bruttol\xF6neavdrag", "gross salary deduction")}: <b id="vax-year"></b> ${unit("kr/\xE5r")}</span></div>
+      <dl><div><dd id="eff"></dd><dt>${tr("Effektiv skatt", "Effective tax")}</dt></div><div><dd id="marg"></dd><dt>${tr("Marginalskatt", "Marginal tax")}</dt></div><div><dd id="tot"></dd><dt>${tr("Skatt &amp; avgift / m\xE5n", "Tax &amp; fees / month")}</dt></div></dl></div>
+    <div><div class="bar" id="bar" role="img"><span id="b1" style="background:#0c2a49"></span><span id="b2" style="background:#9c4438"></span><span id="b3" style="background:#a18142"></span></div>
+      <ul class="legend" style="margin-top:8px;gap:4px 20px"><li><i style="background:#0c2a49"></i>${tr("Netto", "Net")}</li><li><i style="background:#9c4438"></i>${tr("Skatt &amp; avgifter", "Tax &amp; fees")}</li><li><i style="background:#a18142"></i>${tr("Bruttol\xF6neavdrag", "Gross salary deduction")}</li></ul></div>
+    <div class="bryt"><i id="bryt-dot"></i><p id="bryt-text"></p></div>
+    <details class="fold" id="steps"><summary><h2>${tr("Ber\xE4kning steg f\xF6r steg", "Calculation step by step")}</h2><span>${tr("Belopp i kr", "Amounts in SEK")} <button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button> <button type="button" class="btn" id="xls">${tr("Ladda ner Excel", "Download Excel")}</button></span></summary>
+      <div class="steps"><table><thead><tr><th scope="col">${tr("Post", "Item")}</th><th scope="col">${tr("Per m\xE5nad", "Per month")}</th><th scope="col">${tr("Per \xE5r", "Per year")}</th></tr></thead><tbody id="rows"></tbody></table></div></details>
+    <details class="fold"><summary><h2>${tr("Formler, antaganden och 2026 \xE5rs parametrar", "Formulas, assumptions and the 2026 parameters")}</h2></summary><div class="notes" id="notes"></div></details>
+  </div>`;
+    $("notes").innerHTML = notes();
+    bind();
+    update();
+  }
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.title = tr("Nettol\xF6nkalkylator 2026 \u2013 frist\xE5ende version", "Net salary calculator 2026 \u2013 standalone version");
+    $("meta-desc").setAttribute("content", tr("Se vad som blir kvar efter skatt 2026, steg f\xF6r steg. Frist\xE5ende version av Nettol\xF6nkalkylatorn fr\xE5n pensionslyft.se.", "See what is left after tax in 2026, step by step. Standalone version of the net salary calculator from pensionslyft.se."));
+    $("eyebrow-main").textContent = tr("Pensionslyft \xB7 Kalkylatorer", "Pensionslyft \xB7 Calculators");
+    $("h1").textContent = tr("Nettol\xF6nkalkylator 2026", "Net salary calculator 2026");
+    $("intro").textContent = tr(
+      "Se vad som blir kvar efter skatt 2026, steg f\xF6r steg, med kommunalskatt, avdrag och avgifter. Ber\xE4kningen f\xF6ljer Skatteverkets tekniska beskrivning och r\xE4knas direkt i din webbl\xE4sare.",
+      "See what is left after tax in 2026, step by step, with municipal tax, deductions and fees. The calculation follows the Swedish Tax Agency's technical description and runs directly in your browser."
+    );
+    $("foot").innerHTML = tr(
+      'Ber\xE4kningen \xE4r en uppskattning och inte skatter\xE5dgivning. Den h\xE4r filen \xE4r en frist\xE5ende kopia av <a href="https://pensionslyft.se/nettolonkalkylator">Nettol\xF6nkalkylatorn p\xE5 pensionslyft.se</a>, d\xE4r du alltid hittar den senaste versionen.',
+      'The calculation is an estimate and not tax advice. This file is a standalone copy of the <a href="https://pensionslyft.se/en/calculators">net salary calculator on pensionslyft.se</a>, where you always find the latest version.'
+    );
+    document.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("active", b.dataset.lang === lang));
+  }
   var text = (id) => $(id);
   function syncFields() {
     document.querySelectorAll("input[data-key]").forEach((input) => {
       if (document.activeElement === input) return;
       const v = state[input.dataset.key];
-      input.value = input.dataset.decimal ? fmtRate(v) : groupDigits(String(Math.round(v)));
+      input.value = input.dataset.decimal ? rateL(v) : groupL(String(Math.round(v)));
     });
     document.querySelectorAll("button[data-sw]").forEach((b) => b.setAttribute("aria-checked", String(state[b.dataset.sw])));
     document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.over === "1" === state.over66)));
@@ -1014,104 +1157,150 @@ details.fold.small { border: 0; border-top: 1px solid var(--border); border-radi
   }
   function render() {
     const view = nettolonView(state);
-    $("net-month").textContent = view.netMonth;
-    $("net-year").textContent = view.netYear;
-    $("vax-year").textContent = view.vaxYear;
-    $("eff").textContent = view.effRate;
-    $("marg").textContent = view.margRate;
-    $("tot").textContent = view.totTax;
+    const r = view.result;
+    const M = (v) => fmtL(v / 12);
+    const pct = (s) => lang === "en" ? pctEn(s) : s;
+    $("net-month").textContent = M(r.netto);
+    $("net-year").textContent = fmtL(r.netto);
+    $("vax-year").textContent = fmtL(r.vaxAr);
+    $("eff").textContent = pct(view.effRate);
+    $("marg").textContent = pct(view.margRate);
+    $("tot").textContent = lang === "en" ? `SEK ${M(r.totalSkatt)}` : `${M(r.totalSkatt)} kr`;
     const { bar, bryt } = view;
-    $("bar").setAttribute("aria-label", `Av inkomsten \xE4r ${Math.round(bar.net)} % netto, ${Math.round(bar.tax)} % skatt och avgifter och ${Math.round(bar.vax)} % bruttol\xF6neavdrag.`);
+    $("bar").setAttribute("aria-label", tr(
+      `Av inkomsten \xE4r ${Math.round(bar.net)} % netto, ${Math.round(bar.tax)} % skatt och avgifter och ${Math.round(bar.vax)} % bruttol\xF6neavdrag.`,
+      `Of the income, ${Math.round(bar.net)}% is net, ${Math.round(bar.tax)}% is tax and fees and ${Math.round(bar.vax)}% is gross salary deduction.`
+    ));
     $("b1").style.width = `${bar.net}%`;
     $("b2").style.width = `${bar.tax}%`;
     $("b3").style.width = `${bar.vax}%`;
     $("bryt-dot").style.background = bryt.over ? "#cc2827" : "#5fb7ae";
-    $("bryt-text").innerHTML = `Brytpunkt statlig skatt: <b>${fmt(bryt.bryt)} kr/\xE5r</b> (\u2248 ${fmt(bryt.brytM)} kr/m\xE5n). ${bryt.over ? `Din f\xF6rv\xE4rvsinkomst ligger <b>${fmt(bryt.diffM)} kr/m\xE5n</b> \xF6ver \u2014 20 % statlig skatt p\xE5 den delen.` : `Du ligger <b>${fmt(bryt.diffM)} kr/m\xE5n</b> under \u2014 ingen statlig skatt.`}`;
-    $("rows").innerHTML = view.rows.map((x) => {
-      const cells = rowCells(x);
-      return `<tr class="${x.cls}"><td><b>${esc(x.name)}</b><span class="s">${esc(x.sub)}</span></td><td class="${x.cls === "minus" ? "minus" : ""}">${esc(cells.m)}</td><td class="${x.cls === "minus" ? "minus" : ""}">${esc(cells.y)}</td></tr>`;
+    $("bryt-text").innerHTML = lang === "en" ? `State tax threshold: <b>SEK ${fmtL(bryt.bryt)}/year</b> (\u2248 SEK ${fmtL(bryt.brytM)}/month). ${bryt.over ? `Your earned income is <b>SEK ${fmtL(bryt.diffM)}/month</b> above \u2014 20% state tax on that part.` : `You are <b>SEK ${fmtL(bryt.diffM)}/month</b> below \u2014 no state tax.`}` : `Brytpunkt statlig skatt: <b>${fmt(bryt.bryt)} kr/\xE5r</b> (\u2248 ${fmt(bryt.brytM)} kr/m\xE5n). ${bryt.over ? `Din f\xF6rv\xE4rvsinkomst ligger <b>${fmt(bryt.diffM)} kr/m\xE5n</b> \xF6ver \u2014 20 % statlig skatt p\xE5 den delen.` : `Du ligger <b>${fmt(bryt.diffM)} kr/m\xE5n</b> under \u2014 ingen statlig skatt.`}`;
+    lastRows = view.rows.map((x) => ({ name: nameText(x.name), sub: subText(x.sub), m: x.m, y: x.y, cls: x.cls }));
+    $("rows").innerHTML = lastRows.map((x) => {
+      const sum = x.cls === "gross" || x.cls === "sumrow" || x.cls === "netrow";
+      const cell = (v) => sum ? fmtL(Math.abs(v)) : (v > 0 ? "+" : v < 0 ? "\u2212" : "") + fmtL(Math.abs(v));
+      return `<tr class="${x.cls}"><td><b>${esc(x.name)}</b><span class="s">${esc(x.sub)}</span></td><td class="${x.cls === "minus" ? "minus" : ""}">${esc(cell(x.m))}</td><td class="${x.cls === "minus" ? "minus" : ""}">${esc(cell(x.y))}</td></tr>`;
     }).join("");
   }
   var update = () => {
     syncFields();
     render();
   };
-  document.querySelectorAll("input[data-key]").forEach((input) => {
-    const key = input.dataset.key;
-    input.addEventListener("input", () => {
-      var _a2;
-      if (!input.dataset.decimal) input.value = groupDigits(input.value);
-      const v = input.dataset.decimal ? parseFloat(input.value.replace(/\s/g, "").replace(",", ".")) : parseAmount(input.value);
-      state[key] = Number.isFinite(v) ? Math.max(0, v) : 0;
-      if (key === "kommun" && kommunName && Math.abs(((_a2 = RATES[kommunName]) != null ? _a2 : 0) - state.kommun) > 1e-3) kommunName = "";
-      if (key === "begrPct") begrChoice = BEGRAVNING.some((b) => String(b.value) === String(state.begrPct)) ? String(state.begrPct) : "";
-      syncChoices();
-      render();
-    });
-    input.addEventListener("blur", update);
-  });
   function syncChoices() {
     document.getElementById("kommun-lista").value = kommunName;
     document.getElementById("begr-lista").value = begrChoice;
   }
-  $("kommun-lista").addEventListener("change", (e) => {
-    kommunName = e.target.value;
-    if (kommunName && RATES[kommunName] !== void 0) state.kommun = RATES[kommunName];
-    update();
-  });
-  $("begr-lista").addEventListener("change", (e) => {
-    begrChoice = e.target.value;
-    if (begrChoice !== "") state.begrPct = Number(begrChoice);
-    update();
-  });
-  document.querySelectorAll("button[data-sw]").forEach((b) => b.addEventListener("click", () => {
-    const key = b.dataset.sw;
-    state[key] = !state[key];
-    update();
-  }));
-  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
-    state.over66 = b.dataset.over === "1";
-    update();
-  }));
-  $("reset").addEventListener("click", () => {
-    Object.assign(state, DEFAULTS);
-    kommunName = "";
-    begrChoice = String(DEFAULTS.begrPct);
-    update();
-  });
-  document.querySelectorAll("button.step").forEach((button) => {
-    const key = button.dataset.step;
-    const dir = Number(button.dataset.dir);
-    const input = document.querySelector(`input[data-key="${key}"]`);
-    const stepBy = Number(input.dataset.stepby);
-    const go = () => {
-      state[key] = stepValue(state[key], stepBy, dir, 0);
-      update();
-    };
-    let timer, repeat;
-    const stop = () => {
-      window.clearTimeout(timer);
-      window.clearInterval(repeat);
-    };
-    button.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      go();
-      timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
+  function download(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1e3);
+  }
+  function bind() {
+    document.querySelectorAll("input[data-key]").forEach((input) => {
+      const key = input.dataset.key;
+      input.addEventListener("input", () => {
+        var _a2;
+        if (!input.dataset.decimal) input.value = groupL(input.value);
+        const v = input.dataset.decimal ? parseFloat(input.value.replace(/\s/g, "").replace(",", ".")) : parseL(input.value);
+        state[key] = Number.isFinite(v) ? Math.max(0, v) : 0;
+        if (key === "kommun" && kommunName && Math.abs(((_a2 = RATES[kommunName]) != null ? _a2 : 0) - state.kommun) > 1e-3) kommunName = "";
+        if (key === "begrPct") begrChoice = BEGRAVNING.some((b) => String(b.value) === String(state.begrPct)) ? String(state.begrPct) : "";
+        syncChoices();
+        render();
+      });
+      input.addEventListener("blur", update);
     });
-    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
-    button.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+    $("kommun-lista").addEventListener("change", (e) => {
+      kommunName = e.target.value;
+      if (kommunName && RATES[kommunName] !== void 0) state.kommun = RATES[kommunName];
+      update();
+    });
+    $("begr-lista").addEventListener("change", (e) => {
+      begrChoice = e.target.value;
+      if (begrChoice !== "") state.begrPct = Number(begrChoice);
+      update();
+    });
+    document.querySelectorAll("button[data-sw]").forEach((b) => b.addEventListener("click", () => {
+      const key = b.dataset.sw;
+      state[key] = !state[key];
+      update();
+    }));
+    document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+      state.over66 = b.dataset.over === "1";
+      update();
+    }));
+    $("reset").addEventListener("click", () => {
+      Object.assign(state, DEFAULTS);
+      kommunName = "";
+      begrChoice = String(DEFAULTS.begrPct);
+      update();
+    });
+    document.querySelectorAll("button.step").forEach((button) => {
+      const key = button.dataset.step;
+      const dir = Number(button.dataset.dir);
+      const input = document.querySelector(`input[data-key="${key}"]`);
+      const stepBy = Number(input.dataset.stepby);
+      const go = () => {
+        state[key] = stepValue(state[key], stepBy, dir, 0);
+        update();
+      };
+      let timer, repeat;
+      const stop = () => {
+        window.clearTimeout(timer);
+        window.clearInterval(repeat);
+      };
+      button.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
         e.preventDefault();
         go();
-      }
+        timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
+      });
+      ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
+      button.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
     });
-  });
+    const heads = () => [tr("Post", "Item"), tr("F\xF6rklaring", "Explanation"), tr("Per m\xE5nad", "Per month"), tr("Per \xE5r", "Per year")];
+    $("csv").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const q = (s) => `"${s.replace(/"/g, '""')}"`;
+      const csv = [heads().join(";"), ...lastRows.map((x) => [q(x.name), q(x.sub), Math.round(x.m), Math.round(x.y)].join(";"))].join("\r\n");
+      download(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }), tr("nettolon-2026.csv", "net-salary-2026.csv"));
+    });
+    $("xls").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + heads().map((h) => `<th>${esc(h)}</th>`).join("") + "</tr>" + lastRows.map((x) => `<tr><td>${esc(x.name)}</td><td>${esc(x.sub)}</td><td>${Math.round(x.m)}</td><td>${Math.round(x.y)}</td></tr>`).join("") + "</table></body></html>";
+      download(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }), tr("nettolon-2026.xls", "net-salary-2026.xls"));
+    });
+  }
+  function setLang(l) {
+    var _a2;
+    const open = (_a2 = document.getElementById("steps")) == null ? void 0 : _a2.open;
+    lang = l;
+    try {
+      localStorage.setItem("pension-lang", l);
+    } catch (e) {
+    }
+    applyStatic();
+    buildUI();
+    if (open) $("steps").open = true;
+  }
+  document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
   var _a;
   var typed = (_a = new URLSearchParams(location.search).get("lon")) != null ? _a : "";
   var lonFromUrl = Number(typed.split(",")[0].replace(/\D/g, ""));
   if (lonFromUrl > 0) state.lon = lonFromUrl;
-  update();
+  applyStatic();
+  buildUI();
 })();
 
 </script>
