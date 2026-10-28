@@ -202,11 +202,17 @@
     .notes-body{padding:0 16px 18px}
     .notes-body h4{font-size:14px}
   }
+  .wrap{position:relative}
+  .lang-toggle{position:absolute;top:6px;right:0;display:inline-flex;gap:3px;background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:3px;z-index:3}
+  .lang-btn{padding:4px 11px;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink-soft);background:none;border:none;border-radius:5px;cursor:pointer}
+  .lang-btn.active{background:var(--green-bright);color:#fff}
+  .lang-btn:not(.active):hover{color:var(--ink)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <div class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></div>
     <div class="kicker">Inkomstår 2026 · Skatteverket SKVFS 2025:20</div>
     <h1>Nettolön efter <em>skatt</em></h1>
     <p class="sub">Beräkningsmodell för en privatperson i Sverige 2026. Ange bruttolön, kommunalskattesats och eventuellt bruttolöneavdrag — modellen följer Skatteverkets exakta formler, steg för steg, inklusive jobbskatteavdraget.</p>
@@ -384,7 +390,7 @@
 
       <details class="notes">
         <summary>Formler, antaganden och 2026 års parametrar</summary>
-        <div class="notes-body">
+        <div class="notes-body" data-t="notes">
           <p>Modellen replikerar Skatteverkets tekniska beskrivning för inkomstår 2026 (skattetabell, kolumn&nbsp;1 för anställda under 66&nbsp;år). Allt beräknas på årsbasis och divideras med 12.</p>
 
           <h4>1–5 · Underlag</h4>
@@ -491,13 +497,136 @@ const FAST_TAK   = 10425;        // takbelopp småhus, inkomstår 2026
 const FAST_SPARR = 4042;         // lägsta spärrbelopp 2026 (pensionärsbegränsning)
 
 const $ = id => document.getElementById(id);
-const fmt = n => Math.round(n).toLocaleString("sv-SE");
+const fmt = n => Math.round(n).toLocaleString(loc());
+const kr = n => lang === "en" ? "SEK\u00a0" + n : n + "\u00a0kr";
 const ceil100  = n => Math.ceil(n/100)*100;
 const floor100 = n => Math.floor(n/100)*100;
 // avrundning till hela 100, men .50 nedåt (allmän pensionsavgift)
 function round100pens(n){ const h=n/100; const f=Math.floor(h); return (h-f<=0.5? f : f+1)*100; }
 
 let age = "under";
+
+// ── Språk / Language ──
+let lang = "sv";
+try { if (localStorage.getItem("pension-lang") === "en") lang = "en"; } catch (e) {}
+const tr = (sv, en) => lang === "en" ? en : sv;
+const loc = () => lang === "en" ? "en-GB" : "sv-SE";
+const dec = (n, d) => { const v = n.toFixed(d); return lang === "en" ? v : v.replace(".", ","); };
+const DICT_EN = {"Inkomstår 2026 · Skatteverket SKVFS 2025:20": "Income year 2026 · Swedish Tax Agency SKVFS 2025:20", "Nettolön efter": "Net salary after", "skatt": "tax", "Beräkningsmodell för en privatperson i Sverige 2026. Ange bruttolön, kommunalskattesats och eventuellt bruttolöneavdrag — modellen följer Skatteverkets exakta formler, steg för steg, inklusive jobbskatteavdraget.": "Calculation model for a private individual in Sweden in 2026. Enter gross salary, municipal tax rate and any gross salary deduction — the model follows the Swedish Tax Agency's exact formulas, step by step, including the earned income tax credit (jobbskatteavdrag).", "Indata": "Inputs", "Justera värdena — allt räknas om direkt.": "Adjust the values — everything is recalculated instantly.", "Bruttolön per månad": "Gross salary per month", "kr/mån": "SEK/month", "kr/år": "SEK/year", "kr": "SEK", "Kommunal skattesats": "Municipal tax rate", "SCB:s lista ↗": "Statistics Sweden's list ↗", "— Välj kommun (fyller i 2026 års sats) —": "— Choose municipality (fills in the 2026 rate) —", "Bruttolöneavdrag": "Gross salary deduction", "löneväxling, bil, cykel etc.": "salary exchange, company car, bicycle etc.", "Pensionsinkomst": "Pension income", "Ålder vid årets ingång": "Age at the start of the year", "Under 66 år": "Under 66", "66 år +": "66 +", "Kyrkoavgift": "Church fee", "Medlem i Svenska kyrkan / trossamfund": "Member of the Church of Sweden / faith community", "Avgift": "Fee", "Hitta din församling ↗": "Find your parish ↗", "Begravningsavgift": "Funeral fee", "tre regimer i Sverige – välj nedan": "three regimes in Sweden – choose below", "Övriga Sverige (Svenska kyrkan) — 0,292 %": "Rest of Sweden (Church of Sweden) — 0.292%", "Stockholms stad — 0,07 %": "City of Stockholm — 0.07%", "Tranås kommun — 0,285 %": "Tranås municipality — 0.285%", "— Egen sats —": "— Own rate —", "Om avgiften ↗": "About the fee ↗", "Kapital, ränteavdrag & ROT/RUT": "Capital, interest deduction & ROT/RUT", "Ränta & utdelning": "Interest & dividends", "ränteinkomst, aktieutdelning": "interest income, share dividends", "Kapitalunderlag ISK / Kapitalförsäkring": "Capital base ISK / capital insurance", "fribelopp 300 000 kr, schablonränta 3,55 %": "allowance SEK 300,000, standard rate 3.55%", "Aktievinst (marknadsnoterad)": "Share gain (listed)", "realiserad vinst, aktier/fonder": "realised gain, shares/funds", "Aktieförlust (marknadsnoterad)": "Share loss (listed)", "kvittas mot vinst, rest kvoteras 70 %": "offset against gains, remainder reduced to 70%", "Ränteutgifter / övriga avdrag": "Interest expenses / other deductions", "avdragsgill ränta (100 %)": "deductible interest (100%)", "ROT-arbete (arbetskostnad)": "ROT work (labour cost)", "30 %, max 50 000 kr reduktion": "30%, max SEK 50,000 reduction", "RUT-arbete (arbetskostnad)": "RUT work (labour cost)", "50 %, gemensamt tak 75 000 kr": "50%, joint cap SEK 75,000", "Taxeringsvärde (småhus)": "Assessed value (detached house)", "0,75 %, takbelopp 10 425 kr": "0.75%, cap SEK 10,425", "Nybyggt hus": "New-build house", "värdeår 2012+, avgiftsfritt i 15 år": "value year 2012+, fee-free for 15 years", "Återställ till exempel": "Reset to example", "Netto i handen efter skatt": "Net pay after tax", "kr/år · bruttolöneavdrag:": "SEK/year · gross salary deduction:", "Effektiv skatt": "Effective tax", "Marginalskatt": "Marginal tax", "Skatt & avgift / mån": "Tax & fees / month", "Netto": "Net", "Skatt & avgifter": "Tax & fees", "Beräkning steg för steg": "Calculation step by step", "Belopp i kr": "Amounts in SEK", "Faktor": "Factor", "Per månad": "Per month", "Per år": "Per year", "Formler, antaganden och 2026 års parametrar": "Formulas, assumptions and 2026 parameters"};
+const NOTES_EN = `          <p>The model replicates the Swedish Tax Agency's technical description for income year 2026 (tax table, column&nbsp;1 for employees under 66). Everything is calculated on an annual basis and divided by 12.</p>
+
+          <h4>1–5 · Basis</h4>
+          <ul>
+            <li>Annual income = gross salary × 12. Gross salary deductions (salary exchange to pension, company car, bicycle etc.) are deducted <em>before</em> tax and also lower the basis for the earned income tax credit and the public pension fee.</li>
+            <li>Pension income is taxed as earned income but gives no earned income tax credit and carries no public pension fee.</li>
+            <li>Assessed earned income (FFI) = annual salary − gross salary deduction + pension income.</li>
+            <li>Basic allowance (under 66, based on FFI), rounded <em>up</em> to whole 100&nbsp;SEK:
+              <br><code>≤58,608: 25,041.60</code>
+              <br><code>≤161,024: 25,041.60 + 20% × (FFI−58,608)</code>
+              <br><code>≤184,112: 45,584</code>
+              <br><code>≤466,496: 45,584 − 10% × (FFI−184,112)</code>
+              <br><code>&gt;466,496: 17,345.60</code></li>
+            <li>For 66+ the enhanced basic allowance according to the Tax Agency's 11-step table is used.</li>
+            <li>Taxable earned income (BFI) = FFI − basic allowance.</li>
+          </ul>
+
+          <h4>6–7 · Income tax</h4>
+          <ul>
+            <li>Municipal tax = BFI × municipal tax rate.</li>
+            <li>State tax = 20% × (BFI − 643,000). The <b>bracket limit</b> of SEK&nbsp;643,000 applies to the <em>taxable</em> income (after the basic allowance). Because gross salary is <em>before</em> the basic allowance, the <b>threshold</b> = bracket limit + basic allowance is communicated instead, i.e. the gross salary at which state tax begins:</li>
+            <li>Under 66: 643,000 + 17,400 = <code>SEK 660,400/year</code> (≈ SEK 55,033/month).</li>
+            <li>66 +: 643,000 + 117,500 = <code>SEK 760,500/year</code> (≈ SEK 63,375/month) — a higher basic allowance gives a higher threshold.</li>
+          </ul>
+
+          <h4>8 · Earned income tax credit (jobbskatteavdrag) <span class="pill">was missing from your example</span></h4>
+          <p>Tax reduction for earned income, under 66. <code>AI</code> = earned income (≈ FFI, rounded down to 100), <code>GA</code> = basic allowance, <code>KI</code> = municipal tax rate. The reduction can only be set off against municipal tax.</p>
+          <ul>
+            <li><code>AI ≤ 53,872</code>: (AI − GA) × KI</li>
+            <li><code>≤ 191,808</code>: (53,872 + 38.74% × (AI − 53,872) − GA) × KI</li>
+            <li><code>≤ 478,336</code>: (107,329.60 + 25.10% × (AI − 191,808) − GA) × KI</li>
+            <li><code>&gt; 478,336</code>: (179,198.40 − GA) × KI</li>
+          </ul>
+          <p>For 66+: 22% of AI up to 103,600, then 0.2635&nbsp;PBB + 7% of AI, max SEK&nbsp;37,254.56.</p>
+
+          <h4>9–11 · Fees & other reductions</h4>
+          <ul>
+            <li>Church fee = BFI × fee (members only). Funeral fee = BFI × fee (everyone).</li>
+            <li>Public pension fee = 7% × min(earned income, 673,038). Pension income carries no fee. It is matched by a <em>100% tax reduction</em>, so the net effect is SEK&nbsp;0 for normal salaries.</li>
+            <li>Tax reduction for earned income: 0.75% × (BFI − 40,000), max SEK&nbsp;1,500/year.</li>
+            <li>Public service fee = 1% × BFI, max SEK&nbsp;1,184/year.</li>
+          </ul>
+
+          <h4>Capital, ISK/KF, share losses & ROT/RUT</h4>
+          <ul>
+            <li>ISK/capital insurance: standard income = (capital base − allowance SEK&nbsp;300,000) × the standard rate <code>3.55%</code> (government borrowing rate on 30 Nov 2025, 2.55% + 1 percentage point; floor 1.25%). The allowance applies per person, in total for all ISK accounts and capital insurances. The standard income is treated as ordinary capital income and can be offset against interest expenses and quota-reduced share losses.</li>
+            <li>Share gains and losses are first fully offset against each other in the share bucket. An <em>unmatched</em> share loss is reduced to <code>70%</code> before it enters capital.</li>
+            <li>A capital surplus (interest + dividends + ISK/KF standard income + netted share gain − interest expenses) is taxed at <code>30%</code>.</li>
+            <li>A capital deficit gives a tax reduction: <code>30%</code> up to SEK&nbsp;100,000, <code>21%</code> on the part above SEK&nbsp;100,000.</li>
+            <li>ROT = 30% of labour cost (max SEK&nbsp;50,000). RUT = 50% (max SEK&nbsp;75,000). Joint cap SEK&nbsp;75,000/year, of which at most SEK&nbsp;50,000 ROT.</li>
+          </ul>
+
+          <h4>Municipal property fee</h4>
+          <ul>
+            <li>Detached house: <code>0.75%</code> of the assessed value, max cap <code>SEK&nbsp;10,425</code> (income year 2026). The cap applies from an assessed value of SEK&nbsp;1,390,000.</li>
+            <li>New-build with value year 2012 or later: no fee for the first 15 years.</li>
+            <li>Pensioner limitation (66 +): the fee is limited to <code>4%</code> of (BFI + capital surplus), but at least the floor amount <code>SEK&nbsp;4,042</code>. The reduction is calculated before other tax reductions.</li>
+            <li>Order of set-off: property fee reduction (pensioner) → pension fee → earned income tax credit → earned income → capital deficit → ROT/RUT. The property fee is part of the pool that the last two may be offset against; funeral/church fee and the public pension fee are not. Never more than the remaining tax.</li>
+            <li>The model shows the <em>tax effect</em>. The interest cost (cash outflow) is not deducted from net pay — as in the Tax Agency's service.</li>
+          </ul>
+
+          <h4>2026 parameters</h4>
+          <ul>
+            <li>Price base amount SEK&nbsp;59,200 · Income base amount SEK&nbsp;83,400</li>
+            <li>State tax bracket limit SEK&nbsp;643,000 (threshold SEK&nbsp;660,400 / SEK&nbsp;760,500 for 66+)</li>
+            <li>Average municipal tax ≈ 32.41% (can vary 28–35% depending on municipality)</li>
+          </ul>
+
+          <div class="src">
+            Source: Swedish Tax Agency (Skatteverket), <em>Technical description … income year 2026</em> (SKV 433, 2025-12-10), <a href="https://www.skatteverket.se/privat/skatter/beloppochprocent/2026" target="_blank" rel="noopener">Amounts and percentages 2026</a> and the rules for ROT/RUT deductions and the municipal property fee.
+            Simplifications: unlisted share losses (5/6 quota) are not handled, property fee only for a wholly owned detached house for the whole year (no leasehold land/half cap), no sea income or regional reduction, even income throughout the year. The result corresponds to final tax; the preliminary tax on the payslip may deviate somewhat. A calculation aid, not tax advice.
+          </div>
+`;
+const SRC = new WeakMap();
+const NOTES_SV = {};
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = tr("Nettolön 2026 – beräkningsmodell", "Net Salary 2026 – calculation model");
+  const nb = document.querySelector("[data-t=notes]");
+  if(!("v" in NOTES_SV)) NOTES_SV.v = nb.innerHTML;
+  nb.innerHTML = lang === "en" ? NOTES_EN : NOTES_SV.v;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while(w.nextNode()) nodes.push(w.currentNode);
+  nodes.forEach(n => {
+    const par = n.parentNode;
+    if(!par || par.closest("script,style,[data-t],.lang-toggle")) return;
+    if(!SRC.has(n)){
+      const t = n.nodeValue.trim().replace(/\s+/g, " ");
+      if(!(t in DICT_EN)) return;
+      SRC.set(n, n.nodeValue);
+    }
+    const sv = SRC.get(n);
+    const key = sv.trim().replace(/\s+/g, " ");
+    n.nodeValue = lang === "en" ? sv.replace(sv.trim(), DICT_EN[key]) : sv;
+  });
+  document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+}
+function buildKommun(){
+  const sel = $("kommunSelect"), keep = sel.value;
+  while(sel.options.length > 1) sel.remove(1);
+  Object.keys(KOMMUNSKATT).sort((a,b)=>a.localeCompare(b,"sv"))
+    .forEach(k=>{ const o=document.createElement("option"); o.value=k;
+      o.textContent = k+" — "+dec(KOMMUNSKATT[k],2)+tr(" %","%"); sel.appendChild(o); });
+  sel.value = keep;
+}
+function setLang(l){
+  lang = l;
+  try { localStorage.setItem("pension-lang", l); } catch (e) {}
+  applyStatic();
+  buildKommun();
+  render();
+}
+
 
 // Totala kommunala skattesatser 2026 (kommun + region), SCB 2025-12-15
 const KOMMUNSKATT = {
@@ -680,10 +809,10 @@ function render(){
   $("netMonth").textContent = M(r.netto);
   $("netYear").textContent  = Y(r.netto);
   $("vaxYear").textContent  = Y(r.vaxAr);
-  $("totTax").textContent   = M(r.totalSkatt) + " kr";
+  $("totTax").textContent   = M(r.totalSkatt) + tr(" kr", " SEK");
 
   const eff = r.brutto>0 ? (r.totalSkatt/r.brutto*100) : 0;
-  $("effRate").innerHTML = eff.toFixed(1).replace(".",",") + "&nbsp;%";
+  $("effRate").innerHTML = dec(eff,1) + tr("&nbsp;%","%");
 
   // marginalskatt: skillnad i nettoskatt vid +1000 kr/mån brutto
   const baseLon = +$("lon").value;
@@ -692,7 +821,7 @@ function render(){
   $("lon").value = baseLon;
   const dGross = (r2.arslon - r.arslon);
   const marg = dGross>0 ? ((r2.totalSkatt - r.totalSkatt)/dGross*100) : 0;
-  $("margRate").innerHTML = marg.toFixed(1).replace(".",",") + "&nbsp;%";
+  $("margRate").innerHTML = dec(marg,1) + tr("&nbsp;%","%");
 
   // sammansättningsbar (av total inkomst: lön + pension)
   const gross = (r.arslon + r.pensAr) || 1;
@@ -709,54 +838,58 @@ function render(){
   const dot = $("brytDot"), txt = $("brytTxt");
   if(r.statlig > 0){
     dot.style.background = "var(--red)";
-    txt.innerHTML = `Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
-      `Din förvärvsinkomst ligger <b>${fmt((fviY-bryt)/12)} kr/mån</b> över — 20 % statlig skatt på den delen.`;
+    txt.innerHTML = tr(`Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
+      `Din förvärvsinkomst ligger <b>${fmt((fviY-bryt)/12)} kr/mån</b> över — 20 % statlig skatt på den delen.`,
+      `State tax threshold: <b>SEK ${fmt(bryt)}/year</b> (≈ SEK ${fmt(brytM)}/month). `+
+      `Your earned income is <b>SEK ${fmt((fviY-bryt)/12)}/month</b> above it — 20% state tax on that part.`);
   }else{
     dot.style.background = "var(--green-bright)";
-    txt.innerHTML = `Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
-      `Du ligger <b>${fmt((bryt-fviY)/12)} kr/mån</b> under — ingen statlig skatt.`;
+    txt.innerHTML = tr(`Brytpunkt statlig skatt: <b>${fmt(bryt)} kr/år</b> (≈ ${fmt(brytM)} kr/mån). `+
+      `Du ligger <b>${fmt((bryt-fviY)/12)} kr/mån</b> under — ingen statlig skatt.`,
+      `State tax threshold: <b>SEK ${fmt(bryt)}/year</b> (≈ SEK ${fmt(brytM)}/month). `+
+      `You are <b>SEK ${fmt((bryt-fviY)/12)}/month</b> below it — no state tax.`);
   }
 
-  const pensNote = r.pensAvg>0 ? ` (avgift ${fmt(r.pensAvg/12)} − reduktion ${fmt(r.pensRed/12)})` : "";
+  const pensNote = r.pensAvg>0 ? tr(` (avgift ${fmt(r.pensAvg/12)} − reduktion ${fmt(r.pensRed/12)})`, ` (fee ${fmt(r.pensAvg/12)} − reduction ${fmt(r.pensRed/12)})`) : "";
   const hasKap  = (r.kapInk>0 || r.rantUtg>0 || r.aktieV>0 || r.aktieF>0 || r.iskUnd>0);
   const hasHus  = (r.rotShow>0 || r.rutShow>0);
   const hasFast = (r.fastBrutto>0 || (r.taxv>0));
   const kapSub  = r.aktieKvoterad>0
-    ? `okvittad aktieförlust kvoterad till 70 % (${fmt(r.aktieKvoterad)} kr)`
-    : (r.iskSchablon>0 ? `inkl. ISK/KF-schablonintäkt` : `ränta, utdelning, aktievinst`);
+    ? tr(`okvittad aktieförlust kvoterad till 70 % (${fmt(r.aktieKvoterad)} kr)`, `unmatched share loss reduced to 70% (SEK ${fmt(r.aktieKvoterad)})`)
+    : (r.iskSchablon>0 ? tr(`inkl. ISK/KF-schablonintäkt`, `incl. ISK/KF standard income`) : tr(`ränta, utdelning, aktievinst`, `interest, dividends, share gains`));
   let rows = [
-    {name:"Brutto månadslön", sub:"Indata", m:r.lon, y:r.arslon, cls:"gross"},
-    {name:"Årsinkomst lön", sub:"bruttolön × 12", m:r.arslon/12, y:r.arslon},
-    {name:"Bruttolöneavdrag", sub:"löneväxling, bil m.m. – före skatt", m:-r.vaxM, y:-r.vaxAr, cls:"minus"},
-    {name:"Pensionsinkomst", sub:"skattepliktig, utbetald pension", m:r.pensAr/12, y:r.pensAr},
-    {name:"Fastställd förvärvsinkomst", sub:"FFI = lön − bruttolöneavdrag + pension", m:r.ffi/12, y:r.ffi, cls:"sumrow"},
-    {name:"Grundavdrag", sub:age==="under"?"ordinarie, baserat på FFI":"förhöjt grundavdrag (66+)", m:-r.ga/12, y:-r.ga, cls:"minus"},
-    {name:"Beskattningsbar inkomst", sub:"BFI = FFI − grundavdrag", m:r.bfi/12, y:r.bfi, cls:"sumrow"},
-    {name:"Kommunalskatt", sub:`BFI × ${$("kommun").value} % (öretal bortfaller)`, m:-r.kommunal/12, y:-r.kommunal, cls:"minus"},
-    {name:"Statlig skatt", sub:`20 % över brytpunkt ${fmt(bryt)} kr/år`, m:-r.statlig/12, y:-r.statlig, cls:"minus"},
+    {name:tr("Brutto månadslön","Gross monthly salary"), sub:tr("Indata","Input"), m:r.lon, y:r.arslon, cls:"gross"},
+    {name:tr("Årsinkomst lön","Annual salary income"), sub:tr("bruttolön × 12","gross salary × 12"), m:r.arslon/12, y:r.arslon},
+    {name:tr("Bruttolöneavdrag","Gross salary deduction"), sub:tr("löneväxling, bil m.m. – före skatt","salary exchange, car etc. – before tax"), m:-r.vaxM, y:-r.vaxAr, cls:"minus"},
+    {name:tr("Pensionsinkomst","Pension income"), sub:tr("skattepliktig, utbetald pension","taxable, paid-out pension"), m:r.pensAr/12, y:r.pensAr},
+    {name:tr("Fastställd förvärvsinkomst","Assessed earned income"), sub:tr("FFI = lön − bruttolöneavdrag + pension","FFI = salary − gross salary deduction + pension"), m:r.ffi/12, y:r.ffi, cls:"sumrow"},
+    {name:tr("Grundavdrag","Basic allowance"), sub:age==="under"?tr("ordinarie, baserat på FFI","ordinary, based on FFI"):tr("förhöjt grundavdrag (66+)","enhanced basic allowance (66+)"), m:-r.ga/12, y:-r.ga, cls:"minus"},
+    {name:tr("Beskattningsbar inkomst","Taxable income"), sub:tr("BFI = FFI − grundavdrag","BFI = FFI − basic allowance"), m:r.bfi/12, y:r.bfi, cls:"sumrow"},
+    {name:tr("Kommunalskatt","Municipal tax"), sub:tr(`BFI × ${$("kommun").value} % (öretal bortfaller)`,`BFI × ${$("kommun").value}% (öre dropped)`), m:-r.kommunal/12, y:-r.kommunal, cls:"minus"},
+    {name:tr("Statlig skatt","State tax"), sub:tr(`20 % över brytpunkt ${fmt(bryt)} kr/år`,`20% above threshold SEK ${fmt(bryt)}/year`), m:-r.statlig/12, y:-r.statlig, cls:"minus"},
   ];
   if(r.iskUnd>0)
-    rows.push({name:"ISK/KF schablonintäkt", sub:`(${fmt(r.iskUnd)} − 300 000) × 3,55 % → kapitalinkomst`, m:r.iskSchablon/12, y:r.iskSchablon});
+    rows.push({name:tr("ISK/KF schablonintäkt","ISK/KF standard income"), sub:tr(`(${fmt(r.iskUnd)} − 300 000) × 3,55 % → kapitalinkomst`,`(${fmt(r.iskUnd)} − 300,000) × 3.55% → capital income`), m:r.iskSchablon/12, y:r.iskSchablon});
   if(hasKap && r.netKap>0)
-    rows.push({name:"Skatt på kapitalöverskott", sub:`30 % av ${fmt(r.netKap)} kr — ${kapSub}`, m:-r.kapSkatt/12, y:-r.kapSkatt, cls:"minus"});
+    rows.push({name:tr("Skatt på kapitalöverskott","Tax on capital surplus"), sub:tr(`30 % av ${fmt(r.netKap)} kr — ${kapSub}`,`30% of SEK ${fmt(r.netKap)} — ${kapSub}`), m:-r.kapSkatt/12, y:-r.kapSkatt, cls:"minus"});
   if(hasFast)
-    rows.push({name:"Fastighetsavgift", sub:r.nybyggt?"nybyggt – avgiftsfritt i 15 år":(r.fastBrutto>=FAST_TAK?`takbelopp 10 425 kr (0,75 % > tak)`:`0,75 % av ${fmt(r.taxv)} kr`), m:-r.fastBrutto/12, y:-r.fastBrutto, cls:r.fastBrutto?"minus":""});
+    rows.push({name:tr("Fastighetsavgift","Property fee"), sub:r.nybyggt?tr("nybyggt – avgiftsfritt i 15 år","new-build – fee-free for 15 years"):(r.fastBrutto>=FAST_TAK?tr(`takbelopp 10 425 kr (0,75 % > tak)`,`cap SEK 10,425 (0.75% > cap)`):tr(`0,75 % av ${fmt(r.taxv)} kr`,`0.75% of SEK ${fmt(r.taxv)}`)), m:-r.fastBrutto/12, y:-r.fastBrutto, cls:r.fastBrutto?"minus":""});
   rows.push(
-    {name:"Jobbskatteavdrag", sub:"endast på arbetsinkomst, ej pension", m:r.jobb/12, y:r.jobb},
-    {name:"Skattereduktion förvärvsinkomst", sub:"0,75 % över 40 000, max 1 500", m:r.forvAnv/12, y:r.forvAnv},
-    {name:"Allmän pensionsavgift", sub:"7 % av arbetsinkomst − 100 % red."+pensNote, m:-(r.pensAvg-r.pensRed)/12, y:-(r.pensAvg-r.pensRed), cls:(r.pensAvg-r.pensRed)>0?"minus":""}
+    {name:tr("Jobbskatteavdrag","Earned income tax credit"), sub:tr("endast på arbetsinkomst, ej pension","on earned income only, not pension"), m:r.jobb/12, y:r.jobb},
+    {name:tr("Skattereduktion förvärvsinkomst","Tax reduction, earned income"), sub:tr("0,75 % över 40 000, max 1 500","0.75% above 40,000, max 1,500"), m:r.forvAnv/12, y:r.forvAnv},
+    {name:tr("Allmän pensionsavgift","Public pension fee"), sub:tr("7 % av arbetsinkomst − 100 % red.","7% of earned income − 100% red.")+pensNote, m:-(r.pensAvg-r.pensRed)/12, y:-(r.pensAvg-r.pensRed), cls:(r.pensAvg-r.pensRed)>0?"minus":""}
   );
   if(r.fastPensRed>0)
-    rows.push({name:"Skattered. fastighetsavgift", sub:"pensionärsspärr: 4 % av inkomst, min 4 042", m:r.fastPensRed/12, y:r.fastPensRed});
+    rows.push({name:tr("Skattered. fastighetsavgift","Tax red., property fee"), sub:tr("pensionärsspärr: 4 % av inkomst, min 4 042","pensioner limit: 4% of income, min 4,042"), m:r.fastPensRed/12, y:r.fastPensRed});
   if(hasKap && r.netKap<0)
-    rows.push({name:"Skattered. underskott kapital", sub:`30 % ≤100 000, 21 % däröver (underskott ${fmt(-r.netKap)} kr)`, m:r.kapRed/12, y:r.kapRed});
+    rows.push({name:tr("Skattered. underskott kapital","Tax red., capital deficit"), sub:tr(`30 % ≤100 000, 21 % däröver (underskott ${fmt(-r.netKap)} kr)`,`30% ≤100,000, 21% above (deficit SEK ${fmt(-r.netKap)})`), m:r.kapRed/12, y:r.kapRed});
   if(hasHus)
-    rows.push({name:"ROT-/RUT-avdrag", sub:`hushållsarbete – tak 75 000 kr (ROT max 50 000)`, m:(r.rotShow+r.rutShow)/12, y:(r.rotShow+r.rutShow)});
+    rows.push({name:tr("ROT-/RUT-avdrag","ROT/RUT deduction"), sub:tr(`hushållsarbete – tak 75 000 kr (ROT max 50 000)`,`household work – cap SEK 75,000 (ROT max 50,000)`), m:(r.rotShow+r.rutShow)/12, y:(r.rotShow+r.rutShow)});
   rows.push(
-    {name:"Kyrkoavgift", sub:$("kyrkaOn").checked?`BFI × ${$("kyrkaPct").value} %`:"ej medlem", m:-r.kyrkaKr/12, y:-r.kyrkaKr, cls:r.kyrkaKr?"minus":""},
-    {name:"Begravningsavgift", sub:$("begrOn").checked?`BFI × ${$("begrPct").value} %`:"—", m:-r.begrKr/12, y:-r.begrKr, cls:r.begrKr?"minus":""},
-    {name:"Public service-avgift", sub:"1 % av BFI, max 1 184", m:-r.ps/12, y:-r.ps, cls:"minus"},
-    {name:"Netto i handen", sub:(hasKap||hasFast)?"inkomst − total skatt & avgift":"lön + pension efter skatt", m:r.netto/12, y:r.netto, cls:"netrow"}
+    {name:tr("Kyrkoavgift","Church fee"), sub:$("kyrkaOn").checked?`BFI × ${$("kyrkaPct").value}${tr(" %","%")}`:tr("ej medlem","not a member"), m:-r.kyrkaKr/12, y:-r.kyrkaKr, cls:r.kyrkaKr?"minus":""},
+    {name:tr("Begravningsavgift","Funeral fee"), sub:$("begrOn").checked?`BFI × ${$("begrPct").value}${tr(" %","%")}`:"—", m:-r.begrKr/12, y:-r.begrKr, cls:r.begrKr?"minus":""},
+    {name:tr("Public service-avgift","Public service fee"), sub:tr("1 % av BFI, max 1 184","1% of BFI, max 1,184"), m:-r.ps/12, y:-r.ps, cls:"minus"},
+    {name:tr("Netto i handen","Net pay"), sub:(hasKap||hasFast)?tr("inkomst − total skatt & avgift","income − total tax & fees"):tr("lön + pension efter skatt","salary + pension after tax"), m:r.netto/12, y:r.netto, cls:"netrow"}
   );
   // sekventiell numrering (tom etikett för sammanfattnings-/netto-rad)
   let c=0;
@@ -775,10 +908,6 @@ function render(){
 // ---- kommunväljare ----
 (function(){
   const sel = $("kommunSelect");
-  Object.keys(KOMMUNSKATT).sort((a,b)=>a.localeCompare(b,"sv"))
-    .forEach(k=>{ const o=document.createElement("option"); o.value=k;
-      o.textContent = k+" — "+KOMMUNSKATT[k].toFixed(2).replace(".",",")+" %"; sel.appendChild(o); });
-  sel.value = "";
   sel.addEventListener("change",()=>{
     if(sel.value && KOMMUNSKATT[sel.value]!=null){ $("kommun").value = KOMMUNSKATT[sel.value]; render(); }
   });
@@ -823,6 +952,9 @@ $("reset").addEventListener("click",()=>{
   document.querySelector('#age [data-age="under"]').classList.add("on"); age="under";
   render();
 });
+document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+applyStatic();
+buildKommun();
 render();
 </script>
 </body>
