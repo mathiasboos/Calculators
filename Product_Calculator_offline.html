@@ -52,7 +52,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .kpi-delta{font-size:10px;color:var(--mid);margin-top:2px;}
 
 /* LAYOUT */
-.main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 122px);}
+.main{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:calc(100vh - 122px);}
 @media(max-width:960px){.main{grid-template-columns:1fr;}}
 
 /* SIDEBAR */
@@ -93,7 +93,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .sw input:checked~.sw-kn{transform:translateX(16px);}
 
 /* CONTENT */
-.content{padding:18px 22px;overflow-y:auto;}
+.content{padding:18px 22px;overflow-y:auto;min-width:0;}
 .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:18px;}
 .tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s;user-select:none;white-space:nowrap;}
 .tab.active{color:var(--navy);border-bottom-color:#48B866;}
@@ -106,11 +106,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .chart-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px;}
 .chart-sub{font-size:11px;color:var(--text2);margin-bottom:14px;}
 .chart-wrap{position:relative;width:100%;}
+.chart-container,.scen-chart-box,.sum-card{min-width:0;}
 .legend{display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:4px;}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:4px;}
 @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}}
 .sum-card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:16px 18px;}
 .sum-lbl{font-size:11px;color:var(--text2);margin-bottom:6px;}
@@ -118,6 +119,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .sum-sub{font-size:10.5px;color:var(--text2);}
 .breakdown-box{font-size:11px;color:var(--text2);margin-top:4px;padding:10px 14px;background:var(--bg2);border-radius:4px;border-left:3px solid var(--red);display:none;}
 
+.plan-ctl{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text2);}
+.plan-ctl label{display:flex;align-items:center;gap:8px;}
+.plan-ctl .pp-sel{background:var(--bg);color:var(--navy);border:1px solid var(--border);}
+#plan-table thead tr.col th{top:0;}
+#plan-table tbody tr.plan-exit td{background:#fffbf0;}
+#plan-table tbody tr.plan-after td{color:var(--text2);}
+.scen-cmp-table td.plan-sel{text-decoration:underline;text-underline-offset:3px;}
+.scen-cmp-table td.plan-best{color:#015D34;font-weight:700;}
 /* TABLE */
 .table-wrap{background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
 .table-scroll{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 220px);}
@@ -191,8 +200,8 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
 .scen-del[disabled]{display:none;}
 .sc-best{font-size:8.5px;background:#48B866;color:#fff;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;}
 .sc-worst{font-size:8.5px;background:var(--red);color:#fff;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;}
-.scen-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
-.scen-chart-grid.full-w{grid-template-columns:1fr;}
+.scen-chart-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:16px;}
+.scen-chart-grid.full-w{grid-template-columns:minmax(0,1fr);}
 .scen-chart-box{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:14px 16px;}
 .scen-chart-ttl{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:2px;}
 .scen-chart-sub{font-size:10.5px;color:var(--text2);margin-bottom:10px;}
@@ -443,6 +452,7 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
     <div class="tab" onclick="switchTab('arsr')"     data-i18n="tab.arsr">Årsresultat</div>
     <div class="tab" onclick="switchTab('npv')"      data-i18n="tab.npv">Nuvärde</div>
     <div class="tab" onclick="switchTab('scenario')" data-i18n="tab.scenario">Scenario</div>
+    <div class="tab" onclick="switchTab('plan')"     data-i18n="tab.plan">Exit Plan</div>
     <div class="tab" onclick="switchTab('tabell')"   data-i18n="tab.tabell">Datatabell</div>
   </div>
 
@@ -632,6 +642,72 @@ td.pos{color:#48B866;}td.neg{color:#FF5B2E;}td.zer{color:#b0bec5;}
   </div>
 
   <!-- DATATABELL -->
+  <!-- PLAN -->
+  <div class="tab-panel" id="tab-plan">
+    <div class="chart-container">
+      <div class="chart-title" data-i18n="plan.title">Exit Plan — kund som lämnar efter N år</div>
+      <div class="chart-sub" data-i18n="plan.desc">Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.</div>
+      <div class="plan-ctl">
+        <label><span data-i18n="plan.exit">Exit efter</span>
+          <select class="pp-sel" id="plan-exit" onchange="planExitChange()">
+            <option value="3">3</option><option value="5" selected>5</option><option value="10">10</option>
+            <option value="custom" data-i18n-opt="plan.custom">Eget</option>
+          </select>
+          <input class="param-input" id="plan-exit-custom" type="text" inputmode="decimal" value="7" style="display:none;width:46px" onchange="planRecalc()">
+          <span class="param-unit" data-i18n="plan.years">år</span></label>
+        <label><span data-i18n="plan.share">Flyttas ut</span>
+          <select class="pp-sel" id="plan-share" onchange="planShareChange()">
+            <option value="25">25 %</option><option value="50">50 %</option><option value="75">75 %</option><option value="100" selected>100 %</option>
+            <option value="custom" data-i18n-opt="plan.custom">Eget</option>
+          </select>
+          <input class="param-input" id="plan-share-custom" type="text" inputmode="decimal" value="60" style="display:none;width:46px" onchange="planRecalc()">
+          <span class="param-unit" id="plan-share-pct" style="display:none">%</span></label>
+        <label><span data-i18n="plan.annul">Annullation före exit</span>
+          <input class="param-input" id="plan-annul" type="text" inputmode="decimal" value="0" style="width:46px" onchange="planRecalc()">
+          <span class="param-unit">%</span></label>
+      </div>
+      <div class="chart-sub" id="plan-note" style="margin:10px 0 0"></div>
+    </div>
+    <div class="three-col" style="margin-bottom:16px">
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.npv">Nuvärde — total</div><div class="sum-val" id="plan-k-npv">—</div><div class="sum-sub" id="plan-k-npv-sub"></div></div>
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.res">Resultat — total</div><div class="sum-val" id="plan-k-res">—</div><div class="sum-sub" id="plan-k-res-sub"></div></div>
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.xfer">Kapital som flyttas ut</div><div class="sum-val" id="plan-k-xfer">—</div><div class="sum-sub" id="plan-k-xfer-sub"></div></div>
+    </div>
+    <div class="three-col" style="margin-bottom:16px">
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.pct">Nuvärde (% av premie)</div><div class="sum-val" id="plan-k-pct">—</div><div class="sum-sub" data-i18n="plan.k.pct.sub">Nuvärde ÷ total premievolym</div></div>
+      <div class="sum-card"><div class="sum-lbl" data-i18n="plan.k.vol">Total premievolym</div><div class="sum-val" id="plan-k-vol">—</div><div class="sum-sub" id="plan-k-vol-sub"></div></div>
+      <div class="sum-card"><div class="sum-lbl" id="plan-k-stock-lbl">Kvarvarande kontrakt</div><div class="sum-val" id="plan-k-stock">—</div><div class="sum-sub" data-i18n="plan.k.stock.sub">Av ursprunglig portfölj</div></div>
+    </div>
+    <div class="two-col">
+      <div class="chart-container">
+        <div class="chart-title" data-i18n="plan.c1.title">Resultat per år</div>
+        <div class="chart-sub" data-i18n="plan.c1.sub">Intäkter, kostnader och resultat (kr)</div>
+        <div class="chart-wrap" style="height:240px"><canvas id="chart-plan-res"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title" data-i18n="plan.c2.title">Förvaltat kapital</div>
+        <div class="chart-sub" data-i18n="plan.c2.sub">Kapital vid årets slut efter överflytt (kr)</div>
+        <div class="chart-wrap" style="height:240px"><canvas id="chart-plan-cap"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title" data-i18n="plan.c3.title">Jämförelse — exit-år och andel som flyttas</div>
+      <div class="chart-sub" data-i18n="plan.c3.sub">Total nuvärde (kr), bästa i varje kolumn markerad. Den valda kombinationen är understruken.</div>
+      <div style="overflow-x:auto"><table class="scen-cmp-table" id="plan-matrix-npv"></table></div>
+      <div class="chart-sub" style="margin:14px 0 8px" data-i18n="plan.c4.sub">Total resultat, odiskonterat (kr)</div>
+      <div style="overflow-x:auto"><table class="scen-cmp-table" id="plan-matrix-res"></table></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="dt" id="plan-table">
+          <thead><tr class="col" id="plan-thead"></tr></thead>
+          <tbody id="plan-body"></tbody>
+          <tfoot><tr id="plan-foot" style="font-weight:600;background:var(--bg2)"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-panel" id="tab-tabell">
     <div class="table-wrap">
       <div class="table-scroll">
@@ -742,6 +818,17 @@ const T = {
     'p.pretid.lock':'(Engång=1)','p.idxkost':'Index adm. kostnad','p.upfrontnv':'Upfront i NV cashflow',
     'tab.cashflow':'Kassaflöde','tab.fond':'Fondvärde','tab.arsr':'Årsresultat',
     'tab.npv':'Nuvärde','tab.scenario':'Scenario','tab.tabell':'Datatabell',
+    'tab.plan':'Exit Plan',
+    'plan.k.pct':'Nuvärde (% av premie)','plan.k.pct.sub':'Nuvärde ÷ total premievolym','plan.k.vol':'Total premievolym','plan.k.vol.sub':'Premie år 1–{n}','plan.k.stock':'Kvarvarande kontrakt år {n}','plan.k.stock.sub':'Av ursprunglig portfölj, efter överflytt',
+    'plan.title':'Exit Plan — kund som lämnar efter N år','plan.desc':'Premieinflöde utan annullation fram till exit-året. Vid exit annulleras all premie (100 %) och vald andel av kapitalet flyttas till ny leverantör. Därefter är intäkten bara avgifter på kvarvarande kapital. Avgifter och kostnader hämtas från vänsterpanelen.',
+    'plan.exit':'Exit efter','plan.custom':'Eget','plan.years':'år','plan.share':'Flyttas ut','plan.annul':'Annullation före exit',
+    'plan.k.npv':'Nuvärde — total','plan.k.res':'Resultat — total','plan.k.xfer':'Kapital som flyttas ut',
+    'plan.k.npv.sub':'Före exit {a} · efter exit {b}','plan.k.res.sub':'Före exit {a} · efter exit {b}','plan.k.xfer.sub':'{p} % av {c} kr · {r} kr stannar kvar',
+    'plan.c1.title':'Resultat per år','plan.c1.sub':'Intäkter, kostnader och resultat (kr)','plan.c2.title':'Förvaltat kapital','plan.c2.sub':'Kapital vid årets slut efter överflytt (kr)',
+    'plan.c3.title':'Jämförelse — exit-år och andel som flyttas','plan.c3.sub':'Total nuvärde (kr), bästa i varje kolumn markerad. Den valda kombinationen är understruken.','plan.c4.sub':'Total resultat, odiskonterat (kr)',
+    'plan.th.exityr':'Exit-år \\ andel','plan.note':'Premie år 1–{n}, exit efter år {n}. Kontrakt följer kapitalet vid överflytt. Ingen annullation före exit (ändra ovan).','plan.note.noexit':'Exit-året ligger efter försäkringstiden ({n} år) — ingen överflytt sker.',
+    'plan.cols':'År,Fas,Premie,Kapital IB,Kapital UB,Överflyttat,Kapital kvar,Stock,Intäkter,Kostnader,Resultat,Nuvärde,Ack. nuvärde',
+    'plan.ph.prem':'Premie','plan.ph.exit':'Exit','plan.ph.after':'Efter exit','plan.leg.int':'Intäkter','plan.leg.kost':'Kostnader','plan.leg.res':'Resultat','plan.leg.cap':'Kapital kvar',
     'ct.cf.title':'Kassaflöde — Intäkter, Kostnader & Resultat','ct.cf.sub':'Årsvis per kontrakt (kr)',
     'ct.cf.int':'Intäkter','ct.cf.kost':'Kostnader','ct.cf.res':'Resultat (netto)',
     'ct.cum.title':'Ackumulerat Nuvärde','ct.cum.sub':'Summerat diskonterat resultat (kr)',
@@ -804,6 +891,17 @@ const T = {
     'p.pretid.lock':'(Single=1)','p.idxkost':'Index Admin. Cost','p.upfrontnv':'Upfront in PV Cashflow',
     'tab.cashflow':'Cash Flow','tab.fond':'Fund Value','tab.arsr':'Annual Results',
     'tab.npv':'Present Value','tab.scenario':'Scenario','tab.tabell':'Data Table',
+    'tab.plan':'Exit Plan',
+    'plan.k.pct':'Present value (% of premium)','plan.k.pct.sub':'Present value ÷ total premium volume','plan.k.vol':'Total premium volume','plan.k.vol.sub':'Premium years 1–{n}','plan.k.stock':'Remaining policies year {n}','plan.k.stock.sub':'Of original portfolio, after transfer',
+    'plan.title':'Exit Plan — customer leaves after N years','plan.desc':'Premium inflow with no cancellation until the exit year. At exit all premium is cancelled (100%) and the chosen share of the capital moves to a new provider. After that revenue is only fees on the remaining capital. Fees and costs come from the left panel.',
+    'plan.exit':'Exit after','plan.custom':'Custom','plan.years':'yrs','plan.share':'Transferred out','plan.annul':'Cancellation before exit',
+    'plan.k.npv':'Present value — total','plan.k.res':'Result — total','plan.k.xfer':'Capital transferred out',
+    'plan.k.npv.sub':'Before exit {a} · after exit {b}','plan.k.res.sub':'Before exit {a} · after exit {b}','plan.k.xfer.sub':'{p}% of {c} kr · {r} kr stays',
+    'plan.c1.title':'Result per year','plan.c1.sub':'Revenue, costs and result (kr)','plan.c2.title':'Assets under management','plan.c2.sub':'Capital at year end after transfer (kr)',
+    'plan.c3.title':'Comparison — exit year and transfer share','plan.c3.sub':'Total present value (kr), best per column marked. The selected combination is underlined.','plan.c4.sub':'Total result, undiscounted (kr)',
+    'plan.th.exityr':'Exit year \\ share','plan.note':'Premium years 1–{n}, exit after year {n}. Contracts follow the capital on transfer. No cancellation before exit (change above).','plan.note.noexit':'The exit year is after the policy term ({n} years) — no transfer takes place.',
+    'plan.cols':'Year,Phase,Premium,Capital BoY,Capital EoY,Transferred,Capital left,Stock,Revenue,Costs,Result,PV,Cum. PV',
+    'plan.ph.prem':'Premium','plan.ph.exit':'Exit','plan.ph.after':'After exit','plan.leg.int':'Revenue','plan.leg.kost':'Costs','plan.leg.res':'Result','plan.leg.cap':'Capital left',
     'ct.cf.title':'Cash Flow — Revenues, Costs & Profit','ct.cf.sub':'Annual per policy (SEK)',
     'ct.cf.int':'Revenues','ct.cf.kost':'Costs','ct.cf.res':'Profit (net)',
     'ct.cum.title':'Cumulative Present Value','ct.cum.sub':'Sum of discounted results (SEK)',
@@ -1004,7 +1102,7 @@ function compute(p) {
   const isK=p.skatt==='K', isLop=p.bet!=='Engång';
   const volume=p.antal*p.premie;
   const flyttTotal=p.flytt*p.antal;
-  let prevUB=flyttTotal,prevStock=p.antal,cumNPV=0,cumRes=0,totPrem=0,prevD=volume,totIntakt=0,totKostn=0;
+  let prevUB=flyttTotal,prevStock=p.antal,cumNPV=0,cumRes=0,totPrem=0,prevD=volume,totIntakt=0,totKostn=0,totXfer=0;
   const rows=[];
   for(let y=1;y<=N;y++){
     const B=y===1?p.antal:prevStock*(1-p.annulAvtal);
@@ -1024,6 +1122,8 @@ function compute(p) {
     let E=0;
     if(y>=firstPay){const rem=p.uttid-(y-firstPay);if(rem>0)E=-(C+D+Fbal+G+H+I+J+K+L+M)/rem;}
     const O=C+D+Fbal+G+H+I+J+K+L+M+E;
+    // Plan mode: at the end of the exit year a share of the capital (and contracts) moves to the new provider
+    const xfer=(p.exitYear&&y===p.exitYear)?O*p.exitShare:0;
     const Q=-J,R=-K,S_=-L,T_=-M,U=Nfee;
     const V=-B*p.adm*(p.idxkost?Math.pow(1+p.infl,y-1):1);
     const W=-(C+D+Fbal)*p.seb*p.fond, X=-(C+D+Fbal)*p.skost;
@@ -1034,12 +1134,13 @@ function compute(p) {
     const result=intakt+kostn;
     const npv=intakt/Math.pow(1+p.diskint,y)+kostn/Math.pow(1+p.diskkost,y);
     cumNPV+=npv; cumRes+=result; totPrem+=D; totIntakt+=intakt; totKostn+=kostn;
-    rows.push({y,B,C,D,E,F,G,H,Hp,I,J,K,L,M,Nfee,O,Q,R,S:S_,T:T_,U,V,W,X,Y,Z,UF,ZF,
+    rows.push({y,B,C,D,E,F,G,H,Hp,I,J,K,L,M,Nfee,O,xfer,Q,R,S:S_,T:T_,U,V,W,X,Y,Z,UF,ZF,
                intakt,kostn,result,npv,cumNPV,cumRes,isPrem:y<firstPay});
-    prevUB=O; prevStock=B; prevD=D;
+    totXfer+=xfer;
+    prevUB=O-xfer; prevStock=(y===p.exitYear)?B*(1-p.exitShare):B; prevD=D;
   }
   const upfrontKost=(p.upfrontnv&&p.upfront>0)?p.upfront*volume:0;
-  return{rows,cumNPV,cumRes,totPrem,firstPay,volume,upfrontKost,totIntakt,totKostn};
+  return{rows,cumNPV,cumRes,totPrem,firstPay,volume,upfrontKost,totIntakt,totKostn,totXfer};
 }
 
 /* ── Update KPIs ── */
@@ -1215,6 +1316,121 @@ function updateTable(data) {
      ${cc(tot.intakt,'bl')}${cc(tot.kostn)}${cc(tot.result)}${cc(data.cumNPV)}<td>&ndash;</td><td>&ndash;</td>`;
 }
 
+
+/* ── Plan mode: customer leaves after N years ── */
+function planExitYear(p) {
+  const sel=document.getElementById('plan-exit').value;
+  const n=Math.round(sel==='custom'?vParse('plan-exit-custom'):+sel);
+  return Math.max(1,n);
+}
+function planShare() {
+  const sel=document.getElementById('plan-share').value;
+  const v=sel==='custom'?vParse('plan-share-custom'):+sel;
+  return Math.min(100,Math.max(0,v))/100;
+}
+function planShareChange() {
+  const c=document.getElementById('plan-share').value==='custom';
+  document.getElementById('plan-share-custom').style.display=c?'':'none';
+  document.getElementById('plan-share-pct').style.display=c?'':'none';
+  planRecalc();
+}
+function planExitChange() {
+  document.getElementById('plan-exit-custom').style.display=document.getElementById('plan-exit').value==='custom'?'':'none';
+  planRecalc();
+}
+// Sidebar parameters, premium only until the exit year, own cancellation rate before exit
+function planParams(exitYear, share) {
+  const p=getP();
+  const a=Math.max(0,vParse('plan-annul')/100);
+  p.annulAvtal=a; p.annul=a;
+  if(exitYear<p.fortid){
+    p.pretid=Math.min(p.pretid,exitYear);
+    p.exitYear=exitYear; p.exitShare=share;
+  }
+  return p;
+}
+function planRun(exitYear, share) { return compute(planParams(exitYear,share)); }
+let planCharts={};
+function planRecalc() {
+  const base=getP();
+  const ex=planExitYear(), share=planShare();
+  const p=planParams(ex,share), d=compute(p), rows=d.rows;
+  const noExit=!p.exitYear;
+  const kr=n=>fmt(Math.round(n))+t('chart.kr');
+  document.getElementById('plan-note').textContent=noExit
+    ? t('plan.note.noexit').replace('{n}',base.fortid)
+    : t('plan.note').replace(/\{n\}/g,ex);
+
+  // KPIs: split before / after exit
+  const sum=(f,k)=>rows.filter(f).reduce((s,r)=>s+r[k],0);
+  const pre=r=>r.y<=ex, post=r=>r.y>ex;
+  const npvA=sum(pre,'npv'), npvB=sum(post,'npv'), resA=sum(pre,'result'), resB=sum(post,'result');
+  const setK=(id,v)=>{const e=document.getElementById(id);e.textContent=kr(v);e.style.color=v>=0?'#015D34':'var(--red)';};
+  setK('plan-k-npv',d.cumNPV); setK('plan-k-res',d.cumRes);
+  document.getElementById('plan-k-npv-sub').textContent=t('plan.k.npv.sub').replace('{a}',kr(npvA)).replace('{b}',kr(npvB));
+  document.getElementById('plan-k-res-sub').textContent=t('plan.k.res.sub').replace('{a}',kr(resA)).replace('{b}',kr(resB));
+  const exRow=rows.find(r=>r.y===ex), cap=exRow?exRow.O:0;
+  document.getElementById('plan-k-xfer').textContent=kr(d.totXfer);
+  document.getElementById('plan-k-xfer-sub').textContent=t('plan.k.xfer.sub')
+    .replace('{p}',fmt(noExit?0:share*100,share*100%1?1:0)).replace('{c}',fmt(Math.round(cap))).replace('{r}',fmt(Math.round(noExit?cap:cap-d.totXfer)));
+
+  const vol=d.totPrem, stockRow=rows.find(r=>r.y===Math.min(ex,rows.length));
+  const stockLeft=stockRow?(stockRow.B*(noExit?1:1-share))/p.antal:0;
+  document.getElementById('plan-k-pct').textContent=vol>0?fmtPct(d.cumNPV/vol,2):'—';
+  document.getElementById('plan-k-vol').textContent=kr(vol);
+  document.getElementById('plan-k-vol-sub').textContent=t('plan.k.vol.sub').replace('{n}',Math.min(p.pretid,rows.length));
+  document.getElementById('plan-k-stock-lbl').textContent=t('plan.k.stock').replace('{n}',Math.min(ex,rows.length));
+  document.getElementById('plan-k-stock').textContent=fmtPct(stockLeft,1);
+
+  // Table
+  const cols=t('plan.cols').split(',');
+  document.getElementById('plan-thead').innerHTML=cols.map((c,i)=>`<th class="${i<2?'ll':''}">${c}</th>`).join('');
+  const phase=r=>r.y<ex?t('plan.ph.prem'):r.y===ex?t('plan.ph.exit'):t('plan.ph.after');
+  document.getElementById('plan-body').innerHTML=rows.map(r=>{
+    const cls=r.y===ex&&!noExit?'plan-exit':r.y>ex&&!noExit?'plan-after':'';
+    return `<tr class="${cls}"><td class="yr-cell">${r.y} · ${2025+r.y}</td><td style="text-align:left">${noExit?'':phase(r)}</td>
+      ${cc(r.D)}${cn(r.C)}${cn(r.O)}${cc(-r.xfer)}${cn(r.O-r.xfer)}${cn2(r.B)}
+      ${cc(r.intakt)}${cc(r.kostn)}${cc(r.result)}${cc(r.npv)}${cc(r.cumNPV)}</tr>`;
+  }).join('');
+  document.getElementById('plan-foot').innerHTML=`<td class="yr-cell">${t('total')}</td><td></td>${cc(d.totPrem)}<td></td><td></td>${cc(-d.totXfer)}<td></td><td></td>
+    ${cc(d.totIntakt)}${cc(d.totKostn)}${cc(d.cumRes)}${cc(d.cumNPV)}<td></td>`;
+
+  // Charts
+  const labels=rows.map(r=>''+r.y), TK=v=>fmt(v);
+  const shade=rows.map(r=>!noExit&&r.y>ex);
+  const bar=(c,a)=>shade.map(x=>x?a:c);
+  if(planCharts.res) planCharts.res.destroy();
+  planCharts.res=new Chart(document.getElementById('chart-plan-res'),{type:'bar',data:{labels,datasets:[
+    {label:t('plan.leg.int'),data:rows.map(r=>Math.round(r.intakt)),backgroundColor:bar('rgba(1,93,52,0.7)','rgba(1,93,52,0.35)'),order:2},
+    {label:t('plan.leg.kost'),data:rows.map(r=>Math.round(r.kostn)),backgroundColor:bar('rgba(255,91,46,0.6)','rgba(255,91,46,0.3)'),order:2},
+    {label:t('plan.leg.res'),data:rows.map(r=>Math.round(r.result)),type:'line',borderColor:'#4885C4',backgroundColor:'transparent',borderWidth:2.5,pointRadius:2,tension:.3,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{family:MONO,size:10}}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${kr(c.raw)}`}}},
+    scales:{x:{ticks:{...TICK,autoSkip:true,maxTicksLimit:20},grid:{display:false}},y:{ticks:{...TICK,callback:TK}}}}});
+  if(planCharts.cap) planCharts.cap.destroy();
+  planCharts.cap=new Chart(document.getElementById('chart-plan-cap'),{type:'line',data:{labels,datasets:[
+    {label:t('plan.leg.cap'),data:rows.map(r=>Math.round(r.O-r.xfer)),borderColor:'#4885C4',backgroundColor:'rgba(72,133,196,0.1)',fill:true,borderWidth:2,pointRadius:2,tension:.2}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>kr(c.raw)}}},
+    scales:{x:{ticks:{...TICK,autoSkip:true,maxTicksLimit:20},grid:{display:false}},y:{ticks:{...TICK,callback:TK}}}}});
+
+  // Comparison matrices: exit years x transfer share
+  const PLAN_SHARES=[0.25,0.5,0.75,1];
+  if(!PLAN_SHARES.some(x=>Math.abs(x-share)<1e-9)) PLAN_SHARES.push(share);
+  PLAN_SHARES.sort((a,b)=>a-b);
+  const exits=[3,5,10]; if(!exits.includes(ex)) exits.push(ex);
+  exits.sort((a,b)=>a-b);
+  const calc=exits.map(e=>PLAN_SHARES.map(s=>{const r=planRun(e,s);return{npv:r.cumNPV,res:r.cumRes};}));
+  const build=(id,key)=>{
+    const best=PLAN_SHARES.map((_,j)=>Math.max(...calc.map(row=>row[j][key])));
+    document.getElementById(id).innerHTML=`<tr><th>${t('plan.th.exityr')}</th>${PLAN_SHARES.map(s=>`<th class="scr">${fmt(s*100,s*100%1?1:0)} %</th>`).join('')}</tr>`+
+      exits.map((e,i)=>`<tr><td class="sclbl">${e} ${t('plan.years')}</td>${PLAN_SHARES.map((s,j)=>{
+        const c=[];if(e===ex&&Math.abs(s-share)<1e-9)c.push('plan-sel');if(calc[i][j][key]===best[j]&&exits.length>1)c.push('plan-best');
+        return `<td class="scr ${c.join(' ')}">${kr(calc[i][j][key])}</td>`;}).join('')}</tr>`).join('');
+  };
+  build('plan-matrix-npv','npv'); build('plan-matrix-res','res');
+}
+
 /* ── Tab switching ── */
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1224,7 +1440,14 @@ function switchTab(name) {
     if(tab.getAttribute('onclick')?.includes("'"+name+"'")) tab.classList.add('active');
   });
   if (name === 'scenario') { scenBuildCols(); scenRecalc(); }
+  if (name === 'plan') planRecalc();
+  resizeAllCharts();
 }
+// Charts in hidden tabs miss window resizes (display:none has no size), so re-measure when a tab is shown
+function resizeAllCharts() {
+  [charts, scCharts, planCharts].forEach(g => Object.values(g).forEach(c => { if (c) c.resize(); }));
+}
+window.addEventListener('resize', () => requestAnimationFrame(resizeAllCharts));
 
 /* ── Reset ── */
 function resetDefaults() {
@@ -1287,10 +1510,13 @@ function recalc() {
   updateTable(data);
   const grid=document.getElementById('scen-grid');
   if (grid && grid.children.length) { scenSyncFromSidebar(false); scenRecalc(); }
+  if (document.getElementById('tab-plan').classList.contains('active')) planRecalc();
 }
 
 // Init — wait for full page load so async Chart.js is ready
 function init(){
+  document.getElementById('sel-preset').value='UL L T ES';
+  applyPreset();
   updateProductUI();
   applyAvkSkatt();
   applyLang();
