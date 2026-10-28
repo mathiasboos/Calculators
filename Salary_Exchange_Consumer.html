@@ -167,6 +167,22 @@ input[type=range]:focus-visible{outline:2px solid var(--green);outline-offset:5p
 footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
 @media(min-width:520px){footer{margin-top:28px;font-size:.75rem}}
 .hidden{display:none!important}
+
+  /* År för år-tabell */
+  details.yr-card summary{cursor:pointer;font-weight:700;list-style:none;display:flex;align-items:center;gap:8px}
+  details.yr-card summary::-webkit-details-marker{display:none}
+  details.yr-card summary::before{content:"▸";color:var(--green);transition:transform .15s}
+  details.yr-card[open] summary::before{transform:rotate(90deg)}
+  .yr-dl{margin-left:auto;display:flex;gap:6px}
+  table.yr{width:100%;border-collapse:collapse}
+  .yr-btn{font:inherit;font-size:.78rem;font-weight:600;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+  .yr-btn:hover{background:var(--panel)}
+  .yr-scroll{max-height:24rem;overflow:auto;margin-top:12px;border-top:1px solid var(--line)}
+  table.yr{margin-top:0;font-size:.8rem}
+  table.yr th,table.yr td{text-align:right;white-space:nowrap;padding:6px 10px;font-weight:500;border-bottom:1px solid #f0f0f0}
+  table.yr th:first-child,table.yr td:first-child{text-align:left}
+  table.yr thead th{position:sticky;top:0;background:var(--panel);font-weight:700}
+
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
@@ -272,6 +288,11 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
       </div>
     </div>
   </div>
+
+  <details class="card yr-card" id="yrCard">
+  <summary><span id="yrTitle">År för år</span><span class="yr-dl"><button type="button" class="yr-btn" id="yrCsv">Ladda ner CSV</button><button type="button" class="yr-btn" id="yrXls">Ladda ner Excel</button></span></summary>
+  <div class="yr-scroll"><table class="yr"><thead id="yrHead"></thead><tbody id="yrBody"></tbody></table></div>
+</details>
 
   <!-- Gränsvärden -->
   <div class="rules">
@@ -575,6 +596,49 @@ function calc(){
   drawCompoundChart();
 }
 
+
+// ===== År-för-år-tabell med nedladdning (CSV / Excel) =====
+let yrCols = [], yrRows = [], yrKey = "";
+function renderYearTable(){
+  const d = (function(){
+    const agAvg = belopp * AG_PCT, premie = (belopp + agAvg) / (1 + SLP_PCT);
+    const years = Math.max(1, +$("pensionsalderSlider").value - +$("alderSlider").value);
+    const selPct = +$("avkastningSlider").value;
+    const main = simSeries(premie, selPct, years);
+    const cols = [tr("År","Year"), tr("Inbetalt","Paid in"), tr("Avkastning","Return"), tr("Kapital ","Capital ") + selPct + " %"];
+    const rows = [];
+    for(let y = 1; y <= years; y++){ const paid = premie * y * 12; rows.push([y, paid, main[y] - paid, main[y]]); }
+    return {sig: [premie, years, selPct], cols, rows};
+  })();
+  if(!d) return;
+  const key = JSON.stringify([d.sig, lang]);
+  if(key === yrKey) return;
+  yrKey = key;
+  yrCols = d.cols; yrRows = d.rows;
+  document.getElementById("yrTitle").textContent = tr("År för år (" + d.rows.length + " år)", "Year by year (" + d.rows.length + " years)");
+  document.getElementById("yrCsv").textContent = tr("Ladda ner CSV", "Download CSV");
+  document.getElementById("yrXls").textContent = tr("Ladda ner Excel", "Download Excel");
+  document.getElementById("yrHead").innerHTML = "<tr>" + yrCols.map(c => "<th>" + c + "</th>").join("") + "</tr>";
+  document.getElementById("yrBody").innerHTML = yrRows.map(r => "<tr>" + r.map((v,i) => "<td>" + (i === 0 ? v : Math.round(v).toLocaleString("sv-SE")) + "</td>").join("") + "</tr>").join("");
+}
+function yrDownload(name, type, content){
+  const url = URL.createObjectURL(new Blob([content], {type}));
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+document.getElementById("yrCsv").addEventListener("click", e => {
+  e.preventDefault(); e.stopPropagation();
+  const csv = [yrCols.join(";"), ...yrRows.map(r => r.map(Math.round).join(";"))].join("\r\n");
+  yrDownload(tr("lonevaxling-ar-for-ar.csv", "salary-exchange-year-by-year.csv"), "text/csv;charset=utf-8", "\uFEFF" + csv);
+});
+document.getElementById("yrXls").addEventListener("click", e => {
+  e.preventDefault(); e.stopPropagation();
+  const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + yrCols.map(c => "<th>" + c + "</th>").join("") + "</tr>" +
+    yrRows.map(r => "<tr>" + r.map(v => "<td>" + Math.round(v) + "</td>").join("") + "</tr>").join("") + "</table></body></html>";
+  yrDownload(tr("lonevaxling-ar-for-ar.xls", "salary-exchange-year-by-year.xls"), "application/vnd.ms-excel;charset=utf-8", html);
+});
+
 // ── COMPOUND CHART ──
 const C_PAD_L=130, C_PAD_R=20, C_PAD_T=20, C_PAD_B=40, C_H=360;
 const COMPOUND_YEARS = 35;
@@ -586,6 +650,7 @@ const compTipEl  = $("compoundTip");
 function drawCompoundChart(){
   const cv = $("compoundChart");
   if(!cv) return;
+  renderYearTable();
   const ctx = cv.getContext("2d");
   const dpr = window.devicePixelRatio||1;
   const W = Math.floor(cv.getBoundingClientRect().width) || cv.parentElement.offsetWidth || 600;
