@@ -89,6 +89,7 @@ details.table > summary { list-style: none; cursor: pointer; display: flex; alig
 details.table > summary::-webkit-details-marker { display: none; }
 details.table > summary h2::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform 0.15s; }
 details.table[open] > summary h2::before { transform: rotate(90deg); }
+.note p { margin: 0 0 10px; }
 .note { padding: 0 24px 20px; font-size: 0.875rem; color: var(--muted-fg); border-top: 1px solid var(--border); padding-top: 16px; }
 details.table > summary { justify-content: space-between; flex-wrap: wrap; }
 .btn { height: 32px; border: 1px solid var(--input); border-radius: 6px; background: #fff; color: var(--fg); font: inherit; font-size: 0.8125rem; padding: 0 12px; cursor: pointer; }
@@ -290,7 +291,7 @@ const T = {
     results_title:      'Resultat',
     r_forecast_label:   'Prognostiserad\nårsinkomst',
     r_desired_label:    'Önskad\nårsinkomst',
-    r_with_capital_label:'Inkomst inkl.\nbefintligt kapital',
+    r_with_capital_label:'Prognostiserad årsinkomst +\nBefintligt sparkapital som årlig utbetalning',
     r_gap_label:        'Ej intjänad\ninkomst / år',
     total_paid_label:   'Totalt inbetalt (löpande sparande)',
     th_option:          'Sparalternativ',
@@ -299,7 +300,7 @@ const T = {
     td_lump:            'Engångsbetalning nu',
     badge_recommended:  'Rekommenderat',
     badge_alternative:  'Alternativ',
-    footnote:           'Beräkningen följer Pensionsmyndighetens Typfallsmodellen (källa: Pensionsmyndigheten): årligt uttag = kapital × (1 + real avkastning)<sup>n/2</sup> ÷ n över n utbetalningsår, och sparandet läggs in under året (halvårsvägd). Pensionsskatt enligt Typfallsmodellen: grundavdrag (under 66), kommunalskatt, begravningsavgift 0,26 %, statlig skatt 20 % över skiktgränsen 643 000 kr och 1 % allmän avgift (utan jobbskatteavdrag). Priser är fasta vid 0 % inflation; vid annan inflation är sparbeloppen nominella. Avkastningsskatt är inte medräknad.',
+    footnote:           '<p>Beräkningen följer Pensionsmyndighetens Typfallsmodellen (källa: Pensionsmyndigheten): årligt uttag = kapital × (1 + real avkastning)<sup>n/2</sup> ÷ n över n utbetalningsår, och sparandet läggs in under året (halvårsvägd). Pensionsskatt enligt Typfallsmodellen: grundavdrag (under 66), kommunalskatt, begravningsavgift 0,26 %, statlig skatt 20 % över skiktgränsen 643 000 kr och 1 % allmän avgift (utan jobbskatteavdrag). Priser är fasta vid 0 % inflation; vid annan inflation är sparbeloppen nominella. Avkastningsskatt är inte medräknad.</p><p><b>Prognostiserad årsinkomst + Befintligt sparkapital som årlig utbetalning</b> räknas som:</p><p>prognostiserad årsinkomst + befintligt kapital × (1 + y)<sup>år till pension</sup> × (1 + y)<sup>n/2</sup> ÷ n</p><p>där y är real avkastning och n är antal utbetalningsår. Prognostiserad årsinkomst är lön × Prognos pension %; under fliken Efter inkomstskatt dras pensionsskatten av först. Det befintliga kapitalet växer med real avkastning fram till pension och fördelas sedan lika över utbetalningsåren (utbetalningsfaktorn (1 + y)<sup>n/2</sup> ÷ n enligt Typfallsmodellen). Kapitalet beskattas inte separat – under Efter inkomstskatt antas det vara beskattade pengar, och avkastningsskatt är inte medräknad.</p><p>Exempel: lön 500 000 kr × 70 % = 350 000 kr. Kapital 150 000 kr växer med 4,5 % i 15 år till ca 290 300 kr; utbetalningsfaktorn för 15 år är ca 0,0927, vilket ger ca 26 900 kr per år. Summa ca 376 900 kr. Skillnaden mot Önskad årsinkomst är Ej intjänad inkomst / år, som sparandet ska täcka.</p>',
     about_title:        'Om modellen',
     foot:               'Beräkningen är en uppskattning och inte individuell rådgivning. Källa: Pensionsmyndigheten (Typfallsmodellen).',
     chart_title:        'Kapital och utbetalningar',
@@ -329,7 +330,7 @@ const T = {
     cmp_tax:            'Skatt',
     cmp_r_forecast:     'Prognostiserad årsinkomst',
     cmp_r_desired:      'Önskad årsinkomst',
-    cmp_r_withcap:      'Inkomst inkl. befintligt kapital',
+    cmp_r_withcap:      'Prognostiserad årsinkomst + Befintligt sparkapital som årlig utbetalning',
     cmp_r_gap:          'Ej intjänad inkomst / år',
     cmp_r_monthly:      'Månadssparande',
     cmp_r_lump:         'Engångsbetalning nu',
@@ -375,7 +376,7 @@ const T = {
     results_title:      'Results',
     r_forecast_label:   'Forecasted\nannual income',
     r_desired_label:    'Desired\nannual income',
-    r_with_capital_label:'Income incl.\nexisting capital',
+    r_with_capital_label:'Forecasted annual income +\nExisting savings capital as yearly payout',
     r_gap_label:        'Annual\nincome gap',
     total_paid_label:   'Total contributed (monthly savings)',
     th_option:          'Savings option',
@@ -384,7 +385,7 @@ const T = {
     td_lump:            'Lump sum today',
     badge_recommended:  'Recommended',
     badge_alternative:  'Alternative',
-    footnote:           'Calculation follows Pensionsmyndigheten\'s Typfallsmodellen (source: Pensionsmyndigheten): yearly payout = capital × (1 + real yield)<sup>n/2</sup> ÷ n over n payout years, and savings are added during the year (mid-year weighting). Pension tax as in Typfallsmodellen: grundavdrag (under 66), municipal tax, funeral fee 0.26%, 20% state tax above the skiktgräns of SEK 643,000 and the 1% public fee (no jobbskatteavdrag). Prices are constant at 0% inflation; at other inflation the savings amounts are nominal. Yield tax is not included.',
+    footnote:           '<p>Calculation follows Pensionsmyndigheten\'s Typfallsmodellen (source: Pensionsmyndigheten): yearly payout = capital × (1 + real yield)<sup>n/2</sup> ÷ n over n payout years, and savings are added during the year (mid-year weighting). Pension tax as in Typfallsmodellen: grundavdrag (under 66), municipal tax, funeral fee 0.26%, 20% state tax above the skiktgräns of SEK 643,000 and the 1% public fee (no jobbskatteavdrag). Prices are constant at 0% inflation; at other inflation the savings amounts are nominal. Yield tax is not included.</p><p><b>Forecasted annual income + Existing savings capital as yearly payout</b> is calculated as:</p><p>forecasted annual income + existing capital × (1 + y)<sup>years to retirement</sup> × (1 + y)<sup>n/2</sup> ÷ n</p><p>where y is the real yield and n is the number of payout years. Forecasted annual income is salary × Pension forecast %; on the After income tax tab the pension tax is deducted first. The existing capital grows at the real yield until retirement and is then spread evenly over the payout years (the payout factor (1 + y)<sup>n/2</sup> ÷ n from Typfallsmodellen). The capital is not taxed separately – on After income tax it is assumed to be after-tax money, and yield tax is not included.</p><p>Example: salary 500,000 × 70% = 350,000. Capital of 150,000 grows at 4.5% for 15 years to about 290,300; the payout factor for 15 years is about 0.0927, giving about 26,900 per year. Total about 376,900. The difference to Desired annual income is the Annual income gap, which the savings must cover.</p>',
     about_title:        'About the model',
     foot:               'The calculation is an estimate and not individual advice. Source: Pensionsmyndigheten (Typfallsmodellen).',
     chart_title:        'Capital and payouts',
@@ -414,7 +415,7 @@ const T = {
     cmp_tax:            'Tax',
     cmp_r_forecast:     'Forecasted annual income',
     cmp_r_desired:      'Desired annual income',
-    cmp_r_withcap:      'Income incl. existing capital',
+    cmp_r_withcap:      'Forecasted annual income + Existing savings capital as yearly payout',
     cmp_r_gap:          'Annual income gap',
     cmp_r_monthly:      'Monthly savings',
     cmp_r_lump:         'Lump sum today',
