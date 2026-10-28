@@ -42,6 +42,9 @@ body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--
 .hero{background:var(--green);color:#fff;padding:32px 20px 0;text-align:center;position:relative;overflow:hidden;border-radius:var(--r)}
 @media(min-width:600px){.hero{padding:40px 28px 0}}
 .hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 70% 110%,rgba(72,184,102,.25) 0%,transparent 65%);pointer-events:none;border-radius:var(--r)}
+.lang-toggle{position:absolute;top:12px;right:12px;z-index:2;display:inline-flex;gap:3px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:3px}
+.lang-btn{padding:4px 11px;font:inherit;font-size:.72rem;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.75);background:none;border:none;border-radius:5px;cursor:pointer}
+.lang-btn.active{background:#fff;color:var(--green)}
 .hero-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.65;margin-bottom:10px}
 .hero h1{font-family:var(--serif);font-size:clamp(1.4rem,5vw,2.5rem);font-weight:700;line-height:1.15;max-width:560px;margin:0 auto 12px}
 .hero-sub{font-size:.9rem;opacity:.8;max-width:480px;margin:0 auto 24px}
@@ -172,11 +175,12 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
 <!-- ===== HERO: Ränta på ränta ===== -->
 <div class="page">
 <div class="hero">
-  <div class="hero-eyebrow">Löneväxlingskalkylator 2026</div>
-  <h1>Så växer pengarna – månaden du börjar</h1>
-  <p class="hero-sub">Ränta på ränta gör att varje krona du löneväxlar idag är värd mer än en krona imorgon. Dra i reglagen nedan och se effekten direkt.</p>
+  <div class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></div>
+  <div class="hero-eyebrow" data-t="hero_eyebrow">Löneväxlingskalkylator 2026</div>
+  <h1 data-t="h1">Så växer pengarna – månaden du börjar</h1>
+  <p class="hero-sub" data-t="hero_sub">Ränta på ränta gör att varje krona du löneväxlar idag är värd mer än en krona imorgon. Dra i reglagen nedan och se effekten direkt.</p>
   <div class="compound-wrap">
-    <div class="compound-title">Så växer ditt sparande</div>
+    <div class="compound-title" data-t="comp_title">Så växer ditt sparande</div>
     <div class="compound-sub" id="compoundSub">Utveckling fram till pension vid <b>6,0 %</b> avkastning per år.</div>
     <canvas id="compoundChart" height="360"></canvas>
     <div class="compound-tip" id="compoundTip"></div>
@@ -189,49 +193,49 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
   <div class="calc-grid">
     <!-- Vänster: inputs -->
     <div class="card">
-      <div class="section-label">Dina uppgifter</div>
+      <div class="section-label" data-t="sec_label">Dina uppgifter</div>
 
       <div class="field">
         <div class="field-head">
-          <label for="lonNum">Månadslön före skatt</label>
-          <span class="inbox"><input type="text" id="lonNum" inputmode="numeric" aria-label="Månadslön i kronor"><span class="unit">kr</span></span>
+          <label for="lonNum" data-t="lbl_lon">Månadslön före skatt</label>
+          <span class="inbox"><input type="text" id="lonNum" inputmode="numeric" data-ta="a_lon" aria-label="Månadslön i kronor"><span class="unit" data-t="unit_kr">kr</span></span>
         </div>
-        <input type="range" id="lonSlider" min="30000" max="150000" step="500" value="60000" aria-label="Månadslön före skatt">
+        <input type="range" id="lonSlider" min="30000" max="150000" step="500" value="60000" data-ta="a_lon2" aria-label="Månadslön före skatt">
       </div>
 
       <div class="field">
         <div class="field-head">
-          <label for="beloppNum">Hur mycket vill du löneväxla?</label>
-          <span class="inbox"><input type="text" id="beloppNum" inputmode="numeric" aria-label="Växlat belopp"><span class="unit">kr/mån</span></span>
+          <label for="beloppNum" data-t="lbl_belopp">Hur mycket vill du löneväxla?</label>
+          <span class="inbox"><input type="text" id="beloppNum" inputmode="numeric" data-ta="a_vaxlat" aria-label="Växlat belopp"><span class="unit" data-t="unit_krmon">kr/mån</span></span>
         </div>
-        <input type="range" id="beloppSlider" min="500" max="30000" step="100" value="3000" aria-label="Löneväxlat belopp per månad">
-        <div class="hint" id="maxHint">Tak för löneväxling: <b>&nbsp;–&nbsp;</b>kr/mån
-          <span class="info" tabindex="0" data-tip="Pensionssparande får uppgå till max 35 % av årslönen, dock högst 10 prisbasbelopp (592 000 kr/år). Det lägsta av dessa gränser avgör ditt tak.">i</span>
+        <input type="range" id="beloppSlider" min="500" max="30000" step="100" value="3000" data-ta="a_belopp" aria-label="Löneväxlat belopp per månad">
+        <div class="hint" id="maxHint"><span data-t="maxlbl">Tak för löneväxling:</span> <b>&nbsp;–&nbsp;</b><span data-t="unit_krmon">kr/mån</span>
+          <span class="info" tabindex="0" data-tt="tip1" data-tip="Pensionssparande får uppgå till max 35 % av årslönen, dock högst 10 prisbasbelopp (592 000 kr/år). Det lägsta av dessa gränser avgör ditt tak.">i</span>
         </div>
       </div>
 
       <div class="field">
         <div class="field-head">
-          <label for="alderSlider">Din ålder</label>
+          <label for="alderSlider" data-t="lbl_alder">Din ålder</label>
           <span class="val-only" id="alderVal">40 år</span>
         </div>
-        <input type="range" id="alderSlider" min="18" max="70" step="1" value="40" aria-label="Din ålder">
+        <input type="range" id="alderSlider" min="18" max="70" step="1" value="40" data-ta="a_alder" aria-label="Din ålder">
       </div>
 
       <div class="field">
         <div class="field-head">
-          <label for="pensionsalderSlider">Planerad pensionsålder</label>
+          <label for="pensionsalderSlider" data-t="lbl_pens">Planerad pensionsålder</label>
           <span class="val-only" id="pAlderVal">67 år</span>
         </div>
-        <input type="range" id="pensionsalderSlider" min="55" max="75" step="1" value="67" aria-label="Pensionsålder">
+        <input type="range" id="pensionsalderSlider" min="55" max="75" step="1" value="67" data-ta="a_pens" aria-label="Pensionsålder">
       </div>
 
       <div class="field" style="margin-bottom:0">
         <div class="field-head">
-          <label for="avkastningSlider">Förväntad avkastning per år</label>
+          <label for="avkastningSlider" data-t="lbl_avk">Förväntad avkastning per år</label>
           <span class="val-only" id="avkVal">6,0 %</span>
         </div>
-        <input type="range" id="avkastningSlider" min="0" max="12" step="0.5" value="6" aria-label="Förväntad avkastning">
+        <input type="range" id="avkastningSlider" min="0" max="12" step="0.5" value="6" data-ta="a_avk" aria-label="Förväntad avkastning">
       </div>
     </div>
 
@@ -239,14 +243,14 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
     <div class="result-box">
       <!-- Hjältekort -->
       <div class="r-hero">
-        <div class="r-lbl">Ditt månadssparande</div>
+        <div class="r-lbl" data-t="r_lbl1">Ditt månadssparande</div>
         <div class="r-num" id="resPremie">–</div>
-        <div class="r-sub">Inklusive <b id="resUplift">–</b> som arbetsgivaren skjuter till
+        <div class="r-sub"><span data-t="incl">Inklusive</span> <b id="resUplift">–</b> <span data-t="addedby">som arbetsgivaren skjuter till</span>
           <span class="info" tabindex="0" style="color:#fff;border-color:#fff;opacity:.55"
-            data-tip="Arbetsgivaren betalar lägre löneskatt på pensionspremier (24,26 %) än arbetsgivaravgift på lön (31,42 %). Skillnaden läggs ovanpå din pensionspremie.">i</span>
+            data-tt="tip2" data-tip="Arbetsgivaren betalar lägre löneskatt på pensionspremier (24,26 %) än arbetsgivaravgift på lön (31,42 %). Skillnaden läggs ovanpå din pensionspremie.">i</span>
         </div>
         <hr>
-        <div class="r-lbl">Förväntat extra pensionskapital om <span id="resYears">–</span> år</div>
+        <div class="r-lbl"><span data-t="extra_a">Förväntat extra pensionskapital om</span> <span id="resYears">–</span> <span data-t="yrs">år</span></div>
         <div class="r-num" id="resKapital">–</div>
         <div class="r-foot" id="resDisclaimer">Baserat på 6 % avkastning per år. Historisk avkastning är ingen garanti för framtida avkastning.</div>
       </div>
@@ -258,51 +262,51 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
       </div>
 
       <div class="panel">
-        <b>Vill du börja löneväxla?</b>
-        <p>Prata med din arbetsgivare för att ta reda på om de erbjuder löneväxling och hur upplägget ser ut.</p>
+        <b data-t="panel_b">Vill du börja löneväxla?</b>
+        <p data-t="panel_p">Prata med din arbetsgivare för att ta reda på om de erbjuder löneväxling och hur upplägget ser ut.</p>
       </div>
 
       <div class="tip">
         <span class="bulb">💡</span>
-        <span>Erbjuder inte din arbetsgivare löneväxling? Då kan ett eget månadssparande i kapitalförsäkring eller ISK vara ett alternativ.</span>
+        <span data-t="tip_text">Erbjuder inte din arbetsgivare löneväxling? Då kan ett eget månadssparande i kapitalförsäkring eller ISK vara ett alternativ.</span>
       </div>
     </div>
   </div>
 
   <!-- Gränsvärden -->
   <div class="rules">
-    <h2>När är löneväxling lämpligt?</h2>
-    <p>Löneväxling är som regel bara lämpligt om din månadslön <b>efter växling</b> överstiger båda gränserna nedan. Annars kan din pensionsgrundande inkomst och socialförsäkringsförmåner påverkas.</p>
+    <h2 data-t="rules_h2">När är löneväxling lämpligt?</h2>
+    <p data-t="rules_p1">Löneväxling är som regel bara lämpligt om din månadslön <b>efter växling</b> överstiger båda gränserna nedan. Annars kan din pensionsgrundande inkomst och socialförsäkringsförmåner påverkas.</p>
     <div class="limits">
       <div class="limit">
-        <div class="ln">56 087 kr/mån</div>
-        <div class="lt">Avgiftstaket i allmän pension. Under denna nivå minskar din intjäning till allmän pension.</div>
+        <div class="ln" data-t="lim1">56 087 kr/mån</div>
+        <div class="lt" data-t="lim2">Avgiftstaket i allmän pension. Under denna nivå minskar din intjäning till allmän pension.</div>
       </div>
       <div class="limit">
-        <div class="ln">55 033 kr/mån</div>
-        <div class="lt">Brytpunkten för statlig inkomstskatt. Över denna nivå är marginalskatten ~20 % högre – löneväxling är extra förmånlig.</div>
+        <div class="ln" data-t="lim3">55 033 kr/mån</div>
+        <div class="lt" data-t="lim4">Brytpunkten för statlig inkomstskatt. Över denna nivå är marginalskatten ~20 % högre – löneväxling är extra förmånlig.</div>
       </div>
       <div class="limit">
-        <div class="ln">Max 35 % av lön</div>
-        <div class="lt">Pensionssparande får uppgå till högst 35 % av din årslön från anställningen, dock aldrig mer än 10 prisbasbelopp (592 000 kr/år = 49 333 kr/mån, PBB 2026: 59 200 kr).</div>
+        <div class="ln" data-t="lim5">Max 35 % av lön</div>
+        <div class="lt" data-t="lim6">Pensionssparande får uppgå till högst 35 % av din årslön från anställningen, dock aldrig mer än 10 prisbasbelopp (592 000 kr/år = 49 333 kr/mån, PBB 2026: 59 200 kr).</div>
       </div>
     </div>
-    <p><b>Arbetsgivarens ITP1-avsättning på din lön</b></p>
+    <p data-t="rules_p2"><b>-avsättning på din lön</b></p>
     <div class="limits">
       <div class="limit">
-        <div class="ln">4,5 % upp till 7,5 IBB</div>
-        <div class="lt">På lönedelar upp till 7,5 inkomstbasbelopp (52 125 kr/mån, IBB 2026: 83 400 kr) sätter arbetsgivaren in 4,5 %.</div>
+        <div class="ln" data-t="lim7">4,5 % upp till 7,5 IBB</div>
+        <div class="lt" data-t="lim8">På lönedelar upp till 7,5 inkomstbasbelopp (52 125 kr/mån, IBB 2026: 83 400 kr) sätter arbetsgivaren in 4,5 %.</div>
       </div>
       <div class="limit">
-        <div class="ln">30 % mellan 7,5–30 IBB</div>
-        <div class="lt">På lönedelar mellan 7,5 och 30 IBB (52 125–208 500 kr/mån) sätter arbetsgivaren in 30 %. Över 30 IBB görs ingen avsättning.</div>
+        <div class="ln" data-t="lim9">30 % mellan 7,5–30 IBB</div>
+        <div class="lt" data-t="lim10">På lönedelar mellan 7,5 och 30 IBB (52 125–208 500 kr/mån) sätter arbetsgivaren in 30 %. Över 30 IBB görs ingen avsättning.</div>
       </div>
     </div>
-    <p>Källa: <a href="https://www.pensionsmyndigheten.se/forsta-din-pension/om-pensionssystemet/sa-beraknas-din-pension-basbelopp-berakningsfaktorer-och-varderegler" target="_blank" rel="noopener">Pensionsmyndigheten</a>.</p>
+    <p data-t="rules_src">Källa: <a href="https://www.pensionsmyndigheten.se/forsta-din-pension/om-pensionssystemet/sa-beraknas-din-pension-basbelopp-berakningsfaktorer-och-varderegler" target="_blank" rel="noopener">Pensionsmyndigheten</a>.</p>
   </div>
 </div>
 
-<footer>
+<footer data-t="footer">
   Kalkylatorn är ett förenklat beräkningsverktyg och utgör inte finansiell rådgivning. Beräkningarna bygger på arbetsgivaravgift 31,42 % och särskild löneskatt 24,26 %. Historisk avkastning är inte en garanti för framtida avkastning.
 </footer>
 
@@ -310,6 +314,67 @@ footer{margin-top:20px;font-size:.72rem;color:var(--ink2)}
 
 <script>
 "use strict";
+
+// ── Språk / Language ──
+let lang = "sv";
+try { if (localStorage.getItem("pension-lang") === "en") lang = "en"; } catch (e) {}
+const tr = (sv, en) => lang === "en" ? en : sv;
+const loc = () => lang === "en" ? "en-GB" : "sv-SE";
+const EN = {
+  hero_eyebrow: "Salary exchange calculator 2026",
+  h1: "How your money grows \u2013 starting this month",
+  hero_sub: "Compound interest means every krona you exchange today is worth more than a krona tomorrow. Drag the sliders below and see the effect immediately.",
+  comp_title: "How your savings grow",
+  sec_label: "Your details",
+  lbl_lon: "Monthly salary before tax",
+  lbl_belopp: "How much do you want to exchange?",
+  lbl_alder: "Your age",
+  lbl_pens: "Planned retirement age",
+  lbl_avk: "Expected return per year",
+  unit_kr: "SEK", unit_krmon: "SEK/month",
+  a_lon: "Monthly salary in kronor", a_vaxlat: "Exchanged amount", a_lon2: "Monthly salary before tax",
+  a_belopp: "Salary exchanged per month", a_alder: "Your age", a_pens: "Retirement age", a_avk: "Expected return",
+  maxlbl: "Cap for salary exchange:",
+  tip1: "Pension savings may amount to at most 35% of annual salary, but no more than 10 price base amounts (SEK 592,000/year). The lower of these limits sets your cap.",
+  tip2: "The employer pays a lower payroll tax on pension premiums (24.26%) than the employer contribution on salary (31.42%). The difference is added on top of your pension premium.",
+  r_lbl1: "Your monthly saving",
+  incl: "Including", addedby: "added by the employer",
+  extra_a: "Expected extra pension capital in", yrs: "years",
+  panel_b: "Want to start exchanging salary?",
+  panel_p: "Talk to your employer to find out whether they offer salary exchange and how it is set up.",
+  tip_text: "Does your employer not offer salary exchange? Then your own monthly saving in a capital insurance or ISK account can be an alternative.",
+  rules_h2: "When is salary exchange suitable?",
+  rules_p1: "Salary exchange is generally only suitable if your monthly salary <b>after the exchange</b> exceeds both limits below. Otherwise your pensionable income and social insurance benefits may be affected.",
+  lim1: "SEK 56,087/month", lim2: "The contribution ceiling in the public pension. Below this level your public pension accrual is reduced.",
+  lim3: "SEK 55,033/month", lim4: "The threshold for state income tax. Above this level the marginal tax is ~20% higher \u2013 salary exchange is extra beneficial.",
+  lim5: "Max 35% of salary", lim6: "Pension savings may amount to at most 35% of your annual salary from the employment, but never more than 10 price base amounts (SEK 592,000/year = SEK 49,333/month, PBB 2026: SEK 59,200).",
+  rules_p2: "<b>Employer's ITP1 contribution on your salary</b>",
+  lim7: "4.5% up to 7.5 IBB", lim8: "On salary up to 7.5 income base amounts (SEK 52,125/month, IBB 2026: SEK 83,400) the employer contributes 4.5%.",
+  lim9: "30% between 7.5\u201330 IBB", lim10: "On salary between 7.5 and 30 IBB (SEK 52,125\u2013208,500/month) the employer contributes 30%. Above 30 IBB no contribution is made.",
+  rules_src: 'Source: <a href="https://www.pensionsmyndigheten.se/forsta-din-pension/om-pensionssystemet/sa-beraknas-din-pension-basbelopp-berakningsfaktorer-och-varderegler" target="_blank" rel="noopener">Pensionsmyndigheten</a> (the Swedish Pensions Agency).',
+  footer: "The calculator is a simplified calculation tool and does not constitute financial advice. The calculations are based on an employer contribution of 31.42% and special payroll tax of 24.26%. Past returns are not a guarantee of future returns."
+};
+const SV_SRC = {};
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = tr("Löneväxlingskalkylator", "Salary Exchange Calculator");
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const k = el.dataset.t;
+    if(!(k in SV_SRC)) SV_SRC[k] = el.innerHTML;
+    el.innerHTML = lang === "en" && k in EN ? EN[k] : SV_SRC[k];
+  });
+  document.querySelectorAll("[data-tt]").forEach(el => {
+    const k = el.dataset.tt;
+    if(!(k in SV_SRC)) SV_SRC[k] = el.getAttribute("data-tip");
+    el.setAttribute("data-tip", lang === "en" ? EN[k] : SV_SRC[k]);
+  });
+  document.querySelectorAll("[data-ta]").forEach(el => {
+    const k = el.dataset.ta;
+    if(!(k in SV_SRC)) SV_SRC[k] = el.getAttribute("aria-label");
+    el.setAttribute("aria-label", lang === "en" ? EN[k] : SV_SRC[k]);
+  });
+  document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+}
 
 // ── Konstanter ──
 const LIMIT_AVGIFTSTAK = 56087;
@@ -337,10 +402,10 @@ let belopp = 3000;
 
 // ── Helpers ──
 const $ = id => document.getElementById(id);
-const fmtKr = n => Math.round(n).toLocaleString("sv-SE") + "\u00a0kr";
-const fmtPct = n => n.toLocaleString("sv-SE",{minimumFractionDigits:2,maximumFractionDigits:2}) + "\u00a0%";
-const fmtFaktor = n => n.toLocaleString("sv-SE",{minimumFractionDigits:4,maximumFractionDigits:4});
-const parseNum = s => parseFloat(String(s).replace(/\s/g,"").replace(",","."));
+const fmtKr = n => lang === "en" ? "SEK\u00a0" + Math.round(n).toLocaleString(loc()) : Math.round(n).toLocaleString(loc()) + "\u00a0kr";
+const fmtPct = n => n.toLocaleString(loc(),{minimumFractionDigits:2,maximumFractionDigits:2}) + "\u00a0%";
+const fmtFaktor = n => n.toLocaleString(loc(),{minimumFractionDigits:4,maximumFractionDigits:4});
+const parseNum = s => lang === "en" ? parseFloat(String(s).replace(/[\s,]/g,"")) : parseFloat(String(s).replace(/\s/g,"").replace(",","."));
 const clamp = (v,mn,mx) => Math.min(mx,Math.max(mn,v));
 
 function rangeFill(el){
@@ -371,7 +436,7 @@ function updateMaxHint(){
   const sl = $("beloppSlider");
   sl.max = Math.max(mv, 500);
   if(belopp > mv) setBelopp(mv);
-  el.querySelector("b").textContent = "\u00a0" + Math.round(mv).toLocaleString("sv-SE") + "\u00a0kr/mån\u00a0";
+  el.querySelector("b").textContent = "\u00a0" + Math.round(mv).toLocaleString(loc()) + "\u00a0";
   el.classList.toggle("exceeded", belopp > mv);
 }
 
@@ -381,7 +446,7 @@ function setLon(v){
   const sl = $("lonSlider");
   sl.value = clamp(v, +sl.min, +sl.max);
   rangeFill(sl);
-  $("lonNum").value = Math.round(v).toLocaleString("sv-SE");
+  $("lonNum").value = Math.round(v).toLocaleString(loc());
   updateMaxHint();
 }
 $("lonSlider").addEventListener("input", () => { setLon(+$("lonSlider").value); calc(); });
@@ -390,7 +455,7 @@ $("lonNum").addEventListener("change", () => {
   if(!isNaN(v)) setLon(clamp(v, 0, 500000)); else setLon(lon);
   calc();
 });
-$("lonNum").addEventListener("blur", () => { $("lonNum").value = Math.round(lon).toLocaleString("sv-SE"); });
+$("lonNum").addEventListener("blur", () => { $("lonNum").value = Math.round(lon).toLocaleString(loc()); });
 
 // ── Belopp ──
 function setBelopp(v){
@@ -398,7 +463,7 @@ function setBelopp(v){
   const sl = $("beloppSlider");
   sl.value = clamp(v, +sl.min, +sl.max);
   rangeFill(sl);
-  $("beloppNum").value = Math.round(v).toLocaleString("sv-SE");
+  $("beloppNum").value = Math.round(v).toLocaleString(loc());
   updateMaxHint();
 }
 $("beloppSlider").addEventListener("input", () => { setBelopp(+$("beloppSlider").value); calc(); });
@@ -407,15 +472,15 @@ $("beloppNum").addEventListener("change", () => {
   if(!isNaN(v)) setBelopp(clamp(v, 0, 200000)); else setBelopp(belopp);
   calc();
 });
-$("beloppNum").addEventListener("blur", () => { $("beloppNum").value = Math.round(belopp).toLocaleString("sv-SE"); });
+$("beloppNum").addEventListener("blur", () => { $("beloppNum").value = Math.round(belopp).toLocaleString(loc()); });
 
 // ── Ålder / pensionsålder ──
 function syncAges(){
   const a = +$("alderSlider").value;
   let pa = +$("pensionsalderSlider").value;
   if(pa <= a){ pa = a+1; $("pensionsalderSlider").value = pa; }
-  $("alderVal").textContent = a + " år";
-  $("pAlderVal").textContent = pa + " år";
+  $("alderVal").textContent = a + tr(" år", " years");
+  $("pAlderVal").textContent = pa + tr(" år", " years");
   rangeFill($("alderSlider")); rangeFill($("pensionsalderSlider"));
 }
 $("alderSlider").addEventListener("input", () => { syncAges(); calc(); });
@@ -424,7 +489,7 @@ $("pensionsalderSlider").addEventListener("input", () => { syncAges(); calc(); }
 // ── Avkastning ──
 $("avkastningSlider").addEventListener("input", () => {
   const r = +$("avkastningSlider").value;
-  $("avkVal").textContent = r.toLocaleString("sv-SE",{minimumFractionDigits:1,maximumFractionDigits:1}) + " %";
+  $("avkVal").textContent = r.toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1}) + tr(" %","%");
   rangeFill($("avkastningSlider"));
   calc();
   drawCompoundChart(); // uppdatera hero vid avkastningsändring
@@ -480,12 +545,14 @@ function calc(){
 
   // Resultatkort
   $("resPremie").textContent  = fmtKr(premie);
-  $("resUplift").textContent  = upliftPct.toLocaleString("sv-SE",{maximumFractionDigits:1}) + " %";
+  $("resUplift").textContent  = upliftPct.toLocaleString(loc(),{maximumFractionDigits:1}) + tr(" %","%");
   $("resYears").textContent   = years;
   $("resKapital").textContent = fmtKr(fv);
-  $("resDisclaimer").textContent =
-    "Baserat på " + retPct.toLocaleString("sv-SE",{minimumFractionDigits:1}) +
-    " % avkastning per år. Historisk avkastning är ingen garanti för framtida avkastning.";
+  $("resDisclaimer").textContent = tr(
+    "Baserat på " + retPct.toLocaleString(loc(),{minimumFractionDigits:1}) +
+    " % avkastning per år. Historisk avkastning är ingen garanti för framtida avkastning.",
+    "Based on " + retPct.toLocaleString(loc(),{minimumFractionDigits:1}) +
+    "% return per year. Past returns are no guarantee of future returns.");
 
   // Lämplighetsindikator
   const lonEfter = lon - belopp;
@@ -493,16 +560,16 @@ function calc(){
   box.classList.remove("good","warn","amber");
   if(lonEfter > LIMIT_AVGIFTSTAK){
     box.classList.add("good"); $("statusIcon").textContent="✓";
-    $("statusTitle").textContent="Löneväxling är lämpligt för din lönenivå ";
-    $("statusText").textContent="Lön efter växling: " + fmtKr(lonEfter) + "/mån – över avgiftstaket och brytpunkten.";
+    $("statusTitle").textContent=tr("Löneväxling är lämpligt för din lönenivå ","Salary exchange is suitable for your salary level ");
+    $("statusText").textContent=tr("Lön efter växling: " + fmtKr(lonEfter) + "/mån – över avgiftstaket och brytpunkten.","Salary after exchange: " + fmtKr(lonEfter) + "/month \u2013 above the contribution ceiling and the tax threshold.");
   } else if(lonEfter > LIMIT_BRYTPUNKT){
     box.classList.add("amber"); $("statusIcon").textContent="!";
-    $("statusTitle").textContent="Gränsfall – din allmänna pension kan påverkas ";
-    $("statusText").textContent="Lön efter växling: " + fmtKr(lonEfter) + "/mån. Över brytpunkten men under avgiftstaket.";
+    $("statusTitle").textContent=tr("Gränsfall – din allmänna pension kan påverkas ","Borderline \u2013 your public pension may be affected ");
+    $("statusText").textContent=tr("Lön efter växling: " + fmtKr(lonEfter) + "/mån. Över brytpunkten men under avgiftstaket.","Salary after exchange: " + fmtKr(lonEfter) + "/month. Above the tax threshold but below the contribution ceiling.");
   } else {
     box.classList.add("warn"); $("statusIcon").textContent="✕";
-    $("statusTitle").textContent="Löneväxling avråds vid din lönenivå ";
-    $("statusText").textContent="Lön efter växling: " + fmtKr(lonEfter) + "/mån – under avgiftstaket och brytpunkten.";
+    $("statusTitle").textContent=tr("Löneväxling avråds vid din lönenivå ","Salary exchange is not recommended at your salary level ");
+    $("statusText").textContent=tr("Lön efter växling: " + fmtKr(lonEfter) + "/mån – under avgiftstaket och brytpunkten.","Salary after exchange: " + fmtKr(lonEfter) + "/month \u2013 below the contribution ceiling and the tax threshold.");
   }
 
   drawCompoundChart();
@@ -558,7 +625,7 @@ function drawCompoundChart(){
   for(let g=1;g<=4;g++){
     const v = maxV*g/4, y = Y(v);
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
-    const label = Math.round(v).toLocaleString("sv-SE") + " kr";
+    const label = Math.round(v).toLocaleString(loc()) + tr(" kr"," SEK");
     ctx.fillText(label, padL-6, y+Math.round(fontSize*0.4));
   }
 
@@ -587,7 +654,7 @@ function drawCompoundChart(){
   const stepX = years>30?10:years>12?5:years>6?2:1;
   for(let y=0;y<=years;y+=stepX){
     ctx.textAlign = y===0 ? "left" : "center";
-    ctx.fillText(y===0?"Idag":"+"+y+" år", X(y), chartH-8);
+    ctx.fillText(y===0?tr("Idag","Today"):"+"+y+tr(" år"," yrs"), X(y), chartH-8);
   }
 
   // Hover-linje
@@ -605,12 +672,12 @@ function drawCompoundChart(){
   }
 
   // Legend
-  const selFmt = selPct.toLocaleString("sv-SE",{minimumFractionDigits:1,maximumFractionDigits:1});
+  const selFmt = selPct.toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1});
   $("compoundLegend").innerHTML =
-    '<span><span class="leg-swatch" style="display:inline-block;width:22px;height:0;border-top:2.5px dashed #4885c4"></span>Inbetalt kapital</span>' +
-    '<span><span class="leg-swatch" style="background:#015d34"></span>Värde vid '+selFmt+' %</span>';
+    '<span><span class="leg-swatch" style="display:inline-block;width:22px;height:0;border-top:2.5px dashed #4885c4"></span>'+tr("Inbetalt kapital","Paid-in capital")+'</span>' +
+    '<span><span class="leg-swatch" style="background:#015d34"></span>'+tr("Värde vid ","Value at ")+selFmt+tr(" %","%")+'</span>';
   const sub = $("compoundSub");
-  if(sub) sub.innerHTML = 'Utveckling fram till pension vid <b>'+selFmt+' %</b> avkastning per år.';
+  if(sub) sub.innerHTML = tr('Utveckling fram till pension vid <b>'+selFmt+' %</b> avkastning per år.','Growth until retirement at <b>'+selFmt+'%</b> return per year.');
 }
 
 // Compound tooltip
@@ -627,9 +694,9 @@ function showCompoundTip(clientX){
   compHoverIdx=i; drawCompoundChart();
   const inb=premie*i*12;
   const mainSeries=simSeries(premie,selPct,years);
-  const selFmt=selPct.toLocaleString("sv-SE",{minimumFractionDigits:1,maximumFractionDigits:1});
-  let html='<div class="ct-yr">'+(i===0?"Idag":"Om "+i+" år")+'</div>';
-  html+='<div class="ct-row"><span style="display:inline-block;width:22px;height:0;border-top:2px dashed #4885c4"></span>Inbetalt<b>'+fmtKr(inb)+'</b></div>';
+  const selFmt=selPct.toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1});
+  let html='<div class="ct-yr">'+(i===0?tr("Idag","Today"):tr("Om "+i+" år","In "+i+" years"))+'</div>';
+  html+='<div class="ct-row"><span style="display:inline-block;width:22px;height:0;border-top:2px dashed #4885c4"></span>'+tr('Inbetalt','Paid in')+'<b>'+fmtKr(inb)+'</b></div>';
   html+='<div class="ct-row"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#015d34"></span>'+selFmt+' %<b>'+fmtKr(mainSeries[i])+'</b></div>';
   compTipEl.innerHTML=html; compTipEl.classList.add("vis");
   posCompTip(i,rect,years,padL,padR);
@@ -655,9 +722,21 @@ window.addEventListener("resize",()=>{
   drawCompoundChart();
 });
 
+function setLang(l){
+  lang = l;
+  try { localStorage.setItem("pension-lang", l); } catch (e) {}
+  applyStatic();
+  setLon(lon); setBelopp(belopp);
+  syncAges();
+  $("avkVal").textContent = (+$("avkastningSlider").value).toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1}) + tr(" %","%");
+  calc();
+}
+document.querySelectorAll(".lang-btn").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+applyStatic();
 setLon(60000);
 setBelopp(3000);
 syncAges();
+$("avkVal").textContent = (+$("avkastningSlider").value).toLocaleString(loc(),{minimumFractionDigits:1,maximumFractionDigits:1}) + tr(" %","%");
 rangeFill($("avkastningSlider"));
 // Vänta tills layouten är klar innan canvas ritas
 requestAnimationFrame(() => requestAnimationFrame(() => {
