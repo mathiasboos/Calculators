@@ -62,14 +62,14 @@ input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-v
 .sliderhead .lab { margin: 0; font-size: 0.875rem; font-weight: 500; }
 .sliderhead output { font-variant-numeric: tabular-nums; font-size: 0.875rem; font-weight: 600; }
 input[type=range] { width: 100%; accent-color: var(--primary); height: 28px; margin: 0; }
-.stats { display: grid; gap: 16px; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .stats { grid-template-columns: 1fr 1fr; } .stats .wide { grid-column: span 2; } }
+.stats { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats .wide { grid-column: span 2; } }
 .stat { border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; background: #fff; }
 .stat.hl { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
 .stat .eyebrow { color: inherit; opacity: 0.75; }
 .stat .v { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.022em; font-variant-numeric: tabular-nums; margin-top: 4px; }
 .stat .v .unit { font-size: 0.875rem; font-weight: 400; opacity: 0.75; margin-left: 4px; }
-.col { display: grid; gap: 24px; min-width: 0; align-content: start; }
+.col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; min-width: 0; align-content: start; }
 .card h2 { font-size: 1.25rem; margin: 0; letter-spacing: -0.022em; font-weight: 600; }
 .chart .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 0.75rem; color: var(--muted-fg); }
