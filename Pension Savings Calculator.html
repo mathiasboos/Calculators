@@ -281,7 +281,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       <div class="plot" id="plot"><svg id="svg" viewBox="0 0 800 340" role="img" aria-label="${tr("Diagram \xF6ver kapital och utbetalningar \xE5r f\xF6r \xE5r, se tabellen nedan", "Chart of capital and payouts year by year, see the table below")}"></svg><div class="tooltip" id="tip"></div></div>
     </section>
     <details class="card table" id="table-card"${wasOpen ? " open" : ""}>
-      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button></span></summary>
+      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button> <button type="button" class="btn" id="xls">${tr("Ladda ner Excel", "Download Excel")}</button></span></summary>
       <div class="scroll"><table><thead><tr>${columns().map((c) => `<th scope="col">${c.label}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
     </details>
     <div class="note" id="note"></div>
@@ -464,6 +464,19 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       const a = document.createElement("a");
       a.href = url;
       a.download = tr("pensionssparkalkylator.csv", "pension-savings-calculator.csv");
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    });
+    $("xls").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const cols = columns();
+      const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + cols.map((c) => "<th>" + c.label + "</th>").join("") + "</tr>" +
+        rows.map((r) => "<tr>" + cols.map((c) => "<td>" + Math.round(c.value(r)) + "</td>").join("") + "</tr>").join("") + "</table></body></html>";
+      const url = URL.createObjectURL(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = tr("pensionssparkalkylator.xls", "pension-savings-calculator.xls");
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1e3);
     });

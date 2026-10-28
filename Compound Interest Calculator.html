@@ -250,7 +250,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     </section>
     <div class="stats" id="stats" aria-live="polite"></div>
     <details class="card table" id="table-card"${wasOpen ? " open" : ""}>
-      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button></span></summary>
+      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button> <button type="button" class="btn" id="xls">${tr("Ladda ner Excel", "Download Excel")}</button></span></summary>
       <div class="scroll"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
     </details>
   </div>`;
@@ -510,6 +510,18 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       const a = document.createElement("a");
       a.href = url;
       a.download = tr("ranta-pa-ranta.csv", "compound-interest.csv");
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    });
+    $("xls").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + cols.map((c) => "<th>" + c.label + "</th>").join("") + "</tr>" +
+        rows.map((r) => "<tr>" + cols.map((c) => "<td>" + Math.round(c.value(r)) + "</td>").join("") + "</tr>").join("") + "</table></body></html>";
+      const url = URL.createObjectURL(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = tr("ranta-pa-ranta.xls", "compound-interest.xls");
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1e3);
     });
