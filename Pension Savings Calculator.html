@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
 <title>Pensionssparkalkylatorn – fristående version</title>
-<meta name="description" content="Räkna ut ditt pensionskapital och vad du kan ta ut per månad. Fristående version av Pensionssparkalkylatorn från pensionslyft.se." />
+<meta id="meta-desc" name="description" content="Räkna ut ditt pensionskapital och vad du kan ta ut per månad. Fristående version av Pensionssparkalkylatorn från pensionslyft.se." />
 <style>
 :root {
   --bg: #fff; --fg: #0f2034; --primary: #0c2a49; --primary-fg: #fbf9f4; --muted: #f5f4f1; --muted-fg: #545f6c;
@@ -22,6 +22,10 @@ a { color: var(--primary); }
 header.top { border-bottom: 1px solid var(--border); }
 header.top .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-top: 14px; padding-bottom: 14px; }
 .brand { font-weight: 700; font-size: 1.125rem; letter-spacing: -0.02em; color: var(--primary); text-decoration: none; }
+.lang-toggle { display: inline-flex; gap: 4px; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 3px; align-self: center; }
+.lang-btn { padding: 4px 12px; font: inherit; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted-fg); background: none; border: none; border-radius: 5px; cursor: pointer; }
+.lang-btn.active { background: var(--primary); color: var(--primary-fg); }
+.lang-btn:not(.active):hover { color: var(--fg); }
 .eyebrow { font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); }
 h1 { font-size: clamp(1.25rem, 6vw, 2.5rem); line-height: 1.1; letter-spacing: -0.022em; margin: 8px 0 8px; font-weight: 600; overflow-wrap: anywhere; hyphens: auto; }
 .intro { max-width: 46rem; color: var(--muted-fg); margin: 0 0 24px; }
@@ -87,17 +91,17 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 <header class="top">
   <div class="wrap">
     <a class="brand" href="https://pensionslyft.se/pensionskalkylator">Pensionslyft</a>
-    <span class="eyebrow">Fristående version</span>
+    <span class="lang-toggle" role="group" aria-label="Language / Språk"><button type="button" class="lang-btn" data-lang="sv">SV</button><button type="button" class="lang-btn" data-lang="en">EN</button></span>
   </div>
 </header>
 <main class="wrap">
-  <p class="eyebrow" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
-  <h1>Pensionssparkalkylatorn</h1>
-  <p class="intro">Räkna ut hur mycket pensionskapital du kan ha när du går i pension och hur mycket du kan ta ut varje månad. Allt räknas i din webbläsare, och inget skickas någonstans.</p>
+  <p class="eyebrow" id="eyebrow-main" style="margin-top: 32px">Pensionslyft · Kalkylatorer</p>
+  <h1 id="h1">Pensionssparkalkylatorn</h1>
+  <p class="intro" id="intro">Räkna ut hur mycket pensionskapital du kan ha när du går i pension och hur mycket du kan ta ut varje månad. Allt räknas i din webbläsare, och inget skickas någonstans.</p>
   <div id="app" class="layout"><noscript>Kalkylatorn kräver JavaScript.</noscript></div>
 </main>
 <footer>
-  <div class="wrap">
+  <div class="wrap" id="foot">
     Beräkningen är en uppskattning före skatt och inte individuell rådgivning. Den här filen är en fristående kopia av
     <a href="https://pensionslyft.se/pensionskalkylator">Pensionssparkalkylatorn på pensionslyft.se</a>, där du alltid hittar den senaste versionen.
   </div>
@@ -186,35 +190,34 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
   }
 
   // src/lib/format.ts
-  var sek = new Intl.NumberFormat("sv-SE", {
-    style: "currency",
-    currency: "SEK",
-    maximumFractionDigits: 0
-  });
-  var num = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 0 });
+  var lang = "sv";
+  try { if (localStorage.getItem("pension-lang") === "en") lang = "en"; } catch (e) {}
+  var tr = (sv, en) => lang === "en" ? en : sv;
+  var loc = () => lang === "en" ? "en-GB" : "sv-SE";
+  var num = { format: (v) => new Intl.NumberFormat(loc(), { maximumFractionDigits: 0 }).format(v) };
   function formatSek(value) {
-    return sek.format(Math.round(value));
+    const n = num.format(Math.round(value));
+    return lang === "en" ? `SEK\xA0${n}` : `${n}\xA0kr`;
   }
   function formatPercent(value, digits) {
-    return `${new Intl.NumberFormat("sv-SE", {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits
-    }).format(value)} %`;
+    const n = new Intl.NumberFormat(loc(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+    return lang === "en" ? `${n}%` : `${n} %`;
   }
-  var compact = new Intl.NumberFormat("sv-SE", { maximumFractionDigits: 1 });
   function formatSekShort(value) {
-    if (Math.abs(value) >= 1e6) return `${compact.format(value / 1e6)} mkr`;
-    if (Math.abs(value) >= 1e3) return `${num.format(value / 1e3)} tkr`;
-    return `${num.format(value)} kr`;
+    const c = (v) => new Intl.NumberFormat(loc(), { maximumFractionDigits: 1 }).format(v);
+    if (Math.abs(value) >= 1e6) return lang === "en" ? `${c(value / 1e6)}M SEK` : `${c(value / 1e6)} mkr`;
+    if (Math.abs(value) >= 1e3) return lang === "en" ? `${num.format(value / 1e3)}k SEK` : `${num.format(value / 1e3)} tkr`;
+    return lang === "en" ? `${num.format(value)} SEK` : `${num.format(value)} kr`;
   }
   function groupDigits(text) {
     const cleaned = text.replace(/[^\d,.]/g, "");
-    const point = cleaned.search(/[.,]/);
+    const point = lang === "en" ? cleaned.indexOf(".") : cleaned.search(/[.,]/);
     const whole = (point === -1 ? cleaned : cleaned.slice(0, point)).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "\xA0");
-    return point === -1 ? grouped : `${grouped},${cleaned.slice(point + 1).replace(/\D/g, "")}`;
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, lang === "en" ? "," : "\xA0");
+    return point === -1 ? grouped : `${grouped}${lang === "en" ? "." : ","}${cleaned.slice(point + 1).replace(/\D/g, "")}`;
   }
   function parseAmount(text) {
+    if (lang === "en") return parseFloat(text.replace(/[\s,]/g, ""));
     return parseFloat(text.replace(/\s/g, "").replace(",", "."));
   }
   function stepValue(value, step, direction, min = 0, max = Infinity) {
@@ -225,51 +228,69 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 
   // standalone/pensionssparkalkylatorn.ts
   var state = { currentCapital: 35e4, monthlyDeposit: 2e3, yearsToRetirement: 25, annualReturn: 6.5, annualFee: 0.6, payoutYears: 20 };
-  var COLUMNS = [
-    { label: "\xC5r", value: (r) => r.year, plain: true },
-    { label: "Ing\xE5ende kapital", value: (r) => r.opening },
-    { label: "Ins\xE4ttningar", value: (r) => r.deposits },
-    { label: "Avkastning efter avgift", value: (r) => r.growth },
-    { label: "Utbetalning", value: (r) => r.paid },
-    { label: "Utg\xE5ende kapital", value: (r) => r.closing },
-    { label: "Insatt totalt", value: (r) => r.totalIn }
+  var columns = () => [
+    { label: tr("\xC5r", "Year"), value: (r) => r.year, plain: true },
+    { label: tr("Ing\xE5ende kapital", "Opening capital"), value: (r) => r.opening },
+    { label: tr("Ins\xE4ttningar", "Deposits"), value: (r) => r.deposits },
+    { label: tr("Avkastning efter avgift", "Return after fees"), value: (r) => r.growth },
+    { label: tr("Utbetalning", "Payout"), value: (r) => r.paid },
+    { label: tr("Utg\xE5ende kapital", "Closing capital"), value: (r) => r.closing },
+    { label: tr("Insatt totalt", "Total deposited"), value: (r) => r.totalIn }
   ];
   var esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var $ = (id) => document.getElementById(id);
   function amountField(id, label, key, step) {
+    const by = `${num.format(step)} ${tr("kr", "SEK")}`;
     return `<div class="field"><label for="${id}">${label}</label><div class="row">
-    <button type="button" class="step" data-step="${key}" data-dir="-1" aria-label="Minska ${label.toLowerCase()} med ${num.format(step)} kr">\u2212</button>
-    <div class="num"><input id="${id}" data-key="${key}" data-stepby="${step}" type="text" inputmode="numeric" autocomplete="off" /><span>kr</span></div>
-    <button type="button" class="step" data-step="${key}" data-dir="1" aria-label="\xD6ka ${label.toLowerCase()} med ${num.format(step)} kr">+</button></div></div>`;
+    <button type="button" class="step" data-step="${key}" data-dir="-1" aria-label="${tr("Minska", "Decrease")} ${label.toLowerCase()} ${tr("med", "by")} ${by}">−</button>
+    <div class="num"><input id="${id}" data-key="${key}" data-stepby="${step}" type="text" inputmode="numeric" autocomplete="off" /><span>${tr("kr", "SEK")}</span></div>
+    <button type="button" class="step" data-step="${key}" data-dir="1" aria-label="${tr("\xD6ka", "Increase")} ${label.toLowerCase()} ${tr("med", "by")} ${by}">+</button></div></div>`;
   }
   function sliderField(id, label, key, min, max, step, tip) {
-    const lab = tip ? `<span class="lab tip" tabindex="0" role="button" aria-describedby="${id}-tip">${label}<span class="pop" id="${id}-tip" role="tooltip"><b>${tip.split("|")[0]}</b><br />${tip.split("|")[1]}</span></span>` : `<label class="lab" for="${id}">${label}</label>`;
+    const lab = tip ? `<span class="lab tip" tabindex="0" role="button" aria-describedby="${id}-tip">${label}<span class="pop" id="${id}-tip" role="tooltip"><b>${tip[0]}</b><br />${tip[1]}</span></span>` : `<label class="lab" for="${id}">${label}</label>`;
     return `<div class="field"><div class="sliderhead">${lab}<output id="${id}-out" for="${id}"></output></div>
     <input id="${id}" data-key="${key}" type="range" min="${min}" max="${max}" step="${step}" ${tip ? `aria-label="${label}"` : ""} /></div>`;
   }
-  $("app").innerHTML = `
-  <form class="card inputs" onsubmit="return false" aria-label="Indata">
-    ${amountField("current-capital", "Nuvarande pensionskapital", "currentCapital", 1e4)}
-    ${amountField("monthly-deposit", "M\xE5nadssparande", "monthlyDeposit", 100)}
-    ${sliderField("years", "\xC5r till pension", "yearsToRetirement", 1, 45, 1)}
-    ${sliderField("return", "F\xF6rv\xE4ntad avkastning", "annualReturn", 0, 12, 0.1)}
-    ${sliderField("fee", "\xC5rlig avgift", "annualFee", 0, 2.5, 0.05)}
-    ${sliderField("payout", "Utbetalas under", "payoutYears", 5, 30, 1, "Tj\xE4nstepension och privat pension:|Du kan v\xE4lja att f\xE5 din pension utbetald under en tidsbegr\xE4nsad period (t.ex. 5, 10, 15 eller 20 \xE5r) eller livsvarigt (s\xE5 l\xE4nge du lever). Kortare tid \xE4n 5 \xE5r till\xE5ts generellt inte av Skatteverket f\xF6r att det ska r\xE4knas som en pensionsf\xF6rs\xE4kring.")}
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.title = tr("Pensionssparkalkylatorn – frist\xE5ende version", "Pension Savings Calculator – standalone version");
+    $("meta-desc").setAttribute("content", tr("R\xE4kna ut ditt pensionskapital och vad du kan ta ut per m\xE5nad. Frist\xE5ende version av Pensionssparkalkylatorn fr\xE5n pensionslyft.se.", "Calculate your pension capital and what you can withdraw per month. Standalone version of the Pension Savings Calculator from pensionslyft.se."));
+    $("eyebrow-main").textContent = tr("Pensionslyft \xB7 Kalkylatorer", "Pensionslyft \xB7 Calculators");
+    $("h1").textContent = tr("Pensionssparkalkylatorn", "Pension Savings Calculator");
+    $("intro").textContent = tr("R\xE4kna ut hur mycket pensionskapital du kan ha n\xE4r du g\xE5r i pension och hur mycket du kan ta ut varje m\xE5nad. Allt r\xE4knas i din webbl\xE4sare, och inget skickas n\xE5gonstans.", "Calculate how much pension capital you can have when you retire and how much you can withdraw each month. Everything is calculated in your browser, and nothing is sent anywhere.");
+    $("foot").innerHTML = tr('Ber\xE4kningen \xE4r en uppskattning f\xF6re skatt och inte individuell r\xE5dgivning. Den h\xE4r filen \xE4r en frist\xE5ende kopia av <a href="https://pensionslyft.se/pensionskalkylator">Pensionssparkalkylatorn p\xE5 pensionslyft.se</a>, d\xE4r du alltid hittar den senaste versionen.', 'The calculation is an estimate before tax and is not individual advice. This file is a standalone copy of the <a href="https://pensionslyft.se/pensionskalkylator">Pension Savings Calculator on pensionslyft.se</a> (in Swedish), where you will always find the latest version.');
+    document.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("active", b.dataset.lang === lang));
+  }
+  function buildUI() {
+    const wasOpen = $("table-card") ? $("table-card").open : false;
+    $("app").innerHTML = `
+  <form class="card inputs" onsubmit="return false" aria-label="${tr("Indata", "Inputs")}">
+    ${amountField("current-capital", tr("Nuvarande pensionskapital", "Current pension capital"), "currentCapital", 1e4)}
+    ${amountField("monthly-deposit", tr("M\xE5nadssparande", "Monthly saving"), "monthlyDeposit", 100)}
+    ${sliderField("years", tr("\xC5r till pension", "Years to retirement"), "yearsToRetirement", 1, 45, 1)}
+    ${sliderField("return", tr("F\xF6rv\xE4ntad avkastning", "Expected return"), "annualReturn", 0, 12, 0.1)}
+    ${sliderField("fee", tr("\xC5rlig avgift", "Annual fee"), "annualFee", 0, 2.5, 0.05)}
+    ${sliderField("payout", tr("Utbetalas under", "Paid out over"), "payoutYears", 5, 30, 1, [tr("Tj\xE4nstepension och privat pension:", "Occupational and private pension:"), tr("Du kan v\xE4lja att f\xE5 din pension utbetald under en tidsbegr\xE4nsad period (t.ex. 5, 10, 15 eller 20 \xE5r) eller livsvarigt (s\xE5 l\xE4nge du lever). Kortare tid \xE4n 5 \xE5r till\xE5ts generellt inte av Skatteverket f\xF6r att det ska r\xE4knas som en pensionsf\xF6rs\xE4kring.", "You can choose to have your pension paid out over a limited period (e.g. 5, 10, 15 or 20 years) or for life (as long as you live). A period shorter than 5 years is generally not allowed by the Swedish Tax Agency (Skatteverket) for it to count as a pension insurance.")])}
   </form>
   <div class="col">
     <div class="stats" id="stats" aria-live="polite"></div>
     <section class="card chart">
-      <div class="head"><h2>Kapital och utbetalningar</h2>
-        <ul class="legend"><li><i style="background:var(--c1)"></i>Kapital</li><li><i style="background:var(--c2)"></i>Ins\xE4ttningar</li><li><i style="background:var(--c4)"></i>Utbetalning per \xE5r</li></ul></div>
+      <div class="head"><h2>${tr("Kapital och utbetalningar", "Capital and payouts")}</h2>
+        <ul class="legend"><li><i style="background:var(--c1)"></i>${tr("Kapital", "Capital")}</li><li><i style="background:var(--c2)"></i>${tr("Ins\xE4ttningar", "Deposits")}</li><li><i style="background:var(--c4)"></i>${tr("Utbetalning per \xE5r", "Payout per year")}</li></ul></div>
       <p class="sub" id="chart-sub"></p>
-      <div class="plot" id="plot"><svg id="svg" viewBox="0 0 800 340" role="img" aria-label="Diagram \xF6ver kapital och utbetalningar \xE5r f\xF6r \xE5r, se tabellen nedan"></svg><div class="tooltip" id="tip"></div></div>
+      <div class="plot" id="plot"><svg id="svg" viewBox="0 0 800 340" role="img" aria-label="${tr("Diagram \xF6ver kapital och utbetalningar \xE5r f\xF6r \xE5r, se tabellen nedan", "Chart of capital and payouts year by year, see the table below")}"></svg><div class="tooltip" id="tip"></div></div>
     </section>
-    <details class="card table" id="table-card">
-      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">Ladda ner CSV</button></span></summary>
-      <div class="scroll"><table><thead><tr>${COLUMNS.map((c) => `<th scope="col">${c.label}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
+    <details class="card table" id="table-card"${wasOpen ? " open" : ""}>
+      <summary><h2 id="table-title"></h2><span><button type="button" class="btn" id="csv">${tr("Ladda ner CSV", "Download CSV")}</button></span></summary>
+      <div class="scroll"><table><thead><tr>${columns().map((c) => `<th scope="col">${c.label}</th>`).join("")}</tr></thead><tbody id="tbody"></tbody></table></div>
     </details>
     <div class="note" id="note"></div>
   </div>`;
+    bind();
+    syncInputs();
+    render();
+    if (resizeObs) { resizeObs.disconnect(); resizeObs.observe($("plot")); shownWidth = $("plot").clientWidth; }
+  }
   var rows = [];
   function render() {
     const s = state;
@@ -281,18 +302,22 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     });
     const payout = result.payouts.map((p) => ({ year: p.year, opening: p.opening, deposits: 0, growth: p.growth, paid: p.paid, closing: p.closing, totalIn: result.totalDeposits }));
     rows = [...saving, ...payout];
+    const yrs = tr("\xE5r", "years");
     $("stats").innerHTML = [
-      ["Kapital vid pension", formatSek(result.finalCapital), "", "hl"],
-      ["Per m\xE5nad i uttag", formatSek(result.monthlyPension), `i ${s.payoutYears} \xE5r`, "hl"],
-      ["Totalt utbetalt", formatSek(result.totalPaid), "", ""],
-      ["Egna ins\xE4ttningar", formatSek(result.totalDeposits), "", ""],
-      ["Varav avkastning", formatSek(result.totalGrowth), "", "wide"]
+      [tr("Kapital vid pension", "Capital at retirement"), formatSek(result.finalCapital), "", "hl"],
+      [tr("Per m\xE5nad i uttag", "Monthly withdrawal"), formatSek(result.monthlyPension), `${tr("i", "for")} ${s.payoutYears} ${yrs}`, "hl"],
+      [tr("Totalt utbetalt", "Total paid out"), formatSek(result.totalPaid), "", ""],
+      [tr("Egna ins\xE4ttningar", "Own deposits"), formatSek(result.totalDeposits), "", ""],
+      [tr("Varav avkastning", "Of which return"), formatSek(result.totalGrowth), "", "wide"]
     ].map(([l, v, n, c]) => `<div class="stat ${c}"><div class="eyebrow">${l}</div><div class="v">${v}</div>${n ? `<div class="n">${n}</div>` : ""}</div>`).join("");
-    $("chart-sub").textContent = `Kapitalet v\xE4xer till pensionen och betalas sedan ut under ${s.payoutYears} \xE5r. F\xF6re skatt.`;
-    $("table-title").textContent = `\xC5r f\xF6r \xE5r (${rows.length} \xE5r)`;
-    $("tbody").innerHTML = rows.map((r) => `<tr>${COLUMNS.map((c) => `<td>${c.plain ? c.value(r) : num.format(Math.round(c.value(r)))}</td>`).join("")}</tr>`).join("");
-    $("note").innerHTML = `<p>Du f\xE5r <strong>${formatSek(result.monthlyPension)}</strong> i m\xE5naden i ${s.payoutYears} \xE5r, tillsammans <strong>${formatSek(result.totalPaid)}</strong> f\xF6re skatt. Det som st\xE5r kvar under uttaget forts\xE4tter att v\xE4xa, s\xE5 du f\xE5r ut mer \xE4n du hade sparat vid pensionen.</p>
-    <p>Avgiften p\xE5 ${formatPercent(s.annualFee, 2)} kostar dig ungef\xE4r <strong>${formatSek(result.feeCost)}</strong> fram till pension j\xE4mf\xF6rt med ett avgiftsfritt sparande. L\xE4s mer i artikeln om <a href="https://pensionslyft.se/artiklar/avgifter-som-ater-upp-din-pension">avgifter</a>.</p>`;
+    $("chart-sub").textContent = tr(`Kapitalet v\xE4xer till pensionen och betalas sedan ut under ${s.payoutYears} \xE5r. F\xF6re skatt.`, `The capital grows until retirement and is then paid out over ${s.payoutYears} years. Before tax.`);
+    $("table-title").textContent = tr(`\xC5r f\xF6r \xE5r (${rows.length} \xE5r)`, `Year by year (${rows.length} years)`);
+    const cols = columns();
+    $("tbody").innerHTML = rows.map((r) => `<tr>${cols.map((c) => `<td>${c.plain ? c.value(r) : num.format(Math.round(c.value(r)))}</td>`).join("")}</tr>`).join("");
+    $("note").innerHTML = tr(`<p>Du f\xE5r <strong>${formatSek(result.monthlyPension)}</strong> i m\xE5naden i ${s.payoutYears} \xE5r, tillsammans <strong>${formatSek(result.totalPaid)}</strong> f\xF6re skatt. Det som st\xE5r kvar under uttaget forts\xE4tter att v\xE4xa, s\xE5 du f\xE5r ut mer \xE4n du hade sparat vid pensionen.</p>
+    <p>Avgiften p\xE5 ${formatPercent(s.annualFee, 2)} kostar dig ungef\xE4r <strong>${formatSek(result.feeCost)}</strong> fram till pension j\xE4mf\xF6rt med ett avgiftsfritt sparande. L\xE4s mer i artikeln om <a href="https://pensionslyft.se/artiklar/avgifter-som-ater-upp-din-pension">avgifter</a>.</p>`,
+    `<p>You receive <strong>${formatSek(result.monthlyPension)}</strong> per month for ${s.payoutYears} years, <strong>${formatSek(result.totalPaid)}</strong> in total before tax. What remains during the withdrawal keeps growing, so you receive more than you had saved at retirement.</p>
+    <p>The fee of ${formatPercent(s.annualFee, 2)} costs you roughly <strong>${formatSek(result.feeCost)}</strong> up to retirement compared with saving without fees. Read more in the article on <a href="https://pensionslyft.se/artiklar/avgifter-som-ater-upp-din-pension">fees</a> (in Swedish).</p>`);
     drawChart(result.series, result.payouts, s.yearsToRetirement);
   }
   var lastChart;
@@ -303,7 +328,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       ...payouts.map((p) => ({ year: p.year, capital: p.closing, paid: p.paid }))
     ];
     const W = Math.max(300, Math.min(800, $("plot").clientWidth || 800));
-    const H = W < 520 ? 280 : 340, L = 60, R = 12, T = 26, B = 28;
+    const H = W < 520 ? 280 : 340, L = 64, R = 12, T = 26, B = 28;
     $("svg").setAttribute("viewBox", `0 0 ${W} ${H}`);
     const last = data[data.length - 1].year;
     const rawMax = Math.max(...data.map((d) => {
@@ -325,7 +350,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     out += area(data.map((p) => ({ year: p.year, v: p.capital })), "var(--c1)", 0.22);
     const bw = Math.min(28, (W - L - R) / last * 0.7);
     for (const p of payouts) out += `<rect x="${x(p.year) - bw / 2}" y="${y(p.paid)}" width="${bw}" height="${y(0) - y(p.paid)}" rx="3" fill="var(--c4)"/>`;
-    out += `<line x1="${x(retirement)}" x2="${x(retirement)}" y1="${T - 6}" y2="${H - B}" stroke="var(--fg)" stroke-dasharray="3 3"/><text x="${x(retirement)}" y="${T - 10}" text-anchor="middle" style="fill:var(--fg)">Pension</text>`;
+    out += `<line x1="${x(retirement)}" x2="${x(retirement)}" y1="${T - 6}" y2="${H - B}" stroke="var(--fg)" stroke-dasharray="3 3"/><text x="${x(retirement)}" y="${T - 10}" text-anchor="middle" style="fill:var(--fg)">${tr("Pension", "Retirement")}</text>`;
     out += `<line id="cursor" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--muted-fg)" stroke-opacity="0.6" visibility="hidden"/>`;
     $("svg").innerHTML = out;
     const svg = $("svg");
@@ -340,7 +365,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       cursor.setAttribute("x2", String(x(year)));
       cursor.setAttribute("visibility", "visible");
       const line = (l, v) => v === void 0 ? "" : `<div class="t"><span>${l}</span><span>${formatSek(v)}</span></div>`;
-      tip.innerHTML = `<b>\xC5r ${year}</b>${line("Kapital", d.capital)}${line("Ins\xE4ttningar", d.deposits)}${line("Utbetalning per \xE5r", d.paid)}`;
+      tip.innerHTML = `<b>${tr("\xC5r", "Year")} ${year}</b>${line(tr("Kapital", "Capital"), d.capital)}${line(tr("Ins\xE4ttningar", "Deposits"), d.deposits)}${line(tr("Utbetalning per \xE5r", "Payout per year"), d.paid)}`;
       tip.style.display = "block";
       const px = x(year) / W * box.width;
       tip.style.left = `${px > box.width / 2 ? px - tip.offsetWidth - 12 : px + 12}px`;
@@ -360,10 +385,10 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
     return 10 * p;
   }
   var display = {
-    years: (v) => `${v} \xE5r`,
+    years: (v) => `${v} ${tr("\xE5r", "years")}`,
     return: (v) => formatPercent(v, 1),
     fee: (v) => formatPercent(v, 2),
-    payout: (v) => `${v} \xE5r`
+    payout: (v) => `${v} ${tr("\xE5r", "years")}`
   };
   function syncInputs() {
     document.querySelectorAll("input[data-key]").forEach((input) => {
@@ -376,81 +401,95 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
       }
     });
   }
-  document.querySelectorAll("input[data-key]").forEach((input) => {
-    const key = input.dataset.key;
-    input.addEventListener("input", () => {
-      if (input.type === "range") state[key] = parseFloat(input.value);
-      else {
-        input.value = groupDigits(input.value);
-        const value = parseAmount(input.value);
-        state[key] = Number.isFinite(value) ? Math.max(0, value) : 0;
-      }
-      syncInputs();
-      render();
+  function bind() {
+    document.querySelectorAll("input[data-key]").forEach((input) => {
+      const key = input.dataset.key;
+      input.addEventListener("input", () => {
+        if (input.type === "range") state[key] = parseFloat(input.value);
+        else {
+          input.value = groupDigits(input.value);
+          const value = parseAmount(input.value);
+          state[key] = Number.isFinite(value) ? Math.max(0, value) : 0;
+        }
+        syncInputs();
+        render();
+      });
+      input.addEventListener("blur", () => {
+        if (input.type !== "range") input.value = groupDigits(String(state[key]));
+      });
     });
-    input.addEventListener("blur", () => {
-      if (input.type !== "range") input.value = groupDigits(String(state[key]));
-    });
-  });
-  document.querySelectorAll("button.step").forEach((button) => {
-    const key = button.dataset.step;
-    const dir = Number(button.dataset.dir);
-    const stepBy = Number($(key === "currentCapital" ? "current-capital" : "monthly-deposit").dataset.stepby);
-    const go = () => {
-      state[key] = stepValue(state[key], stepBy, dir, 0);
-      syncInputs();
-      render();
-    };
-    let timer, repeat;
-    const stop = () => {
-      window.clearTimeout(timer);
-      window.clearInterval(repeat);
-    };
-    button.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      go();
-      timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
-    });
-    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
-    button.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+    document.querySelectorAll("button.step").forEach((button) => {
+      const key = button.dataset.step;
+      const dir = Number(button.dataset.dir);
+      const stepBy = Number($(key === "currentCapital" ? "current-capital" : "monthly-deposit").dataset.stepby);
+      const go = () => {
+        state[key] = stepValue(state[key], stepBy, dir, 0);
+        syncInputs();
+        render();
+      };
+      let timer, repeat;
+      const stop = () => {
+        window.clearTimeout(timer);
+        window.clearInterval(repeat);
+      };
+      button.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
         e.preventDefault();
         go();
-      }
+        timer = window.setTimeout(() => repeat = window.setInterval(go, 80), 450);
+      });
+      ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => button.addEventListener(ev, stop));
+      button.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
     });
-  });
-  var tipEl = document.querySelector(".tip");
-  tipEl == null ? void 0 : tipEl.addEventListener("click", () => tipEl.classList.toggle("open"));
-  tipEl == null ? void 0 : tipEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
+    var tipEl = document.querySelector(".tip");
+    tipEl == null ? void 0 : tipEl.addEventListener("click", () => tipEl.classList.toggle("open"));
+    tipEl == null ? void 0 : tipEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        tipEl.classList.toggle("open");
+      }
+      if (e.key === "Escape") tipEl.classList.remove("open");
+    });
+    $("csv").addEventListener("click", (e) => {
       e.preventDefault();
-      tipEl.classList.toggle("open");
-    }
-    if (e.key === "Escape") tipEl.classList.remove("open");
-  });
-  $("csv").addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const csv = [COLUMNS.map((c) => c.label).join(";"), ...rows.map((r) => COLUMNS.map((c) => Math.round(c.value(r))).join(";"))].join("\r\n");
-    const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "pensionssparkalkylator.csv";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1e3);
-  });
-  syncInputs();
-  render();
-  var shownWidth = $("plot").clientWidth;
-  new ResizeObserver(() => {
+      e.stopPropagation();
+      const cols = columns();
+      const csv = [cols.map((c) => c.label).join(";"), ...rows.map((r) => cols.map((c) => Math.round(c.value(r))).join(";"))].join("\r\n");
+      const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = tr("pensionssparkalkylator.csv", "pension-savings-calculator.csv");
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    });
+  }
+  function setLang(l) {
+    lang = l;
+    try { localStorage.setItem("pension-lang", l); } catch (e) {}
+    applyStatic();
+    buildUI();
+  }
+  document.querySelectorAll(".lang-btn").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
+  var shownWidth = 0;
+  var resizeObs = null;
+  applyStatic();
+  buildUI();
+  shownWidth = $("plot").clientWidth;
+  resizeObs = new ResizeObserver(() => {
     const width = $("plot").clientWidth;
     if (width !== shownWidth && lastChart) {
       shownWidth = width;
       drawChart(...lastChart);
     }
-  }).observe($("plot"));
+  });
+  resizeObs.observe($("plot"));
 })();
+
 
 </script>
 </body>
