@@ -90,6 +90,30 @@ details.table > summary::-webkit-details-marker { display: none; }
 details.table > summary h2::before { content: "▸"; display: inline-block; margin-right: 8px; transition: transform 0.15s; }
 details.table[open] > summary h2::before { transform: rotate(90deg); }
 .note { padding: 0 24px 20px; font-size: 0.875rem; color: var(--muted-fg); border-top: 1px solid var(--border); padding-top: 16px; }
+details.table > summary { justify-content: space-between; flex-wrap: wrap; }
+.btn { height: 32px; border: 1px solid var(--input); border-radius: 6px; background: #fff; color: var(--fg); font: inherit; font-size: 0.8125rem; padding: 0 12px; cursor: pointer; }
+.btn:hover { background: var(--muted); }
+.scroll { max-height: 24rem; overflow: auto; border-top: 1px solid var(--border); }
+table.yr { font-size: 0.75rem; }
+.yr th, .yr td { text-align: right; white-space: nowrap; padding: 6px 12px; }
+.yr th:first-child, .yr td:first-child { text-align: left; }
+.yr thead th { position: sticky; top: 0; background: var(--muted); }
+.cmp h2 { margin-bottom: 8px; }
+.cmp p { margin: 0 0 12px; font-size: 0.875rem; color: var(--muted-fg); }
+.cmp p b { color: var(--fg); }
+.bars { display: grid; gap: 10px; margin: 12px 0 4px; }
+.bar-label { font-size: 0.75rem; display: flex; justify-content: space-between; margin-bottom: 3px; }
+.bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; }
+.bar .net { background: var(--c1); }
+.bar .tax { background: var(--c2); }
+.bar-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.75rem; color: var(--muted-fg); margin: 8px 0 16px; }
+.bar-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+table.cmpt th:first-child, table.cmpt td:first-child { text-align: left; }
+table.cmpt th, table.cmpt td { text-align: right; }
+table.cmpt .on { background: rgba(240, 199, 94, 0.22); font-weight: 600; }
+table.cmpt th.on { background: var(--secondary); }
+.cmp .foot { margin: 8px 0 0; font-size: 0.75rem; }
 footer { border-top: 1px solid var(--border); background: var(--muted); }
 footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; color: var(--muted-fg); }
 </style>
@@ -123,18 +147,18 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
         <label for="salary" data-t="label_salary"></label>
         <div class="row">
           <button type="button" class="step" data-step="salary" data-dir="-1">&minus;</button>
-          <div class="num"><input id="salary" type="text" inputmode="numeric" autocomplete="off" value="600 000" data-stepby="10000"><span>kr</span></div>
+          <div class="num"><input id="salary" type="text" inputmode="numeric" autocomplete="off" value="500 000" data-stepby="10000"><span>kr</span></div>
           <button type="button" class="step" data-step="salary" data-dir="1">+</button>
         </div>
       </div>
       <div class="field">
         <div class="sliderhead"><label class="lab" for="forecast_pct" data-t="label_forecast_pct"></label><output id="forecast_pct-out"></output></div>
-        <input id="forecast_pct" type="range" min="0" max="100" step="1" value="50">
+        <input id="forecast_pct" type="range" min="0" max="100" step="1" value="70">
         <p class="hint" data-t="hint_forecast"></p>
       </div>
       <div class="field">
         <div class="sliderhead"><label class="lab" for="desired_pct" data-t="label_desired_pct"></label><output id="desired_pct-out"></output></div>
-        <input id="desired_pct" type="range" min="0" max="100" step="1" value="70">
+        <input id="desired_pct" type="range" min="0" max="100" step="1" value="80">
         <p class="hint" data-t="hint_desired"></p>
       </div>
       <div class="field">
@@ -172,6 +196,7 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
         <input id="inflation" type="range" min="0" max="5" step="0.1" value="0">
         <p class="hint" data-t="hint_inflation"></p>
       </div>
+      <div><button type="button" class="btn" id="reset" onclick="resetValues()" data-t="reset"></button></div>
     </form>
 
     <div class="col">
@@ -182,6 +207,8 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
         <div class="stat hl"><div class="eyebrow" data-t="r_gap_label"></div><div class="v" id="r_income_gap"></div></div>
         <div class="stat wide"><div class="eyebrow" data-t="total_paid_label"></div><div class="v" id="r_total_paid"></div></div>
       </div>
+
+      <section class="card cmp" id="cmp"></section>
 
       <section class="card opts">
         <table>
@@ -205,6 +232,11 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
         <ul class="legend" id="legend"></ul>
       </section>
 
+      <details class="card table" open>
+        <summary><h2 id="tbl_title"></h2><span class="dl"><button type="button" class="btn" id="csv"></button> <button type="button" class="btn" id="xls"></button></span></summary>
+        <div class="scroll"><table class="yr"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+      </details>
+
       <details class="card table">
         <summary><h2 data-t="about_title"></h2></summary>
         <div class="note" data-t="footnote"></div>
@@ -219,22 +251,22 @@ footer .wrap { padding-top: 20px; padding-bottom: 24px; font-size: 0.8125rem; co
 const T = {
   sv: {
     title:              'Pensionsmål kalkylatorn',
-    subtitle:           'Uppskatta månadssparande eller engångsbelopp för att nå önskad pensionsnivå – beräknat på netto- eller bruttobasis.',
+    subtitle:           'Uppskatta månadssparande eller engångsbelopp för att nå önskad pensionsnivå – beräknat efter eller före inkomstskatt.',
     tab_net:            'Efter inkomstskatt',
     tab_gross:          'Före inkomstskatt',
     inputs_title:       'Indata',
     section_situation:  'Din situation',
-    label_salary:       'Årslön (brutto)',
+    label_salary:       'Årslön (före skatt)',
     label_forecast_pct: 'Prognos pension %',
     hint_forecast:      'Från minpension.se',
     label_desired_pct:  'Önskad pensionsnivå %',
-    hint_desired:       'Andel av bruttolön',
+    hint_desired:       'Andel av lön före skatt',
     section_horizon:    'Sparhorisont',
     label_years_to:     'År till pension',
     label_years_out:    'Utbetalningsår',
     section_capital:    'Kapital & avkastning',
-    label_capital_net:  'Befintligt sparkapital (netto)',
-    label_capital_gross:'Befintligt sparkapital (brutto)',
+    label_capital_net:  'Befintligt sparkapital (efter skatt)',
+    label_capital_gross:'Befintligt sparkapital (före skatt)',
     label_kommun:       'Kommun',
     hint_kommun:        'Kommunalskatt 2026 (SCB). Statlig skatt över skiktgränsen.',
     kommun_avg:         'Genomsnitt (Typfallsmodellen) – 32,38 %',
@@ -266,7 +298,29 @@ const T = {
     legend_remaining:   'Kvarvarande kapital',
     legend_payout:      'Utbetalning per år',
     chart_retire:       'Pension',
-    total_value:        'Totalt värde',
+    total_value:        'Kapital',
+    legend_deposits:    'Insättningar',
+    reset:              'Återställ värden',
+    tbl_title:          'År för år',
+    tbl_years:          n => `(${n} år)`,
+    cols:               ['År', 'Ingående kapital', 'Insättningar', 'Avkastning', 'Utbetalning', 'Utgående kapital', 'Insatt totalt'],
+    csv:                'Ladda ner CSV',
+    xls:                'Ladda ner Excel',
+    cmp_title:          'Före och efter skatt – så skiljer de sig',
+    cmp_expl_netto:     'Du tittar på <b>Efter inkomstskatt</b>: pensionen beskattas först (kommunal- och statlig skatt m.m.). Prognos och önskad nivå jämförs som belopp efter skatt, och sparandet räknas på den skillnaden.',
+    cmp_expl_brutto:    'Du tittar på <b>Före inkomstskatt</b>: ingen skatt räknas av. Prognos och önskad nivå jämförs som belopp före skatt, och sparandet räknas på den skillnaden.',
+    cmp_bar_forecast:   'Prognostiserad pension',
+    cmp_bar_desired:    'Önskad pension',
+    cmp_bar_note:       'Hela stapeln = före skatt. Mörk del = efter skatt, guld = skatt.',
+    cmp_after:          'Efter skatt',
+    cmp_tax:            'Skatt',
+    cmp_r_forecast:     'Prognostiserad årsinkomst',
+    cmp_r_desired:      'Önskad årsinkomst',
+    cmp_r_withcap:      'Inkomst inkl. befintligt kapital',
+    cmp_r_gap:          'Ej intjänad inkomst / år',
+    cmp_r_monthly:      'Månadssparande',
+    cmp_r_lump:         'Engångsbetalning nu',
+    cmp_foot:           'Skatten räknas som pensionsinkomst enligt Typfallsmodellen. Kolumnen du tittar på är markerad.',
     mode_net:           'Efter inkomstskatt',
     mode_gross:         'Före inkomstskatt',
     monthly_suffix:     '/mån',
@@ -277,22 +331,22 @@ const T = {
   },
   en: {
     title:              'Replacement rate calculator',
-    subtitle:           'Estimate the monthly savings or lump sum needed to reach your desired pension level – calculated on a net or gross basis.',
+    subtitle:           'Estimate the monthly savings or lump sum needed to reach your desired pension level – calculated after or before income tax.',
     tab_net:            'After income tax',
     tab_gross:          'Before income tax',
     inputs_title:       'Parameters',
     section_situation:  'Your situation',
-    label_salary:       'Annual salary (gross)',
+    label_salary:       'Annual salary (before tax)',
     label_forecast_pct: 'Pension forecast %',
     hint_forecast:      'From minpension.se',
     label_desired_pct:  'Desired pension level %',
-    hint_desired:       'Share of gross salary',
+    hint_desired:       'Share of salary before tax',
     section_horizon:    'Savings horizon',
     label_years_to:     'Years to retirement',
     label_years_out:    'Payout years',
     section_capital:    'Capital & return',
-    label_capital_net:  'Existing savings capital (net)',
-    label_capital_gross:'Existing savings capital (gross)',
+    label_capital_net:  'Existing savings capital (after tax)',
+    label_capital_gross:'Existing savings capital (before tax)',
     label_kommun:       'Municipality',
     hint_kommun:        'Municipal tax 2026 (SCB). State tax above the skiktgräns.',
     kommun_avg:         'Average (Typfallsmodellen) – 32.38 %',
@@ -324,7 +378,29 @@ const T = {
     legend_remaining:   'Remaining capital',
     legend_payout:      'Payout per year',
     chart_retire:       'Retirement',
-    total_value:        'Total value',
+    total_value:        'Capital',
+    legend_deposits:    'Deposits',
+    reset:              'Reset values',
+    tbl_title:          'Year by year',
+    tbl_years:          n => `(${n} years)`,
+    cols:               ['Year', 'Opening capital', 'Deposits', 'Return', 'Payout', 'Closing capital', 'Total deposited'],
+    csv:                'Download CSV',
+    xls:                'Download Excel',
+    cmp_title:          'Before vs after tax – what differs',
+    cmp_expl_netto:     'You are viewing <b>After income tax</b>: the pension is taxed first (municipal and state tax etc.). Forecast and desired level are compared as amounts after tax, and the savings are calculated on that difference.',
+    cmp_expl_brutto:    'You are viewing <b>Before income tax</b>: no tax is deducted. Forecast and desired level are compared as amounts before tax, and the savings are calculated on that difference.',
+    cmp_bar_forecast:   'Forecasted pension',
+    cmp_bar_desired:    'Desired pension',
+    cmp_bar_note:       'Whole bar = before tax. Dark part = after tax, gold = tax.',
+    cmp_after:          'After tax',
+    cmp_tax:            'Tax',
+    cmp_r_forecast:     'Forecasted annual income',
+    cmp_r_desired:      'Desired annual income',
+    cmp_r_withcap:      'Income incl. existing capital',
+    cmp_r_gap:          'Annual income gap',
+    cmp_r_monthly:      'Monthly savings',
+    cmp_r_lump:         'Lump sum today',
+    cmp_foot:           'Tax is calculated as pension income per Typfallsmodellen. The column you are viewing is highlighted.',
     mode_net:           'After income tax',
     mode_gross:         'Before income tax',
     monthly_suffix:     '/mo',
@@ -454,7 +530,7 @@ function buildKommunSelect() {
 }
 
 // ── Core calculation (Typfallsmodellen: real fund yield y, inflation π, payout = B·(1+y)^(n/2)/n) ──
-function calculate() {
+function calculate(m = mode) {
   const salary   = parseNum(document.getElementById('salary').value) || 0;
   const fPct     = parseNum(document.getElementById('forecast_pct').value) / 100 || 0;
   const dPct     = parseNum(document.getElementById('desired_pct').value) / 100 || 0;
@@ -467,13 +543,14 @@ function calculate() {
 
   const iNom = (1 + y) * (1 + infl) - 1;        // nominal return
   const mr   = munRate();
-  const taxed = x => mode === 'netto' ? x - pensionTax(x, mr) : x;
+  const taxed = x => m === 'netto' ? x - pensionTax(x, mr) : x;
 
   // Payout factor of the workbook (IPS/ISK branch of VBA_go): (1+y)^(n/2) / n
   const pf = yearsOut > 0 ? Math.pow(1 + y, yearsOut / 2) / yearsOut : NaN;
 
-  const forecastIncome = taxed(salary * fPct);
-  const desiredIncome  = taxed(salary * dPct);
+  const forecastGross = salary * fPct, desiredGross = salary * dPct;
+  const forecastIncome = taxed(forecastGross);
+  const desiredIncome  = taxed(desiredGross);
   // Existing capital grows at the nominal return; in today's money that is (1+y)^N
   const incomeWithCapital = forecastIncome + capital * Math.pow(1 + y, yearsTo) * pf;
   const incomeGap = Math.max(0, desiredIncome - incomeWithCapital);
@@ -491,7 +568,7 @@ function calculate() {
   const monthly    = Math.round(monthlyRaw / 10) * 10;
   const totalPaid  = monthly * yearsTo * 12;
 
-  return { forecastIncome, desiredIncome, incomeWithCapital, incomeGap,
+  return { forecastGross, desiredGross, forecastIncome, desiredIncome, incomeWithCapital, incomeGap,
            lumpSum, monthly, monthlyRaw, lumpRaw, totalPaid,
            yearsTo, yearsOut, capital, iNom, infl, pf };
 }
@@ -509,6 +586,7 @@ function recalc() {
   document.getElementById('r_monthly').textContent        = fmtKr(d.monthly) + t('monthly_suffix');
   document.getElementById('r_lump').textContent           = fmtKr(d.lumpSum);
 
+  renderCompare();
   updateChart(d);
 }
 
@@ -518,8 +596,8 @@ function buildChartData(d) {
   const { yearsTo, yearsOut, capital, iNom, infl, pf, monthlyRaw } = d;
   const N = Math.max(0, Math.round(yearsTo)), M = Math.max(0, Math.round(yearsOut));
   const C = isNaN(monthlyRaw) ? 0 : monthlyRaw * 12;
-  const labels = [], existing = [], contrib = [], compound = [], remaining = [], payout = [];
-  let bal0 = 0;
+  const labels = [], existing = [], contrib = [], compound = [], remaining = [], payout = [], rows = [];
+  let bal0 = 0, prevTotal = capital;
   for (let yr = 0; yr <= N; yr++) {
     labels.push(yr === 0 ? t('chart_now') : `${t('chart_year')} ${yr}`);
     const fvCap = capital * Math.pow(1 + iNom, yr);
@@ -531,19 +609,27 @@ function buildChartData(d) {
     compound.push(Math.round(Math.max(0, fvSav - paid)));
     remaining.push(null); payout.push(null);
     if (yr === N) bal0 = fvCap + fvSav;
+    if (yr > 0) {
+      const total = fvCap + fvSav;
+      rows.push([yr, prevTotal, C, total - prevTotal - C, 0, total, capital + C * yr]);
+      prevTotal = total;
+    }
   }
   // Payout phase: first-year payout = balance × pf, constant in real terms; paid mid-year (workbook: payout·y^0.5)
   const p0 = isNaN(pf) ? 0 : bal0 * pf;
   let cap = bal0;
   for (let k = 1; k <= M; k++) {
     const pay = p0 * Math.pow(1 + infl, k - 1);
+    const cap0 = cap;
     cap = Math.max(0, cap * (1 + iNom) - pay * Math.pow(1 + iNom, 0.5));
     labels.push(`${t('chart_year')} ${N + k}`);
     existing.push(null); contrib.push(null); compound.push(null);
     remaining.push(Math.round(cap < 1 ? 0 : cap));
     payout.push(Math.round(pay));
+    const open = cap0;
+    rows.push([N + k, open, 0, cap + pay - open, pay, cap < 1 ? 0 : cap, capital + C * N]);
   }
-  return { labels, existing, contrib, compound, remaining, payout, N };
+  return { rows, labels, existing, contrib, compound, remaining, payout, N };
 }
 
 const retirePlugin = {
@@ -561,7 +647,8 @@ function renderLegend(items) {
 }
 
 function updateChart(d) {
-  const { labels, existing, contrib, compound, remaining, payout, N } = buildChartData(d);
+  const { rows, labels, existing, contrib, compound, remaining, payout, N } = buildChartData(d);
+  renderTable(rows);
   const ctx = document.getElementById('growthChart').getContext('2d');
   if (growthChart) { growthChart.destroy(); growthChart = null; }
 
@@ -604,26 +691,89 @@ function updateChart(d) {
       plugins: [retirePlugin]
     });
   } else {
-    renderLegend([[COL.c1, l1], [COL.c2, l2], ['#7b6fb0', t('total_value')], [COL.c4, l5]]);
-    const total = labels.map((_, i) => existing[i] !== null ? existing[i] + contrib[i] + compound[i] : remaining[i]);
-    const line = (label, data, color, extra) => Object.assign({ type: 'line', label, data, borderColor: color, backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.3, spanGaps: false }, extra);
+    renderLegend([[COL.c1, t('total_value')], [COL.c2, t('legend_deposits')], [COL.c4, l5]]);
+    const capLine = labels.map((_, i) => existing[i] !== null ? existing[i] + contrib[i] + compound[i] : remaining[i]);
+    const depLine = labels.map((_, i) => existing[i] !== null ? d.capital + (d.monthlyRaw * 12 || 0) * i : null);
+    const area = (label, data, color, fill, order) => ({ type: 'line', label, data, borderColor: color, backgroundColor: fill, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0, fill: 'origin', spanGaps: false, order });
     growthChart = new Chart(ctx, {
       data: {
         labels,
         datasets: [
-          line(t('total_value'), total, '#7b6fb0', { borderWidth: 2.5, pointRadius: 3, fill: true, backgroundColor: 'rgba(123,111,176,0.08)' }),
-          line(l1, existing, COL.c1, { borderDash: [4, 3] }),
-          line(l2, contrib, COL.c2, { borderDash: [4, 3] }),
-          { type: 'bar', label: l5, data: payout, backgroundColor: COL.c4, borderRadius: 3, barPercentage: 0.45 }
+          { type: 'bar', label: l5, data: payout, backgroundColor: COL.c4, borderRadius: 3, barPercentage: 0.45, order: 0 },
+          area(t('legend_deposits'), depLine, COL.c2, 'rgba(161,129,66,0.25)', 1),
+          area(t('total_value'), capLine, COL.c1, 'rgba(12,42,73,0.22)', 2)
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: true, layout: { padding: { top: 16 } }, plugins,
+        interaction: { mode: 'index', intersect: false },
         scales: { x: { ticks: xTicks, grid: { display: false } }, y: { ticks: yTicks, grid: { color: 'rgba(0,0,0,0.05)' } } }
       },
       plugins: [retirePlugin]
     });
   }
+}
+
+// ── Year-by-year table ──
+let tableRows = [];
+function renderTable(rows) {
+  tableRows = rows;
+  const cols = t('cols');
+  document.getElementById('thead').innerHTML = '<tr>' + cols.map(c => `<th scope="col">${c}</th>`).join('') + '</tr>';
+  document.getElementById('tbody').innerHTML = rows.map(r => '<tr>' + r.map((v, i) => `<td>${i === 0 ? v : fmt(v)}</td>`).join('') + '</tr>').join('');
+  document.getElementById('tbl_title').textContent = t('tbl_title') + ' ' + t('tbl_years')(rows.length);
+  document.getElementById('csv').textContent = t('csv');
+  document.getElementById('xls').textContent = t('xls');
+}
+function download(name, type, content) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+document.getElementById('csv').addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const csv = [t('cols').join(';'), ...tableRows.map(r => r.map(Math.round).join(';'))].join('\r\n');
+  download('replacement-rate.csv', 'text/csv;charset=utf-8', '\uFEFF' + csv);
+});
+document.getElementById('xls').addEventListener('click', e => {
+  e.preventDefault(); e.stopPropagation();
+  const html = '<html><head><meta charset="utf-8"></head><body><table><tr>' + t('cols').map(c => `<th>${c}</th>`).join('') + '</tr>' +
+    tableRows.map(r => '<tr>' + r.map(v => `<td>${Math.round(v)}</td>`).join('') + '</tr>').join('') + '</table></body></html>';
+  download('replacement-rate.xls', 'application/vnd.ms-excel;charset=utf-8', html);
+});
+
+// ── Before vs after tax comparison ──
+function renderCompare() {
+  const n = calculate('netto'), g = calculate('brutto');
+  const bar = (label, gross, net) => {
+    const pct = gross > 0 ? Math.max(0, Math.min(100, net / gross * 100)) : 0;
+    return `<div><div class="bar-label"><span>${label}</span><span>${fmt(net)} / ${fmt(gross)} kr</span></div>
+      <div class="bar"><i class="net" style="width:${pct}%"></i><i class="tax" style="width:${100 - pct}%"></i></div></div>`;
+  };
+  const row = (label, fn, unit) => `<tr><td>${label}</td><td class="${mode === 'netto' ? 'on' : ''}">${fmt(fn(n))}${unit}</td><td class="${mode === 'brutto' ? 'on' : ''}">${fmt(fn(g))}${unit}</td></tr>`;
+  document.getElementById('cmp').innerHTML = `
+    <h2>${t('cmp_title')}</h2>
+    <p>${t('cmp_expl_' + mode)}</p>
+    <div class="bars">${bar(t('cmp_bar_forecast'), n.forecastGross, n.forecastIncome)}${bar(t('cmp_bar_desired'), n.desiredGross, n.desiredIncome)}</div>
+    <div class="bar-legend"><span><i style="background:var(--c1)"></i>${t('cmp_after')}</span><span><i style="background:var(--c2)"></i>${t('cmp_tax')}</span><span>${t('cmp_bar_note')}</span></div>
+    <table class="cmpt"><thead><tr><th></th><th class="${mode === 'netto' ? 'on' : ''}">${t('tab_net')}</th><th class="${mode === 'brutto' ? 'on' : ''}">${t('tab_gross')}</th></tr></thead><tbody>
+      ${row(t('cmp_r_forecast'), x => x.forecastIncome, ' kr')}
+      ${row(t('cmp_r_desired'), x => x.desiredIncome, ' kr')}
+      ${row(t('cmp_r_withcap'), x => x.incomeWithCapital, ' kr')}
+      ${row(t('cmp_r_gap'), x => x.incomeGap, ' kr')}
+      ${row(t('cmp_r_monthly'), x => x.monthly, ' kr' + t('monthly_suffix'))}
+      ${row(t('cmp_r_lump'), x => x.lumpSum, ' kr')}
+    </tbody></table>
+    <p class="foot">${t('cmp_foot')}</p>`;
+}
+
+// ── Defaults (same for both tabs; switching tab never touches the inputs) ──
+const DEFAULTS = { salary: '500 000', forecast_pct: '70', desired_pct: '80', years_to: '15', years_out: '15',
+                   existing_capital: '150 000', return_rate: '1.7', inflation: '0' };
+function resetValues() {
+  Object.keys(DEFAULTS).forEach(id => { document.getElementById(id).value = DEFAULTS[id]; });
+  recalc();
 }
 
 // ── Mode (Netto/Brutto) ──
@@ -636,17 +786,6 @@ function switchMode(m, btn) {
   capEl.setAttribute('data-t', capKey);
   capEl.textContent = t(capKey);
 
-  if (m === 'netto') {
-    document.getElementById('salary').value           = '600 000';
-    document.getElementById('forecast_pct').value     = '50';
-    document.getElementById('desired_pct').value      = '70';
-    document.getElementById('existing_capital').value = '150 000';
-  } else {
-    document.getElementById('salary').value           = '500 000';
-    document.getElementById('forecast_pct').value     = '50';
-    document.getElementById('desired_pct').value      = '80';
-    document.getElementById('existing_capital').value = '150 000';
-  }
   recalc();
 }
 
