@@ -127,12 +127,17 @@ published, replace the workbook and re-verify everything below.
   the right credited in the start year (+ arv, index, admin fee incl. the fee on the whole balance,
   `statState.pend`) is added the year after at that age's divisor; then indexed with the pension index ÷ 1.016.
   Divisor: cohorts 1958–2034 at ages 61–82 use the workbook's own mortality-based figures
-  `DELNINGSTAL_IP_MORT` (aDeltal_IP, generated with the port's `DeltalTables.splicedIncomePension`),
-  others the published `DELNINGSTAL_IP` (Nyckeltal). The Garantipension underlag keeps the published table.
+  (`DELNINGSTAL_IP_OWN` / `ipOwnDelningstal`: unisex, born 1938–2034 × ages 61–105, generated with the port's
+  `DeltalTables.ownIncomePension`), others the published `DELNINGSTAL_IP` (Nyckeltal). The Garantipension
+  underlag keeps the published table.
+  Balance from the start year on (Portfolio Value, Dashboard totals) = the pension still to come, as the port's
+  `finishLedger`: next year's FULL pension (incl. the pending last right) × `ipOwnDelningstal(age + 1)` (`_ipValue`);
+  return = the rest of the change. Matches the port's Portfolio value within 0,01 % at every age to 95 (ITP1/1981/68).
+  `recalcYearly` rows (work again) keep their run-down balance.
   The Dashboard replacement rate adds the last IP/PP rights at the published divisors to the first year
   (`row.lastRight1`), as Table 1 / kompensationsgrad does (`creditLastPensionRight`).
   Data to extend yearly: `OCC_IP` (pension index, admin fee, PBB,
-  förhöjt PBB, lägsta pensionsålder by cohort), `OCC_ARV_IP` and `DELNINGSTAL_IP_MORT`. Forecast pension
+  förhöjt PBB, lägsta pensionsålder by cohort), `OCC_ARV_IP` and `DELNINGSTAL_IP_OWN`. Forecast pension
   index = income index (no balancing brake), as in the workbook
 - Premium pension (premiepension, scope `premie`, `isPpAutoAcc`): only the HISTORY
   uses the workbook (`ppRatt` = 2.5 % of PGI credited the year after, `ppStep` =
@@ -249,7 +254,8 @@ published, replace the workbook and re-verify everything below.
   raised amount; hint `#sal-uplift-hint`. Yearly payouts vs the port's Table 2 (born 1960–1995, retiring
   66–70, ITP 1): ITP 1 and income pension within 0,03 %, premium pension within 0,25 % (the fee is charged on
   the year-end value: 1,019 × 0,998 vs 1,017); ITP1/1980/40 000 at 68: ITP 1 +0,01 %, PP −0,13 %, IP +0,01 %,
-  net salary 32 752 vs 32 770. Oracle scripts must enter
+  net salary 32 752 vs 32 770. Known gap: premium pension payouts drift above the port at old ages (+0,6 % at 79,
+  +2,7 % at 94, ITP1/1981/68; the port's Table 2 PP falls faster). Oracle scripts must enter
   the 2025 salary (port wage ÷ salBaseUplift). The 1,7 % is AFTER fees; the workbook's unticked
   "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
 - `resetAssumptions()` puts eqReturn / bdReturn / inflation / occReturn / salaryIncrease back to their
