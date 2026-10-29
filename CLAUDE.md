@@ -368,6 +368,14 @@ Scenarios, Monte Carlo, Income tab, presets) and the other sources (Skatteverket
 
 When fixing or verifying calculation logic, **treat Excel as the source of truth**. If a formula in an HTML file diverges from the reference Excel model, the HTML is wrong.
 
+## Publishing to pensionslyft.se
+
+`.github/workflows/notify-pensionslyft.yml`: a push to `main` that changes `Retirement_Planner.html` starts the
+Pensionsplaneraren sync of github.com/mathiasboos/Pensionslyft right away (workflow_dispatch of its
+`pensionsplaneraren.yml`, which fetches, checks and publishes the file). Needs the repository secret
+`PENSIONSLYFT_DISPATCH_TOKEN` (fine-grained token, Pensionslyft only, Actions: Read and write); without it the step
+skips with a notice and the site's own 15-minute schedule picks the change up.
+
 ## Git workflow
 
 This folder is a git repository. Commit all changes with clear, descriptive messages. Prefer separate commits for separate concerns (e.g. don't bundle a bug fix with a visual tweak). Use `git revert` rather than rewriting history when undoing changes.
