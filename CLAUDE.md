@@ -242,8 +242,11 @@ published, replace the workbook and re-verify everything below.
   restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
 - Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
   balance ÷ the cohort PP divisor (`occDelningstal`, 2 from age 101), and the projection adds the
-  inheritance gains (`occArvGain`, sheet "arv PP") to the PP balance every year (`isPpAcc`). The
-  payout is not capped by the balance. Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
+  inheritance gains (`occArvGain`, sheet "arv PP", ÷ yield^0.5) to the PP balance every year (`isPpAcc`). The
+  payout is not capped by the balance. As `PP_pbh`, the pension is paid during the year and costs payout × yield^0.5
+  of the year-end balance (`_wdCost`), and the fee (Mgmt %) is a rate off the return on the OPENING balance
+  (`_ppFee`: 1,9 % − 0,20 % = the workbook's 1,7 %; pro-rated in a partial first year), not a charge on the year-end
+  value. Before these two the payout drifted above the port at old ages (+2,7 % at 94, born 1981). Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
   age-68 amount at 85 / 95 / 100; born 1980 stays level)
 - Default assumptions = Typfallsmodellen's prognosis standard: equities and bonds real return
   1,9 % BEFORE fees (each account deducts its own Mgmt %; 1,7 % after the workbook's average 0,2 %
@@ -252,10 +255,8 @@ published, replace the workbook and re-verify everything below.
   money, raised by the 2026 income index (`salBaseUplift` = OCC_HIST 228.08 / 220.23, +3,56 %:
   40 000 → 41 426 kr/month) wherever the engine reads it (`grossSal`); net salary is computed on the
   raised amount; hint `#sal-uplift-hint`. Yearly payouts vs the port's Table 2 (born 1960–1995, retiring
-  66–70, ITP 1): ITP 1 and income pension within 0,03 %, premium pension within 0,25 % (the fee is charged on
-  the year-end value: 1,019 × 0,998 vs 1,017); ITP1/1980/40 000 at 68: ITP 1 +0,01 %, PP −0,13 %, IP +0,01 %,
-  net salary 32 752 vs 32 770. Known gap: premium pension payouts drift above the port at old ages (+0,6 % at 79,
-  +2,7 % at 94, ITP1/1981/68; the port's Table 2 PP falls faster). Oracle scripts must enter
+  66–70, ITP 1, to age 99): ITP 1, income and premium pension within 0,06 % at every age; ITP1/1980/40 000 at 68:
+  all three +0,01 %, net salary 32 752 vs 32 770. Oracle scripts must enter
   the 2025 salary (port wage ÷ salBaseUplift). The 1,7 % is AFTER fees; the workbook's unticked
   "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
 - `resetAssumptions()` puts eqReturn / bdReturn / inflation / occReturn / salaryIncrease back to their

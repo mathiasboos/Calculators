@@ -6343,12 +6343,15 @@ function runProjection(){
         const _fullYr  = yr === START_YEAR && autoFullYear(a);
         const ret      = _fullYr ? calcReturn(a, age, params) : geoRet(calcReturn(a, age, params));
         const _occStep = engineStep(a, _occ, opening, contrib, yr, _fullYr ? 1 : retFraction);
+        // Premium pension: the fee is a rate off the return on the opening balance (1,9 % − 0,20 % = the workbook's 1,7 %),
+        // pro-rated in a partial first year
+        const _ppFee = isPpAcc(a) ? (a.mgmt||0) * (yr === START_YEAR && !_fullYr ? retFraction : 1) : 0;
         // Premium pension rights are credited at year end (VBA PP_pbh): no return on them that year
         const _retBase = isPpAutoAcc(a) ? opening : opening + contrib;
         // Premium pension: inheritance gains (arvsvinster, sheet "arv PP") are added
         // every year as in Typfallsmodellen (PP_pbh) — they keep the lifelong
         // pension roughly level instead of draining the individual balance.
-        const _ppArv = isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + ret) : 0;
+        const _ppArv = isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + ret - _ppFee) : 0;
         const valGross = _occStep ? Math.max(0, _occStep.avail) : Math.max(0, opening + contrib + _retBase * ret + _ppArv);
         // Fees applied on total value after withdrawal (not just opening+contrib)
         // valBefore is set after withdrawal; fees then applied to that
@@ -6464,8 +6467,9 @@ function runProjection(){
         } else {
           returnPreTax += _retBase * ret + _ppArv;  // gross return (+ PP inheritance gains)
           yieldTaxP    += (opening + contrib) * (a.yt||0);
-          mgmtFeePT    += (opening + contrib) * (a.mgmt||0);
-          mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
+          const _mfSum = isPpAcc(a) ? Math.max(0, opening) * _ppFee : (opening + contrib) * (a.mgmt||0);
+          mgmtFeePT    += _mfSum;
+          mgmtFeeTotal += _mfSum;
         }
         // A statutory annuity keeps paying after the notional balance is spent.
         const _lifelong = a.db || a.benefit || ((a.actuarial || isIpEngineAcc(a) || isPpAcc(a)) && a.useDelningstal && (a.type==='state' || a.type==='p-ins'));
@@ -6476,9 +6480,11 @@ function runProjection(){
           closing  = _ipValue != null ? _ipValue : Math.max(0, valBefore - actualWd * _py);
         } else {
           actualWd = _lifelong ? wd : Math.min(wd, valBefore);
-          const valAfterWd = Math.max(0, valBefore - actualWd);
+          // Premium pension (VBA PP_pbh): the pension is paid during the year, so it costs payout × yield^0.5 of the year-end balance
+          const _wdCost = isPpAcc(a) ? actualWd * Math.sqrt(Math.max(0, 1 + ret - _ppFee)) : actualWd;
+          const valAfterWd = Math.max(0, valBefore - _wdCost);
           const _ytSek = (a.yt||0)   * valAfterWd;  // full annual rate on full base
-          const _mfSek = (a.mgmt||0) * valAfterWd;  // full annual rate on full base
+          const _mfSek = isPpAcc(a) ? Math.max(0, opening) * _ppFee : (a.mgmt||0) * valAfterWd;  // full annual rate on full base (PP: on the opening)
           closing  = Math.max(0, valAfterWd - _ytSek - _mfSek);
         }
         portBeforeTax += closing;
@@ -6512,11 +6518,12 @@ function runProjection(){
         // Re-compute ret locally (const ret is block-scoped inside else{})
         var _ret4d = _full4d ? calcReturn(a, age, params) : geoRet(calcReturn(a, age, params));
         var _rb4d  = isPpAutoAcc(a) ? opening : opening + _ac;   // PP rights credited at year end
+        var _ppFee4d = isPpAcc(a) ? (a.mgmt||0) * (yr === START_YEAR && !_full4d ? retFraction : 1) : 0;
         _grossRetSek = _rb4d * _ret4d
-          + (isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + _ret4d) : 0);
+          + (isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + _ret4d - _ppFee4d) : 0);
         var _base4fee = Math.max(0, opening + _ac + _rb4d * _ret4d - (actualWd||0));
         _yt = (a.yt||0)   * _base4fee;  // full annual rate
-        _mf = (a.mgmt||0) * _base4fee;  // full annual rate
+        _mf = isPpAcc(a) ? Math.max(0, opening) * _ppFee4d : (a.mgmt||0) * _base4fee;  // full annual rate (PP: on the opening)
       } else {
         // After-tax: derive from pre-pass values
         var _atGross = atAvail[i] - (opening + prePassContrib[i]);
