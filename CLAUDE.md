@@ -120,18 +120,39 @@ published, replace the workbook and re-verify everything below.
 - State income pension (inkomstpension, account scope `inkomst`, `isIpEngineAcc`)
   uses the same approach: `ipPgi` / `ipRatt` (16 % of PGI = 93 % of income up to
   7.5 IBB, credited the year after the income), `ipStep` (VBA `IP_`: pension
-  index, admin fee, inheritance gains `OCC_ARV_IP`), payout = balance incl. the
-  last right ÷ cohort divisor (`DELNINGSTAL_IP`), then indexed with the pension
-  index ÷ 1.016. Data to extend yearly: `OCC_IP` (pension index, admin fee, PBB,
-  förhöjt PBB, lägsta pensionsålder by cohort) and `OCC_ARV_IP`. Forecast pension
+  index, admin fee, inheritance gains `OCC_ARV_IP`; from 2015 the right is multiplied by
+  gällande index / inkomstindex while that is below 1 — VBA `Bindex`, only 2015–2017 in the data).
+  Payout as the workbook's Table 2 (VBA `IP_`, `fnDeltal_IP2`): start year = balance at the start of the
+  year ÷ `ipDelningstal(age, by, true)` (mid-year blend of this age and the next, rounded like aaDeltal.bas);
+  the right credited in the start year (+ arv, index, admin fee incl. the fee on the whole balance,
+  `statState.pend`) is added the year after at that age's divisor; then indexed with the pension index ÷ 1.016.
+  Divisor: cohorts 1958–2034 at ages 61–82 use the workbook's own mortality-based figures
+  (`DELNINGSTAL_IP_OWN` / `ipOwnDelningstal`: unisex, born 1938–2034 × ages 61–105, generated with the port's
+  `DeltalTables.ownIncomePension`), others the published `DELNINGSTAL_IP` (Nyckeltal). The Garantipension
+  underlag keeps the published table.
+  Balance from the start year on (Portfolio Value, Dashboard totals) = the pension still to come, as the port's
+  `finishLedger`: next year's FULL pension (incl. the pending last right) × `ipOwnDelningstal(age + 1)` (`_ipValue`);
+  return = the rest of the change. Matches the port's Portfolio value within 0,01 % at every age to 95 (ITP1/1981/68).
+  `recalcYearly` rows (work again) keep their run-down balance.
+  The Dashboard replacement rate adds the last IP/PP rights at the published divisors to the first year
+  (`row.lastRight1`), as Table 1 / kompensationsgrad does (`creditLastPensionRight`).
+  Data to extend yearly: `OCC_IP` (pension index, admin fee, PBB,
+  förhöjt PBB, lägsta pensionsålder by cohort), `OCC_ARV_IP` and `DELNINGSTAL_IP_OWN`. Forecast pension
   index = income index (no balancing brake), as in the workbook
 - Premium pension (premiepension, scope `premie`, `isPpAutoAcc`): only the HISTORY
   uses the workbook (`ppRatt` = 2.5 % of PGI credited the year after, `ppStep` =
-  VBA `PP_pbh`: fund yield, `arv PP` gains, RGK interest `PP_RGK`, manager fee
-  `ppFee`/`PPMavg`). Used when Opening is blank/0 (`openAuto`); the projection keeps
+  VBA `PP_pbh`: fund yield, `arv PP` gains, RGK interest `PP_RGK`; no manager fee, since the
+  workbook's default "efter fondavgifter" makes `PPMavg` 0 — `PP_RETURNS_NET_OF_FEES`, `ppFee` kept).
+  Used when Opening is blank/0 (`openAuto`); the projection keeps
   the planner's own growth so equity %, fees, yield tax and fixed return stay
-  editable. Data to extend yearly: `PP_RGK` (Några tal C19). Agrees with the port
-  within ~0.6 % (payout = balance(retY−1)·yield + last right ÷ cohort divisor)
+  editable. The right is credited at year end: no return on it in the year it is credited (`_retBase`).
+  Data to extend yearly: `PP_RGK` (Några tal C19). Payout = balance ÷ cohort divisor each year
+- Automatic openings (`openAuto`: scheme premium rows, income and premium pension) are the balance at
+  31 Dec of the year before START_YEAR, and the projection runs START_YEAR as a WHOLE year for them
+  (`autoFullYear`: full premiums and return, as the workbook). A typed opening is today's balance and
+  keeps the partial first year (projection month). Before this the scheme opening included this year's
+  premiums so far but not their return, and the first year got only the rest of the year's return
+  (ITP 1 ended ~0,9 % low)
 - Garantipension and Inkomstpensionstillägg (`benefitKind` `garanti` / `ipt`,
   `isUnderlagAcc`): both derive from the "underlag" = the income pension the person
   would get if the whole 18.5 % went to the income pension (`underlagSeries`:
@@ -171,7 +192,7 @@ published, replace the workbook and re-verify everything below.
   (`pp.rule`) with no Fixed/Salary buttons. The text is only an explanation (0,93 × 8,07 is not exactly 7,5 IBB). The projection's forward premium pension contribution is the workbook's `ppRatt(_occ, a, yr) × ppRgk(yr)`:
   2,5 % of PGI (93 % of the PREVIOUS year's income, capped at 7,5 IBB, incl. PGB and `andelNya`), credited at year end in the year AFTER the income (income year `yr−1` inside the account's Contrib window, before retirement,
   so the last right is credited in the retirement year), with the RGK interest of the year; same helper as the history and the Assets cell / `effectiveContrib` (no monthly growth of the contribution, as in `ppStep`).
-  Replaced the old editable 2,32 % × salary rate. ITP1/1980/40 000: age 68 total tax 120 195
+  Replaced the old editable 2,32 % × salary rate. ITP1/1980/40 000: age 68 total tax 119 154
 - "+ Add State Account" menu (`STATE_KINDS`, `addStateAccount`): Inkomstpension and
   Premiepension (auto opening), Garantipension / Inkomstpensionstillägg / Tilläggspension (all calculated,
   see above), Annat (generic)
@@ -214,14 +235,18 @@ published, replace the workbook and re-verify everything below.
   Parameters occupational return (1,7 % net); ticked = `engineStep` runs `occStep` with the account's
   own net return (equity % brackets × eq/bond returns − Mgmt %); premiums, arv gains, yield tax and
   history stay Typfallsmodellen's
-  Default Mgmt % = AP7 Såfa's fee 0,04 % (`mgmt: 0.0004`, check ap7.se yearly); restore lifts the
-  old 0,10 % default on non-`ownEq` premium pension accounts
+  Default Mgmt % = Typfallsmodellen's general fund fee 0,20 % (`mgmt: 0.002`; 1,9 % before fees → 1,7 % after,
+  as the workbook's forecast); the user can change it (AP7 Såfa itself charges ~0,04 %). Saves carry `ppFeeV: 1`;
+  restoring an older save lifts the old 0,10 % / 0,04 % defaults on non-`ownEq` premium pension accounts to 0,20 %
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
   restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
 - Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
   balance ÷ the cohort PP divisor (`occDelningstal`, 2 from age 101), and the projection adds the
-  inheritance gains (`occArvGain`, sheet "arv PP") to the PP balance every year (`isPpAcc`). The
-  payout is not capped by the balance. Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
+  inheritance gains (`occArvGain`, sheet "arv PP", ÷ yield^0.5) to the PP balance every year (`isPpAcc`). The
+  payout is not capped by the balance. As `PP_pbh`, the pension is paid during the year and costs payout × yield^0.5
+  of the year-end balance (`_wdCost`), and the fee (Mgmt %) is a rate off the return on the OPENING balance
+  (`_ppFee`: 1,9 % − 0,20 % = the workbook's 1,7 %; pro-rated in a partial first year), not a charge on the year-end
+  value. Before these two the payout drifted above the port at old ages (+2,7 % at 94, born 1981). Shape matches the port (born 1968: 0.97 / 0.81 / 0.60 of the
   age-68 amount at 85 / 95 / 100; born 1980 stays level)
 - Default assumptions = Typfallsmodellen's prognosis standard: equities and bonds real return
   1,9 % BEFORE fees (each account deducts its own Mgmt %; 1,7 % after the workbook's average 0,2 %
@@ -229,8 +254,9 @@ published, replace the workbook and re-verify everything below.
   increase 0 %. Salary convention as in Typfallsmodellen: the Personal-tab gross salary is 2025
   money, raised by the 2026 income index (`salBaseUplift` = OCC_HIST 228.08 / 220.23, +3,56 %:
   40 000 → 41 426 kr/month) wherever the engine reads it (`grossSal`); net salary is computed on the
-  raised amount; hint `#sal-uplift-hint`. ITP1/1980/40 000 vs the port at 68: ITP 1 −0,9 %,
-  PP −3,5 % (−2,7 % with fee 0), IP +1,5 %, net salary 32 752 vs 32 770. Oracle scripts must enter
+  raised amount; hint `#sal-uplift-hint`. Yearly payouts vs the port's Table 2 (born 1960–1995, retiring
+  66–70, ITP 1, to age 99): ITP 1, income and premium pension within 0,06 % at every age; ITP1/1980/40 000 at 68:
+  all three +0,01 %, net salary 32 752 vs 32 770. Oracle scripts must enter
   the 2025 salary (port wage ÷ salBaseUplift). The 1,7 % is AFTER fees; the workbook's unticked
   "efter fondavgifter" option deducts a general 0,2 % fee (1,9 % before fees)
 - `resetAssumptions()` puts eqReturn / bdReturn / inflation / occReturn / salaryIncrease back to their
@@ -240,7 +266,7 @@ published, replace the workbook and re-verify everything below.
 - Dashboard Replacement Rate = Typfallsmodellen's kompensationsgrad: pension before tax in the first
   retirement year (wdrlState + wdrlPIns) ÷ final salary before tax (mean of the last 5 working
   years' earnedIncomePre). `repRateNet` (after-tax ratio) is still computed but not shown.
-  ITP1/1980/40 000: 74,2 % vs the port's 74,7 %
+  ITP1/1980/40 000: 74,7 %, same as the port
 - Withdrawal rules (Withdrawals tab): `WD_RULES` / `wdRule(a)` / `wdRuleErrors(a)` / `wdDefaultYear(a)` give each
   pension an earliest start age and (P-insurance, Planned mode only) a shortest withdrawal time; a broken rule shows
   a red `.wd-err` message under the input, the typed value is kept. Verify the ages yearly.
@@ -282,12 +308,12 @@ published, replace the workbook and re-verify everything below.
   age + 1) = taxable income; kommunalskatt (`munTax` input) + begravningsavgift `BEGRAV_AVG` 0,26 % on it, state tax (`stateTax` input) above `SKIKT` 643 000,
   and `PublicAvg` 1 % up to 1,42 IBB. `row.munTax` = kommunal + begravning, `row.stateTax` = statlig + PublicAvg. No jobbskatteavdrag on pensions. The Parameters-tab
   allowance amounts and state thresholds are no longer used for pension tax (thresholds only draw the chart line). Checked against an independent
-  re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
+  re-implementation at ages 66–95 (ITP1/1980: age 68 ≈ 112 700 kr = 30,6 %, from 69 ≈ 70 900 kr = 19,4 %; after the 2026 Table 2 alignment of the income pension 111 901 / 71 598). Verify yearly: `SKIKT`, `PBB`/`IBB`, `BEGRAV_AVG`
   (K_skatt), `PUBLIC_AVG_CAP`, the `xAge` schedule. Pension drawn while working again is taxed together with the salary (see Work after retirement); `taxAdjPort` and the
   "After tax" display modes use flat tax-rate inputs; the workbook's 32,38 % municipal default is a user input here (32,4 %)
 - Salary tax before retirement uses the same age rule as the pension tax: `_ageMode = age >= xAge(yr) ? 'over' : 'under'` (workbook `Xage` drives both grundavdrag and
-  jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 744 at 67), retirement year 68 =
-  pension tax 112 684 (30,6 %, grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 184 = 119 868, age 69 = pension tax 70 913 after förhöjt grundavdrag (~152 000) = 77 839 total.
+  jobbskatteavdrag; target age + 1 from 2029, so 69 for born 1980). The old fixed "67" made the tax dip at 67. ITP1/1980/40 000: salary tax 102 687 at 65–67 (total 109 812 at 67), retirement year 68 =
+  pension tax 111 901 (grundavdrag only ~27 200, no jobbskatteavdrag) + capital tax 7 253 = 119 154, age 69 = pension tax 71 598 after förhöjt grundavdrag (~152 000) = 78 590 total.
   Projection table has a "Salary Tax" column (`y.salaryTax`, also in the export) because the Municipal/State columns are pension tax only (0 before retirement)
   and, right after it, the same four tax-chart categories for ALL years (`cTaxMun/State/Fee/Cap`; the 7 % pension fee `cTaxPens` is computed but not shown anywhere) plus "Total Tax" (their sum); the older pension-only Municipal/State columns in the Pre-Tax group were removed from the table (the export still has them as "Municipal Tax" / "State Tax"). Export also has the new columns
 - Work after retirement (Personal tab "Work after retirement": `workAgainSal` 2025 money × `salBaseUplift`, `workAgainFrom` / `workAgainTo` ages inclusive; `workPeriod()` = {fromY, toY, sal} or null,
