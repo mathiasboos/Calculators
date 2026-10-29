@@ -230,8 +230,9 @@ published, replace the workbook and re-verify everything below.
   Parameters occupational return (1,7 % net); ticked = `engineStep` runs `occStep` with the account's
   own net return (equity % brackets × eq/bond returns − Mgmt %); premiums, arv gains, yield tax and
   history stay Typfallsmodellen's
-  Default Mgmt % = AP7 Såfa's fee 0,04 % (`mgmt: 0.0004`, check ap7.se yearly); restore lifts the
-  old 0,10 % default on non-`ownEq` premium pension accounts
+  Default Mgmt % = Typfallsmodellen's general fund fee 0,20 % (`mgmt: 0.002`; 1,9 % before fees → 1,7 % after,
+  as the workbook's forecast); the user can change it (AP7 Såfa itself charges ~0,04 %). Saves carry `ppFeeV: 1`;
+  restoring an older save lifts the old 0,10 % / 0,04 % defaults on non-`ownEq` premium pension accounts to 0,20 %
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
   restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
 - Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
