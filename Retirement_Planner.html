@@ -3388,6 +3388,107 @@ function getDelningstal(age, birthYear){
   return Math.max(1.00, tail * (row[row.length - 1] / DELNINGSTAL_IP_TAIL_BASE80));
 }
 
+// ─── Inkomstpension divisor the workbook annuitises with (VBA fnDeltal_IP / fnDeltal_IP2) ───
+// For cohorts from rngDelnIPMort (1958) the workbook overwrites the published Nyckeltal
+// divisors with its own unisex figures from the mortality sheet (aDeltal_IP), ages 61–82;
+// the income pension is paid on those. Rows: birth year 1958–2034, columns ages 61–82,
+// generated with the Typfallsmodellen port (DeltalTables.splicedIncomePension). Earlier
+// cohorts and other ages keep the published table (getDelningstal). Re-extract with the
+// workbook each year. The Garantipension underlag keeps the published table, as in the workbook.
+const DELNINGSTAL_IP_MORT = {
+ 1958:[19.92,19.33,18.74,18.15,17.56,16.97,16.37,15.78,15.18,14.58,13.98,13.38,12.79,12.2,11.61,11.02,10.43,9.86,9.29,8.73,8.18,7.65],
+ 1959:[19.97,19.38,18.79,18.2,17.6,17.01,16.41,15.81,15.21,14.6,14,13.4,12.8,12.2,11.61,11.02,10.43,9.85,9.28,8.72,8.17,7.64],
+ 1960:[20.02,19.43,18.83,18.23,17.64,17.04,16.44,15.84,15.23,14.63,14.03,13.43,12.83,12.23,11.64,11.05,10.47,9.89,9.33,8.77,8.22,7.69],
+ 1961:[20.07,19.48,18.88,18.29,17.69,17.09,16.49,15.89,15.29,14.69,14.09,13.49,12.89,12.3,11.7,11.12,10.53,9.96,9.39,8.83,8.28,7.75],
+ 1962:[20.15,19.55,18.96,18.36,17.76,17.16,16.56,15.96,15.36,14.76,14.16,13.55,12.96,12.36,11.77,11.19,10.6,10.02,9.46,8.9,8.35,7.82],
+ 1963:[20.22,19.62,19.02,18.42,17.82,17.22,16.62,16.02,15.42,14.82,14.22,13.61,13.02,12.43,11.83,11.25,10.66,10.08,9.52,8.96,8.41,7.87],
+ 1964:[20.3,19.7,19.1,18.5,17.9,17.3,16.7,16.09,15.49,14.89,14.29,13.68,13.08,12.49,11.9,11.31,10.72,10.14,9.57,9.02,8.46,7.92],
+ 1965:[20.38,19.78,19.18,18.58,17.98,17.38,16.77,16.17,15.57,14.96,14.36,13.75,13.15,12.56,11.96,11.37,10.78,10.2,9.63,9.07,8.51,7.97],
+ 1966:[20.45,19.85,19.25,18.65,18.05,17.45,16.85,16.24,15.64,15.03,14.43,13.82,13.22,12.62,12.02,11.43,10.84,10.26,9.68,9.12,8.56,8.02],
+ 1967:[20.53,19.93,19.33,18.73,18.13,17.53,16.92,16.31,15.71,15.1,14.5,13.89,13.29,12.69,12.09,11.5,10.91,10.32,9.74,9.18,8.61,8.06],
+ 1968:[20.61,20.01,19.41,18.81,18.21,17.6,17,16.39,15.78,15.17,14.57,13.96,13.35,12.75,12.15,11.56,10.97,10.37,9.8,9.23,8.66,8.1],
+ 1969:[20.68,20.08,19.48,18.88,18.28,17.67,17.07,16.46,15.85,15.25,14.64,14.02,13.42,12.82,12.22,11.62,11.03,10.43,9.85,9.28,8.71,8.15],
+ 1970:[20.76,20.16,19.56,18.96,18.35,17.75,17.14,16.53,15.93,15.32,14.71,14.09,13.49,12.89,12.28,11.68,11.09,10.49,9.91,9.33,8.76,8.19],
+ 1971:[20.84,20.24,19.63,19.03,18.43,17.82,17.21,16.6,16,15.39,14.78,14.16,13.56,12.95,12.35,11.75,11.15,10.55,9.96,9.38,8.8,8.24],
+ 1972:[20.91,20.31,19.71,19.1,18.5,17.89,17.29,16.67,16.07,15.46,14.85,14.23,13.62,13.02,12.41,11.81,11.21,10.6,10.01,9.43,8.85,8.28],
+ 1973:[20.98,20.38,19.78,19.18,18.57,17.97,17.36,16.75,16.14,15.53,14.91,14.3,13.69,13.08,12.47,11.87,11.26,10.66,10.06,9.48,8.9,8.33],
+ 1974:[21.06,20.46,19.85,19.25,18.64,18.04,17.43,16.82,16.21,15.6,14.98,14.37,13.76,13.15,12.53,11.93,11.32,10.71,10.12,9.53,8.95,8.37],
+ 1975:[21.13,20.53,19.93,19.32,18.72,18.11,17.5,16.89,16.28,15.66,15.05,14.43,13.82,13.21,12.59,11.98,11.38,10.77,10.17,9.58,8.99,8.42],
+ 1976:[21.2,20.6,20,19.39,18.79,18.18,17.57,16.96,16.35,15.73,15.12,14.5,13.88,13.27,12.65,12.04,11.43,10.82,10.22,9.63,9.04,8.46],
+ 1977:[21.27,20.67,20.07,19.46,18.86,18.25,17.64,17.03,16.42,15.8,15.19,14.56,13.95,13.33,12.71,12.1,11.49,10.88,10.27,9.68,9.09,8.51],
+ 1978:[21.34,20.74,20.14,19.54,18.93,18.32,17.71,17.1,16.48,15.87,15.25,14.63,14.01,13.39,12.77,12.16,11.54,10.93,10.33,9.73,9.14,8.55],
+ 1979:[21.41,20.81,20.21,19.61,19,18.39,17.78,17.16,16.55,15.93,15.32,14.69,14.07,13.46,12.83,12.22,11.6,10.98,10.38,9.78,9.19,8.6],
+ 1980:[21.48,20.88,20.28,19.68,19.07,18.46,17.85,17.23,16.62,16,15.38,14.75,14.13,13.52,12.89,12.28,11.66,11.04,10.43,9.83,9.23,8.64],
+ 1981:[21.55,20.95,20.35,19.75,19.14,18.53,17.92,17.3,16.68,16.06,15.44,14.82,14.2,13.58,12.95,12.33,11.71,11.09,10.48,9.88,9.28,8.69],
+ 1982:[21.62,21.02,20.42,19.81,19.21,18.6,17.98,17.36,16.75,16.13,15.51,14.88,14.26,13.64,13.01,12.39,11.77,11.15,10.54,9.93,9.33,8.73],
+ 1983:[21.69,21.09,20.49,19.88,19.28,18.66,18.05,17.43,16.81,16.19,15.57,14.94,14.32,13.7,13.07,12.45,11.83,11.2,10.59,9.98,9.38,8.78],
+ 1984:[21.76,21.16,20.55,19.95,19.34,18.73,18.11,17.5,16.88,16.26,15.63,15,14.38,13.76,13.13,12.51,11.88,11.26,10.64,10.03,9.42,8.83],
+ 1985:[21.82,21.22,20.62,20.02,19.41,18.8,18.18,17.56,16.94,16.32,15.7,15.07,14.44,13.82,13.19,12.56,11.94,11.31,10.69,10.08,9.47,8.87],
+ 1986:[21.89,21.29,20.69,20.08,19.47,18.86,18.24,17.62,17.01,16.38,15.76,15.13,14.5,13.88,13.25,12.62,11.99,11.36,10.74,10.13,9.52,8.92],
+ 1987:[21.95,21.35,20.75,20.15,19.54,18.92,18.31,17.69,17.07,16.44,15.82,15.19,14.56,13.93,13.3,12.68,12.05,11.42,10.79,10.18,9.57,8.96],
+ 1988:[22.02,21.42,20.81,20.21,19.6,18.99,18.37,17.75,17.13,16.51,15.88,15.25,14.62,13.99,13.36,12.73,12.1,11.47,10.85,10.23,9.61,9],
+ 1989:[22.08,21.48,20.88,20.27,19.66,19.05,18.44,17.81,17.19,16.57,15.94,15.31,14.68,14.05,13.42,12.79,12.15,11.52,10.9,10.28,9.66,9.05],
+ 1990:[22.14,21.54,20.94,20.34,19.73,19.11,18.5,17.88,17.26,16.63,16,15.37,14.74,14.11,13.47,12.84,12.21,11.57,10.95,10.33,9.71,9.09],
+ 1991:[22.2,21.6,21,20.4,19.79,19.18,18.56,17.94,17.32,16.69,16.06,15.43,14.8,14.17,13.53,12.9,12.26,11.63,11,10.38,9.75,9.14],
+ 1992:[22.26,21.67,21.06,20.46,19.85,19.24,18.62,18,17.38,16.75,16.12,15.49,14.86,14.22,13.59,12.95,12.32,11.68,11.05,10.42,9.8,9.18],
+ 1993:[22.33,21.73,21.13,20.52,19.91,19.3,18.68,18.06,17.44,16.81,16.18,15.55,14.92,14.28,13.64,13.01,12.37,11.73,11.1,10.47,9.84,9.23],
+ 1994:[22.39,21.79,21.19,20.58,19.97,19.36,18.74,18.12,17.5,16.87,16.24,15.61,14.97,14.34,13.7,13.06,12.42,11.78,11.15,10.52,9.89,9.27],
+ 1995:[22.45,21.85,21.25,20.64,20.03,19.42,18.8,18.18,17.56,16.93,16.3,15.66,15.03,14.4,13.76,13.12,12.48,11.83,11.2,10.57,9.94,9.31],
+ 1996:[22.51,21.91,21.31,20.7,20.09,19.48,18.86,18.24,17.62,16.99,16.36,15.72,15.09,14.45,13.81,13.17,12.53,11.88,11.25,10.62,9.98,9.36],
+ 1997:[22.57,21.97,21.37,20.76,20.15,19.54,18.92,18.3,17.68,17.05,16.42,15.78,15.14,14.51,13.87,13.22,12.58,11.94,11.3,10.66,10.03,9.4],
+ 1998:[22.63,22.03,21.43,20.82,20.22,19.6,18.98,18.36,17.74,17.11,16.48,15.84,15.2,14.56,13.92,13.28,12.63,11.99,11.35,10.71,10.07,9.44],
+ 1999:[22.69,22.09,21.49,20.88,20.27,19.66,19.04,18.42,17.79,17.17,16.53,15.89,15.26,14.62,13.97,13.33,12.69,12.04,11.4,10.76,10.12,9.49],
+ 2000:[22.74,22.15,21.55,20.94,20.33,19.72,19.1,18.48,17.85,17.22,16.59,15.95,15.31,14.67,14.03,13.38,12.74,12.09,11.44,10.81,10.17,9.53],
+ 2001:[22.8,22.21,21.61,21,20.39,19.78,19.16,18.54,17.91,17.28,16.65,16.01,15.37,14.73,14.08,13.44,12.79,12.14,11.49,10.85,10.21,9.58],
+ 2002:[22.86,22.26,21.66,21.06,20.45,19.84,19.22,18.59,17.97,17.34,16.7,16.06,15.42,14.78,14.13,13.49,12.84,12.19,11.54,10.9,10.26,9.62],
+ 2003:[22.92,22.32,21.72,21.12,20.51,19.89,19.27,18.65,18.02,17.39,16.76,16.12,15.48,14.84,14.19,13.54,12.89,12.24,11.59,10.95,10.3,9.66],
+ 2004:[22.97,22.38,21.78,21.17,20.56,19.95,19.33,18.71,18.08,17.45,16.81,16.17,15.53,14.89,14.24,13.59,12.94,12.29,11.64,10.99,10.34,9.7],
+ 2005:[23.03,22.43,21.83,21.23,20.62,20.01,19.39,18.76,18.14,17.5,16.87,16.23,15.59,14.94,14.29,13.64,12.99,12.33,11.68,11.04,10.39,9.75],
+ 2006:[23.08,22.49,21.89,21.29,20.68,20.06,19.44,18.82,18.19,17.56,16.92,16.28,15.64,14.99,14.34,13.69,13.04,12.38,11.73,11.08,10.43,9.79],
+ 2007:[23.14,22.54,21.94,21.34,20.73,20.12,19.5,18.87,18.25,17.61,16.98,16.33,15.69,15.05,14.39,13.74,13.09,12.43,11.78,11.13,10.47,9.83],
+ 2008:[23.19,22.6,22,21.39,20.79,20.17,19.55,18.93,18.3,17.67,17.03,16.39,15.74,15.1,14.44,13.79,13.14,12.48,11.82,11.17,10.52,9.87],
+ 2009:[23.24,22.65,22.05,21.45,20.84,20.23,19.61,18.98,18.35,17.72,17.08,16.44,15.8,15.15,14.5,13.84,13.18,12.52,11.87,11.21,10.56,9.91],
+ 2010:[23.3,22.7,22.11,21.5,20.89,20.28,19.66,19.03,18.41,17.77,17.14,16.49,15.85,15.2,14.54,13.89,13.23,12.57,11.91,11.26,10.6,9.95],
+ 2011:[23.35,22.76,22.16,21.55,20.95,20.33,19.71,19.09,18.46,17.83,17.19,16.54,15.9,15.25,14.59,13.94,13.28,12.62,11.96,11.3,10.64,9.99],
+ 2012:[23.4,22.81,22.21,21.61,21,20.38,19.76,19.14,18.51,17.88,17.24,16.59,15.95,15.3,14.64,13.99,13.33,12.66,12,11.34,10.68,10.03],
+ 2013:[23.45,22.86,22.26,21.66,21.05,20.44,19.82,19.19,18.56,17.93,17.29,16.64,16,15.35,14.69,14.03,13.37,12.71,12.04,11.38,10.72,10.07],
+ 2014:[23.5,22.91,22.31,21.71,21.1,20.49,19.87,19.24,18.61,17.98,17.34,16.69,16.05,15.39,14.74,14.08,13.42,12.75,12.09,11.43,10.76,10.1],
+ 2015:[23.55,22.96,22.36,21.76,21.15,20.54,19.92,19.29,18.66,18.03,17.39,16.74,16.09,15.44,14.79,14.13,13.46,12.8,12.13,11.47,10.8,10.14],
+ 2016:[23.6,23.01,22.41,21.81,21.2,20.59,19.97,19.34,18.71,18.08,17.44,16.79,16.14,15.49,14.83,14.17,13.51,12.84,12.17,11.51,10.84,10.18],
+ 2017:[23.65,23.06,22.46,21.86,21.25,20.64,20.02,19.39,18.76,18.13,17.49,16.84,16.19,15.54,14.88,14.22,13.55,12.88,12.22,11.55,10.88,10.22],
+ 2018:[23.7,23.11,22.51,21.91,21.3,20.69,20.07,19.44,18.81,18.18,17.54,16.89,16.24,15.58,14.93,14.26,13.6,12.93,12.26,11.59,10.92,10.26],
+ 2019:[23.75,23.16,22.56,21.96,21.35,20.74,20.12,19.49,18.86,18.22,17.58,16.94,16.29,15.63,14.97,14.31,13.64,12.97,12.3,11.63,10.96,10.3],
+ 2020:[23.8,23.21,22.61,22.01,21.4,20.79,20.17,19.54,18.91,18.27,17.63,16.98,16.33,15.68,15.02,14.35,13.69,13.01,12.34,11.67,11,10.34],
+ 2021:[23.85,23.26,22.66,22.06,21.45,20.84,20.21,19.59,18.96,18.32,17.68,17.03,16.38,15.72,15.06,14.4,13.73,13.06,12.39,11.72,11.04,10.37],
+ 2022:[23.9,23.31,22.71,22.11,21.5,20.88,20.26,19.64,19.01,18.37,17.73,17.08,16.43,15.77,15.11,14.44,13.77,13.1,12.43,11.76,11.08,10.41],
+ 2023:[23.94,23.35,22.76,22.16,21.55,20.93,20.31,19.68,19.05,18.42,17.77,17.12,16.47,15.82,15.15,14.49,13.82,13.14,12.47,11.8,11.12,10.45],
+ 2024:[23.99,23.4,22.8,22.2,21.59,20.98,20.36,19.73,19.1,18.46,17.82,17.17,16.52,15.86,15.2,14.53,13.86,13.18,12.51,11.84,11.16,10.49],
+ 2025:[24.04,23.45,22.85,22.25,21.64,21.03,20.41,19.78,19.15,18.51,17.87,17.22,16.57,15.91,15.24,14.58,13.9,13.23,12.55,11.88,11.2,10.52],
+ 2026:[24.08,23.49,22.9,22.3,21.69,21.07,20.45,19.83,19.2,18.56,17.91,17.26,16.61,15.95,15.29,14.62,13.95,13.27,12.59,11.92,11.24,10.56],
+ 2027:[24.13,23.54,22.95,22.34,21.74,21.12,20.5,19.87,19.24,18.6,17.96,17.31,16.66,16,15.33,14.66,13.99,13.31,12.63,11.96,11.27,10.6],
+ 2028:[24.18,23.59,22.99,22.39,21.78,21.17,20.55,19.92,19.29,18.65,18.01,17.35,16.7,16.04,15.37,14.71,14.03,13.35,12.67,11.99,11.31,10.63],
+ 2029:[24.22,23.63,23.04,22.44,21.83,21.21,20.59,19.96,19.33,18.69,18.05,17.4,16.74,16.08,15.42,14.75,14.07,13.39,12.71,12.03,11.35,10.67],
+ 2030:[24.26,23.68,23.08,22.48,21.87,21.26,20.64,20.01,19.38,18.74,18.09,17.44,16.79,16.13,15.46,14.79,14.11,13.43,12.75,12.07,11.39,10.7],
+ 2031:[24.31,23.72,23.13,22.52,21.92,21.3,20.68,20.05,19.42,18.78,18.14,17.49,16.83,16.17,15.5,14.83,14.15,13.47,12.79,12.11,11.42,10.74],
+ 2032:[24.35,23.76,23.17,22.57,21.96,21.35,20.73,20.1,19.47,18.83,18.18,17.53,16.87,16.21,15.54,14.87,14.19,13.51,12.83,12.15,11.46,10.77],
+ 2033:[24.39,23.81,23.21,22.61,22,21.39,20.77,20.14,19.51,18.87,18.22,17.57,16.92,16.25,15.59,14.91,14.23,13.55,12.87,12.18,11.49,10.81],
+ 2034:[24.44,23.85,23.26,22.66,22.05,21.43,20.81,20.18,19.55,18.91,18.27,17.61,16.96,16.3,15.63,14.95,14.27,13.59,12.9,12.22,11.53,10.84]
+};
+const DELNINGSTAL_IP_MORT_FIRST_AGE = 61;
+// firstYear: the year the pension starts. A start on a whole birthday counts as mid-year,
+// so the workbook blends this age and the next (fnDeltal_IP2, rounded like aaDeltal.bas).
+function ipDelningstal(age, birthYear, firstYear){
+  var by = Math.floor(birthYear);
+  var at = function(ag){
+    var r = DELNINGSTAL_IP_MORT[by], i = Math.round(ag) - DELNINGSTAL_IP_MORT_FIRST_AGE;
+    return (r && i >= 0 && i < r.length) ? r[i] : getDelningstal(ag, by);
+  };
+  if(!firstYear) return at(age);
+  var a0 = at(age), a1 = at(age + 1);
+  if(!(a0 > 0) || !(a1 > 0)) return a0;
+  return Math.floor(((a0 + a1) / 2) * 100 + 0.4999) / 100;
+}
+
 // ─── PREMIEPENSION DELNINGSTAL (Pensionsmyndigheten 2026) ────────────────
 // Annual premiepension = pensionskapital / delningstal(age).
 // Two variants: Fond (fondförsäkring, default) and Trad (traditionell försäk-
@@ -3437,6 +3538,8 @@ function resolveDelningstal(a, age){
                                         : getPremiePensionDelningstal(age, 'fond');
   if(mode === 'trad') return getPremiePensionDelningstal(age, 'trad');
   if(mode === 'tjp')  return occTjpDelningstal(age);
+  // Income pension (Typfallsmodellen engine): the workbook's own divisor, blended in the start year
+  if(isIpEngineAcc(a)) return ipDelningstal(age, getParam('birthYear'), a.ws < 9999 && age === a.ws - Math.floor(getParam('birthYear')));
   return getDelningstal(age, getParam('birthYear'));  // inkomst (default)
 }
 
@@ -4091,17 +4194,19 @@ function occPremiumFor(a, ctx, y){
 }
 
 // Balance at the start of START_YEAR from the premiums paid since a.cs.
+// Balance at 31 Dec of the year before START_YEAR, like the income and premium pension
+// openings: the projection then runs the whole of START_YEAR for automatic openings
+// (premiums and return of the full year, as in Typfallsmodellen; `autoFullYear`).
 function occHistoryOpening(a, ctx){
   var bal = 0, fromY = Math.max(a.cs, OCC_HIST.first);
   for(var y = fromY; y < START_YEAR && y <= a.ce && y < ctx.retY; y++){
     bal = occStep(ctx, bal, occPremiumFor(a, ctx, y), y).avail;
   }
-  if(START_YEAR >= a.cs && START_YEAR <= a.ce && START_YEAR < ctx.retY){
-    var m = getProjectionMonth(), doy = Math.round((m - 0.5) * 365 / 12);
-    bal += occPremiumFor(a, ctx, START_YEAR) * (1 - Math.max(0, Math.min(1, (365 - doy) / 365)));
-  }
   return bal;
 }
+// Automatic (Typfallsmodellen) openings are 31 Dec balances, so their first projection
+// year is a whole year; a typed opening is today's balance and gets the rest of the year.
+function autoFullYear(a){ return !!(a && a.openAuto && hasAutoOpening(a)); }
 
 // Scheme accounts without an entered opening balance get the Typfallsmodellen
 // history value. Returns true if any opening changed (table needs a redraw).
@@ -4313,16 +4418,21 @@ function ipArv(ctx, age, y){
 }
 // Balance at the end of year y given the balance at the end of y-1 (VBA IP_, Typ 4).
 function ipStep(ctx, bal, ratt, y, noArv){
+  // From 2015 the right is trimmed by balansindex / inkomstindex while below 1 (VBA IP_, Bindex;
+  // ipPindex is the gällande index = balansindex in the braked years)
+  var bix = ipPindex(ctx, y) / occIncomeIdx(ctx, y);
+  if(y > 2014 && bix > 0 && bix < 1) ratt *= bix;
   // After pension start the workbook annuitises the balance, so no inheritance gains accrue
   var f = noArv ? {a1: 1, a2: 1} : ipArv(ctx, y - ctx.by, y);
   var idx = ipPindex(ctx, y) / ipPindex(ctx, y - 1);
-  var kost = y - OCC_IP.first < OCC_IP.kept.length ? ipAt(OCC_IP.kept, y) : OCC_IP.kept[OCC_IP.kept.length - 1];
+  var kost = ipKept(y);
   var arv = (f.a1 - 1) * bal;
   arv = arv * f.a2 + (bal + ratt) * (f.a2 - 1);
   var inx = (arv + ratt + bal) * (idx - 1);
   var k = (inx + arv + ratt + bal) * (kost - 1);
   return ratt + arv + inx + k + bal;
 }
+function ipKept(y){ return y - OCC_IP.first < OCC_IP.kept.length ? ipAt(OCC_IP.kept, y) : OCC_IP.kept[OCC_IP.kept.length - 1]; }
 function ipHistoryOpening(a, ctx){
   var bal = 0;
   for(var y = Math.max(Math.min(a.cs, pgbFirstYear(ctx)) + 1, OCC_IP.first + 1); y < START_YEAR; y++) bal = ipStep(ctx, bal, ipRatt(ctx, a, y), y);
@@ -4553,7 +4663,9 @@ function ppRatt(ctx, a, y){
   if(!(base > 0)) return 0;
   return ppAvgift(iy) * base * (iy - ctx.by > 64 ? 1 : andelNya(ctx.by));
 }
-// Fund-manager fee in kr (PPMavg, incl. the workbook's caps; flat 100 kr from 2019).
+// Fund-manager fee in kr (PPMavg, incl. the workbook's caps; flat 100 kr from 2019). Not deducted:
+// the workbook's default "efter fondavgifter" makes PPMavg return 0 (port: returnsNetOfFees).
+const PP_RETURNS_NET_OF_FEES = true;
 function ppFee(y, bal, yv){
   var raw = bal * (1 - occKept(y)) * (y < 2011 ? 1 : Math.sqrt(yv));
   if(y < 2007) return raw;
@@ -4576,7 +4688,7 @@ function ppRgk(y){
 function ppStep(ctx, bal, ratt, y){
   var yv = occYieldFactor(ctx, y);
   var arv = occArvGain(y - ctx.by + 1, y + 1) * (y - 1 < 2010 ? 1 : 1 / Math.sqrt(yv));
-  return Math.max(0, bal * yv + bal * arv + ratt * ppRgk(y) - (bal > 0 ? ppFee(y, bal, yv) : 0));
+  return Math.max(0, bal * yv + bal * arv + ratt * ppRgk(y) - (bal > 0 && !PP_RETURNS_NET_OF_FEES ? ppFee(y, bal, yv) : 0));
 }
 function ppHistoryOpening(a, ctx){
   var bal = 0;
@@ -6159,7 +6271,7 @@ function runProjection(){
         if(isOccPremiumAcc(a)){
           // Typfallsmodellen premium rules; first projection year pro-rated
           contrib = (yr>=a.cs && yr<=a.ce && _workingYr)
-            ? occPremiumFor(a, _occ, yr) * contribFactor : 0;
+            ? occPremiumFor(a, _occ, yr) * (autoFullYear(a) ? 1 : contribFactor) : 0;
         } else if(isIpEngineAcc(a)){
           // Pension right for the previous year's income, credited this year
           contrib = ipRatt(_occ, a, yr);
@@ -6198,13 +6310,17 @@ function runProjection(){
         }
         contribPreTax += contrib;
         // Compute return before wd so valBefore is available
-        const ret      = geoRet(calcReturn(a, age, params));
-        const _occStep = engineStep(a, _occ, opening, contrib, yr, retFraction);
+        // Automatic openings are 31 Dec balances: their first year is a whole year
+        const _fullYr  = yr === START_YEAR && autoFullYear(a);
+        const ret      = _fullYr ? calcReturn(a, age, params) : geoRet(calcReturn(a, age, params));
+        const _occStep = engineStep(a, _occ, opening, contrib, yr, _fullYr ? 1 : retFraction);
+        // Premium pension rights are credited at year end (VBA PP_pbh): no return on them that year
+        const _retBase = isPpAutoAcc(a) ? opening : opening + contrib;
         // Premium pension: inheritance gains (arvsvinster, sheet "arv PP") are added
         // every year as in Typfallsmodellen (PP_pbh) — they keep the lifelong
         // pension roughly level instead of draining the individual balance.
         const _ppArv = isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + ret) : 0;
-        const valGross = _occStep ? Math.max(0, _occStep.avail) : Math.max(0, (opening + contrib) * (1 + ret) + _ppArv);
+        const valGross = _occStep ? Math.max(0, _occStep.avail) : Math.max(0, opening + contrib + _retBase * ret + _ppArv);
         // Fees applied on total value after withdrawal (not just opening+contrib)
         // valBefore is set after withdrawal; fees then applied to that
         const valBefore = valGross;  // withdrawal deducted below before fees
@@ -6255,13 +6371,27 @@ function runProjection(){
             // part held back is released at the divisor of that age: mult += Δshare × dt0/dt(age) × (1+förskottsränta)^years.
             if(statutoryPension[i] == null){
               var _dt0 = resolveDelningstal(a, age);
-              statutoryPension[i] = _dt0 > 0 ? Math.max(0, opening + (isIpEngineAcc(a) ? contrib : 0)) / _dt0 : 0;
+              statutoryPension[i] = _dt0 > 0 ? Math.max(0, opening) / _dt0 : 0;
               statState[i] = {mult: _share, share: _share, dt0: _dt0, yr0: yr};
+              // Income pension (VBA IP_, start year): the balance at the start of the year is annuitised; the right
+              // credited this year (+ inheritance gain, index, admin fee incl. the fee on the whole balance) is
+              // converted the year after, at that age's divisor
+              if(isIpEngineAcc(a)){
+                statState[i].pend = Math.max(0, ipStep(_occ, 0, contrib, yr, false) + Math.max(0, opening) * (ipKept(yr) - 1));
+                // Table 1 / kompensationsgrad adds that last right to the start year at the published divisor (creditLastPensionRight)
+                var _dtPub = getDelningstal(age, params.birthYear);
+                if(_dtPub > 0) row.lastRight1 = (row.lastRight1 || 0) + statState[i].pend / _dtPub * _share;
+              }
             } else {
               // tjänstepension is indexed with prisbasbelopp = flat in constant prices
               if(isIpEngineAcc(a)) statutoryPension[i] = statutoryPension[i] * ipIndexRatio(_occ, yr) / (1 + FOLJSAMHET_FORSKOTTSRANTA);
               else if(a.type === 'state') statutoryPension[i] = statutoryPension[i] / (1 + FOLJSAMHET_FORSKOTTSRANTA);
               var _ss = statState[i];
+              if(_ss.pend > 0){
+                var _dtP = resolveDelningstal(a, age);
+                if(_dtP > 0) statutoryPension[i] += _ss.pend / _dtP;
+                _ss.pend = 0;
+              }
               if(a.recalcYearly && contrib > 0){
                 // yearly recalculation: the rights credited this year raise the annuity by contrib / divisor(age)
                 var _dtY = resolveDelningstal(a, age);
@@ -6277,6 +6407,8 @@ function runProjection(){
           } else {
             var _dt = resolveDelningstal(a, age);
             wd = _dt > 0 ? Math.round(Math.max(0, opening) / _dt * _share) : 0;
+            // Premium pension start year: Table 1 / kompensationsgrad adds the last right (credited this year end)
+            if(isPpAutoAcc(a) && yr === a.ws && _dt > 0) row.lastRight1 = (row.lastRight1 || 0) + ppRatt(_occ, a, yr) / _dt * _share;
           }
         } else {
           if(a.ws<9999 && yr>=a.ws && yr<=a.we){
@@ -6293,7 +6425,7 @@ function runProjection(){
           returnPreTax += _occStep.pre - opening - contrib;  // net growth before yield tax
           yieldTaxP    += _occStep.tax;
         } else {
-          returnPreTax += (opening + contrib) * ret + _ppArv;  // gross return (+ PP inheritance gains)
+          returnPreTax += _retBase * ret + _ppArv;  // gross return (+ PP inheritance gains)
           yieldTaxP    += (opening + contrib) * (a.yt||0);
           mgmtFeePT    += (opening + contrib) * (a.mgmt||0);
           mgmtFeeTotal += (opening + contrib) * (a.mgmt||0);
@@ -6329,17 +6461,19 @@ function runProjection(){
       // Per-account detail for Portfolio Value tab
       var _ac = contrib;
       var _yt, _mf, _grossRetSek;
-      var _os = engineStep(a, _occ, opening, _ac, yr, retFraction);
+      var _full4d = yr === START_YEAR && autoFullYear(a);
+      var _os = engineStep(a, _occ, opening, _ac, yr, _full4d ? 1 : retFraction);
       if(_os){
         _grossRetSek = _os.pre - opening - _ac;
         _yt = _os.tax;
         _mf = 0;
       } else if(a.taxable){
         // Re-compute ret locally (const ret is block-scoped inside else{})
-        var _ret4d = geoRet(calcReturn(a, age, params));
-        _grossRetSek = (opening + _ac) * _ret4d
+        var _ret4d = _full4d ? calcReturn(a, age, params) : geoRet(calcReturn(a, age, params));
+        var _rb4d  = isPpAutoAcc(a) ? opening : opening + _ac;   // PP rights credited at year end
+        _grossRetSek = _rb4d * _ret4d
           + (isPpAcc(a) ? Math.max(0, opening) * occArvGain(age + 1, yr + 1) / Math.sqrt(1 + _ret4d) : 0);
-        var _base4fee = Math.max(0, (opening + _ac) * (1 + _ret4d) - (actualWd||0));
+        var _base4fee = Math.max(0, opening + _ac + _rb4d * _ret4d - (actualWd||0));
         _yt = (a.yt||0)   * _base4fee;  // full annual rate
         _mf = (a.mgmt||0) * _base4fee;  // full annual rate
       } else {
@@ -7212,7 +7346,8 @@ function updateDashboard(data){
   // Pensions = state + P-insurance payouts; after-tax savings are not pension.
   const _last5       = _earningYrs.slice(-5);
   const _finalSal    = _last5.length ? _last5.reduce((s,y)=>s+(y.earnedIncomePre||0),0)/_last5.length : 0;
-  const _firstRetPen = _firstRetYr ? (_firstRetYr.wdrlState||0)+(_firstRetYr.wdrlPIns||0) : 0;
+  // + the last income/premium pension rights, which Typfallsmodellen's Table 1 adds to the first year (lastRight1)
+  const _firstRetPen = _firstRetYr ? (_firstRetYr.wdrlState||0)+(_firstRetYr.wdrlPIns||0)+(_firstRetYr.lastRight1||0) : 0;
   const repRate      = _finalSal>0 ? _firstRetPen/_finalSal : 0;
 
 const _multTxt = (Math.round(mult*10)/10).toFixed(1); const _multFmt = _lang==='sv' ? _multTxt.replace('.', ',') : _multTxt;
