@@ -375,6 +375,10 @@ commit it was built from) and commit the planner. It adds about 1 MB to the file
   begin-work age, retirement age, salary (`grossSal('grossSalPre66')`, the 2026 money the engine uses), the first
   contractual scheme found in Assets (`STRATEGY_SCHEME`: itp1 2, itp2 3, saflo 4, kapkl 5, akapkr 6, pa16a2 7, pa16a1 8),
   inflation, salary increase (real growth) and the Parameters-tab occupational return (real fund yield).
+- Planner patches to the original source: `tools/strategy-patches/*.patch` are applied by `build-strategy.mjs` to the clone before bundling and removed again afterwards
+  (a patch that no longer applies stops the build; the marker comment lists them). `timeline-after-tax.patch`: "Utbetalningarnas tidslinje" follows the Före / Efter skatt toggle
+  (`payoutPhases(run, afterTax)`: each taxed part × `net / gross` of the year, savings and housing supplement as paid, so a year's parts add up to `disposable`; the note says
+  efter / före skatt). So the timeline differs from the original (which is always before tax) when "Efter skatt" is on; compare it with "Före skatt".
 - Planner look: `<style id="strategy-theme">` right after the generated block (outside the markers, so a rebuild keeps it) maps the app's colour/font
   variables to the planner's (`--font-b`, `--text`, `--muted`, `--s1`, `--border`), gives `.panel` the card padding, replaces the yellow title bars of
   `.panel > h2` / `figcaption` with the planner's card header (small green-barred caps) and styles `.export-btn` / `.panel-btn` like the planner's buttons.

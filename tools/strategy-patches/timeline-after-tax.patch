@@ -1,0 +1,56 @@
+diff --git a/apps/web/src/strategy.ts b/apps/web/src/strategy.ts
+index d7d32c0..6d8365c 100644
+--- a/apps/web/src/strategy.ts
++++ b/apps/web/src/strategy.ts
+@@ -1642,15 +1642,20 @@ export interface PayoutPhase {
+ 
+ /**
+  * When each kind of money is paid in a run, from the retirement age to `LONG_LIFE`: the stretches of years it is more
+- * than a krona a month. Before tax for the pensions, as paid for the savings and the housing supplement.
++ * than a krona a month. Before tax for the pensions (after tax with `afterTax`), as paid for the savings and the
++ * housing supplement.
+  */
+-export function payoutPhases(run: ComboRun): PayoutPhase[] {
++export function payoutPhases(run: ComboRun, afterTax = false): PayoutPhase[] {
++  // After tax each taxed part keeps its share of the year's income after tax (`net / gross`); the savings and the
++  // housing supplement are tax-free, so a year's parts add up to `disposable`.
++  const kept = (values: readonly number[]): readonly number[] =>
++    afterTax ? values.map((v, age) => ((run.gross[age] ?? 0) > 0 ? (v * (run.net[age] ?? 0)) / run.gross[age]! : v)) : values;
+   const series: Record<PayoutKind, readonly number[]> = {
+-    income: run.incomePension,
+-    premium: run.premiumPension,
+-    guarantee: run.guaranteePension,
+-    occupational: run.occupational,
+-    individual: run.individual,
++    income: kept(run.incomePension),
++    premium: kept(run.premiumPension),
++    guarantee: kept(run.guaranteePension),
++    occupational: kept(run.occupational),
++    individual: kept(run.individual),
+     savings: run.savings,
+     benefits: run.benefits,
+   };
+diff --git a/apps/web/src/strategyPanel.ts b/apps/web/src/strategyPanel.ts
+index d16f9fc..04db845 100644
+--- a/apps/web/src/strategyPanel.ts
++++ b/apps/web/src/strategyPanel.ts
+@@ -759,8 +759,8 @@ export function createStrategyPanel(lang: Lang, getForecastInput: () => TypfallI
+       draw.replaceChildren(timelineSvg(strategy, s.id, l));
+       note.textContent = say(
+         l,
+-        `${scenarioName(s.id, l)}: ${scenarioSummary(s, strategy.input.frontYears, l)} Staplarna visar från vilken ålder till vilken varje del betalas ut, i snitt per månad före skatt. Där staplarna ligger över varandra betalas delarna ut samtidigt.`,
+-        `${scenarioName(s.id, l)}: ${scenarioSummary(s, strategy.input.frontYears, l)} The bars show from which age to which each part is paid, on average a month before tax. Where bars lie above one another, the parts are paid at the same time.`,
++        `${scenarioName(s.id, l)}: ${scenarioSummary(s, strategy.input.frontYears, l)} Staplarna visar från vilken ålder till vilken varje del betalas ut, i snitt per månad ${strategy.input.afterTax ? "efter" : "före"} skatt. Där staplarna ligger över varandra betalas delarna ut samtidigt.`,
++        `${scenarioName(s.id, l)}: ${scenarioSummary(s, strategy.input.frontYears, l)} The bars show from which age to which each part is paid, on average a month ${strategy.input.afterTax ? "after" : "before"} tax. Where bars lie above one another, the parts are paid at the same time.`,
+       );
+     };
+     for (const id of ids) {
+@@ -788,7 +788,7 @@ export function createStrategyPanel(lang: Lang, getForecastInput: () => TypfallI
+       return node;
+     };
+     const s = strategy.scenarios.find((x) => x.id === id)!;
+-    const phases = payoutPhases(s.run);
++    const phases = payoutPhases(s.run, strategy.input.afterTax);
+     const kinds = PAYOUT_KINDS.filter((k) => phases.some((p) => p.kind === k));
+     const par = strategy.par;
+     const end = LONG_LIFE + 1;
