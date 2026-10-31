@@ -357,6 +357,29 @@ published, replace the workbook and re-verify everything below.
   `guide.*` keys) Personal → Assets → Withdrawals → Expenses, highlighting key fields
   (`.guide-hl`). `goTab(id)` switches tabs from code (`switchTab` no longer needs a click event)
 
+### Withdrawal strategy tab ("Uttagsstrategi") — Retirement_Planner.html
+
+The tab is NOT hand-written here: it is the "Uttagsstrategi" screen of the Typfallsmodellen web app
+(github.com/mathiasboos/Typfallsmodellen, `apps/web/src/strategyPanel.ts` + `strategy.ts` and the whole engine it
+runs), compiled into the planner by `node tools/build-strategy.mjs [path to a clone with npm ci done]` (no path =
+shallow clone of `main` into a temp folder). The script bundles the panel with that project's esbuild into one classic
+script (`window.TFStrategy`: `createStrategyPanel`, `loadDeathProbabilities`, `contextFromSettings`, `defaultInput`,
+`Scheme`) and writes it, plus the app's `styles.css` with every selector scoped to `#tab-strategy` (dark mode and
+`@font-face` dropped), between `<!-- STRATEGY:BEGIN … -->` and `<!-- STRATEGY:END -->`. Never edit the generated
+block by hand; re-run the script when the Typfallsmodellen project changes the tab (the marker comment shows which
+commit it was built from) and commit the planner. It adds about 1 MB to the file.
+- Planner side (`strategyShow`, `strategyRelabel`, `strategyForecastInput`, `strategyLabelImport`): the panel is
+  created on the first visit to the tab (`switchTab('strategy')`), `setLang` relabels it, and the context is the
+  workbook's normal mode (`contextFromSettings(new Map(), {chartEarningFactor: 12})`, no Avancerat). The tab has its own
+  inputs and never changes the plan and is not saved with it. The import button ("Hämta från planen") copies born,
+  begin-work age, retirement age, salary (`grossSal('grossSalPre66')`, the 2026 money the engine uses), the first
+  contractual scheme found in Assets (`STRATEGY_SCHEME`: itp1 2, itp2 3, saflo 4, kapkl 5, akapkr 6, pa16a2 7, pa16a1 8),
+  inflation, salary increase (real growth) and the Parameters-tab occupational return (real fund yield).
+- Its intro text still mentions "Hämta från Prognos" and "Avancerat" (the original has those; the planner has neither).
+- Check after a rebuild: build the original (`npm run build` in `apps/web`, file `dist/typfallsmodellen.html`) and compare
+  the text of `.pa-results` for the same inputs (the `data-setting` inputs `stBorn`, `stStartWork`, `stRetirement`, …) with the planner's
+  tab: they must be equal. Done for 4 input sets (default, born 1970 / 65, 1985 / 25 / 67, 1962 / 66) at commit 78e7809.
+
 ## Source of truth for formulas
 
 **Typfallsmodellen (`reference/Typfallsmodellen_v4.8.xlsb` + its VBA) is the first source to consult and to implement in Retirement_Planner.html** — pension rules, contributions, tax and rounding follow the workbook exactly; a planner-specific approximation is only acceptable where the workbook has no equivalent, and must be documented as such. Explanatory UI text may round or simplify (e.g. "up to 8,07 IBB"), the calculation must not.
