@@ -285,6 +285,83 @@ header{
 #src-credit a{color:#4885C4}
 @media(max-width:767px){#src-credit{padding:12px 12px 90px}}
 
+/* ── WITHDRAWALS TAB: STEP-BY-STEP PLAN (wdpRender) ── */
+.wdp-intro{font-size:13px;color:var(--muted);margin:0 0 12px;max-width:820px;line-height:1.5}
+.wdp-step{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px}
+.wdp-step.open{border-color:var(--gold);box-shadow:0 2px 10px rgba(15,31,61,.06)}
+.wdp-head{width:100%;display:flex;align-items:center;gap:12px;padding:14px 18px;background:none;border:none;cursor:pointer;text-align:left;font-family:var(--font-b);color:var(--text)}
+.wdp-head:focus-visible,.wdp-chip:focus-visible,.wdp-opt:focus-visible{outline:2px solid #4885C4;outline-offset:2px}
+.wdp-num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--s2);color:var(--navy);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.wdp-step.open .wdp-num{background:var(--gold);color:var(--navy)}
+.wdp-title{flex:0 0 auto;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.wdp-sum{flex:1;min-width:0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.wdp-chev{flex:0 0 auto;color:var(--muted);font-size:12px}
+.wdp-body{padding:0 18px 16px 58px}
+.wdp-q{font-size:15px;font-weight:600;margin:2px 0 4px;color:var(--text)}
+.wdp-help{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;max-width:820px}
+.wdp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.wdp-chip{min-width:72px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--s3);cursor:pointer;font-family:var(--font-b);text-align:center;color:var(--text);line-height:1.25}
+.wdp-chip:hover:not(:disabled){border-color:var(--gold)}
+.wdp-chip b{display:block;font-size:14px;font-weight:700}
+.wdp-chip small{display:block;font-size:10.5px;color:var(--muted);font-family:var(--font-m);margin-top:2px}
+.wdp-chip .wdp-tag{display:block;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#28955A}
+.wdp-chip.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.wdp-chip.on small,.wdp-chip.on .wdp-tag{color:var(--navy)}
+.wdp-chip:disabled{opacity:.4;cursor:not-allowed}
+.wdp-acc{border-top:1px solid var(--s2);padding:12px 0 6px}
+.wdp-acc:first-of-type{border-top:none}
+.wdp-acc-name{font-weight:700;font-size:13.5px;margin-bottom:4px;color:var(--text)}
+.wdp-badge{font-size:10px;font-weight:600;color:#4885C4;margin-left:6px}
+.wdp-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+.wdp-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:90px}
+.wdp-inp{width:60px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--navy);text-align:right;padding:5px 7px;font-size:13px;font-family:var(--font-m)}
+.wdp-note{font-size:12px;color:var(--muted)}
+.wdp-err{font-size:11.5px;color:#e05555;margin:2px 0}
+.wdp-more{margin-top:10px;font-size:12.5px}
+.wdp-more summary{cursor:pointer;color:#4885C4;font-weight:600}
+.wdp-opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:pointer;background:var(--s3)}
+.wdp-opt.on{border-color:var(--gold);background:rgba(72,184,102,.08);cursor:default}
+.wdp-opt > input{margin-top:3px;accent-color:#48B866;pointer-events:none}
+.wdp-opt b{font-size:13.5px;color:var(--text)}
+.wdp-opt > div > span{display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45}
+.wdp-manual{margin-top:6px}
+.wdp-phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 10px}
+.wdp-phase{border:1px solid var(--border);border-radius:6px;padding:10px 12px;background:var(--s3)}
+.wdp-phase h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.wdp-phase .ages{font-size:12.5px;color:var(--text);margin-bottom:8px}
+.wdp-phase .kr{font-family:var(--font-m);font-size:12.5px;color:var(--text);margin-top:6px}
+.wdp-step-ctl{display:flex;align-items:center;gap:4px}
+.wdp-step-ctl button{width:28px;height:28px;border:1px solid var(--border);border-radius:5px;background:var(--s1);cursor:pointer;font-size:15px;color:var(--navy);line-height:1}
+.wdp-step-ctl .lvl{width:52px;text-align:center;font-weight:700}
+.wdp-nav{display:flex;justify-content:flex-end;margin-top:12px}
+.wdp-next{padding:7px 16px;border:none;border-radius:6px;background:var(--gold);color:var(--navy);font-weight:700;font-family:var(--font-b);cursor:pointer;font-size:13px;white-space:nowrap}
+.wdp-link{background:none;border:none;color:#4885C4;cursor:pointer;font-size:12px;font-family:var(--font-b);padding:0;text-decoration:underline}
+.wdp-seg{display:inline-flex;flex-wrap:wrap;background:var(--s2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:6px}
+.wdp-seg button{padding:6px 12px;border:none;background:transparent;color:var(--muted);font-weight:600;font-size:12px;cursor:pointer;font-family:var(--font-b)}
+.wdp-seg button.on{background:#48B866;color:#0f1f3d}
+.wdp-res-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wdp-res{border:1px solid var(--border);border-top:3px solid var(--border);border-radius:6px;padding:10px 12px}
+.wdp-res.good{border-top-color:#48B866}
+.wdp-res.bad{border-top-color:#FF5B2E}
+.wdp-res h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.wdp-res h4 span{text-transform:none;letter-spacing:0;font-weight:500;margin-left:4px}
+.wdp-res .l{font-size:11px;color:var(--muted)}
+.wdp-res .v{font-family:var(--font-m);font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
+.wdp-res .v small{font-size:11px;font-weight:500;color:var(--muted)}
+.wdp-res .v2{font-family:var(--font-m);font-size:13px;color:var(--text)}
+.wdp-res .st{font-size:11.5px;font-weight:700;margin-top:8px}
+.wdp-res.good .st{color:#28955A}
+.wdp-res.bad .st{color:#e05555}
+.wdp-answer{margin-top:14px;padding:12px 14px;background:var(--s3);border-radius:6px;font-size:13px;line-height:1.5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.wdp-details-btn{background:none;border:none;cursor:pointer;padding:0;font-family:var(--font-b)}
+@media (max-width:767px){
+  .wdp-head{flex-wrap:wrap;padding:12px;gap:8px 10px}
+  .wdp-sum{flex-basis:100%;order:5;text-align:left;white-space:normal;padding-left:38px}
+  .wdp-body{padding:0 12px 14px}
+  .wdp-phases,.wdp-res-grid{grid-template-columns:1fr}
+  .wdp-lbl{min-width:0;flex-basis:100%}
+}
+
 /* ── GRID LAYOUTS ── */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
@@ -549,7 +626,6 @@ header{
   .chart-inner { height: 220px !important; }
 
   /* ── Withdrawals interval table ── */
-  #exp-iv-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
   /* ── Portfolio Value charts: stack ── */
   #pv-chart-wrap .grid-2 { grid-template-columns: 1fr !important; }
@@ -997,13 +1073,13 @@ input[type="number"]::-webkit-outer-spin-button {
             <span data-i18n="pers.rikt.tick">Target retirement age</span></label>
           <input class="inp" type="number" id="retirementAge" value="68" readonly onchange="persApplyAges()">
         </div>
-        <input type="hidden" id="retirementYear" value="2036" onchange="onRetirementYearChange();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input type="hidden" id="retirementYear" value="2036" onchange="onRetirementYearChange();">
         <div id="retirementYear-hint" style="flex-basis:100%;text-align:right;font-size:11px;color:var(--muted2);margin-top:4px;font-style:italic"></div>
       </div>
       <div class="input-row">
         <div class="input-label" data-i18n="pers.life.age">Life Expectancy Age</div>
         <input class="inp" type="number" id="lifeAge" value="95" onchange="persApplyAges()">
-        <input type="hidden" id="lifeYear" value="2063" onchange="recalc();var _ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;if(_ivOn2)autoCalcExpIntervals();">
+        <input type="hidden" id="lifeYear" value="2063" onchange="recalc();">
       </div>
       <!-- Longevity illustrator -->
       <div style="margin-top:16px;padding:14px 16px;background:rgba(74,143,204,.06);border:1px solid rgba(74,143,204,.2);border-radius:8px">
@@ -1344,8 +1420,41 @@ input[type="number"]::-webkit-outer-spin-button {
 
 <div id="tab-withdrawals" class="tab-content">
   <div class="section-title" data-i18n="wd.title">Withdrawals</div>
-  <div class="section-sub" data-i18n="wd.sub">Expense intervals · gross withdrawal estimates · per-account breakdown by retirement period</div>
+  <div class="section-sub" data-i18n="wd.sub">Your withdrawal plan in five steps · result · per-account details</div>
 
+  <!-- Step-by-step withdrawal plan (wdpRender) -->
+  <div id="wdp-steps"></div>
+  <!-- Result: income vs spending per phase, highest sustainable level (wdpRenderResult) -->
+  <div id="wdp-result" class="card" style="margin-top:18px"></div>
+
+  <!-- Withdrawal by Account chart -->
+  <div class="card" style="margin-top:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+      <div class="card-header" data-i18n="wd.by.account">WITHDRAWALS BY ACCOUNT</div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button id="wd-chart-tax-gross" onclick="setWdTaxMode('gross')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="acc.before.tax">Before Tax</button>
+          <button id="wd-chart-tax-net"   onclick="setWdTaxMode('net')"   style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="acc.after.tax">After Tax</button>
+        </div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button id="wd-chart-btn-age"  onclick="setWdChartXMode('age')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="wd.chart.age">Age</button>
+          <button id="wd-chart-btn-year" onclick="setWdChartXMode('year')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="wd.chart.year">Year</button>
+        </div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button id="wd-chart-btn-annual"  onclick="setWdChartPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
+          <button id="wd-chart-btn-monthly" onclick="setWdChartPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
+        </div>
+        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
+          <button onclick="downloadWdChartCSV()"   style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;cursor:pointer" data-i18n="proj.csv">⬇  CSV</button>
+          <button onclick="downloadWdChartExcel()" style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;border-left:1px solid var(--border);cursor:pointer" data-i18n="proj.xlsx">⬇  Excel</button>
+        </div>
+      </div>
+    </div>
+    <div id="wd-chart-caption" style="font-size:11px;color:var(--muted);margin-bottom:14px">Monthly withdrawal per account (kr/mth) · before tax</div>
+    <div style="position:relative;height:320px"><canvas id="wd-chart-canvas"></canvas></div>
+  </div>
+
+  <div style="margin-top:22px"></div>
   <!-- ── Withdrawal Summary Pie Charts ─────────────────────────────── -->
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;margin-top:4px">
     <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)" data-i18n="wd.overview">Withdrawal Overview</span>
@@ -1369,67 +1478,14 @@ input[type="number"]::-webkit-outer-spin-button {
   <div id="wd-summary-period-wrap" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
   <div id="wd-summary-wrap" style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:20px;padding:18px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);flex-wrap:wrap;row-gap:16px"></div>
 
-  <!-- Age-Based Expense Intervals -->
-  <div class="card" style="margin-top:20px">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <input type="checkbox" id="exp-iv-master" checked style="width:16px;height:16px;accent-color:#48B866;cursor:pointer" onchange="toggleExpIvMaster()">
-      <div id="exp-iv-master-label" class="card-header" style="margin-bottom:0;cursor:pointer" onclick="document.getElementById('exp-iv-master').click()" data-i18n="wd.iv.hdr">AGE-BASED EXPENSE INTERVALS</div>
-      <button id="exp-iv-est-all" onclick="expAgeIntervals.forEach(function(_,i){estimateGrossWithdrawal(i);})"
-        style="display:none;padding:4px 10px;font-size:11px;background:rgba(74,143,204,.12);border:1px solid rgba(74,143,204,.35);border-radius:6px;color:#4885C4;cursor:pointer;font-weight:600;white-space:nowrap"><span data-i18n="wd.iv.est.all">Estimate All</span></button>
-      <button id="exp-iv-maximize" onclick="maximizeExpIntervals()"
-        style="display:none;padding:4px 10px;font-size:11px;background:var(--gold);border:none;border-radius:6px;color:#0f1f3d;cursor:pointer;font-weight:700;white-space:nowrap"><span data-i18n="dash.maximize">⚡ Maximize</span></button>
+  <!-- Details per account (read-only, from the projection; buildWdTable) -->
+  <div class="card" style="margin-top:4px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <button type="button" class="card-header wdp-details-btn" style="margin-bottom:0" onclick="wdpToggleDetails()">
+        <span id="wd-acct-chevron">▶</span><span data-i18n="wdp.details">Details per account</span></button>
+      <div style="font-size:11px;color:var(--muted)" data-i18n="wdp.details.hint">Read from the projection · Before / After tax as selected above</div>
     </div>
-    <div id="exp-iv-table-wrap" style="display:none"><table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="color:var(--muted);font-size:11px;letter-spacing:.05em;text-transform:uppercase">
-          <tr>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.age.from">Age From</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.age.to">Age To</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:#4885C4;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-align:center" data-i18n="wd.year.from">Year From</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:#4885C4;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;text-align:center" data-i18n="wd.year.to">Year To</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);text-align:right;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.annual.exp">Annual Expense (SEK)</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);text-align:right;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.wd.yr">Withdrawal/yr (SEK)</th>
-            <th rowspan="2" style="padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" style="text-align:center;padding:5px 8px" data-i18n="wd.active">Active</th>
-            <th colspan="3" style="text-align:center;padding:5px 8px;border-bottom:1px solid rgba(74,143,204,.3);border-left:1px solid rgba(0,0,0,0.1);color:#4885C4;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.split">Withdrawal Split (%)</th>
-            <th colspan="3" style="text-align:center;padding:5px 8px;border-bottom:1px solid rgba(0,0,0,0.1);border-left:1px solid rgba(0,0,0,0.1);color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase" data-i18n="wd.split.wd">Withdrawal/yr (SEK)</th>
-          </tr>
-          <tr>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);border-left:1px solid rgba(0,0,0,0.1);color:#48B866;font-size:10px;font-weight:600" data-i18n="acc.after.tax">After-Tax</th>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);color:#4885C4;font-size:10px;font-weight:600" data-i18n="acc.badge.pins">P-Insurance</th>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);color:#48B866;font-size:10px;font-weight:600" data-i18n="wd.iv.sum">Sum</th>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);border-left:1px solid rgba(0,0,0,0.1);color:#48B866;font-size:10px;font-weight:600" data-i18n="acc.after.tax">After-Tax</th>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);color:#4885C4;font-size:10px;font-weight:600" data-i18n="acc.badge.pins">P-Insurance</th>
-            <th style="text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);color:#48B866;font-size:10px;font-weight:600" data-i18n="wd.iv.sum">Sum</th>
-          </tr>
-        </tr>
-      </thead>
-      <tbody id="exp-iv-tbody"></tbody>
-    </table></div>
-    <div id="exp-iv-status" style="margin-top:10px;font-size:11px;color:var(--muted)"></div>
-  </div>
-
-  <!-- Account Withdrawals by Period -->
-  <div class="card" style="margin-top:24px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
-      <div class="card-header" style="margin-bottom:0;cursor:pointer;display:flex;align-items:center;gap:8px"
-           onclick="var w=document.getElementById('wd-acct-wrap');var b=document.getElementById('wd-acct-chevron');if(w.style.display==='none'){w.style.display='';b.textContent='▼';}else{w.style.display='none';b.textContent='▶';}">
-        <span id="wd-acct-chevron">▼</span><span data-i18n="wd.acct.hdr">ACCOUNT WITHDRAWALS BY PERIOD</span></div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px">
-        <div style="font-size:11px;color:var(--muted)" data-i18n="wd.shown.hint">Withdrawal/yr shown when period overlaps account Wdrl&nbsp;Start–End</div>
-        <button id="wd-optimize-btn" onclick="optimizeWithdrawals()"
-          style="padding:4px 11px;font-size:11px;font-weight:600;background:transparent;
-                 border:1px solid rgba(74,143,204,.5);border-radius:6px;color:#4885C4;
-                 cursor:pointer;white-space:nowrap;letter-spacing:.03em"
-          title="Set each account's annual withdrawal so Asset at Retirement End ≈ 0" data-i18n-title="wd.optimize.tip">
-          ⚡ <span data-i18n="wd.optimize">Optimize to Zero</span>
-        </button>
-        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border);flex-shrink:0">
-          <button id="wd-btn-gross" style="padding:4px 11px;font-size:11px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;display:none"></button>
-          <button id="wd-btn-net"   style="display:none"></button>
-        </div>
-      </div>
-    </div>
-    <div id="wd-acct-wrap">
+    <div id="wd-acct-wrap" style="display:none;margin-top:14px">
     <div style="overflow-x:auto">
       <table id="wd-acct-table" style="width:100%;border-collapse:collapse;font-size:12px">
         <thead id="wd-acct-thead"></thead>
@@ -1437,33 +1493,6 @@ input[type="number"]::-webkit-outer-spin-button {
       </table>
     </div>
     </div>
-  </div>
-
-  <!-- Withdrawal by Account chart -->
-  <div class="card" style="margin-top:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="card-header" data-i18n="wd.by.account">WITHDRAWALS BY ACCOUNT</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-          <button id="wd-chart-tax-gross" onclick="setWdTaxMode('gross')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="acc.before.tax">Before Tax</button>
-          <button id="wd-chart-tax-net"   onclick="setWdTaxMode('net')"   style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="acc.after.tax">After Tax</button>
-        </div>
-        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-          <button id="wd-chart-btn-age"  onclick="setWdChartXMode('age')"  style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="wd.chart.age">Age</button>
-          <button id="wd-chart-btn-year" onclick="setWdChartXMode('year')" style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="wd.chart.year">Year</button>
-        </div>
-        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-          <button id="wd-chart-btn-annual"  onclick="setWdChartPeriod('annual')"  style="padding:3px 10px;font-size:10px;font-weight:500;background:transparent;color:var(--muted);border:none;cursor:pointer" data-i18n="dash.annual">Annual</button>
-          <button id="wd-chart-btn-monthly" onclick="setWdChartPeriod('monthly')" style="padding:3px 10px;font-size:10px;font-weight:600;background:#48B866;color:#0f1f3d;border:none;cursor:pointer" data-i18n="dash.monthly">Monthly</button>
-        </div>
-        <div style="display:flex;background:var(--s2);border-radius:6px;overflow:hidden;border:1px solid var(--border)">
-          <button onclick="downloadWdChartCSV()"   style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;cursor:pointer" data-i18n="proj.csv">⬇  CSV</button>
-          <button onclick="downloadWdChartExcel()" style="padding:3px 10px;font-size:10px;font-weight:600;background:transparent;color:var(--text);border:none;border-left:1px solid var(--border);cursor:pointer" data-i18n="proj.xlsx">⬇  Excel</button>
-        </div>
-      </div>
-    </div>
-    <div id="wd-chart-caption" style="font-size:11px;color:var(--muted);margin-bottom:14px">Monthly withdrawal per account (kr/mth) · before tax</div>
-    <div style="position:relative;height:320px"><canvas id="wd-chart-canvas"></canvas></div>
   </div>
 </div>
 
@@ -1880,7 +1909,7 @@ en:{
   'about.own.hdr':'Developed for this planner',
   'about.own.1':'The Dashboard and all charts',
   'about.own.2':'Expenses and budget, with the saving goal',
-  'about.own.3':'Withdrawal planning and withdrawal rules',
+  'about.own.3':'Withdrawal planning in five steps (pension start ages and payout periods use Typfallsmodellen\'s rules and divisors), spending phases, savings drawdown and the highest sustainable spending',
   'about.own.4':'Portfolio Value tab and Projection table with exports',
   'about.own.5':'Scenarios and Monte Carlo simulation',
   'about.own.6':'Income tab (net salary according to Skatteverket\'s rules)',
@@ -1943,7 +1972,7 @@ en:{
   'guide.t1':'Personal','guide.t2':'Assets','guide.t3':'Withdrawals','guide.t4':'Expenses',
   'guide.b1':'<li>Enter your <b>birth year</b> and the <b>age you began working</b>.</li><li><b>Retirement age</b>: tick <b>Target retirement age</b> to use your riktålder, or untick it and enter your own age.</li><li>Enter <b>life expectancy age</b>, for example 95.</li><li>Enter your <b>gross monthly salary</b>; the net salary fills in automatically. Set the yearly salary increase above inflation.</li>',
   'guide.b2':'<li><b>After-tax</b>: add savings such as ISK, endowment insurance and cash with today\'s balance and monthly saving.</li><li><b>P-Insurance</b>: pick your occupational pension scheme (e.g. ITP 1). Leave Opening empty to calculate the balance from your salary history.</li><li><b>State</b>: add Inkomstpension and Premiepension (Opening empty = automatic), and Garantipension / Inkomstpensionstillägg if relevant.</li><li><b>PGB</b>: add child years, conscription, studies or sickness compensation.</li>',
-  'guide.b3':'<li>For each pension account choose <b>Lifelong</b> (paid for life) or <b>Temporary</b> (a set number of years, ends at 0).</li><li>Set withdrawal start and end years for savings accounts.</li><li>Use <b>age-based expense intervals</b> and <b>Optimize to Zero</b> to spread withdrawals over retirement.</li>',
+  'guide.b3':'<li>Go through the five steps in order: <b>state pension</b> start age, <b>occupational</b> and <b>private pension</b> (lifelong or a number of years), <b>savings</b> and <b>spending</b>.</li><li>Want to spend more in the first, active years? Choose <b>More early, less later</b> in step 5.</li><li>The <b>Result</b> shows whether the money lasts and the highest level your plan allows.</li>',
   'guide.b4':'<li>Enter your <b>monthly spending after tax</b> in retirement per category.</li><li>Start from minPension\'s typical retiree: <b>Basic</b> 17 600, <b>Average</b> 18 400 or <b>Extra</b> 27 300 kr/month, then adjust the amounts.</li><li>Press <b>Finish</b> to see the result on the Dashboard.</li>',
   'acc.title':'Assets','acc.sub':'Tap to expand · SEK / year',
   'acc.sub.desktop':'Investment accounts, pensions & savings vehicles',
@@ -1987,10 +2016,8 @@ en:{
   'summary.overview':'All metrics computed at retirement year',
 
 
-  'wd.age.from':'Age From','wd.age.to':'Age To',
-  'wd.year.from':'Year From','wd.year.to':'Year To',
-  'wd.annual.exp':'Annual Expense (SEK)','wd.wd.yr':'Withdrawal/yr (SEK)',
-  'wd.active':'Active','wd.split':'Withdrawal Split (%)','wd.split.wd':'Withdrawal/yr (SEK)',
+  
+  
 
   // ── Personal tab extras ──
   'pers.sub':'Core life parameters that drive the projection',
@@ -2042,15 +2069,13 @@ en:{
   'acc.tax.rate':'Tax rate',
   'acc.annual.wd':'Annual withdrawal per account (SEK)',
   'acc.tax.model':'Tax per Parameters tab','acc.tax.model.tip':'After-tax amounts use the model\'s own tax on pension income (Typfallsmodellen rules, municipal and state tax from the Parameters tab), the same as the Income vs Expenses chart.',
-  'wd.cap.mth':'Monthly withdrawal per account (kr/mth)','wd.cap.yr':'Annual withdrawal per account (kr/yr)',
   'acc.all.accounts':'All Accounts',
   'acc.sum.of.all':'Sum of all accounts',
   // ── Withdrawals tab ──
   'wd.title':'Withdrawals',
-  'wd.sub':'Expense intervals · gross withdrawal estimates · per-account breakdown by retirement period',
+  'wd.sub':'Your withdrawal plan in five steps · result · per-account details',
   'wd.overview':'Withdrawal Overview',
   'wd.by.account':'WITHDRAWALS BY ACCOUNT',
-  'wd.shown.hint':'Withdrawal/yr shown when period overlaps account Wdrl Start–End',
   // ── Portfolio Value tab ──
   'pv.title':'Portfolio Value',
   'pv.sub':'Per-account ledger · Opening & closing balance for each year',
@@ -2098,7 +2123,6 @@ en:{
   'dash.tax.adj':'Tax-adjusted',
   'dash.annual':'Annual',
   'dash.monthly':'Monthly',
-  'dash.maximize':'⚡ Maximize',
   'dash.period.mth':'kr/mth',
   'dash.period.yr':'kr/yr',
   'dash.ils.title':'Income Sources Over Lifetime',
@@ -2195,9 +2219,109 @@ en:{
   'occ.db.service':'Service years',
   'occ.db.from':'≈ {amt} kr/yr from age {age}',
   'occ.db.tip':'Defined-benefit pension (Typfallsmodellen v4.8): a share of final salary per IBB band, scaled by service years/30 and adjusted for pension start age. Paid for life; no capital.',
-  'occ.payout.planned':'Temporary','occ.payout.lifelong':'Lifelong',
-  'wd.temp.note':'Typfallsmodellen: {tm} /yr → adjusted to end at 0: {adj} /yr',
-  'occ.payout.tip':'Lifelong: paid for life as balance ÷ premium pension divisor (Typfallsmodellen default). Temporary: paid from Wdrl Start to Wdrl End; the yearly amount starts from Typfallsmodellen\'s temporary payout and is adjusted so the account ends at 0 (taxed accounts are adjusted the same way when the expense intervals are off).',
+  
+  'wdp.intro':'Answer the five questions in order. You can change any answer later; the result below updates at once. Every pension amount comes from Typfallsmodellen (Pensionsmyndigheten).',
+  'wdp.next':'Next',
+  'wdp.done':'Show the result',
+  'wdp.s1.t':'State pension',
+  'wdp.s1.q':'When do you want to start your state pension?',
+  'wdp.s1.help':'Income pension and premium pension are paid for life. The earliest start is age {low} (target age {rikt} − 3); every year you wait gives a higher pension each month. Guarantee pension and income pension supplement start at the target age at the earliest. Amounts: per month in the first year, before tax.',
+  'wdp.s1.auto':'At my retirement age ({age})',
+  'wdp.s1.rikt':'target age',
+  'wdp.s1.other':'Other age',
+  'wdp.s1.more':'More choices: start per pension, share, premium pension insurance',
+  'wdp.s1.share':'Share',
+  'wdp.s1.none':'No state pension in the plan yet — add income pension and premium pension under Assets.',
+  'wdp.s1.sum':'From {age} · for life',
+  'wdp.s1.pp':'Insurance',
+  'wdp.s1.fond':'Fund insurance',
+  'wdp.s1.trad':'Traditional insurance',
+  'wdp.s1.div':'Divisor',
+  'wdp.s1.own':'Own',
+  'wdp.permonth':'kr/mo',
+  'wdp.peryear':'kr/yr',
+  'wdp.s2.t':'Occupational pension',
+  'wdp.s2.q':'From which age, and for how long, do you want your occupational pension?',
+  'wdp.s2.help':'Lifelong: a smaller amount for as long as you live. A set number of years: the same capital over a shorter time, so more each month, and then it stops. Amounts per month in the first year, before tax, with Typfallsmodellen\'s divisors; a payout over a set number of years is adjusted so the account ends at 0.',
+  'wdp.s2.compare':'Compare payout periods in detail',
+  'wdp.s2.none':'No occupational pension in the plan yet — add your agreement (ITP, SAF-LO, KAP-KL …) under Assets.',
+  'wdp.s3.t':'Private pension',
+  'wdp.s3.q':'From which age, and for how long, do you want your private pension?',
+  'wdp.s3.none':'No private pension in the plan — add one under Assets if you have one (individual pension account).',
+  'wdp.from':'From age',
+  'wdp.from.short':'from {age}',
+  'wdp.to':'to age',
+  'wdp.with.ret':'At retirement ({age})',
+  'wdp.earliest':'earliest {age}',
+  'wdp.howlong':'How long',
+  'wdp.life':'Lifelong',
+  'wdp.years':'{n} years',
+  'wdp.yrs':'yrs',
+  'wdp.other':'Other',
+  'wdp.db':'Defined benefit: paid for life, ≈ {amt} kr/mo before tax.',
+  'wdp.first':'First year: {amt} kr/mo before tax, for life.',
+  'wdp.first.temp':'First year: {amt} kr/mo before tax, the same every year up to age {to}; then the account is empty.',
+  'wdp.notset':'not chosen',
+  'wdp.pick':'Choose lifelong or a number of years.',
+  'wdp.s4.t':'Savings',
+  'wdp.s4.q':'How do you want to use your savings?',
+  'wdp.s4.help':'ISK, endowment insurance, depå and bank accounts are paid out tax-free. Projected value at age {age}: {amt} kr.',
+  'wdp.s4.need':'Cover what the pensions don\'t',
+  'wdp.s4.need.d':'Each year the savings pay the difference between your spending (step 5) and the pensions after tax — no more. They last as long as they last.',
+  'wdp.s4.even':'The same amount every year',
+  'wdp.s4.even.d':'Spread evenly from one age to another; every account is empty at the end (as Typfallsmodellen spreads private saving over the payout period).',
+  'wdp.s4.even.amt':'≈ {amt} kr/mo in total, tax-free.',
+  'wdp.s4.none':'Leave it untouched',
+  'wdp.s4.none.d':'No withdrawals: a buffer, or an inheritance.',
+  'wdp.s4.manual':'My own amount per account',
+  'wdp.s4.manual.d':'Type the yearly amount and the ages for each account.',
+  'wdp.s4.amount':'Amount',
+  'wdp.s4.empty':'No savings in the plan — add an ISK or another account under Assets if you have one.',
+  'wdp.s4.lasts':'Savings last until age {age}',
+  'wdp.s4.left':'{amt} kr left at age {age}',
+  'wdp.s4.m.need':'Cover the gap',
+  'wdp.s4.m.even':'Same amount every year',
+  'wdp.s4.m.none':'Untouched',
+  'wdp.s4.m.manual':'Own amounts',
+  'wdp.s5.t':'Spending',
+  'wdp.s5.q':'How much do you want to spend in retirement?',
+  'wdp.s5.help':'Your budget on the Expenses tab: {amt} kr/mo after tax. Many spend more in the first, active years (go-go) and less later (slow-go, no-go).',
+  'wdp.s5.nobudget':'No budget yet — fill in the Expenses tab first.',
+  'wdp.s5.nobudget.short':'no budget yet',
+  'wdp.s5.edit':'Change the budget',
+  'wdp.s5.flat':'The same all through',
+  'wdp.s5.phases':'More early, less later',
+  'wdp.s5.phases.short':'by phase',
+  'wdp.s5.level':'Level',
+  'wdp.s5.of':'of the budget',
+  'wdp.s5.preset':'Quick pick',
+  'wdp.preset.even':'Even',
+  'wdp.preset.moderate':'Moderate',
+  'wdp.preset.active':'Active start',
+  'wdp.s5.split':'Phases start at',
+  'wdp.s5.auto':'Even split',
+  'wdp.ages':'age {from}–{to}',
+  'wdp.res.t':'Result',
+  'wdp.res.income':'Income after tax',
+  'wdp.res.spend':'Spending',
+  'wdp.res.ok':'Covered every year',
+  'wdp.res.short':'Short from age {age}',
+  'wdp.res.nobudget':'Fill in your budget on the Expenses tab to see whether the money lasts.',
+  'wdp.res.calc':'Calculating the highest level your plan allows …',
+  'wdp.res.cap':'Your income covers even {pct} % of this spending every year up to age {age}.',
+  'wdp.res.atmax':'You are at the highest spending your plan allows every year up to age {age}.',
+  'wdp.res.max':'Your pensions and savings allow up to {list} kr/mo (same profile) every year up to age {age}.',
+  'wdp.res.max.nosave':'Your pensions allow up to {list} kr/mo (same profile) every year up to age {age}.',
+  'wdp.res.over':'The money does not last: income falls short of the spending from age {dep}. Every year up to age {age} the plan allows {list} kr/mo (same profile).',
+  'wdp.res.use':'Use this level',
+  'wdp.col.start':'At payout start',
+  'wdp.col.first':'First year (kr/yr)',
+  'wdp.col.first.net':'First year, net (kr/yr)',
+  'wdp.col.end':'Left at end',
+  'wdp.details':'Details per account',
+  'wdp.details.hint':'Read from the projection · Before / After tax as chosen above',
+  'wdp.migrated':'The Withdrawals tab is new: your expense intervals are now spending phases (step 5). Check steps 4 and 5.',
+  'wdp.chart.spend':'Spending',
   'acc.name.salary.ex':'Salary Exchange',
   'acc.name.premium.pen':'Premium Pension',
   'acc.name.income.pen':'Income Pension',
@@ -2215,11 +2339,9 @@ en:{
 
 
   // ── Withdrawals – Account table ──
-  'wd.acct.hdr':'ACCOUNT WITHDRAWALS BY PERIOD',
-  'wd.optimize':'Optimize to Zero',
-  'wd.col.account':'Account','wd.col.current':'Current Assets (SEK)',
-  'wd.col.ret.start':'Asset at Retirement Start (SEK)',
-  'wd.col.ret.end':'Asset at Retirement End (SEK)',
+  
+  'wd.col.account':'Account',
+  
   'wd.col.ws':'Wdrl Start (Age)','wd.col.we':'Wdrl End (Age)',
   'acc.cs.low':'Low age {age}',
   'acc.cs.low.tip':'{name} pays no premium before age {age}.',
@@ -2229,10 +2351,11 @@ en:{
   'wd.err.state3':'Earliest withdrawal is 3 years before target age (age {age})',
   'wd.err.target':'Earliest withdrawal is target age (age {age})',
   'wd.err.pins':'Earliest withdrawal is age {age}',
+  'wd.cap.mth':'Monthly withdrawal per account (kr/mth)','wd.cap.yr':'Annual withdrawal per account (kr/yr)',
+  
   'wd.err.min':'Shortest withdrawal time is {n} years',
   'wd.col.period.prefix':'Withdrawal ',
   'wd.chart.age':'Age','wd.chart.year':'Year',
-  'wd.badge.before.tax':'BEFORE TAX','wd.badge.after.tax':'AFTER TAX',
   'wd.sum.period':'Period:','wd.sum.average':'Average',
   'wd.manual.wd':'Manual wd','wd.use.dt':'Use delningstal',
 
@@ -2241,14 +2364,10 @@ en:{
 
 
   // ── Age-Based Expense Intervals ──
-  'wd.iv.hdr':'AGE-BASED EXPENSE INTERVALS',
-  'wd.iv.hdr.active':'AGE-BASED EXPENSE INTERVALS – ACTIVE',
-  'wd.iv.est.all':'Estimate All',
-  'wd.iv.max.depletes':'portfolio depletes at age {age}',
-  'wd.iv.sum':'Sum',
-  'wd.iv.status.active':'Interval-based expenses & withdrawals active',
-  'wd.iv.status.sub':'Withdrawal/yr auto-calculated and distributed across after-tax accounts.',
-  'wd.iv.status.off':'Intervals not active — flat “Total Annual” expense and account withdrawal settings used.',
+  
+  
+  
+  
 
   'wd.chart.tooltip.age':'Age',
 
@@ -2327,7 +2446,7 @@ en:{
 'mc.eq.alloc':'Equity Allocation by Age Bracket (excl. Inkomstpension)','mc.equity.lbl':'Eq',
 'mc.sigma.eq':'Equity Volatility σ_eq (%/yr)','mc.sigma.bd':'Bond Volatility σ_bd (%/yr)',
 'mc.ret.eq':'Real Return — Equities (%)','mc.ret.bd':'Real Return — Bonds (%)','mc.ret.hint':'Default = Parameters tab',
-  'mc.wd.mode':'Withdrawal Strategy','mc.wd.age':'AGE-BASED EXPENSE INTERVALS','mc.wd.acct':'ACCOUNT WITHDRAWALS BY PERIOD','mc.wd.fixed':'Fixed amount','mc.wd.pct':'Fixed withdrawal %','mc.wd.fixed.lbl':'Annual withdrawal (SEK/yr)','mc.wd.pct.lbl':'Withdrawal rate (%/yr)',
+  'mc.wd.mode':'Withdrawal Strategy','mc.wd.age':'SPENDING (WITHDRAWALS TAB)','mc.wd.acct':'ACCOUNT WITHDRAWALS (PROJECTION)','mc.wd.fixed':'Fixed amount','mc.wd.pct':'Fixed withdrawal %','mc.wd.fixed.lbl':'Annual withdrawal (SEK/yr)','mc.wd.pct.lbl':'Withdrawal rate (%/yr)',
   'mc.wd.rolling':'Rolling Average Spending Rule','mc.wd.rolling.pct':'Target rate (%/yr)','mc.wd.rolling.yrs':'Rolling window (yrs)','mc.wd.rolling.hint':'Withdrawal = rate % × avg portfolio over past N years',
   'mc.wd.freq':'Withdrawal Frequency','mc.wd.freq.annual':'Annually','mc.wd.freq.quarterly':'Quarterly','mc.wd.freq.monthly':'Monthly','mc.wd.freq.hint':'Affects compounding and withdrawal timing within each year',
   'mc.tax.treat':'Tax Treatment','mc.tax.pretax':'Pre-tax Returns','mc.tax.aftertax':'After-tax Returns','mc.tax.drag.lbl':'Annual tax drag (%/yr)','mc.tax.drag.hint':'Deducted from portfolio each year (e.g. ISK schablonbeskattning ≈ 0.5–1.0%)',
@@ -2343,7 +2462,7 @@ en:{
   'mc.hist.hdr':'Portfolio End Balance Histogram','mc.hist.sub':'Distribution of final portfolio values (95% of results)','mc.hist.xaxis':'End Balance (SEK)','mc.hist.yaxis':'Frequency','mc.hist.freq':'Simulations',
   'mc.info.html':'<span style="color:#48B866;font-weight:600">ℹ </span><span>Starting Portfolio is pre-filled from your projection at Retirement Age and includes <strong>all accounts including Inkomstpension</strong>. You can override the value manually.</span><br><br><span style="color:var(--gold);font-weight:600">⚠ Note on returns: </span><span>Expected return μ and volatility σ are computed <strong>year by year</strong> from the equity allocation brackets. μ = Equity% × Real Equity Return + Bond% × Real Bond Return (from Parameters tab). σ = √(Equity%² × σ_eq² + Bond%² × σ_bd²), assuming zero correlation between equities and bonds (ρ = 0). Bracket defaults are the portfolio-weighted average equity % across your accounts, excluding Inkomstpension. Inflation defaults to 0% since returns are already real.</span><br><br><span style="color:var(--gold);font-weight:600">⚠ Note on Inkomstpension: </span><span>Inkomstpension is a guaranteed defined-benefit state pension — its future payments do not depend on investment returns. If you include it in your Monte Carlo simulation, you should set <strong>Expected Return μ and Volatility σ to bond-like values</strong> (e.g. μ ≈ 2–3%, σ ≈ 3–5%) to reflect its low-risk, fixed-income character. Alternatively, exclude it from the portfolio and model only your investable assets.</span>',
   'mc.wd.acct.info':'Data is collected from the Withdrawals tab and the ACCOUNT WITHDRAWALS PER PERIOD table.',
-  'mc.wd.age.info':'Data is collected from the Withdrawals tab and the AGE-BASED EXPENSE INTERVALS table.',
+  'mc.wd.age.info':'Each year\'s spending from the Withdrawals tab (step 5: the budget and the spending phases).',
   'sc.notice':'Assumes constant returns each year — no market volatility. Run Monte Carlo for a realistic range of outcomes.','mc.notice':'The Scenarios tab shows the same plan under constant-return assumptions — useful as a baseline before interpreting the probability distribution here.',
   'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\nReplacement Rate: green at 70 % or more, yellow from 50 to 70 %, red below 50 %.',
   'summary.at.ret':'At retirement · ',
@@ -2353,7 +2472,7 @@ en:{
   'tile.phase.slowgo':'Slow-go years',
   'tile.phase.nogo':'No-go years',
   'pp.hdr':'Pension by Retirement Phase',
-  'tip.phasePension':'Distributes your entire portfolio at retirement across the three age brackets from the Withdrawals tab, so the capital is fully spent by life expectancy.\n\nThe weights set the shape of the plan: each phase draws in proportion to its weight, so the default 100 / 90 / 80 front-loads spending into the Go-go years. Only the ratios matter — 10 / 9 / 8 gives the same result.\n\nEach year\'s draw is discounted at that year\'s blended real return, so the equity glide path is respected. Before Tax is the gross withdrawal; After Tax deducts kommunalskatt from the pension portion.\n\nMonthly, in today\'s money. Informational — no colour threshold.\n\n🟢 After-tax pension covers the expenses of the period\n🔴 After-tax pension is below the expenses',
+  'tip.phasePension':'Average monthly pension in each spending phase of the Withdrawals tab (step 5): state pension and P-insurance, plus withdrawals from savings, as in the income-sources chart. Before Tax / After Tax follows that chart (the model\'s own tax).\n\n🟢 After-tax pension covers the expenses of the period\n🔴 After-tax pension is below the expenses',
 
 
 
@@ -2422,8 +2541,7 @@ en:{
   'toast.imported':'Imported: {file}',
   'toast.import.failed':'Import failed: {msg}',
   'toast.autorestored':'Plan auto-restored (saved {date})',
-  'alert.life.after.ret':'Life Expectancy Year must be after Retirement Year.',
-  'alert.run.first':'Run a calculation first.',
+  
   'alert.xlsx.loading':'Excel library not loaded yet, try again in a moment.',
   'alert.xlsx.missing':'Excel export not available — use CSV instead.',
   'alert.run.projection':'Please run a projection first.',
@@ -2455,18 +2573,14 @@ en:{
   'grp.expand':'Expand group',
   'grp.collapse':'Collapse group',
   'pgb.remove':'Remove',
-  'wd.dt.own.tip':'Your own divisor — annual wd = balance ÷ this number',
-  'wd.manual.wd.tip':'Switch to manual withdrawal entry',
-  'wd.year1':'Year 1',
-  'wd.use.dt.tip':'Use Pensionsmyndighetens delningstal (PFS 2024:2 / PP 2026) instead of manual wd',
-  'wd.optimize.tip':'Set each account\'s annual withdrawal so Asset at Retirement End ≈ 0',
+  
+  
   'preset.tip':'Start a new plan or load a typical case',
   'par.allow.unused':'Not used: pension tax follows Typfallsmodellen',
   'inc.tot.gross':'Gross',
   'acc.name.new.after':'New After-Tax Account',
   'acc.name.new.pins':'New Pension Account',
   'acc.name.new.state':'New State Account',
-  'exp.iv.est.tax':'~{pct}% tax on pre-tax',
   // ── CSV and Excel exports ──
   'xp.year':'Year',
   'xp.age':'Age',
@@ -2531,7 +2645,7 @@ sv:{
   'about.own.hdr':'Utvecklat för den här planeraren',
   'about.own.1':'Översikten och alla diagram',
   'about.own.2':'Utgifter och budget, med sparmålet',
-  'about.own.3':'Uttagsplanering och uttagsregler',
+  'about.own.3':'Uttagsplanering i fem steg (pensionernas startålder och uttagstider följer Typfallsmodellens regler och delningstal), utgiftsfaser, uttag från sparandet och den högsta hållbara utgiftsnivån',
   'about.own.4':'Fliken Portföljvärde och Prognostabellen med export',
   'about.own.5':'Scenarier och Monte Carlo-simulering',
   'about.own.6':'Fliken Inkomst (nettolön enligt Skatteverkets regler)',
@@ -2594,7 +2708,7 @@ sv:{
   'guide.t1':'Personligt','guide.t2':'Tillgångar','guide.t3':'Uttag','guide.t4':'Utgifter',
   'guide.b1':'<li>Ange ditt <b>födelseår</b> och <b>åldern då du började arbeta</b>.</li><li><b>Pensionsålder</b>: kryssa i <b>Riktålder</b> för att använda din riktålder, eller ta bort krysset och ange egen ålder.</li><li>Ange <b>förväntad livslängd</b> som ålder, t.ex. 95.</li><li>Ange din <b>bruttolön per månad</b>; nettolönen fylls i automatiskt. Ange årlig löneökning utöver inflationen.</li>',
   'guide.b2':'<li><b>Efter skatt</b>: lägg till sparande som ISK, kapitalförsäkring och kontanter med dagens saldo och månadssparande.</li><li><b>P-försäkring</b>: välj ditt tjänstepensionsavtal (t.ex. ITP 1). Lämna Ingående tomt så beräknas saldot från din lönehistorik.</li><li><b>Statlig</b>: lägg till Inkomstpension och Premiepension (tomt Ingående = automatiskt), samt Garantipension / Inkomstpensionstillägg vid behov.</li><li><b>PGB</b>: lägg till barnår, värnplikt, studier eller sjukersättning.</li>',
-  'guide.b3':'<li>Välj för varje pensionskonto <b>Livsvarig</b> (betalas livet ut) eller <b>Temporärt</b> (ett visst antal år, slutar på 0).</li><li>Ange start- och slutår för uttag från sparkonton.</li><li>Använd <b>åldersbaserade utgiftsintervall</b> och <b>Optimera till noll</b> för att fördela uttagen över pensionen.</li>',
+  'guide.b3':'<li>Gå igenom de fem stegen i tur och ordning: när <b>allmän pension</b> ska börja, <b>tjänstepension</b> och <b>privat pension</b> (livsvarigt eller ett antal år), <b>sparande</b> och <b>utgifter</b>.</li><li>Vill du spendera mer de första aktiva åren? Välj <b>Mer i början, mindre senare</b> i steg 5.</li><li><b>Resultatet</b> visar om pengarna räcker och den högsta nivå planen klarar.</li>',
   'guide.b4':'<li>Ange dina <b>månadsutgifter efter skatt</b> som pensionär per kategori.</li><li>Utgå från minPensions typiska pensionär: <b>Bas</b> 17 600, <b>Medel</b> 18 400 eller <b>Plus</b> 27 300 kr/mån, och justera sedan beloppen.</li><li>Tryck <b>Klar</b> för att se resultatet på översikten.</li>',
   'acc.title':'Tillgångar','acc.sub':'Tryck för att expandera · SEK / år',
   'acc.sub.desktop':'Investeringskonton, pensioner & sparformer',
@@ -2638,10 +2752,8 @@ sv:{
   'summary.overview':'Alla nyckeltal beräknas vid pensionsåret',
 
 
-  'wd.age.from':'Ålder från','wd.age.to':'Ålder till',
-  'wd.year.from':'År från','wd.year.to':'År till',
-  'wd.annual.exp':'Årsutgift (SEK)','wd.wd.yr':'Uttag/år (SEK)',
-  'wd.active':'Aktiv','wd.split':'Uttagsfördelning (%)','wd.split.wd':'Uttag/år (SEK)',
+  
+  
 
   // ── Personal tab extras ──
   'pers.sub':'Grundläggande livsparametrar för prognosen',
@@ -2693,15 +2805,13 @@ sv:{
   'acc.tax.rate':'Skattesats',
   'acc.annual.wd':'Årsuttag per konto (SEK)',
   'acc.tax.model':'Skatt enligt Parametrar','acc.tax.model.tip':'Belopp efter skatt använder modellens egen skatt på pensionsinkomst (Typfallsmodellens regler, kommunal och statlig skatt från fliken Parametrar), samma som diagrammet Inkomst vs Utgifter.',
-  'wd.cap.mth':'Månadsuttag per konto (kr/mån)','wd.cap.yr':'Årsuttag per konto (kr/år)',
   'acc.all.accounts':'Alla konton',
   'acc.sum.of.all':'Summa alla konton',
   // ── Withdrawals tab ──
   'wd.title':'Uttag',
-  'wd.sub':'Utgiftsintervall · bruttouttag · kontovis fördelning per pensionsperiod',
+  'wd.sub':'Din uttagsplan i fem steg · resultat · detaljer per konto',
   'wd.overview':'Uttagsöversikt',
   'wd.by.account':'UTTAG PER KONTO',
-  'wd.shown.hint':'Uttag/år visas när perioden överlappar kontots Uttag Start–Slut',
   // ── Portfolio Value tab ──
   'pv.title':'Portföljvärde',
   'pv.sub':'Kontovis redovisning · Ingående & utgående saldo per år',
@@ -2749,7 +2859,6 @@ sv:{
   'dash.tax.adj':'Skattejusterad',
   'dash.annual':'Årsvis',
   'dash.monthly':'Månadsvis',
-  'dash.maximize':'⚡ Maximera',
   'dash.period.mth':'kr/mån',
   'dash.period.yr':'kr/år',
   'dash.ils.title':'Inkomstkällor under livet',
@@ -2846,9 +2955,109 @@ sv:{
   'occ.db.service':'Tjänsteår',
   'occ.db.from':'≈ {amt} kr/år från {age} år',
   'occ.db.tip':'Förmånsbestämd pension (Typfallsmodellen v4.8): andel av slutlönen per IBB-intervall, skalad med tjänsteår/30 och justerad för uttagsålder. Betalas livsvarigt; inget kapital.',
-  'occ.payout.planned':'Temporärt','occ.payout.lifelong':'Livsvarig',
-  'wd.temp.note':'Typfallsmodellen: {tm} kr/år → justerat så att kontot slutar på 0: {adj} kr/år',
-  'occ.payout.tip':'Livsvarig: betalas ut livet ut som behållning ÷ premiepensionens delningstal (Typfallsmodellens standard). Temporärt: betalas från Uttagsstart till Uttagsslut; årsbeloppet utgår från Typfallsmodellens tillfälliga utbetalning och justeras så att kontot slutar på 0 (beskattade konton justeras på samma sätt när utgiftsintervallen är av).',
+  
+  'wdp.intro':'Svara på de fem frågorna i tur och ordning. Du kan ändra ett svar när som helst – resultatet nedan uppdateras direkt. Alla pensionsbelopp kommer från Typfallsmodellen (Pensionsmyndigheten).',
+  'wdp.next':'Nästa',
+  'wdp.done':'Visa resultatet',
+  'wdp.s1.t':'Allmän pension',
+  'wdp.s1.q':'När vill du börja ta ut din allmänna pension?',
+  'wdp.s1.help':'Inkomstpension och premiepension betalas ut livet ut. Du kan börja tidigast vid {low} år (riktåldern {rikt} − 3); varje år du väntar ger en högre pension varje månad. Garantipension och inkomstpensionstillägg börjar tidigast vid riktåldern. Belopp: per månad det första året, före skatt.',
+  'wdp.s1.auto':'Vid min pensionsålder ({age})',
+  'wdp.s1.rikt':'riktålder',
+  'wdp.s1.other':'Annan ålder',
+  'wdp.s1.more':'Fler val: start per pension, uttagsandel, premiepensionens försäkring',
+  'wdp.s1.share':'Uttagsandel',
+  'wdp.s1.none':'Ingen allmän pension i planen ännu – lägg till inkomstpension och premiepension under Tillgångar.',
+  'wdp.s1.sum':'Från {age} år · livet ut',
+  'wdp.s1.pp':'Försäkring',
+  'wdp.s1.fond':'Fondförsäkring',
+  'wdp.s1.trad':'Traditionell försäkring',
+  'wdp.s1.div':'Delningstal',
+  'wdp.s1.own':'Eget',
+  'wdp.permonth':'kr/mån',
+  'wdp.peryear':'kr/år',
+  'wdp.s2.t':'Tjänstepension',
+  'wdp.s2.q':'Från vilken ålder och hur länge vill du ta ut din tjänstepension?',
+  'wdp.s2.help':'Livsvarigt: ett lägre belopp så länge du lever. Ett visst antal år: samma kapital på kortare tid, alltså mer varje månad, och sedan tar det slut. Belopp per månad det första året, före skatt, med Typfallsmodellens delningstal; en utbetalning under ett visst antal år justeras så att kontot slutar på 0.',
+  'wdp.s2.compare':'Jämför uttagstider i detalj',
+  'wdp.s2.none':'Ingen tjänstepension i planen ännu – lägg till ditt avtal (ITP, SAF-LO, KAP-KL …) under Tillgångar.',
+  'wdp.s3.t':'Privat pension',
+  'wdp.s3.q':'Från vilken ålder och hur länge vill du ta ut din privata pension?',
+  'wdp.s3.none':'Ingen privat pension i planen – lägg till en under Tillgångar om du har en (individuellt pensionskonto).',
+  'wdp.from':'Från ålder',
+  'wdp.from.short':'från {age} år',
+  'wdp.to':'till ålder',
+  'wdp.with.ret':'Vid pensionen ({age})',
+  'wdp.earliest':'tidigast {age} år',
+  'wdp.howlong':'Hur länge',
+  'wdp.life':'Livsvarigt',
+  'wdp.years':'{n} år',
+  'wdp.yrs':'år',
+  'wdp.other':'Annat',
+  'wdp.db':'Förmånsbestämd: betalas livet ut, ≈ {amt} kr/mån före skatt.',
+  'wdp.first':'Första året: {amt} kr/mån före skatt, livet ut.',
+  'wdp.first.temp':'Första året: {amt} kr/mån före skatt, lika mycket varje år till {to} år; sedan är kontot tomt.',
+  'wdp.notset':'inte valt',
+  'wdp.pick':'Välj livsvarigt eller ett antal år.',
+  'wdp.s4.t':'Sparande',
+  'wdp.s4.q':'Hur vill du använda ditt sparande?',
+  'wdp.s4.help':'ISK, kapitalförsäkring, depå och konton betalas ut skattefritt. Beräknat värde vid {age} år: {amt} kr.',
+  'wdp.s4.need':'Täck det pensionerna inte räcker till',
+  'wdp.s4.need.d':'Varje år betalar sparandet skillnaden mellan dina utgifter (steg 5) och pensionerna efter skatt – inte mer. Det räcker så länge det räcker.',
+  'wdp.s4.even':'Lika mycket varje år',
+  'wdp.s4.even.d':'Fördelas jämnt från en ålder till en annan; varje konto är tomt vid slutet (som Typfallsmodellen fördelar privat sparande över uttagstiden).',
+  'wdp.s4.even.amt':'≈ {amt} kr/mån totalt, skattefritt.',
+  'wdp.s4.none':'Rör det inte',
+  'wdp.s4.none.d':'Inga uttag: en buffert eller ett arv.',
+  'wdp.s4.manual':'Eget belopp per konto',
+  'wdp.s4.manual.d':'Skriv in årsbelopp och åldrar för varje konto.',
+  'wdp.s4.amount':'Belopp',
+  'wdp.s4.empty':'Inget sparande i planen – lägg till ett ISK eller annat konto under Tillgångar om du har det.',
+  'wdp.s4.lasts':'Sparandet räcker till {age} år',
+  'wdp.s4.left':'{amt} kr kvar vid {age} år',
+  'wdp.s4.m.need':'Täck det som fattas',
+  'wdp.s4.m.even':'Lika mycket varje år',
+  'wdp.s4.m.none':'Rörs inte',
+  'wdp.s4.m.manual':'Egna belopp',
+  'wdp.s5.t':'Utgifter',
+  'wdp.s5.q':'Hur mycket vill du spendera som pensionär?',
+  'wdp.s5.help':'Din budget under Utgifter: {amt} kr/mån efter skatt. Många spenderar mer de första aktiva åren (go-go) och mindre senare (slow-go, no-go).',
+  'wdp.s5.nobudget':'Ingen budget ännu – fyll i fliken Utgifter först.',
+  'wdp.s5.nobudget.short':'ingen budget ännu',
+  'wdp.s5.edit':'Ändra budgeten',
+  'wdp.s5.flat':'Lika mycket hela tiden',
+  'wdp.s5.phases':'Mer i början, mindre senare',
+  'wdp.s5.phases.short':'per fas',
+  'wdp.s5.level':'Nivå',
+  'wdp.s5.of':'av budgeten',
+  'wdp.s5.preset':'Snabbval',
+  'wdp.preset.even':'Jämn',
+  'wdp.preset.moderate':'Måttlig',
+  'wdp.preset.active':'Aktiv start',
+  'wdp.s5.split':'Faserna börjar vid',
+  'wdp.s5.auto':'Jämn fördelning',
+  'wdp.ages':'{from}–{to} år',
+  'wdp.res.t':'Resultat',
+  'wdp.res.income':'Inkomst efter skatt',
+  'wdp.res.spend':'Utgifter',
+  'wdp.res.ok':'Räcker varje år',
+  'wdp.res.short':'Räcker inte från {age} år',
+  'wdp.res.nobudget':'Fyll i din budget under Utgifter för att se om pengarna räcker.',
+  'wdp.res.calc':'Räknar fram den högsta nivå planen klarar …',
+  'wdp.res.cap':'Inkomsten räcker till och med till {pct} % av de här utgifterna varje år till {age} år.',
+  'wdp.res.atmax':'Du ligger på den högsta nivå planen klarar varje år till {age} år.',
+  'wdp.res.max':'Pensionerna och sparandet räcker till upp till {list} kr/mån (samma profil) varje år till {age} år.',
+  'wdp.res.max.nosave':'Pensionerna räcker till upp till {list} kr/mån (samma profil) varje år till {age} år.',
+  'wdp.res.over':'Pengarna räcker inte: inkomsten är lägre än utgifterna från {dep} år. Varje år till {age} år klarar planen {list} kr/mån (samma profil).',
+  'wdp.res.use':'Använd nivån',
+  'wdp.col.start':'Vid uttagsstart',
+  'wdp.col.first':'Första året (kr/år)',
+  'wdp.col.first.net':'Första året, netto (kr/år)',
+  'wdp.col.end':'Kvar vid slutet',
+  'wdp.details':'Detaljer per konto',
+  'wdp.details.hint':'Hämtat ur prognosen · före / efter skatt enligt valet ovan',
+  'wdp.migrated':'Fliken Uttag är ny: dina utgiftsintervall är nu utgiftsfaser (steg 5). Kontrollera steg 4 och 5.',
+  'wdp.chart.spend':'Utgifter',
   'acc.name.salary.ex':'Löneväxling',
   'acc.name.premium.pen':'Premiepension',
   'acc.name.income.pen':'Inkomstpension',
@@ -2866,11 +3075,9 @@ sv:{
 
 
   // ── Uttag – Kontotabell ──
-  'wd.acct.hdr':'UTTAG PER KONTO OCH PERIOD',
-  'wd.optimize':'Optimera till noll',
-  'wd.col.account':'Konto','wd.col.current':'Nuvarande tillgångar (SEK)',
-  'wd.col.ret.start':'Tillgångar vid pensionstart (SEK)',
-  'wd.col.ret.end':'Tillgångar vid pensionsslut (SEK)',
+  
+  'wd.col.account':'Konto',
+  
   'wd.col.ws':'Uttag start (ålder)','wd.col.we':'Uttag slut (ålder)',
   'acc.cs.low':'Lägsta ålder {age}',
   'acc.cs.low.tip':'{name} betalar ingen premie före ålder {age}.',
@@ -2880,10 +3087,11 @@ sv:{
   'wd.err.state3':'Tidigast uttag är 3 år före riktåldern (ålder {age})',
   'wd.err.target':'Tidigast uttag är riktåldern (ålder {age})',
   'wd.err.pins':'Tidigast uttag är ålder {age}',
+  'wd.cap.mth':'Månadsuttag per konto (kr/mån)','wd.cap.yr':'Årsuttag per konto (kr/år)',
+  
   'wd.err.min':'Kortaste uttagstid är {n} år',
   'wd.col.period.prefix':'Uttag ',
   'wd.chart.age':'Ålder','wd.chart.year':'År',
-  'wd.badge.before.tax':'FÖRE SKATT','wd.badge.after.tax':'EFTER SKATT',
   'wd.sum.period':'Period:','wd.sum.average':'Medelvärde',
   'wd.manual.wd':'Manuellt uttag','wd.use.dt':'Använd delningstal',
 
@@ -2892,14 +3100,10 @@ sv:{
 
 
   // ── Åldersbaserade utgiftsintervall ──
-  'wd.iv.hdr':'ÅLDERSBASERADE UTGIFTSINTERVALL',
-  'wd.iv.hdr.active':'ÅLDERSBASERADE UTGIFTSINTERVALL – AKTIVT',
-  'wd.iv.est.all':'Beräkna alla',
-  'wd.iv.max.depletes':'portföljen tar slut vid {age} års ålder',
-  'wd.iv.sum':'Summa',
-  'wd.iv.status.active':'Intervallbaserade utgifter & uttag aktiva',
-  'wd.iv.status.sub':'Uttag/år beräknas automatiskt och fördelas över beskattade konton.',
-  'wd.iv.status.off':'Intervall ej aktiva — enkla “Totala årsutgifter” och kontoinställningar används.',
+  
+  
+  
+  
 
   'wd.chart.tooltip.age':'Ålder',
 
@@ -2978,7 +3182,7 @@ sv:{
 'mc.eq.alloc':'Aktieallokering per åldersintervall (exkl. Inkomstpension)','mc.equity.lbl':'Ak',
 'mc.sigma.eq':'Aktie-volatilitet σ_eq (%/år)','mc.sigma.bd':'Obligations-volatilitet σ_bd (%/år)',
 'mc.ret.eq':'Realavkastning — Aktier (%)','mc.ret.bd':'Realavkastning — Obligationer (%)','mc.ret.hint':'Standard = Parametrar-fliken',
-  'mc.wd.mode':'Uttagsstrategi','mc.wd.age':'ÅLDERSBASERADE UTGIFTSINTERVALL','mc.wd.acct':'KONTOUTTAG PER PERIOD','mc.wd.fixed':'Fast belopp','mc.wd.pct':'Fast uttagsprocent','mc.wd.fixed.lbl':'Årsuttag (SEK/år)','mc.wd.pct.lbl':'Uttagsgrad (%/år)',
+  'mc.wd.mode':'Uttagsstrategi','mc.wd.age':'UTGIFTER (UTTAG-FLIKEN)','mc.wd.acct':'KONTOUTTAG (PROGNOSEN)','mc.wd.fixed':'Fast belopp','mc.wd.pct':'Fast uttagsprocent','mc.wd.fixed.lbl':'Årsuttag (SEK/år)','mc.wd.pct.lbl':'Uttagsgrad (%/år)',
   'mc.wd.rolling':'Rullande genomsnittlig uttagsregel','mc.wd.rolling.pct':'Målsatt uttagsgrad (%/år)','mc.wd.rolling.yrs':'Rullande fönster (år)','mc.wd.rolling.hint':'Uttag = uttagsgrad % × genomsnittlig portfölj senaste N år',
   'mc.wd.freq':'Uttagsfrekvens','mc.wd.freq.annual':'Årsvis','mc.wd.freq.quarterly':'Kvartalsvis','mc.wd.freq.monthly':'Månadsvis','mc.wd.freq.hint':'Påverkar ränta-på-ränta och uttagstiming inom varje år',
   'mc.tax.treat':'Skattebehandling','mc.tax.pretax':'Avkastning före skatt','mc.tax.aftertax':'Avkastning efter skatt','mc.tax.drag.lbl':'Årlig skattebelastning (%/år)','mc.tax.drag.hint':'Dras från portföljen varje år (t.ex. ISK schablonbeskattning ≈ 0,5–1,0%)',
@@ -2994,7 +3198,7 @@ sv:{
   'mc.hist.hdr':'Histogram – slutvärde portfölj','mc.hist.sub':'Fördelning av slutvärden (95% av resultat)','mc.hist.xaxis':'Slutvärde (SEK)','mc.hist.yaxis':'Frekvens','mc.hist.freq':'Simuleringar',
   'mc.info.html':'<span style="color:#48B866;font-weight:600">ℹ </span><span>Startportföljen hämtas från din projektion vid pensionsåldern och inkluderar <strong>alla konton inklusive Inkomstpension</strong>. Du kan ändra värdet manuellt.</span><br><br><span style="color:var(--gold);font-weight:600">⚠ Om avkastning: </span><span>Förväntad avkastning μ och volatilitet σ beräknas <strong>år för år</strong> utifrån aktieallokerings-bracketarna. μ = Aktie% × Realavkastning Aktier + Obligation% × Realavkastning Obligationer (från Parametrar-fliken). σ = √(Aktie%² × σ_eq² + Obligation%² × σ_bd²), med antagandet om noll korrelation mellan aktier och obligationer (ρ = 0). Bracket-standardvärden är portföljviktade genomsnittliga aktieandelen för dina konton, exklusive Inkomstpension. Inflation är som standard 0% eftersom avkastningarna redan är reala.</span><br><br><span style="color:var(--gold);font-weight:600">⚠ Om Inkomstpension: </span><span>Inkomstpension är en garanterad förmånsbestämd statspension — framtida utbetalningar beror inte på investeringsavkastning. Om du inkluderar den i din Monte Carlo-simulering bör du ange <strong>Förväntad avkastning μ och Volatilitet σ till obligationsliknande värden</strong> (t.ex. μ ≈ 2–3%, σ ≈ 3–5%) för att spegla dess lågrisk- och räntebärande karaktär. Alternativt kan du exkludera den från portföljen och modellera enbart dina investerbara tillgångar.</span>',
   'mc.wd.acct.info':'Data hämtas från Uttag-fliken och tabellen KONTOUTTAG PER PERIOD.',
-  'mc.wd.age.info':'Data hämtas från Uttag-fliken och tabellen ÅLDERSBASERADE UTGIFTSINTERVALL.',
+  'mc.wd.age.info':'Varje års utgifter från Uttag-fliken (steg 5: budgeten och utgiftsfaserna).',
   'sc.notice':'Antar konstant avkastning varje år — ingen marknadsvolatilitet. Kör Monte Carlo för ett realistiskt utfallsintervall.','mc.notice':'Scenarier-fliken visar samma plan med konstanta avkastningsantaganden — användbart som referenspunkt innan du tolkar sannolikhetsfördelningen här.',
   'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\nKompensationsgrad: grön vid 70 % eller mer, gul från 50 till 70 %, röd under 50 %.',
   'summary.at.ret':'Vid pension · ',
@@ -3004,7 +3208,7 @@ sv:{
   'tile.phase.slowgo':'Lugnare år (slow-go)',
   'tile.phase.nogo':'Stillsamma år (no-go)',
   'pp.hdr':'Pension per pensionsfas',
-  'tip.phasePension':'Fördelar hela din portfölj vid pension över de tre åldersintervallen från Uttag-fliken, så att kapitalet är helt förbrukat vid förväntad livslängd.\n\nVikterna bestämmer planens form: varje period tar ut i proportion till sin vikt, så standardvärdet 100 / 90 / 80 frontladdar uttagen till de aktiva åren. Bara förhållandet spelar roll — 10 / 9 / 8 ger samma resultat.\n\nVarje års uttag diskonteras med det årets blandade realavkastning, vilket beaktar nedtrappningen av aktieandelen. Före skatt är bruttouttaget; Efter skatt drar av kommunalskatt på pensionsdelen.\n\nBelopp per månad, i dagens penningvärde. Informativ — ingen färgtröskel.\n\n🟢 Pension efter skatt täcker periodens utgifter\n🔴 Pension efter skatt är lägre än utgifterna',
+  'tip.phasePension':'Genomsnittlig pension per månad i varje utgiftsfas på Uttag-fliken (steg 5): allmän pension och P-försäkringar plus uttag från sparandet, som i diagrammet över inkomstkällor. Före / efter skatt följer diagrammet (modellens egen skatt).\n\n🟢 Pension efter skatt täcker periodens utgifter\n🔴 Pension efter skatt är lägre än utgifterna',
 
 
 
@@ -3073,8 +3277,7 @@ sv:{
   'toast.imported':'Inläst: {file}',
   'toast.import.failed':'Kunde inte läsa in: {msg}',
   'toast.autorestored':'Den sparade planen är inläst (sparad {date})',
-  'alert.life.after.ret':'Livslängdsåret måste vara efter pensionsåret.',
-  'alert.run.first':'Gör en beräkning först.',
+  
   'alert.xlsx.loading':'Excel-funktionen är inte laddad än. Försök igen om en stund.',
   'alert.xlsx.missing':'Excel-export går inte just nu – använd CSV i stället.',
   'alert.run.projection':'Gör en prognos först.',
@@ -3106,18 +3309,14 @@ sv:{
   'grp.expand':'Fäll ut gruppen',
   'grp.collapse':'Fäll ihop gruppen',
   'pgb.remove':'Ta bort',
-  'wd.dt.own.tip':'Eget delningstal – årligt uttag = saldo ÷ detta tal',
-  'wd.manual.wd.tip':'Ange uttaget själv i stället',
-  'wd.year1':'År 1',
-  'wd.use.dt.tip':'Använd Pensionsmyndighetens delningstal (PFS 2024:2 / PP 2026) i stället för manuellt uttag',
-  'wd.optimize.tip':'Sätter varje kontos årliga uttag så att tillgångarna vid pensionsslut blir ≈ 0',
+  
+  
   'preset.tip':'Börja en ny plan eller läs in ett typfall',
   'par.allow.unused':'Används inte: pensionsskatten följer Typfallsmodellen',
   'inc.tot.gross':'Brutto',
   'acc.name.new.after':'Nytt beskattat konto',
   'acc.name.new.pins':'Nytt pensionskonto',
   'acc.name.new.state':'Ny statlig pension',
-  'exp.iv.est.tax':'~{pct} % skatt på uttag från P-försäkring',
   // ── CSV and Excel exports ──
   'xp.year':'År',
   'xp.age':'Ålder',
@@ -3203,8 +3402,6 @@ function setLang(lang){
   // Update 'N years' cells in savings multiplier table
   var _yrStr = t('exp.years');
   document.querySelectorAll('[data-i18n="exp.years"]').forEach(function(el){ el.textContent = _yrStr; });
-  // Rebuild interval table so translated headers appear
-  if(typeof buildExpIntervals === 'function') buildExpIntervals();
   // Translate mc-wd-mode dropdown options
   var wdSel = document.getElementById('mc-wd-mode');
   if(wdSel){ Array.from(wdSel.options).forEach(function(opt){
@@ -3768,7 +3965,10 @@ function wdSyncStart(){
   accounts.forEach(function(a){
     if(!a.wsAuto || !(a.ws < 9999)) return;
     var y = wdDefaultYear(a);
-    if(a.ws !== y){ a.ws = y; changed = true; }
+    if(a.ws !== y){
+      if(isTempAcc(a)) a.we = y + (a.we - a.ws);   // a Temporärt account keeps its number of payout years
+      a.ws = y; changed = true;
+    }
   });
   return changed;
 }
@@ -4841,9 +5041,8 @@ function tempPayoutDivisor(a, startAge, years, year){
 }
 // P-insurance accounts under Temporärt control: planned mode with a payout window
 function isTempAcc(a){ return !!(a && a.type === 'p-ins' && isPlannedPIns(a) && a.ws < 9999 && a.we < 9998 && a.we > a.ws); }
-function wdIvMasterOn(){ var cb = document.getElementById('exp-iv-master'); return !!(cb && cb.checked); }
-// Taxed (after-tax) accounts adjusted along with them: only with the expense intervals off (the intervals decide their draw otherwise)
-function isTempTaxed(a){ return !!(a && a.type === 'after' && a.ws < 9999 && a.we < 9998 && a.we > a.ws && accounts.some(isTempAcc) && !wdIvMasterOn()); }
+// Savings (after-tax accounts) spread evenly to 0: the plan's savings mode 'even' (Withdrawals tab, step 4)
+function isTempTaxed(a){ return !!(a && a.type === 'after' && wdPlan.savingsMode === 'even' && a.ws < 9999 && a.we < 9998 && a.we > a.ws); }
 var _tmpZero = {busy:false, sig:'', t:null, tm:{}};
 function tempOpenAt(ai, yr){
   var row = (_projYears || []).find(function(y){ return y.yr === yr; });
@@ -4851,7 +5050,7 @@ function tempOpenAt(ai, yr){
   return d ? (d.open || 0) : 0;
 }
 function tempSignature(){
-  var parts = [wdIvMasterOn() ? 'iv' : 'no', getParam('eqReturn'), getParam('bdReturn'), getParam('occReturn'), getParam('inflation'), getParam('munTax')];
+  var parts = [wdPlan.savingsMode, getParam('eqReturn'), getParam('bdReturn'), getParam('occReturn'), getParam('inflation'), getParam('munTax')];
   accounts.forEach(function(a, ai){
     if(isTempAcc(a) || isTempTaxed(a)) parts.push([ai, a.type, a.scheme||'', a.ws, a.we, a.yt||0, a.mgmt||0, Math.round(tempOpenAt(ai, a.ws))].join(':'));
   });
@@ -4978,8 +5177,6 @@ function applyExpensePersona(k){
   p.forEach(function(e){ expenses.push({name:e.name, val:e.val}); });
   buildExpenseRows();
   recalc();
-  var iv = document.getElementById('exp-iv-master');
-  if(iv && iv.checked){ autoCalcExpIntervals(); recalc(); }
 }
 
 function buildExpenseRows(){
@@ -5408,8 +5605,8 @@ function buildWdSummary(){
     var onA = _wdSummaryPMode==='average';
     html += '<button onclick="setWdSummaryPMode(\'average\')" style="'+(onA?activeStyle:inactiveStyle)+'">'+t('wd.sum.average')+'</button>';
 
-    // One button per expAgeInterval that has valid from/to
-    expAgeIntervals.forEach(function(iv,i){
+    // One button per spending phase (Withdrawals tab, step 5)
+    wdpPhaseBounds().forEach(function(iv,i){
       if(!iv || iv.from==null || iv.to==null) return;
       var lbl = iv.from+'\u2013'+iv.to;
       var on  = _wdSummaryPMode==='iv:'+i;
@@ -5443,7 +5640,7 @@ function buildWdSummary(){
     } else if(_wdSummaryPMode.indexOf('iv:')===0){
       // Interval period: return effWd only if account is active during that interval
       var ivIdx = parseInt(_wdSummaryPMode.slice(3));
-      var iv = expAgeIntervals[ivIdx];
+      var iv = wdpPhaseBounds()[ivIdx];
       if(!iv) return baseWdOf(a, ai);
       var fromYr = by2 + (iv.from||0);
       var toYr   = by2 + (iv.to||0);
@@ -5505,7 +5702,7 @@ function buildWdSummary(){
     if(n>=1e3) return Math.round(n/1e3)+' k';
     return Math.round(n)+'';
   };
-  var unit = _wdSummaryPeriod === 'monthly' ? '/'+t('dash.period.mth') : '/'+t('dash.period.yr');
+  var unit = ' ' + (_wdSummaryPeriod === 'monthly' ? t('dash.period.mth') : t('dash.period.yr'));   // "404 k kr/yr"
 
   var PAL_STATE = ['#C4B89A','#8E7B5E'];
   var PAL_PINS  = ['#4885C4','#2E6FA8','#1A4F80','#5BA8E5','#7CC0F0','#3D7AB8','#91C8F5','#276090'];
@@ -5513,13 +5710,13 @@ function buildWdSummary(){
   var PAL_TOTAL = ['#C4B89A','#4885C4','#48B866'];
 
   var specs = [
-    { id:'wsc-total', label:t('wd.pie.total'),      subtitle: grandTotal>0 ? fmtK(grandTotal)+'kr'+unit : '—',
+    { id:'wsc-total', label:t('wd.pie.total'),      subtitle: grandTotal>0 ? fmtK(grandTotal)+unit : '—',
       data:[totState,totPins,totAfter], labels:[t('acc.group.state'),t('acc.badge.pins'),t('wd.pie.after.short')], colors:PAL_TOTAL, separator:false },
-    { id:'wsc-state', label:t('acc.group.state'),   subtitle: totState>0 ? fmtK(totState)+'kr'+unit : '—',
+    { id:'wsc-state', label:t('acc.group.state'),   subtitle: totState>0 ? fmtK(totState)+unit : '—',
       data:byType.state.map(function(a){return wdOf(a)*wdTaxFactor(a)/div;}), labels:byType.state.map(function(a){return accDisplayName(a);}), colors:PAL_STATE, separator:true },
-    { id:'wsc-pins',  label:t('acc.badge.pins'),    subtitle: totPins>0 ? fmtK(totPins)+'kr'+unit : '—',
+    { id:'wsc-pins',  label:t('acc.badge.pins'),    subtitle: totPins>0 ? fmtK(totPins)+unit : '—',
       data:byType['p-ins'].map(function(a){return wdOf(a)*wdTaxFactor(a)/div;}), labels:byType['p-ins'].map(function(a){return accDisplayName(a);}), colors:PAL_PINS, separator:true },
-    { id:'wsc-after', label:t('wd.pie.after.short'),subtitle: totAfter>0 ? fmtK(totAfter)+'kr'+unit : '—',
+    { id:'wsc-after', label:t('wd.pie.after.short'),subtitle: totAfter>0 ? fmtK(totAfter)+unit : '—',
       data:byType.after.map(function(a){return wdOf(a)*wdTaxFactor(a)/div;}), labels:byType.after.map(function(a){return accDisplayName(a);}), colors:PAL_AFTER, separator:true }
   ];
 
@@ -5568,7 +5765,7 @@ function buildWdSummary(){
                 var v=ctx.raw||0;
                 var tot=(ctx.chart.data.datasets[0].data||[]).reduce(function(s,x){return s+(x||0);},0);
                 var pct=tot>0?' ('+Math.round(v/tot*100)+'%)':'';
-                return '  '+Math.round(v).toLocaleString('sv-SE')+' kr'+unit+pct;
+                return '  '+Math.round(v).toLocaleString('sv-SE')+unit+pct;
               }
             },
             backgroundColor:'rgba(10,14,26,.92)',titleColor:'#48B866',bodyColor:'#c8d8e8',
@@ -5989,7 +6186,6 @@ function buildAccountsTable(){
   tbody.appendChild(totalRow);
   // Sync subtotals immediately after rebuilding
   setTimeout(updateAccountSubtotals, 0);
-  setTimeout(updateAccountsIvState, 0);
   setTimeout(buildAssetSummary, 0);
 }
 accounts.forEach(function(a){ if(a.type==='after') a.contribSalary=false; }); // state keeps contribSalary:true
@@ -6031,254 +6227,85 @@ function calcReturn(acc, age, params){
 }
 
 
-// ── AGE-BASED EXPENSE INTERVALS ────────────────────────────────────────
-var _savedAccountWd = null;  // saved wd/ws/we when intervals active
-var expAgeIntervals = [
-  {from:65, to:75,  amount:0, wdAmount:0, wdManual:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
-  {from:76, to:85,  amount:0, wdAmount:0, wdManual:false, wdPctAT:0.30, wdPctPI:0.70, wdPctST:0},
-  {from:86, to:150, amount:0, wdAmount:0, wdManual:false, wdPctAT:0.40, wdPctPI:0.60, wdPctST:0}
-];
-
-function buildExpIntervals(){
-  var tbody = document.getElementById('exp-iv-tbody');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  var fmtK  = function(n){ return Math.round(n||0).toLocaleString('sv-SE'); };
-  var fmtP  = function(v){ return Math.round((v||0)*100); };  // 0.2 → 20
-  var parseK = function(s){ return parseInt((s||'').toString().replace(/[^0-9]/g,''))||0; };
-  var INP   = 'background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--gold);text-align:right;padding:2px 5px;font-size:12px;font-family:var(--font-m)';
-  var SEK_STYLE = 'font-size:11px;color:#48B866;font-family:var(--font-m);text-align:right;padding:2px 4px';
-  var SEK_PI_S  = 'font-size:11px;color:#4885C4;font-family:var(--font-m);text-align:right;padding:2px 4px';
-  var SEK_ST_S  = 'font-size:11px;color:#C4B89A;font-family:var(--font-m);text-align:right;padding:2px 4px';
-
-  expAgeIntervals.forEach(function(iv, i){
-    var atSEK = Math.round((iv.wdAmount||0)*(iv.wdPctAT||0));
-    var piSEK = Math.round((iv.wdAmount||0)*(iv.wdPctPI||0));
-    var stSEK = Math.round((iv.wdAmount||0)*(iv.wdPctST||0));
-    var tr = document.createElement('tr');
-    tr.style.borderBottom = '1px solid rgba(0,0,0,0.07)';
-    tr.innerHTML =
-      // Age From / To
-      '<td style="padding:6px 4px"><input type="text" inputmode="numeric" value="'+iv.from+'" style="width:45px;'+INP+'" onchange="expAgeIntervals['+i+'].from=parseInt(this.value)||0;refreshIvYears('+i+');buildWdTable();recalc();updateExpIvStatus()"></td>'
-      +'<td style="padding:6px 4px"><input type="text" inputmode="numeric" value="'+iv.to+'" style="width:45px;'+INP+'" onchange="expAgeIntervals['+i+'].to=parseInt(this.value)||0;refreshIvYears('+i+');buildWdTable();recalc();updateExpIvStatus()"></td>'
-      +'<td id="exp-iv-yrfrom-'+i+'" style="padding:4px 8px;text-align:center;color:#4885C4;font-family:var(--font-m);font-size:12px"></td>'
-      +'<td id="exp-iv-yrto-'+i+'" style="padding:4px 8px;text-align:center;color:#4885C4;font-family:var(--font-m);font-size:12px"></td>'
-      // Annual Expense
-      +'<td style="padding:6px 4px"><input type="text" inputmode="numeric" value="'+fmtK(iv.amount)+'" style="width:110px;'+INP+'" id="exp-iv-amt-'+i+'"'
-        +' onchange="var v=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;expAgeIntervals['+i+'].amount=v;this.value=v.toLocaleString(\'sv-SE\');'
-        +'if(!expAgeIntervals['+i+'].wdManual){expAgeIntervals['+i+'].wdAmount=v;var we=document.getElementById(\'exp-iv-wd-'+i+'\');if(we)we.value=v.toLocaleString(\'sv-SE\');}'
-        +'refreshIvSEK('+i+');recalc();updateExpIvStatus()"></td>'
-      // Withdrawal/yr
-      +'<td style="padding:4px 4px">'
-        +'<input type="text" inputmode="numeric" value="'+fmtK(iv.wdAmount)+'" style="width:110px;'+INP+'" id="exp-iv-wd-'+i+'"'
-          +' onchange="var vw=parseInt(this.value.replace(/[^0-9]/g,\'\'))||0;expAgeIntervals['+i+'].wdAmount=vw;this.value=vw.toLocaleString(\'sv-SE\');expAgeIntervals['+i+'].wdManual=true;refreshIvSEK('+i+');recalc();updateExpIvStatus()">'
-        +'<div id="exp-iv-est-info-'+i+'" style="display:none;font-size:10px;color:var(--muted);margin-top:2px"></div>'
-      +'</td>'
-      // Active
-      +'<td style="padding:6px 8px;text-align:center" id="exp-iv-active-'+i+'"></td>'
-      // -- Split % group --
-      // After-Tax %
-      +'<td style="padding:6px 4px;border-left:1px solid rgba(0,0,0,0.1)">'
-        +'<div style="display:flex;align-items:center;gap:2px">'
-          +'<input type="text" inputmode="numeric" value="'+fmtP(iv.wdPctAT)+'" style="width:42px;'+INP+'" id="exp-iv-pctAT-'+i+'"'
-            +' onchange="expAgeIntervals['+i+'].wdPctAT=(parseInt(this.value)||0)/100;refreshIvSEK('+i+');recalc()">%'
-        +'</div>'
-      +'</td>'
-      // P-Insurance %
-      +'<td style="padding:6px 4px">'
-        +'<div style="display:flex;align-items:center;gap:2px">'
-          +'<input type="text" inputmode="numeric" value="'+fmtP(iv.wdPctPI)+'" style="width:42px;'+INP+'" id="exp-iv-pctPI-'+i+'"'
-            +' onchange="expAgeIntervals['+i+'].wdPctPI=(parseInt(this.value)||0)/100;refreshIvSEK('+i+');recalc()">%'
-        +'</div>'
-      +'</td>'
-            +'<td style="padding:6px 8px;text-align:right;font-size:12px;font-weight:600" id="exp-iv-pctSum-'+i+'"></td>'
-      // -- SEK amounts (calculated) --
-      +'<td style="padding:6px 4px;border-left:1px solid rgba(0,0,0,0.1)"><span id="exp-iv-sekAT-'+i+'" style="'+SEK_STYLE+'">'+atSEK.toLocaleString('sv-SE')+'</span></td>'
-      +'<td style="padding:6px 4px"><span id="exp-iv-sekPI-'+i+'" style="'+SEK_PI_S+'">'+piSEK.toLocaleString('sv-SE')+'</span></td>'
-      +'<td style="padding:6px 8px;text-align:right;font-size:12px;font-weight:600" id="exp-iv-sekSum-'+i+'">'+Math.round(atSEK+piSEK).toLocaleString('sv-SE')+'</td>';
-    tbody.appendChild(tr);
+// ── WITHDRAWAL PLAN (Withdrawals tab, step by step) ────────────────────
+// Planner-specific (Typfallsmodellen has no spending phases): spending in retirement as a level of the Expenses-tab
+// budget, optionally in three phases (go-go / slow-go / no-go), and how the after-tax savings are used:
+//   'need'   cover what the pensions do not, after the model's own tax (default)
+//   'even'   the same amount every year from age evenFrom to evenTo, each account ending at 0 (zeroTemporaryAccounts)
+//   'none'   untouched (buffer)
+//   'manual' each account's own amount and window (plans saved before the tab was redesigned)
+// Every pension amount (state, occupational, private) still comes from the accounts' own Typfallsmodellen engines.
+var WDP_DEFAULT = {phasesOn:false, levels:[1,1,1], flatLevel:1, splitAges:null, splitAuto:true, savingsMode:'need', evenFrom:null, evenTo:null};
+var wdPlan = JSON.parse(JSON.stringify(WDP_DEFAULT));
+var WDP_PRESETS = {even:[1,1,1], moderate:[1.1,1,0.9], active:[1.2,1,0.8]};
+function wdpRetAge(){ return Math.round(getParam('retirementYear')) - Math.round(getParam('birthYear')); }
+function wdpLifeAge(){ return Math.round(getParam('lifeYear')) - Math.round(getParam('birthYear')); }
+// Default boundaries: retirement … life age in thirds (as the earlier expense intervals)
+function wdpAutoSplits(){
+  var ra = wdpRetAge(), la = wdpLifeAge(), p = (la - ra) / 3;
+  var t0 = Math.round(Math.min(ra + p, la));
+  return [t0, Math.round(Math.min(t0 + 1 + p, la))];
+}
+// The three phases [{from, to}], retirement age … life age
+function wdpPhaseBounds(){
+  var ra = wdpRetAge(), la = wdpLifeAge();
+  var s = (!wdPlan.splitAuto && wdPlan.splitAges) ? wdPlan.splitAges : wdpAutoSplits();
+  var c0 = Math.max(ra, Math.min(s[0], la - 2));
+  var c1 = Math.max(c0 + 1, Math.min(s[1], la - 1));
+  return [{from:ra, to:c0}, {from:c0 + 1, to:c1}, {from:c1 + 1, to:Math.max(la, c1 + 1)}];
+}
+function wdpLevelAt(age){
+  if(!wdPlan.phasesOn) return wdPlan.flatLevel;
+  var b = wdpPhaseBounds();
+  return age <= b[0].to ? wdPlan.levels[0] : age <= b[1].to ? wdPlan.levels[1] : wdPlan.levels[2];
+}
+var _wdpScale = 1;   // the max-spending search scales the whole profile; 1 otherwise
+// Spending in a retirement year (annual, after tax, constant prices)
+function spendAt(age, annualBudget){ return annualBudget * wdpLevelAt(age) * _wdpScale; }
+function wdpBudget(){ return expenses.reduce(function(s, e){ return s + (e.val || 0); }, 0) * 12; }
+// Savings mode 'even': every after-tax account pays from evenFrom to evenTo (ages; default retirement … life age).
+// Called from recalc, so the window follows the Personal tab while the ages are left at their defaults.
+function wdpEvenAges(){
+  var ra = wdpRetAge(), la = wdpLifeAge();
+  var f = wdPlan.evenFrom != null ? wdPlan.evenFrom : ra, t2 = wdPlan.evenTo != null ? wdPlan.evenTo : la;
+  return {from:f, to:Math.max(f + 1, t2)};
+}
+function wdpApplyEven(){
+  if(wdPlan.savingsMode !== 'even') return false;
+  var by = Math.round(getParam('birthYear')), e = wdpEvenAges(), changed = false;
+  accounts.forEach(function(a){
+    if(a.type !== 'after') return;
+    if(a.ws !== by + e.from || a.we !== by + e.to){ a.ws = by + e.from; a.we = by + e.to; changed = true; }
   });
-  updateExpIvStatus();
-  expAgeIntervals.forEach(function(_,i){ refreshIvSEK(i); refreshIvYears(i); });
+  return changed;
 }
-
-function refreshIvSEK(i){
-  var iv = expAgeIntervals[i];
-  var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=Math.round(v).toLocaleString('sv-SE'); };
-  // Cap each category's SEK at 0 if the account group has no opening balance to
-  // distribute from — matches what distributeIntervalWithdrawals already does.
-  var atBal = accounts.reduce(function(s,a){ return !a.taxable ? s+(a.opening||0) : s; }, 0);
-  var piBal = accounts.reduce(function(s,a){ return isPlannedPIns(a) ? s+(a.opening||0) : s; }, 0);
-  var atSEK = atBal > 0 ? (iv.wdAmount||0)*(iv.wdPctAT||0) : 0;
-  var piSEK = piBal > 0 ? (iv.wdAmount||0)*(iv.wdPctPI||0) : 0;
-  set('exp-iv-sekAT-'+i, atSEK);
-  set('exp-iv-sekPI-'+i, piSEK);
-  // Update Sum column — only AT + PI (State is calculated independently via delningstal)
-  var sumEl = document.getElementById('exp-iv-pctSum-'+i);
-  if(sumEl){
-    var pct = Math.round(((iv.wdPctAT||0)+(iv.wdPctPI||0))*100);
-    sumEl.textContent = pct+'%';
-    sumEl.style.color = pct===100 ? '#48B866' : '#FF5B2E';
-    sumEl.style.fontWeight = '600';
-  }
-  // SEK Sum
-  var sekSumEl = document.getElementById('exp-iv-sekSum-'+i);
-  if(sekSumEl){
-    var total = Math.round(atSEK + piSEK);
-    sekSumEl.textContent = total.toLocaleString('sv-SE');
-    sekSumEl.style.color = 'var(--gold)';
-  }
-}
-
-
-
-// ── Distribute interval withdrawals using annuity maximise formula ────
-// State accounts are skipped entirely — they keep their delningstal-based
-// withdrawal logic (or manual wd) regardless of interval activation.
-// Snapshot keyed by account object, so rows added or removed while intervals
-// are active don't shift the restore. Lifelong / DB P-Insurance rows are never
-// rescheduled by the intervals, so they keep whatever the user set meanwhile.
-function snapshotAccountWd(){
-  return accounts.map(function(a){ return {acc:a, wd:a.wd, ws:a.ws, we:a.we}; });
-}
-function restoreAccountWd(snap){
-  snap.forEach(function(sv){
-    var a = sv.acc;
-    if(accounts.indexOf(a) < 0) return;
-    if(a.type === 'p-ins' && !isPlannedPIns(a)) return;
-    a.wd = sv.wd; a.ws = sv.ws; a.we = sv.we;
-  });
-}
-
-function distributeIntervalWithdrawals(){
-  var activeIntervals = expAgeIntervals.filter(function(iv){return iv.amount>0 && iv.wdAmount>0;});
-  if(activeIntervals.length === 0){
-    accounts.forEach(function(a){
-      // preserve state pensions' and lifelong / DB P-Insurance's own settings
-      if(a.type==='state' || (a.type==='p-ins' && !isPlannedPIns(a))) return;
-      a.wd=0; a.ws=9999; a.we=9999;
-    });
+var _wdpOpen = 1;         // the open step of the Withdrawals tab (1–5)
+var _wdpMigrated = false;  // an older plan's expense intervals were turned into spending phases (toast once)
+// Restore (applyPlanState, after expenses and accounts). Plans saved before the redesign (no wdPlanV) carry
+// "Age-based expense intervals" (expAgeIntervals + the #exp-iv-master tick box): with the tick box on, their
+// boundaries and levels (amount ÷ budget) become spending phases and the savings cover the gap; with it off the
+// accounts keep their own amounts ('manual'), which gives the same numbers as before.
+function wdpRestore(state){
+  wdPlan = JSON.parse(JSON.stringify(WDP_DEFAULT));
+  _wdpOpen = 1;
+  if(state && state.wdPlanV >= 1 && state.wdPlan){
+    Object.keys(WDP_DEFAULT).forEach(function(k){ if(k in state.wdPlan) wdPlan[k] = state.wdPlan[k]; });
     return;
   }
-  var birthYear = Math.round(getParam('birthYear'));
-  var retYear   = Math.round(getParam('retirementYear'));
-  var lifeYear  = Math.round(getParam('lifeYear'));
-  var minFrom = activeIntervals.reduce(function(mn,iv){return Math.min(mn,iv.from);},999);
-  var maxTo   = activeIntervals.reduce(function(mx,iv){return Math.max(mx,iv.to);},0);
-  var ws = birthYear + minFrom;   // start drawing from interval's first age, not retirement
-  var we = Math.min(lifeYear, birthYear+maxTo);
-
-  // Time-weighted per-category sums (AT and PI only — State is independent)
-  var totalDur=0, wAt=0, wPi=0;
-  activeIntervals.forEach(function(iv){
-    var dur=Math.max(1,iv.to-iv.from+1);
-    totalDur+=dur;
-    wAt+=iv.wdAmount*(iv.wdPctAT||0)*dur;
-    wPi+=iv.wdAmount*(iv.wdPctPI||0)*dur;
-  });
-  var avgAt = totalDur>0?wAt/totalDur:0;
-  var avgPi = totalDur>0?wPi/totalDur:0;
-
-  // Balances for distribution
-  var atBal  = accounts.reduce(function(s,a){return !a.taxable?s+(a.opening||0):s;},0);
-  var piBal  = accounts.reduce(function(s,a){return isPlannedPIns(a)?s+(a.opening||0):s;},0);
-
-  accounts.forEach(function(a){
-    if(!a.taxable){
-      // After-Tax: proportional share of AT target; Cash stays unscheduled for pass-2
-      if((a.yt||0)>0){
-        a.wd = atBal>0&&(a.opening||0)>0 ? Math.round(avgAt*(a.opening||0)/atBal) : 0;
-        a.ws=ws; a.we=we;
-      } else {
-        a.wd=0; a.ws=9999; a.we=9999;
-      }
-    } else if(isPlannedPIns(a)){
-      // Temporärt: pays its own fixed amount (zeroTemporaryAccounts); the intervals' P-insurance share is covered by the after-tax accounts.
-      // Keeps its own window; a window not set yet takes the intervals'.
-      if(!(a.ws < 9999 && a.we < 9998 && a.we > a.ws)){ a.ws=ws; a.we=we; }
-    }
-    // State accounts intentionally skipped — they keep delningstal/manual settings
-  });
-}
-
-
-function toggleExpIvMaster(){
-  var cb    = document.getElementById('exp-iv-master');
-  var label = document.getElementById('exp-iv-master-label');
-  var table = document.getElementById('exp-iv-table-wrap');
-  var active = cb && cb.checked;
-  if(label){
-    label.textContent = active ? t('wd.iv.hdr.active') : t('wd.iv.hdr');
-    label.style.color = active ? '#48B866' : '';
-  var estAllBtn=document.getElementById('exp-iv-est-all');
-  if(estAllBtn) estAllBtn.style.display=active?'inline-flex':'none';
-  var maxBtn=document.getElementById('exp-iv-maximize');
-  if(maxBtn) maxBtn.style.display=active?'inline-flex':'none';
-  }
-  if(table) table.style.display = active ? '' : 'none';
-  if(active){
-    if(!_savedAccountWd){
-      _savedAccountWd = snapshotAccountWd();
-    }
-    autoCalcExpIntervals();
-    buildExpIntervals();
-    distributeIntervalWithdrawals();
-    buildAccountsTable();
-    setTimeout(updateAccountSubtotals,0);
-    if(typeof buildWdTable==='function') setTimeout(buildWdTable,0);
-  } else {
-    if(_savedAccountWd){
-      restoreAccountWd(_savedAccountWd);
-      _savedAccountWd=null;
-    }
-    buildAccountsTable();
-    setTimeout(updateAccountSubtotals,0);
-    if(typeof buildWdTable==='function') setTimeout(buildWdTable,0);
-  }
-  recalc();
-}
-
-function updateExpIvStatus(){
-  // Check master toggle
-  var masterOn = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
-  if(!masterOn){ return; }
-  var anyActive = expAgeIntervals.some(function(iv){return iv.amount>0;});
-  var statusEl = document.getElementById('exp-iv-status');
-
-  // ── Save / restore / distribute account withdrawals ─────────────────
-  if(anyActive){
-    if(!_savedAccountWd){
-      // First activation: save original wd/ws/we
-      _savedAccountWd = snapshotAccountWd();
-    }
-    // Recalculate distribution every time an interval changes
-    distributeIntervalWithdrawals();
-    buildAccountsTable();
-    setTimeout(updateAccountSubtotals,0);
-  } else if(!anyActive && _savedAccountWd){
-    // All deactivated: restore saved values
-    restoreAccountWd(_savedAccountWd);
-    _savedAccountWd = null;
-    buildAccountsTable();
-    setTimeout(updateAccountSubtotals,0);
-  }
-
-  // ── Update per-row active indicators ─────────────────────────────────
-  expAgeIntervals.forEach(function(iv,i){
-    var el = document.getElementById('exp-iv-active-'+i);
-    if(el) el.innerHTML = iv.amount>0
-      ? '<span style="color:#48B866;font-size:16px">&#10003;</span>'
-      : '<span style="color:#4a6180;font-size:14px">&mdash;</span>';
-  });
-
-  // ── Status message ────────────────────────────────────────────────────
-  if(!statusEl) return;
-  if(anyActive){
-    statusEl.innerHTML = '<span style="color:#48B866">&#10003; '+t('wd.iv.status.active')+'</span>'
-      + ' &mdash; '+t('wd.iv.status.sub');
-  } else {
-    statusEl.innerHTML = '<span style="color:#4a6180">'+t('wd.iv.status.off')+'</span>';
-  }
+  var inp = (state && state.inputs) || {}, ivs = state && state.expAgeIntervals;
+  var ivOn = !!inp['exp-iv-master'] && Array.isArray(ivs) && ivs.length >= 3 && ivs.some(function(iv){ return iv && iv.amount > 0; });
+  if(!ivOn){ wdPlan.savingsMode = 'manual'; return; }
+  var budget = wdpBudget();
+  var lvl = function(iv){
+    if(!(budget > 0) || !(iv.amount > 0)) return 1;
+    return Math.max(0.5, Math.min(1.5, Math.round(iv.amount / budget * 20) / 20));
+  };
+  wdPlan.levels = [lvl(ivs[0]), lvl(ivs[1]), lvl(ivs[2])];
+  wdPlan.phasesOn = wdPlan.levels.some(function(l){ return l !== 1; });
+  var auto = wdpAutoSplits();
+  if(ivs[0].to !== auto[0] || ivs[1].to !== auto[1]){ wdPlan.splitAuto = false; wdPlan.splitAges = [ivs[0].to, ivs[1].to]; }
+  wdPlan.savingsMode = 'need';
+  _wdpMigrated = true;
 }
 
 // Future value of n end-of-period monthly payments at rate i/period
@@ -6289,14 +6316,8 @@ function fvAnnuity(pmt, i, n){
 
 function runProjection(){
 
-  // Master toggle for Age-Based Expense Intervals — checked once per
-  // projection. When OFF, interval overrides are ignored even if the
-  // intervals array still has data, so per-account wd/ws/we values
-  // (or delningstal logic) take over cleanly.
-  const _ivMasterOn = (function(){
-    var cb = document.getElementById('exp-iv-master');
-    return !!(cb && cb.checked);
-  })();
+  // How the after-tax savings are used (Withdrawals tab, step 4): 'need' | 'even' | 'none' | 'manual'
+  const _wdMode = wdPlan.savingsMode;
 
   // Dynamic per-recalc values from currentMonth input
   const _PROJ_MONTH      = getProjectionMonth();
@@ -6422,51 +6443,16 @@ function runProjection(){
         contribAfterTax += contrib2;
       }
     }
-    // Actual withdrawal — check for active interval override
-    var wdIvOverride=0, wdIvActive=false, wdIvPIns=0, wdIvState=0;
-    if(_ivMasterOn){
-      for(var _iv=0;_iv<expAgeIntervals.length;_iv++){
-        var _ivr=expAgeIntervals[_iv];
-        if(_ivr.amount>0 && _ivr.wdAmount>0 && age>=_ivr.from && age<=_ivr.to){
-          wdIvActive   = true;
-          wdIvOverride = _ivr.wdAmount * (_ivr.wdPctAT||0);  // after-tax share
-          wdIvPIns     = _ivr.wdAmount * (_ivr.wdPctPI||0);  // P-ins share
-          // Temporärt P-insurance accounts pay their own fixed amounts; the after-tax accounts cover the rest of the need
-          if(accounts.some(isPlannedPIns)){
-            var _piFixed = 0;
-            accounts.forEach(function(_pa){ if(isPlannedPIns(_pa) && _pa.ws<9999 && yr>=_pa.ws && yr<=_pa.we) _piFixed += (_pa.wd||0); });
-            wdIvOverride = Math.max(0, _ivr.wdAmount * ((_ivr.wdPctAT||0) + (_ivr.wdPctPI||0)) - _piFixed);
-          }
-          wdIvState    = _ivr.wdAmount * (_ivr.wdPctST||0);  // state share
-          break;
-        }
-      }
-    }
-    const atActualWd = wdIvActive
-      ? Math.min(wdIvOverride, atTotalAvail)
-      : Math.min(atTotalSched, atTotalAvail);
+    // After-tax withdrawals by the plan's savings mode. 'need' is settled after the year's pension tax (deferred pass
+    // below the tax block); 'none' draws nothing; 'manual' / 'even' draw each account's own amount in its window.
+    const _needMode = _wdMode === 'need';
+    const _schedMode = !_needMode && _wdMode !== 'none';
+    const atActualWd = _schedMode ? Math.min(atTotalSched, atTotalAvail) : 0;
     totalWdrlFree = atActualWd;
 
     // Distribute: each after-tax account draws exactly its own wd (capped at available)
     const atDraw = new Array(accounts.length).fill(0);
-    if(wdIvActive){
-      // Interval mode: share the total override proportionally by available balance
-      let atRem = atActualWd;
-      for (let i = 0; i < accounts.length && atRem > 0; i++) {
-        const a = accounts[i];
-        if (!a.taxable && (a.yt||0)>0) {
-          const draw = Math.min(atAvail[i], atRem);
-          atDraw[i] = draw; atRem -= draw;
-        }
-      }
-      for (let i = 0; i < accounts.length && atRem > 0; i++) {
-        const a = accounts[i];
-        if (!a.taxable && !(a.yt||0)>0) {
-          const draw = Math.min(atAvail[i], atRem);
-          atDraw[i] = draw; atRem -= draw;
-        }
-      }
-    } else {
+    if(_schedMode){
       // Scheduled mode: each account withdraws exactly its own wd
       for (let i = 0; i < accounts.length; i++) {
         const a = accounts[i];
@@ -6487,6 +6473,11 @@ function runProjection(){
       let _ipValue = null;   // income pension after its start: value of the pension still to come
       let contrib = 0;  // contribution for this account this year
 
+      if (_needMode && !a.taxable) {
+        // "Cover what the pensions do not": settled after the year's tax (deferred pass below)
+        row.balances.push(opening); row.accClosing.push(0); row.accDetail.push(null);
+        continue;
+      }
       if (!a.taxable) {
         // After-tax: use pre-computed pooled values
         contrib  = prePassContrib[i];  // capture for accDetail
@@ -6731,19 +6722,14 @@ function runProjection(){
     const munTaxAmt      = _pt.kommunal + _pt.begrav;      // kommunalskatt + begravningsavgift
     const stateTaxAmt    = _pt.statlig + _pt.publicAvg;    // statlig skatt + PublicAvg (grouped as in the workbook)
     const totalTax       = _pt.total;
-    const afterTaxIncome = totalWdrlTaxable - totalTax + totalWdrlFree;
+    let afterTaxIncome = totalWdrlTaxable - totalTax + totalWdrlFree;
 
     // Pension income net of taxes
     const withdrawalAfterTax = Math.max(0, totalWdrlTaxable - totalTax);
 
-    const eqPct     = totalPort > 0 ? totalEq/totalPort : 0;
-    // Age-based interval expenses (computed here for ratio)
-    var expThisYear = annualExpenses;
-    if(age >= (params.retirementYear - params.birthYear)){
-      var _ivOn = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
-      var ivM = _ivOn ? expAgeIntervals.find(function(iv){return iv.amount>0 && age>=iv.from && age<=iv.to;}) : null;
-      if(ivM) expThisYear = ivM.amount;
-    } else { expThisYear = 0; }
+    let eqPct       = totalPort > 0 ? totalEq/totalPort : 0;
+    // Spending in retirement: the Expenses-tab budget × the plan's level (spending phases, Withdrawals tab step 5)
+    var expThisYear = age >= (params.retirementYear - params.birthYear) ? spendAt(age, annualExpenses) : 0;
     // Earned income (gross and net) for this year
     // Same age rule as the pension tax (workbook Xage: 66 to 2023, 67 to 2026, 68 to 2028, then target age + 1)
     const _ageMode     = age >= xAge(yr) ? 'over' : 'under';
@@ -6764,6 +6750,37 @@ function runProjection(){
     const _cr = _comb || _incResult;
     const salaryTax = _comb ? Math.max(0, _comb.totalSkatt - _pt.total) : (_incResult.totalSkatt || 0);
     const earnedIncomePost = _comb ? earnedIncomePre - salaryTax : _incResult.netto;
+    if(_needMode){
+      // Savings cover what the pensions (after the model's tax) and a salary from work after retirement do not;
+      // ISK / endowment first, then cash, each capped by what it holds. A surplus is not saved.
+      let _need = yr >= params.retirementYear
+        ? Math.max(0, expThisYear - (totalWdrlTaxable - totalTax) - (_inWorkAgain ? earnedIncomePost : 0)) : 0;
+      const _nd = new Array(accounts.length).fill(0);
+      for(let pass = 0; pass < 2 && _need > 0; pass++){
+        for(let i = 0; i < accounts.length && _need > 0; i++){
+          const a = accounts[i];
+          if(a.taxable || (((a.yt||0) > 0) !== (pass === 0))) continue;
+          const d = Math.min(atAvail[i], _need);
+          _nd[i] = d; _need -= d;
+        }
+      }
+      for(let i = 0; i < accounts.length; i++){
+        const a = accounts[i];
+        if(a.taxable) continue;
+        const opening = row.balances[i], c = prePassContrib[i], closing = atAvail[i] - _nd[i];
+        totalWdrlFree += _nd[i];
+        portAfterTax += closing;
+        balances[i] = closing;
+        row.accClosing[i] = closing;
+        row.accDetail[i] = { open:opening, contrib:c, wdrl:_nd[i],
+          grossRet: atAvail[i] - (opening + c) + proRate(a.yt||0)*(opening + c) + proRate(a.mgmt||0)*(opening + c),
+          yieldTax: proRate(a.yt||0)*(opening + c), mgmtFee: proRate(a.mgmt||0)*(opening + c), close:closing };
+        const eq = calcEquityShare(a, age);
+        totalEq += closing * eq; totalBd += closing * (1-eq); totalPort += closing;
+      }
+      afterTaxIncome = totalWdrlTaxable - totalTax + totalWdrlFree;
+      eqPct = totalPort > 0 ? totalEq/totalPort : 0;
+    }
     const totalAfterTaxIncome = earnedIncomePost + afterTaxIncome;
     const ratio     = expThisYear > 0 ? totalAfterTaxIncome/expThisYear : (annualExpenses>0 ? totalAfterTaxIncome/annualExpenses : 0);
     const wdrlRate  = totalPort > 0 ? (totalWdrlTaxable+totalWdrlFree)/totalPort : 0;
@@ -7444,35 +7461,15 @@ function fmtX(v){ return isNaN(v)?'—':v.toFixed(2).replace('.',',')+'×'; }
 // _updateILSChart(), so the tiles and the chart above them cannot disagree.
 var PHASE_KEYS = ['gogo', 'slowgo', 'nogo'];
 
-// Three contiguous age brackets covering retirement → life expectancy.
-// Mirrors the Withdrawals tab's AGE-BASED EXPENSE INTERVALS when that
-// feature is active; otherwise splits "years in retirement" into thirds
-// using the same formula as autoCalcExpIntervals().
+// Three contiguous age brackets covering retirement → life expectancy: the
+// Withdrawals tab's spending phases (wdpPhaseBounds: the user's boundaries, or
+// "years in retirement" in thirds).
 function getPensionPhaseBrackets(params){
   var retAge  = params.retirementYear - params.birthYear;
   var lifeAge = params.lifeYear - params.birthYear;
   // Need at least three retirement years for a meaningful three-phase split
   if(!isFinite(retAge) || !isFinite(lifeAge) || lifeAge - retAge < 2) return null;
-
-  var clamp = function(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); };
-  var ivOn  = document.getElementById('exp-iv-master')
-              && document.getElementById('exp-iv-master').checked;
-  var c0, c1;
-
-  if(ivOn && typeof expAgeIntervals !== 'undefined' && expAgeIntervals.length >= 3){
-    // Follow the user's own bracket boundaries, forced contiguous & in range
-    c0 = clamp(expAgeIntervals[0].to, retAge,  lifeAge - 2);
-    c1 = clamp(expAgeIntervals[1].to, c0 + 1,  lifeAge - 1);
-  } else {
-    var period = (lifeAge - retAge) / 3;
-    c0 = clamp(Math.round(retAge + period), retAge,  lifeAge - 2);
-    c1 = clamp(Math.round(c0 + 1 + period), c0 + 1,  lifeAge - 1);
-  }
-  return [
-    {from: retAge, to: c0},
-    {from: c0 + 1, to: c1},
-    {from: c1 + 1, to: lifeAge}
-  ];
+  return wdpPhaseBounds().map(function(b){ return {from:b.from, to:b.to}; });
 }
 
 // Average monthly retirement income per bracket, exactly as the lifetime-income
@@ -7750,6 +7747,7 @@ function recalc(){
     updateHeaderSub();
     workAgainValidate();
     if(syncWorkRows() | ceSyncEnd()){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
+    wdpApplyEven();
     const data = runProjection();
     _projYears = data.years; _projParams = data.params;
     if(window._occOpeningChanged){ window._occOpeningChanged = false; buildAccountsTable(); }
@@ -7764,18 +7762,6 @@ function recalc(){
     var _scTab=document.getElementById('tab-scenarios'); if(_scTab&&_scTab.classList.contains('active')) buildScenariosTab(); var _mcTab=document.getElementById('tab-montecarlo'); if(_mcTab&&_mcTab.classList.contains('active')) populateMCDefaults(); if(_expTab&&_expTab.classList.contains('active')) buildExpenseChart();
     var _pvTab=document.getElementById('tab-portfolio-value'); if(_pvTab&&_pvTab.classList.contains('active')) buildPortfolioTab();
     var _pt=document.getElementById('tab-portfolio'); if(_pt&&_pt.classList.contains('active')){ buildPortfolioSelector(); }
-    if(typeof refreshAllIvYears==="function") refreshAllIvYears();
-    var _ivOn3=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-    if(_ivOn3){
-      // Don't overwrite user's interval edits — just refresh derived display
-      // values (SEK columns, year ranges) in place. autoCalcExpIntervals is
-      // only called from the master-checkbox toggle and from birthYear /
-      // retirementYear / lifeYear onchange handlers (where reset is intended).
-      expAgeIntervals.forEach(function(_, i){
-        if(typeof refreshIvSEK==='function')   refreshIvSEK(i);
-        if(typeof refreshIvYears==='function') refreshIvYears(i);
-      });
-    }
     if(typeof buildWdTable==="function"){
       var _wt=document.getElementById('tab-withdrawals');
       if(_wt&&_wt.classList.contains('active')) buildWdTable();
@@ -7860,130 +7846,6 @@ function refreshEqHeaders(){
   if(th1) th1.textContent = t('acc.eq.prefix')+' '+f1+'–'+t1;
   if(th2) th2.textContent = t('acc.eq.prefix')+' '+f2+'–'+t2;
   if(th3) th3.textContent = t('acc.eq.prefix')+' '+f3+'+';
-}
-
-// ── MAXIMIZE WITHDRAWALS ──────────────────────────────────────────────
-function maximizeWithdrawals(){
-  const retYr   = getParam('retirementYear');
-  const lifeYr  = getParam('lifeYear');
-  const birthYr = getParam('birthYear');
-  const n = lifeYr - retYr;
-
-  if(n <= 0){
-    alert(t('alert.life.after.ret'));
-    return;
-  }
-
-  // Get per-account closing balances at the retirement year
-  const retYrRow = _projYears.find(y => y.yr === retYr);
-  if(!retYrRow || !retYrRow.accClosing){
-    alert(t('alert.run.first')); return;
-  }
-
-  const eqRet = getParam('eqReturn') / 100;
-  const bdRet = getParam('bdReturn') / 100;
-  const retAge = retYr - birthYr;
-
-  accounts.forEach((a, i) => {
-    const balAtRet = retYrRow.accClosing[i] || 0;
-    if(balAtRet < 1) return; // skip depleted/empty accounts
-    if(a.type==='p-ins' && !isPlannedPIns(a)) return; // lifelong / DB pay on their own terms
-
-    // Net return rate at retirement age
-    let ret;
-    if(a.fixedRet !== null && a.fixedRet !== undefined){
-      // Use post-retirement fixed return if available
-      ret = (a.fixedRetPost !== null && a.fixedRetPost !== undefined) ? a.fixedRetPost : a.fixedRet;
-    } else {
-      const eq = calcEquityShare(a, retAge);
-      ret = eq * eqRet + (1 - eq) * bdRet;
-    }
-    const netRet = ret - (a.yt || 0) - (a.mgmt || 0);
-
-    // Annuity formula: PMT = PV × r / (1 − (1+r)^(−n))
-    // If r ≈ 0, fall back to PV / n
-    let maxWd;
-    if(Math.abs(netRet) < 0.0001){
-      maxWd = balAtRet / n;
-    } else {
-      maxWd = balAtRet * netRet / (1 - Math.pow(1 + netRet, -n));
-    }
-
-    a.wd = Math.round(maxWd);
-    a.ws = retYr;
-    a.we = a.type === 'state' ? 9998 : lifeYr;   // state pensions stay lifelong
-  });
-
-  // Rebuild accounts table so inputs show the new values
-  buildAccountsTable();
-  recalc();
-}
-
-// ── MAXIMIZE AGE-BASED EXPENSE INTERVALS ────────────────────────────────
-// Scales the go-go/slow-go/no-go annual amounts together (preserving their
-// current ratio, or falling back to an illustrative 80/70/60 shape when
-// they're not yet differentiated) to find the highest level that still
-// depletes the portfolio at, not before, the life expectancy year. There's
-// no closed-form solution here (three sequential levels sharing one pool of
-// accounts with real returns), so this bisects on the same depletion signal
-// updateDashboard() already uses (years.find(y=>y.totalPort<1)).
-function maximizeExpIntervals(){
-  const retYr  = getParam('retirementYear');
-  const lifeYr = getParam('lifeYear');
-  if(lifeYr <= retYr){
-    alert(t('alert.life.after.ret'));
-    return;
-  }
-  const retYrRow = _projYears.find(y => y.yr === retYr);
-  if(!retYrRow){
-    alert(t('alert.run.first')); return;
-  }
-
-  var baseAmt = expAgeIntervals.map(function(iv){ return iv.amount||0; });
-  var w = (baseAmt[0]===baseAmt[1] && baseAmt[1]===baseAmt[2])
-    ? [0.80, 0.70, 0.60]
-    : baseAmt;
-
-  function tooHigh(k){
-    expAgeIntervals.forEach(function(iv, i){
-      iv.amount = Math.round(w[i]*k);
-      estimateGrossWithdrawal(i);
-    });
-    var data = runProjection();
-    // Age-based expense intervals only draw from the after-tax pool and the
-    // planned-withdrawal P-Insurance accounts. State pension and lifelong /
-    // defined-benefit P-Insurance follow their own schedules regardless of k,
-    // so they must be excluded or the depletion signal is confounded.
-    var depRow = data.years.find(function(y){ return ((y.portAfterTax||0)+(y.portPInsPlanned||0))<1; });
-    return !!(depRow && depRow.yr < data.params.lifeYear);
-  }
-
-  var lo = 0, hi = 1000, guard = 0;
-  while(!tooHigh(hi) && guard < 60){ hi *= 2; guard++; }
-  for(var iter=0; iter<40; iter++){
-    var mid = (lo+hi)/2;
-    if(tooHigh(mid)) hi = mid; else lo = mid;
-  }
-
-  // Apply the converged, safe level for real
-  expAgeIntervals.forEach(function(iv, i){
-    iv.amount = Math.round(w[i]*lo);
-    estimateGrossWithdrawal(i);
-  });
-  buildExpIntervals();
-  distributeIntervalWithdrawals();
-  buildAccountsTable();
-  recalc();
-
-  var depRow2 = _projYears.find(function(y){ return ((y.portAfterTax||0)+(y.portPInsPlanned||0))<1; });
-  var depAge2 = depRow2 ? (depRow2.yr - getParam('birthYear')) : null;
-  var statusEl = document.getElementById('exp-iv-status');
-  if(statusEl){
-    var fmtK = function(n){ return Math.round(n||0).toLocaleString('sv-SE'); };
-    var labels = [t('tile.phase.gogo'), t('tile.phase.slowgo'), t('tile.phase.nogo')];
-    var parts = expAgeIntervals.map(function(iv,i){ return labels[i]+' '+fmtK(iv.amount)+' kr/yr'; }).join(' · ');
-    statusEl.textContent = parts + (depAge2!==null ? ' — ' + t('wd.iv.max.depletes',{age:depAge2}) : '');
-  }
 }
 
 // ── PROJECTION EXPORT ─────────────────────────────────────────────────────
@@ -8472,18 +8334,6 @@ function incBuildMunicipalityList(){
 var _incNetAnnual = 0;
 
 
-function updateAccountsIvState(){
-  var ivOn   = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
-  var banner = document.getElementById('acc-iv-banner');
-  if(banner) banner.style.display = ivOn ? 'flex' : 'none';
-}
-
-function deactivateExpIntervals(){
-  var cb = document.getElementById('exp-iv-master');
-  if(cb && cb.checked){ cb.checked = false; toggleExpIvMaster(); }
-}
-
-
 var SG_REF=[{y:15,m:15},{y:20,m:20},{y:25,m:23},{y:30,m:25},{y:35,m:27.8},{y:40,m:30}];
 function sgInterpolate(yrs){
   if(yrs<=SG_REF[0].y) return SG_REF[0].m;
@@ -8515,96 +8365,7 @@ function updateSavingGoalRef(){
 }
 
 
-function getIvBirthYear(){var e=document.getElementById('birthYear');return e?(parseInt(e.value)||1971):1971;}
-function refreshIvYears(i){
-  var iv=expAgeIntervals[i],by=getIvBirthYear();
-  var fe=document.getElementById('exp-iv-yrfrom-'+i),te=document.getElementById('exp-iv-yrto-'+i);
-  if(fe)fe.textContent=iv.yrFrom||(by+(iv.from||0));
-  if(te)te.textContent=iv.yrTo||(by+(iv.to||0));
-}
-function refreshAllIvYears(){expAgeIntervals.forEach(function(_,i){refreshIvYears(i);});}
-
-
-function estimateGrossWithdrawal(i){
-  var iv=expAgeIntervals[i]; if(!iv) return;
-  var annExp=iv.amount||0; if(!annExp) return;
-  // State pension is calculated independently via delningstal — only gross
-  // up the P-insurance portion (which is also pre-tax / taxable).
-  var pctAT=iv.wdPctAT||0,pctPI=iv.wdPctPI||0;
-  var pctPreTax=pctPI;
-  var munRate=(getParam('munTax')||32.4)/100;
-  var grundavdrag=getParam('allowance')||117500;
-  var atAmount=annExp*pctAT;
-  var preTaxNet=annExp*pctPreTax;
-  var grossPreTax=0;
-  if(pctPreTax>0&&preTaxNet>0){
-    var rawGross=(preTaxNet-grundavdrag*munRate)/(1-munRate);
-    grossPreTax=Math.max(rawGross,preTaxNet);
-    var stateThresh=getParam('stateThresh')||760500;
-    if(grossPreTax>stateThresh){
-      var stateRate=(getParam('stateTax')||20)/100;
-      rawGross=(preTaxNet-grundavdrag*munRate+stateRate*stateThresh)/(1-munRate-stateRate);
-      grossPreTax=Math.max(rawGross,preTaxNet);
-    }
-  }
-  var total=Math.round(atAmount+grossPreTax);
-  expAgeIntervals[i].wdAmount=total;
-  expAgeIntervals[i].wdManual=true;
-  var wdEl=document.getElementById('exp-iv-wd-'+i);
-  if(wdEl) wdEl.value=total.toLocaleString('sv-SE');
-  var effRate=grossPreTax>0?(1-preTaxNet/grossPreTax)*100:0;
-  var infoEl=document.getElementById('exp-iv-est-info-'+i);
-  if(infoEl){infoEl.textContent=t('exp.iv.est.tax',{pct:effRate.toFixed(0)});infoEl.style.display='';}
-  refreshIvSEK(i);
-}
-
-function autoCalcExpIntervals(){
-  var birthYear=parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
-  var retYear=parseInt((document.getElementById('retirementYear')?.value||'').replace(/[^0-9]/g,''))||2031;
-  var lifeYear=parseInt((document.getElementById('lifeYear')?.value||'').replace(/[^0-9]/g,''))||2071;
-  var retAge=retYear-birthYear,lifeAge=lifeYear-birthYear,period=(lifeAge-retAge)/3;
-  var annEl=document.getElementById('e-annual');
-  var annExp=annEl?(parseInt((annEl.textContent||'0').replace(/[^0-9]/g,''))||0):0;
-  var from0=retAge,to0=Math.round(Math.min(from0+period,lifeAge));
-  var from1=to0+1,to1=Math.round(Math.min(from1+period,lifeAge));
-  var from2=to1+1,to2=Math.round(Math.min(from2+period,lifeAge));
-  var yrFrom0=retYear,yrTo0=yrFrom0+to0-from0;
-  var yrFrom1=yrTo0+1,yrTo1=yrFrom1+to1-from1;
-  var yrFrom2=yrTo1+1,yrTo2=yrFrom2+to2-from2;
-  var ivs=[{from:from0,to:to0,yf:yrFrom0,yt:yrTo0},{from:from1,to:to1,yf:yrFrom1,yt:yrTo1},{from:from2,to:to2,yf:yrFrom2,yt:yrTo2}];
-  ivs.forEach(function(iv,i){
-    if(!expAgeIntervals[i]) return;
-    expAgeIntervals[i].from=iv.from; expAgeIntervals[i].to=iv.to;
-    if(annExp>0) expAgeIntervals[i].amount=annExp;
-    var fe=document.getElementById('exp-iv-from-'+i),te=document.getElementById('exp-iv-to-'+i);
-    var ae=document.getElementById('exp-iv-amt-'+i),we=document.getElementById('exp-iv-wd-'+i);
-    var yfe=document.getElementById('exp-iv-yrfrom-'+i),yte=document.getElementById('exp-iv-yrto-'+i);
-    expAgeIntervals[i].yrFrom=iv.yf; expAgeIntervals[i].yrTo=iv.yt;
-    if(fe)fe.value=iv.from; if(te)te.value=iv.to;
-    if(ae&&annExp>0)ae.value=annExp.toLocaleString('sv-SE');
-    if(yfe)yfe.textContent=iv.yf; if(yte)yte.textContent=iv.yt;
-    if(annExp>0 && !expAgeIntervals[i].wdManual) estimateGrossWithdrawal(i);
-  });
-  // Rebuild interval table so DOM inputs reflect updated expAgeIntervals data
-  buildExpIntervals();
-  // Rebuild account withdrawal table if on Withdrawals tab
-  if(typeof buildWdTable==='function') buildWdTable();
-}
-
-
-function occPayoutToggle(ai, a){
-  var btn = function(mode, key){
-    var on = (mode==='lifelong') === !!a.useDelningstal;
-    return '<button onclick="setPInsPayout('+ai+',\''+mode+'\')" title="'+t('occ.payout.tip')+'" '
-      +'style="background:'+(on?'#4885C4':'transparent')+';color:'+(on?'#fff':'var(--muted)')+';'
-      +'border:1px solid '+(on?'#4885C4':'var(--border)')+';border-radius:3px;padding:1px 4px;'
-      +'font-size:8px;font-weight:'+(on?'700':'600')+';letter-spacing:.04em;text-transform:uppercase;'
-      +'cursor:pointer;font-family:var(--font-b);line-height:1.3">'+t(key)+'</button>';
-  };
-  return '<div style="display:flex;gap:2px;justify-content:flex-end;margin-top:2px">'
-    + btn('planned','occ.payout.planned') + btn('lifelong','occ.payout.lifelong') + '</div>';
-}
-
+// Lifelong or Temporärt for a P-insurance account (older callers; the Withdrawals steps use wdpSetYears)
 function setPInsPayout(ai, mode){
   var a = accounts[ai];
   if(!a || a.type!=='p-ins' || a.db) return;
@@ -8619,456 +8380,547 @@ function setPInsPayout(ai, mode){
     a.useDelningstal = false; a.actuarial = false;
     a.we = a._plannedWe && a._plannedWe < 9998 ? a._plannedWe : Math.round(getParam('lifeYear'));
   }
-  var ivOn = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
-  if(ivOn) updateExpIvStatus();
   buildAccountsTable(); setTimeout(updateAccountSubtotals,0);
   _tmpZero.sig = '';
   recalc(); buildWdTable();
 }
 
-function buildWdTable(){
-  setTimeout(function(){ if(document.getElementById('tab-withdrawals').classList.contains('active')){ buildWithdrawalChart(); buildWdSummary(); } }, 100);
-  var thead = document.getElementById('wd-acct-thead');
-  var tbody = document.getElementById('wd-acct-tbody');
-  if(!thead||!tbody) return;
+// ── WITHDRAWALS TAB: THE STEP-BY-STEP PLAN ─────────────────────────────
+// Five steps in a fixed order (wdpRender), one open at a time: 1 state pension start age, 2 occupational and
+// 3 private pension (from which age; lifelong or a number of years, Typfallsmodellen's rng_Temp_Tjp_Uttag 5–20),
+// 4 savings (wdPlan.savingsMode), 5 spending (levels of the Expenses budget, optional phases). Every choice writes the
+// accounts' own fields (ws / we / useDelningstal / wdShare) or wdPlan; the projection does the rest. The Result panel
+// (wdpRenderResult) compares income after tax with spending per phase and finds the highest sustainable level.
+var WDP_SIG_IDS = ['birthYear','retirementYear','lifeYear','workStartAge','grossSalPre66','grossSalPre67','salaryIncrease',
+  'eqReturn','bdReturn','occReturn','inflation','munTax','stateTax','workAgainSal','workAgainFrom','workAgainTo'];
+function wdpSig(extra){
+  return JSON.stringify([accounts, pgbItems, expenses, wdPlan, WDP_SIG_IDS.map(function(id){ var el = document.getElementById(id); return el ? el.value : ''; }), extra || '']);
+}
+function wdpBy(){ return Math.round(getParam('birthYear')); }
+function wdpN(n){ return Math.round(n || 0).toLocaleString('sv-SE'); }
+function wdpPct(l){ return Math.round(l * 100) + ' %'; }
+function wdpEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+// State pension accounts that follow step 1 (not the managed rows of work after retirement)
+function wdpStateAccs(){ return accounts.filter(function(a){ return a.type === 'state' && !a.workRow; }); }
+function wdpStateMain(){
+  var g = wdpStateAccs();
+  return g.filter(function(a){ return a.delningstalScope === 'inkomst'; })[0] || g.filter(function(a){ return a.delningstalScope === 'premie'; })[0] || g[0] || null;
+}
+function wdpStateAge(){ var a = wdpStateMain(); return a && a.ws < 9999 ? a.ws - wdpBy() : null; }
+function wdpStateAuto(){ var g = wdpStateAccs(); return g.length > 0 && g.every(function(a){ return a.wsAuto; }); }
+// Occupational = a contractual scheme, the occupational / salary-exchange rows; private = the other P-insurance rows
+function wdpIsOcc(a){ return !!a.scheme || /^acc\.name\.(occ\.pen|salary\.ex)/.test(a.nameKey || ''); }
+function wdpPinsAccs(kind){ return accounts.filter(function(a){ return a.type === 'p-ins' && !a.workRow && (kind === 'occ' ? wdpIsOcc(a) : !wdpIsOcc(a)); }); }
+function wdpAfterAccs(){ return accounts.filter(function(a){ return a.type === 'after'; }); }
+function wdpRow(yr){ return (_projYears || []).find(function(y){ return y.yr === yr; }) || null; }
+function wdpAfterRecalc(){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); recalc(); }
 
-  // Collect active intervals
-  var ivs = expAgeIntervals.filter(function(iv){ return iv.amount>0||iv.wdAmount>0; });
-  if(!ivs.length){ ivs = expAgeIntervals; }
-  var ivOn = document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-  var by   = parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
-  var retY = parseInt((document.getElementById('retirementYear')?.value||'').replace(/[^0-9]/g,''))||2031;
-
-  // Compute period year ranges dynamically from Personal tab — never stale
-  var _retY2  = parseInt((document.getElementById('retirementYear')?.value||'').replace(/[^0-9]/g,''))||2031;
-  var _birthY2= parseInt((document.getElementById('birthYear')?.value||'').replace(/[^0-9]/g,''))||1971;
-  var _lifeY2 = parseInt((document.getElementById('lifeYear')?.value||'').replace(/[^0-9]/g,''))||2071;
-  var _retAge2  = _retY2 - _birthY2;
-  var _lifeAge2 = _lifeY2 - _birthY2;
-  var _period2  = (_lifeAge2 - _retAge2) / 3;
-  var _from0=_retAge2, _to0=Math.round(Math.min(_from0+_period2,_lifeAge2));
-  var _from1=_to0+1,   _to1=Math.round(Math.min(_from1+_period2,_lifeAge2));
-  var _from2=_to1+1,   _to2=Math.round(Math.min(_from2+_period2,_lifeAge2));
-  var _yf0=_retY2,              _yt0=_yf0+_to0-_from0;
-  var _yf1=_yt0+1,              _yt1=_yf1+_to1-_from1;
-  var _yf2=_yt1+1,              _yt2=_yf2+_to2-_from2;
-  var _yrFroms=[_yf0,_yf1,_yf2], _yrTos=[_yt0,_yt1,_yt2];
-  function ivYF(i){ return _yrFroms[i]!==undefined?_yrFroms[i]:(expAgeIntervals[i]?.yrFrom||(_birthY2+(expAgeIntervals[i]?.from||0))); }
-  function ivYT(i){ return _yrTos[i]!==undefined?_yrTos[i]:(expAgeIntervals[i]?.yrTo||(_birthY2+(expAgeIntervals[i]?.to||0))); }
-  function ivLabel(iv,i){
-    return (iv.from||0) + '\u2013' + (iv.to||0);
-  }
-
-  // Column header
-  var TH = 'style="padding:5px 8px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);color:var(--muted);text-align:right"';
-  var TH_L = TH.replace('text-align:right','text-align:left');
-  var TH_ED= TH;
-  var hdrs = '<tr>'
-    + '<th '+TH_L+'>'+t('wd.col.account')+'</th>'
-    + '<th '+TH+'>'+t('wd.col.current')+'</th>'
-    + '<th '+TH+'>'+t('wd.col.ret.start')+'</th>'
-    + '<th '+TH+'>'+t('wd.col.ret.end')+'</th>'
-    + '<th '+TH_ED+'><span id="wd-col-hdr">'+t('acc.wd')+'</span></th>'
-    + '<th '+TH_ED+'>'+t('wd.col.ws')+'</th>'
-    + '<th '+TH_ED+'>'+t('wd.col.we')+'</th>';
-  ivs.forEach(function(iv,i){
-    hdrs += '<th style="padding:5px 8px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);color:var(--muted);text-align:right">'+t('wd.col.period.prefix')+ivLabel(iv,i)+'</th>';
+// Step 1: state pension start age (null = follow the Personal-tab retirement age). Guarantee pension / IPT never before
+// the target age (the engine pays them from max(start, riktålder) anyway; this keeps the rule message away).
+function wdpSetStateAge(age){
+  var by = wdpBy();
+  wdpStateAccs().forEach(function(a){
+    if(age == null){ a.wsAuto = true; a.ws = wdDefaultYear(a); return; }
+    var r = wdRule(a);
+    a.wsAuto = false;
+    a.ws = by + (r && r.kind === 'target' ? Math.max(age, r.from) : age);
   });
-  hdrs += '</tr>';
-  thead.innerHTML = hdrs;
-
-  // Get retirement-year portfolio values from projection (for estimated values)
-  // Per-account closing balances at retirement and life year from projection
-  var _retAccClosing  = [];
-  var _lifeAccClosing = [];
-  var lifeY_wd = parseInt((document.getElementById('lifeYear')?.value||'').replace(/[^0-9]/g,''))||2071;
-  // Per-account end-balance: use the account's own withdrawal end year (a.we)
-  // when set, falling back to the global life year. This gives "balance at
-  // the point when the account stops paying out" — which is what the column
-  // header "Asset at Retirement End" is meant to display.
-  var _weAccClosing = [];
-  if(_projYears && _projYears.length){
-    var retRow  = _projYears.find(function(y){return y.yr>=retY;});
-    if(!retRow) retRow = _projYears[_projYears.length-1];
-    _retAccClosing = retRow.accClosing || [];
-    var lifeRow = _projYears.slice().reverse().find(function(y){return y.yr<=lifeY_wd;});
-    if(!lifeRow) lifeRow = _projYears[_projYears.length-1];
-    _lifeAccClosing = lifeRow.accClosing || [];
-    // Build per-account end balance at each account's own we year
-    accounts.forEach(function(a, ai){
-      var targetYr = (a.we && a.we < 9999) ? a.we : lifeY_wd;
-      var row = _projYears.slice().reverse().find(function(y){ return y.yr <= targetYr; });
-      if(!row) row = _projYears[_projYears.length-1];
-      if(row && row.accDetail && row.accDetail[ai]){
-        _weAccClosing[ai] = row.accDetail[ai].close || 0;
-      } else if(row && row.accClosing){
-        _weAccClosing[ai] = row.accClosing[ai] || 0;
-      } else {
-        _weAccClosing[ai] = 0;
-      }
+  wdpAfterRecalc();
+}
+function wdpSetAccStart(ai, el){
+  var a = accounts[ai], v = parseInt(String(el.value).replace(/[^0-9]/g, ''));
+  if(!a || !(v > 0)) return;
+  var n = isTempAcc(a) ? a.we - a.ws : null;
+  a.wsAuto = false; a.ws = wdpBy() + v;
+  if(n != null) a.we = a.ws + n;
+  wdpAfterRecalc();
+}
+// First-year state pension (kr/yr, before tax) for each start age: one projection per age, cached
+var _wdpCache = {sig:'', state:null};
+function wdpStateOptions(ages){
+  var g = wdpStateAccs(), by = wdpBy();
+  if(!g.length) return {};
+  var sig = wdpSig(ages.join(','));
+  if(_wdpCache.sig === sig && _wdpCache.state) return _wdpCache.state;
+  var idx = g.map(function(a){ return accounts.indexOf(a); });
+  var saved = g.map(function(a){ return [a.ws, a.wsAuto]; }), out = {};
+  try{
+    ages.forEach(function(age){
+      g.forEach(function(a){ var r = wdRule(a); a.ws = by + (r && r.kind === 'target' ? Math.max(age, r.from) : age); });
+      var pr = runProjection(), y0 = pr.years.find(function(y){ return y.yr === by + age; });
+      // first payout year + the last right Typfallsmodellen's Table 1 counts with it (row.lastRight1)
+      out[age] = y0 ? idx.reduce(function(s, ai){ return s + ((y0.accDetail[ai] || {}).wdrl || 0); }, 0) + (y0.lastRight1 || 0) : 0;
     });
+  } finally {
+    g.forEach(function(a, k){ a.ws = saved[k][0]; a.wsAuto = saved[k][1]; });
   }
-
-  // Row helpers
-  var INP_STYLE='background:var(--s3);border:1px solid var(--border);border-radius:3px;color:var(--navy);text-align:right;padding:2px 5px;font-size:12px;font-family:var(--font-m)';
-  var fmtN = function(n){ return Math.round(n).toLocaleString('sv-SE'); };
-  var TD   = 'style="padding:6px 8px;border-bottom:1px solid rgba(0,0,0,0.07);text-align:right;font-family:var(--font-m)"';
-  var TD_L = TD.replace('text-align:right','text-align:left');
-
-  function estVal(a){
-    var ai = accounts.indexOf(a);
-    if(ai>=0 && _projYears && _projYears.length){
-      var retRow = _projYears.find(function(y){return y.yr>=retY;});
-      if(retRow && retRow.accDetail && retRow.accDetail[ai]){
-        return Math.round(retRow.accDetail[ai].open || 0);
-      }
-    }
-    return Math.round(a.opening||0);
-  }
-  // Income pension: the last credited right (retirement year) is part of the first payout.
-  function estValPay(a){
-    var v = estVal(a), ai = accounts.indexOf(a);
-    if(isIpEngineAcc(a) && ai>=0 && _projYears && _projYears.length){
-      var rr = _projYears.find(function(y){return y.yr>=retY;});
-      if(rr && rr.accDetail && rr.accDetail[ai]) v += rr.accDetail[ai].contrib || 0;
-    }
-    return v;
-  }
-  function estEnd(a){
-    var ai = accounts.indexOf(a);
-    return ai>=0 && _weAccClosing[ai]!=null ? Math.round(_weAccClosing[ai]) : 0;
-  }
-  // Effective annual wd for display purposes. For delningstal accounts we
-  // estimate year-1 withdrawal (balance at retirement / delningstal at start
-  // age) × wdShare (utbetalningsgrad, default 1 = 100%).
-  function effWd(a){
-    if(a.db) return occDbEstimate(a);
-    if(isUnderlagAcc(a)) return Math.round(underlagFirstAmount(a).amt);
-    if(usesDelningstalPayout(a)){
-      var _ageWs = a.ws - by;
-      var _dt    = resolveDelningstal(a, _ageWs);
-      var _share = (a.wdShare != null ? a.wdShare : 1);
-      return _dt > 0 ? Math.round((estValPay(a)||0) / _dt * _share) : 0;
-    }
-    return a.wd || 0;
-  }
-  // Lifelong / DB P-Insurance pay on their own schedule even when intervals are on.
-  function ownScheduleSum(accs, i){
-    return accs.reduce(function(t,a){
-      if(a.type!=='p-ins' || isPlannedPIns(a)) return t;
-      var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
-      return t+(ivYF(i)<=we&&ivYT(i)>=ws?effWd(a)*wdTaxFactor(a):0);
-    },0);
-  }
-  function ivCatTotal(iv, type){
-    var pct=type==='after'?(iv.wdPctAT||0):type==='p-ins'?(iv.wdPctPI||0):(iv.wdPctST||0);
-    // Return 0 if the account group has nothing to distribute from
-    var bal;
-    if(type==='after')  bal=accounts.reduce(function(s,a){return !a.taxable?s+(a.opening||0):s;},0);
-    else if(type==='p-ins') bal=accounts.reduce(function(s,a){return isPlannedPIns(a)?s+(a.opening||0):s;},0);
-    else bal=1; // state: handled separately via delningstal, always allow
-    return bal>0 ? (iv.wdAmount||0)*pct : 0;
-  }
-  function wdCell(a, iv, pidx){
-    var ivOn=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-    // State accounts (and lifelong / DB P-Insurance) follow their own
-    // payout logic — intervals don't apply
-    if(ivOn && (a.type==='after' || isPlannedPIns(a))){
-      var catTotal=ivCatTotal(iv,a.type)*wdTaxFactor(a);
-      var grpSum=accounts.filter(function(x){return x.type===a.type && (x.type!=='p-ins' || isPlannedPIns(x));}).reduce(function(s,x){return s+(x.opening||0);},0);
-      var share=grpSum>0?(a.opening||0)/grpSum:0;
-      return '<td '+TD+'><span style="color:var(--text)">'+fmtN(Math.round(catTotal*share))+'</span></td>';
-    }
-    if(!a.wd&&!a.useDelningstal&&a.ws===9999&&a.we===9999) return '<td '+TD+'>—</td>';
-    var ivYFrom=ivYF(pidx),ivYTo=ivYT(pidx);
-    var ws=a.ws===9999?0:(a.ws||0),we=a.we===9999?9999:(a.we||9999);
-    if(ivYFrom<=we&&ivYTo>=ws){
-      var wdAmt = Math.round(effWd(a)*wdTaxFactor(a));
-      return '<td '+TD+'><span style="color:var(--text)">'+fmtN(wdAmt)+'</span></td>';
-    }
-    return '<td '+TD+'><span style="color:var(--muted)">—</span></td>';
-  }
-  function groupRow(label, color, type){
-    var collapsed = !!(window._wdGroupCollapsed && window._wdGroupCollapsed[type]);
-    var chevron   = collapsed ? '&#9658;' : '&#9660;';
-    var btn = '<button onclick="toggleWdGroup(\''+type+'\')" id="wd-grp-btn-'+type+'" title="'+t(collapsed?'grp.expand':'grp.collapse')+'" '
-      +'style="background:none;border:none;cursor:pointer;color:'+color+';font-size:11px;'
-      +'margin-right:6px;padding:0 3px;line-height:1;vertical-align:middle;opacity:.75" '
-      +'onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=\'.75\'">'+chevron+'</button>';
-    var cols='<td '+TD_L+'>'+btn+'<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+color+'">'+label+'</span></td><td></td><td></td><td style="border:none"></td><td style="border:none"></td><td style="border:none"></td><td style="border:none"></td>';
-    ivs.forEach(function(){ cols+='<td></td>'; });
-    return '<tr style="background:rgba(0,0,0,0.03)">'+cols+'</tr>';
-  }
-  function subtotalRow(label, accs, color){
-    var sumOpen=accs.reduce(function(s,a){return s+(a.opening||0);},0);
-    var sumEst=accs.reduce(function(s,a){return s+estVal(a);},0);
-    var sumEnd=accs.reduce(function(s,a){return s+estEnd(a);},0);
-    var cols='<td '+TD_L+'><span style="font-size:11px;font-weight:700;color:'+color+'">'+label+'</span></td>'
-      +'<td '+TD+'><span style="font-weight:600;color:'+color+'">'+fmtN(sumOpen)+'</span></td>'
-      +'<td '+TD+'><span style="font-weight:600;color:'+color+'">'+fmtN(sumEst)+'</span></td>'
-      +'<td '+TD+'><span style="font-weight:600;color:'+color+'">'+fmtN(sumEnd)+'</span></td>'
-      +'<td '+TD+'><span style="font-weight:600;color:'+color+'">'+fmtN(accs.reduce(function(s,a){return s+effWd(a);},0))+'</span></td>'
-      +'<td style="border:none"></td><td style="border:none"></td>';
-    var ivOn2=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-    var grpType = accs[0]?accs[0].type:'after';
-    ivs.forEach(function(iv, i){
-      var s;
-      // State accounts always follow delningstal, even when intervals active
-      if(ivOn2 && grpType!=='state'){
-        s=Math.round(ivCatTotal(iv, grpType) + ownScheduleSum(accs, i));
-      } else {
-        s=accs.reduce(function(t,a){
-          var ivYFrom=ivYF(i), ivYTo=ivYT(i);
-          var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
-          return t+(ivYFrom<=we&&ivYTo>=ws?effWd(a):0);
-        },0);
-      }
-      cols+='<td '+TD+'><span style="font-weight:600;color:'+color+'">'+fmtN(s)+'</span></td>';
-    });
-    return '<tr data-wdgrp-sub="'+grpType+'" style="background:rgba(0,0,0,0.05);border-top:1px solid rgba(0,0,0,0.1)">'+cols+'</tr>';
-  }
-
-  var rows='';
-  var groups={after:{label:t('acc.group.after'),color:'#48B866'},
-              'p-ins':{label:t('acc.group.pins'),color:'#4885C4'},
-              state:{label:t('acc.group.state'),color:'#C4B89A'}};
-
-  ['after','p-ins','state'].forEach(function(type){
-    var g=groups[type], accs=accounts.filter(function(a){return a.type===type;});
-    if(!accs.length) return;
-    rows += groupRow(g.label, g.color, type);
-    accs.forEach(function(a){
-      var collapsed = !!(window._wdGroupCollapsed && window._wdGroupCollapsed[type]);
-      var tr='<tr data-wdgrp="'+type+'"'+(collapsed?' style="display:none"':'')+'>';
-      tr+='<td '+TD_L+'>'
-        +'<span style="font-size:12px;color:var(--text)">'+accDisplayName(a)+'</span>'
-        +'<span style="font-size:9px;color:'+g.color+';margin-left:5px;text-transform:uppercase">'+t({after:'acc.badge.after','p-ins':'acc.badge.pins',state:'acc.badge.state'}[type])+'</span>'
-        +'</td>';
-      tr+='<td '+TD+'>'+fmtN(a.opening||0)+'</td>';
-      tr+='<td '+TD+'>'+fmtN(estVal(a))+'</td>';
-      tr+='<td '+TD+'>'+fmtN(estEnd(a))+'</td>';
-      var ai=accounts.indexOf(a);
-      if(a.db){
-        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right" title="'+t('occ.db.tip')+'">'
-          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
-          +'<div style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">'+t('occ.badge.db')+'</div></td>';
-      } else if(a.type==='p-ins' && a.scheme && a.useDelningstal){
-        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'
-          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
-          +occPayoutToggle(ai, a)+'</td>';
-      }
-      else if(isUnderlagAcc(a)){
-        tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right" title="'+t('bn.auto.tip')+'">'
-          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)">\u2248 '+fmtN(Math.round(effWd(a)*wdTaxFactor(a)))+'</span>'
-          +'<div style="font-size:9px;color:#4885C4">'+t('occ.auto')+'</div></td>';
-      }
-      // State pension with delningstal: show estimated wd + mode selector + share selector
-      else if(a.useDelningstal && a.type==='state'){
-        var _dtAge0 = (a.ws && a.ws<9999) ? (a.ws - by) : null;
-        var _dt0    = _dtAge0 != null ? resolveDelningstal(a, _dtAge0) : 0;
-        var _share  = (a.wdShare != null ? a.wdShare : 1);
-        var _est0   = _dt0>0 ? Math.round((estValPay(a)||0)/_dt0*_share) : 0;
-        var _curMode= a.delningstalMode || 'inkomst';
-        var _scope  = a.delningstalScope || 'custom';
-        // Modes available per scope
-        var _allowedModes =
-            _scope === 'inkomst' ? ['inkomst']
-          : _scope === 'premie'  ? ['fond','trad']
-          : ['inkomst','fond','trad','own'];   // 'custom'
-        var _modeBtn = function(modeKey, label, tip){
-          var on = _curMode===modeKey;
-          return '<button onclick="setDelningstalMode('+ai+',\''+modeKey+'\')" '
-            +'title="'+tip+'" '
-            +'style="background:'+(on?'#48B866':'transparent')+';color:'+(on?'#0f1f3d':'var(--muted)')+';'
-            +'border:1px solid '+(on?'#48B866':'var(--border)')+';border-radius:3px;padding:1px 4px;'
-            +'font-size:8px;font-weight:'+(on?'700':'600')+';letter-spacing:.04em;text-transform:uppercase;'
-            +'cursor:pointer;font-family:var(--font-b);line-height:1.3">'+label+'</button>';
-        };
-        var _modeMap = {
-          inkomst:['Ink',  'Inkomstpension — PFS 2024:2 (1959-kohort)'],
-          fond:   ['Fond', 'Premiepension Fondförsäkring — PM 2026'],
-          trad:   ['Trad', 'Premiepension Traditionell försäkring — PM 2026'],
-          own:    ['Own',  'Use your own divisor']
-        };
-        var _modesHtml = _allowedModes.map(function(k){
-          return _modeBtn(k, _modeMap[k][0], _modeMap[k][1]);
-        }).join('');
-        // OWN-mode: small input for custom divisor (only ever shown when 'own' is allowed AND selected)
-        var _ownInputHtml = '';
-        if(_curMode==='own' && _allowedModes.indexOf('own')>=0){
-          var _cd = (a.customDelningstal!=null?a.customDelningstal:17.26)
-                      .toString().replace('.',',');
-          _ownInputHtml = '<input type="text" inputmode="decimal" value="'+_cd+'" '
-            +'data-ai="'+ai+'" onchange="setCustomDelningstal(this)" '
-            +'style="width:48px;background:var(--s3);border:1px solid var(--border);'
-            +'border-radius:3px;color:var(--gold);text-align:right;padding:1px 4px;'
-            +'font-size:10px;font-family:var(--font-m);margin-top:2px" '
-            +'title="'+t('wd.dt.own.tip')+'">';
-        }
-        // Utbetalningsgrad (withdrawal share): Swedish state-pension partial
-        // pension options. Default 100% = full pension.
-        var _shareBtn = function(pct){
-          var v  = pct/100;
-          var on = Math.abs(_share - v) < 0.001;
-          return '<button onclick="setWithdrawalShare('+ai+','+v+')" '
-            +'title="Utbetalningsgrad: '+pct+'% av beräknad pension'
-            +(pct===0?' (skjuta upp utbetalning)':pct===100?' (full pension)':'')+'" '
-            +'style="background:'+(on?'rgba(74,143,204,.9)':'transparent')+';color:'+(on?'#fff':'var(--muted)')+';'
-            +'border:1px solid '+(on?'rgba(74,143,204,.9)':'var(--border)')+';border-radius:3px;padding:1px 4px;'
-            +'font-size:8px;font-weight:'+(on?'700':'600')+';letter-spacing:.04em;text-transform:uppercase;'
-            +'cursor:pointer;font-family:var(--font-b);line-height:1.3">'+pct+'%</button>';
-        };
-        var _shareHtml = '<div style="display:inline-flex;gap:2px">'
-          + _shareBtn(100) + _shareBtn(75) + _shareBtn(50) + _shareBtn(25) + _shareBtn(0)
-          + '</div>';
-        // Separate share while working again (second work period on the Personal tab), main Income / Premium pension rows only
-        var _wpNow = workPeriod(), _workShareHtml = '';
-        if(_wpNow && !a.workRow && (_scope === 'inkomst' || _scope === 'premie')){
-          var _wsh = a.wdShareWork != null ? a.wdShareWork : _share;
-          _workShareHtml = '<div style="font-size:8px;color:var(--muted);margin-top:3px;letter-spacing:.03em" title="'+t('pers.work.hint').replace(/"/g,'&quot;')+'">'
-            + t('pers.work.share') + ' ' + _wpNow.fa + '\u2013' + _wpNow.ta + '</div><div style="display:inline-flex;gap:2px">'
-            + [100,75,50,25,0].map(function(pct){
-                var on2 = Math.abs(_wsh - pct/100) < 0.001;
-                return '<button onclick="setWorkShare('+ai+','+(pct/100)+')" style="background:'+(on2?'rgba(233,184,74,.9)':'transparent')+';color:'+(on2?'#0f1f3d':'var(--muted)')+';'
-                  +'border:1px solid '+(on2?'rgba(233,184,74,.9)':'var(--border)')+';border-radius:3px;padding:1px 4px;font-size:8px;font-weight:'+(on2?'700':'600')+';'
-                  +'letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:var(--font-b);line-height:1.3">'+pct+'%</button>';
-              }).join('') + '</div>';
-        }
-        // Manual WD escape hatch only for 'custom' scope (Inkomst/Premie scopes
-        // are locked into delningstal, per the original "user should not be
-        // able to decide the withdrawal rate" intent for state pensions).
-        var _manualBtn = (_scope === 'custom')
-          ? '<button onclick="toggleDelningstal('+ai+')" '
-            +'style="background:transparent;border:1px solid rgba(72,184,102,.4);color:#48B866;'
-            +'border-radius:3px;padding:1px 5px;font-size:8px;font-weight:600;letter-spacing:.04em;'
-            +'text-transform:uppercase;cursor:pointer;font-family:var(--font-b);margin-top:1px" '
-            +'title="'+t('wd.manual.wd.tip')+'">'+t('wd.manual.wd')+'</button>'
-          : '';
-        var _badge = '<div style="display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px">'
-          +'<span style="font-size:11px;font-family:var(--font-m);color:var(--navy)" '
-            +'title="'+t('wd.year1')+': '+fmtN(estVal(a))+' kr ÷ '
-            +(_dt0?_dt0.toString().replace(".",","):"–")
-            +' × '+Math.round(_share*100)+'% '
-            +' = '+fmtN(Math.round(_est0*wdTaxFactor(a)))+' kr">'
-            +'≈ '+fmtN(Math.round(_est0*wdTaxFactor(a)))+'</span>'
-          +'<div style="display:inline-flex;gap:2px">'+_modesHtml+'</div>'
-          + _ownInputHtml
-          + _shareHtml
-          + _workShareHtml
-          + _manualBtn
-          +'</div>';
-        tr+='<td class="wd-edit-cell wd-state-cell" style="padding:4px 5px;text-align:right">'+_badge+'</td>';
-      } else {
-        // Default Withdrawal/yr = Asset at Retirement Start / (we - ws) for after-tax and p-ins
-        var _wdDefault = a.wd;
-        if(!_wdDefault && a.type !== 'state' && a.ws < 9999 && a.we > a.ws){
-          _wdDefault = Math.round(estVal(a) / (a.we - a.ws));
-        }
-        if(isTempAcc(a) || isTempTaxed(a)){
-          // Temporärt: the amount is calculated (Typfallsmodellen's temporary payout, adjusted to end at 0), not typed
-          var _tmNote = (isTempAcc(a) && _tmpZero.tm[ai] != null)
-            ? '<div style="font-size:8px;color:var(--muted);line-height:1.3;max-width:150px;margin-left:auto">'
-              + t('wd.temp.note').replace('{tm}', fmtN(_tmpZero.tm[ai])).replace('{adj}', fmtN(a.wd||0)) + '</div>'
-            : '<div style="font-size:9px;color:#4885C4">'+t('occ.auto')+'</div>';
-          tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right" title="'+t('occ.payout.tip').replace(/"/g,'&quot;')+'">'
-            +'<span style="font-size:12px;font-family:var(--font-m);color:var(--navy)">'+fmtN(a.wd||0)+'</span>'+_tmNote;
-        } else {
-          tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'wd',_wdDefault,90);
-        }
-        if(a.type==='p-ins' && !a.db) tr+=occPayoutToggle(ai, a);
-        // "Use delningstal" toggle only for state accounts with 'custom' scope
-        // (Inkomst/Premie-scope accounts always stay on delningstal, so the
-        // toggle is hidden — there's no way to turn delningstal off for them).
-        if(a.type==='state' && (a.delningstalScope||'custom') === 'custom'){
-          tr+='<div style="margin-top:2px"><button onclick="toggleDelningstal('+ai+')" '
-            +'style="background:transparent;border:1px solid var(--border);color:var(--muted);'
-            +'border-radius:3px;padding:1px 4px;font-size:8px;font-weight:600;letter-spacing:.04em;'
-            +'text-transform:uppercase;cursor:pointer;font-family:var(--font-b)" '
-            +'title="'+t('wd.use.dt.tip')+'">'
-            +t('wd.use.dt')+'</button></div>';
-        }
-        tr+='</td>';
-      }
-      var _wdErr = wdRuleErrors(a);
-      tr+='<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'ws',a.ws,70,_wdErr.ws)+'</td>';
-      tr+= (a.db || a.type==='state' || (a.type==='p-ins' && a.useDelningstal))
-        ? '<td '+TD+'><span style="color:var(--muted)" title="'+t('occ.payout.lifelong')+'">\u221e</span></td>'
-        : '<td class="wd-edit-cell" style="padding:4px 5px;text-align:right">'+wdInputHtml(ai,'we',a.we,70,_wdErr.we)+'</td>';
-      ivs.forEach(function(iv,pidx){ tr+=wdCell(a,iv,pidx); });
-      tr+='</tr>';
-      rows+=tr;
-    });
-    rows += subtotalRow(
-      type==='after'?t('acc.sum.after'):type==='p-ins'?t('acc.sum.pins'):t('acc.sum.state'),
-      accs, g.color
-    );
-  });
-
-  // Total row
-  var allAccs=accounts;
-  var totalOpen=allAccs.reduce(function(s,a){return s+(a.opening||0);},0);
-  var totalEst=allAccs.reduce(function(s,a){return s+estVal(a);},0);
-  var TD_TOT   = 'style="padding:6px 8px;border-bottom:1px solid rgba(0,0,0,0.07);text-align:right;font-family:var(--font-m)"';
-  var TD_TOT_L = 'style="padding:6px 8px;border-bottom:1px solid rgba(0,0,0,0.07);text-align:left;font-family:var(--font-m)"';
-  var totalCols='<td '+TD_TOT_L+'><span style="font-size:11px;font-weight:700;color:var(--gold)">'+t('acc.total.value')+'</span></td>'
-    +'<td '+TD_TOT+'><span style="font-weight:700;color:var(--gold)">'+fmtN(totalOpen)+'</span></td>'
-    +'<td '+TD_TOT+'><span style="font-weight:700;color:var(--gold)">'+fmtN(totalEst)+'</span></td>'
-    +'<td '+TD_TOT+'><span style="font-weight:700;color:var(--gold)">'+fmtN(allAccs.reduce(function(s,a){return s+estEnd(a);},0))+'</span></td>'
-    +'<td '+TD_TOT+'><span style="font-weight:700;color:var(--gold)">'+fmtN(allAccs.reduce(function(s,a){return s+effWd(a);},0))+'</span></td>'
-    +'<td></td><td></td>';
-  var ivOnTot=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-  ivs.forEach(function(iv, i){
-    var s;
-    if(ivOnTot){
-      // Interval-based: wdAmount = AT+PI total. Add state pensions on top
-      // (they're calculated independently via delningstal).
-      var stateSum=allAccs.reduce(function(t,a){
-        if(a.type!=='state' && !(a.type==='p-ins' && !isPlannedPIns(a))) return t;
-        var ivYFrom=ivYF(i), ivYTo=ivYT(i);
-        var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
-        return t+(ivYFrom<=we&&ivYTo>=ws?effWd(a):0);
-      },0);
-      s=Math.round((iv.wdAmount||0) + stateSum);
-    } else {
-      s=allAccs.reduce(function(t,a){
-        var ivYFrom=ivYF(i), ivYTo=ivYT(i);
-        var ws=a.ws===9999?0:(a.ws||0), we=a.we===9999?9999:(a.we||9999);
-        return t+(ivYFrom<=we&&ivYTo>=ws?effWd(a):0);
-      },0);
-    }
-    totalCols+='<td '+TD_TOT+'><span style="font-weight:700;color:var(--gold)">'+fmtN(s)+'</span></td>';
-  });
-  var colCount = 7 + ivs.length;
-  rows+='<tr style="height:2px;background:var(--navy);line-height:0;font-size:0"><td colspan="'+colCount+'" style="height:2px;padding:0;background:var(--navy)"></td></tr>';
-  rows+='<tr>'+totalCols+'</tr>';
-
-
-  // Fade/disable wd inputs when intervals are active — except state pension
-  // cells, which stay interactive because delningstal mode/share buttons are
-  // always operational (state pensions are independent of intervals).
-  var _ivActive = document.getElementById('exp-iv-master') && document.getElementById('exp-iv-master').checked;
-  document.querySelectorAll('#wd-acct-tbody .wd-edit-cell').forEach(function(td){
-    var isState = td.classList.contains('wd-state-cell');
-    td.style.opacity       = (_ivActive && !isState) ? '0.35' : '';
-    td.style.pointerEvents = (_ivActive && !isState) ? 'none'  : '';
-    var inp = td.querySelector('input');
-    if(inp) inp.disabled = !!(_ivActive && !isState);
-  });
-  tbody.innerHTML=rows;
-  // Apply initial collapse visibility for subtotal rows (account rows already tagged via string)
-  // Subtotal rows always remain visible even when group is collapsed
-  // Re-apply after innerHTML (elements are recreated)
-  setTimeout(function(){
-    var ivOn=document.getElementById('exp-iv-master')&&document.getElementById('exp-iv-master').checked;
-    document.querySelectorAll('#wd-acct-tbody .wd-edit-cell').forEach(function(td){
-      var isState = td.classList.contains('wd-state-cell');
-      td.style.opacity=(ivOn && !isState)?'0.35':'';
-      td.style.pointerEvents=(ivOn && !isState)?'none':'';
-      var inp=td.querySelector('input'); if(inp) inp.disabled=!!(ivOn && !isState);
-    });
-  },0);
+  _wdpCache.sig = wdpSig(ages.join(','));
+  _wdpCache.state = out;
+  return out;
 }
 
+// Steps 2–3: payout of a P-insurance account. n = 0 lifelong, n > 0 Temporärt over n years (we = ws + n − 1)
+function wdpSetYears(ai, n){
+  var a = accounts[ai];
+  if(!a || a.type !== 'p-ins' || a.db) return;
+  if(!(a.ws < 9999)){ a.wsAuto = true; a.ws = wdDefaultYear(a); }
+  if(n === 0){
+    a.useDelningstal = true; a.delningstalMode = 'tjp'; a.delningstalScope = 'tjp'; a.actuarial = true; a.we = 9998;
+  } else {
+    n = Math.max(1, Math.min(29, Math.round(n)));
+    a.useDelningstal = false; a.actuarial = false; a.we = a.ws + n - 1;
+  }
+  _tmpZero.sig = '';
+  wdpAfterRecalc();
+}
+function wdpSetYearsInput(ai, el){ var v = parseInt(String(el.value).replace(/[^0-9]/g, '')); if(v > 0) wdpSetYears(ai, v); }
+function wdpSetPinsAuto(ai){
+  var a = accounts[ai]; if(!a) return;
+  var n = isTempAcc(a) ? a.we - a.ws : null;
+  a.wsAuto = true; a.ws = wdDefaultYear(a);
+  if(n != null) a.we = a.ws + n;
+  wdpAfterRecalc();
+}
+// Current payout: 0 lifelong, n years, or null (no window yet)
+function wdpYearsOf(a){
+  if(a.db || a.useDelningstal) return 0;
+  return isTempAcc(a) ? a.we - a.ws + 1 : null;
+}
+// Typfallsmodellen's amount per option (kr/yr, first year, before tax) from the projected balance at the start:
+// lifelong = balance ÷ the occupational divisor, n years = balance ÷ tempPayoutDivisor (before the adjustment to 0)
+function wdpPinsOptions(a, ai){
+  var ws = a.ws < 9999 ? a.ws : wdDefaultYear(a), age = ws - wdpBy(), open = tempOpenAt(ai, ws), out = {open:open};
+  var dt = occTjpDelningstal(age);
+  out[0] = dt > 0 ? open / dt : 0;
+  [5, 10, 15, 20].forEach(function(n){ var d = tempPayoutDivisor(a, age, n, ws); out[n] = d > 0 ? open / d : 0; });
+  return out;
+}
+// Projected first-year payout of an account (kr/yr, before tax)
+function wdpFirstPay(a){
+  var ai = accounts.indexOf(a);
+  if(a.db) return occDbEstimate(a);
+  var y = a.ws < 9999 ? wdpRow(a.ws) : null, d = y && y.accDetail && y.accDetail[ai];
+  return d ? (d.wdrl || 0) : 0;
+}
+
+// Step 4: savings
+function wdpSetSavings(mode){
+  if(['need','even','none','manual'].indexOf(mode) < 0) return;
+  wdPlan.savingsMode = mode;
+  if(mode === 'even') wdpApplyEven();
+  _tmpZero.sig = '';
+  wdpAfterRecalc();
+}
+function wdpSetEven(field, el){
+  var v = parseInt(String(el.value).replace(/[^0-9]/g, ''));
+  wdPlan[field] = v > 0 ? v : null;
+  wdpApplyEven(); _tmpZero.sig = '';
+  wdpAfterRecalc();
+}
+// Savings: age they run out (cover-the-gap) or what is left at the life age
+function wdpSavingsOutcome(){
+  var ys = _projYears || [], retY = Math.round(getParam('retirementYear')), lifeY = Math.round(getParam('lifeYear'));
+  var had = ys.some(function(y){ return y.yr >= retY && (y.openAfterTax || 0) > 0; });
+  if(!had) return null;
+  var dep = ys.find(function(y){ return y.yr >= retY && y.yr <= lifeY && (y.portAfterTax || 0) < 1; });
+  var last = ys.slice().reverse().find(function(y){ return y.yr <= lifeY; });
+  return dep ? {age:dep.age} : {left:last ? last.portAfterTax : 0, at:last ? last.age : null};
+}
+
+// Step 5: spending
+function wdpSetPhases(on){ wdPlan.phasesOn = !!on; recalc(); }
+function wdpStepLevel(i, d){
+  if(i < 0) wdPlan.flatLevel = Math.max(0.3, Math.min(3, Math.round((wdPlan.flatLevel + d) * 100) / 100));
+  else wdPlan.levels[i] = Math.max(0.3, Math.min(3, Math.round((wdPlan.levels[i] + d) * 100) / 100));
+  recalc();
+}
+function wdpSetLevel(i, el){
+  var v = parseInt(String(el.value).replace(/[^0-9]/g, ''));
+  if(!(v > 0)) return;
+  v = Math.max(30, Math.min(300, v)) / 100;
+  if(i < 0) wdPlan.flatLevel = v; else wdPlan.levels[i] = v;
+  recalc();
+}
+function wdpPreset(k){ var p = WDP_PRESETS[k]; if(!p) return; wdPlan.levels = p.slice(); wdPlan.phasesOn = true; recalc(); }
+// Phase k (1 or 2) starts at this age; the other boundary stays where it is
+function wdpSetSplit(k, el){
+  var v = parseInt(String(el.value).replace(/[^0-9]/g, ''));
+  if(!(v > 0)) return;
+  var b = wdpPhaseBounds(), s = [b[0].to, b[1].to];
+  s[k - 1] = v - 1;
+  if(s[1] <= s[0]) s[k === 1 ? 1 : 0] = k === 1 ? s[0] + 1 : s[1] - 1;
+  wdPlan.splitAges = s; wdPlan.splitAuto = false;
+  recalc();
+}
+function wdpSplitAuto(){ wdPlan.splitAuto = true; wdPlan.splitAges = null; recalc(); }
+
+function wdpOpen(n){ _wdpOpen = _wdpOpen === n ? 0 : n; wdpRender(); var el = document.getElementById('wdp-step-' + n); if(el && n && el.scrollIntoView) el.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+function wdpNext(n){ _wdpOpen = n; wdpRender(); var el = document.getElementById('wdp-step-' + n); if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest', behavior:'smooth'}); }
+
+function wdpChip(on, onclick, big, small, extra){
+  return '<button type="button" class="wdp-chip' + (on ? ' on' : '') + '"' + (extra || '') + ' onclick="' + onclick + '"><b>' + big + '</b>' + (small != null ? '<small>' + small + '</small>' : '') + '</button>';
+}
+
+// ── Step bodies ──
+function wdpStep1(){
+  var g = wdpStateAccs(), by = wdpBy(), rikt = getRiktalder(by) || 65, retAge = wdpRetAge();
+  var res = {title:t('wdp.s1.t')};
+  if(!g.length){ res.summary = '–'; res.body = '<div class="wdp-help">' + t('wdp.s1.none') + '</div>'; return res; }
+  var cur = wdpStateAge(), auto = wdpStateAuto();
+  res.summary = cur != null ? t('wdp.s1.sum', {age:cur}) : '–';
+  var ages = [];
+  for(var x = rikt - 3; x <= rikt + 3; x++) ages.push(x);
+  if(cur != null && ages.indexOf(cur) < 0){ ages.push(cur); ages.sort(function(p, q){ return p - q; }); }
+  var amt = (_wdpOpen === 1) ? wdpStateOptions(ages) : {};
+  var perMo = function(age){ return amt[age] != null ? wdpN(amt[age] / 12) + ' ' + t('wdp.permonth') : null; };
+  var chips = ages.map(function(age){
+    return wdpChip(!auto && age === cur, 'wdpSetStateAge(' + age + ')',
+      age + (age === rikt ? '<span class="wdp-tag">' + t('wdp.s1.rikt') + '</span>' : ''), perMo(age));
+  }).join('');
+  var autoChip = wdpChip(auto, 'wdpSetStateAge(null)', t('wdp.s1.auto', {age:wdDefaultYear(wdpStateMain()) - by}),
+    auto ? perMo(cur) : null, ' style="min-width:150px"');
+  var err = '';
+  g.forEach(function(a){ var e = wdRuleErrors(a).ws; if(e && err.indexOf(e) < 0) err += '<div class="wdp-err">' + accDisplayName(a) + ': ' + e + '</div>'; });
+  res.body = '<div class="wdp-q">' + t('wdp.s1.q') + '</div>'
+    + '<div class="wdp-help">' + t('wdp.s1.help', {low:rikt - 3, rikt:rikt}) + '</div>'
+    + '<div class="wdp-chips">' + autoChip + chips + '</div>'
+    + '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s1.other') + '</span><input class="wdp-inp" id="wdp-s1-age" inputmode="numeric" value="' + (cur != null ? cur : '') + '" onchange="var v=parseInt(this.value);if(v>0)wdpSetStateAge(v)"></div>'
+    + err
+    + '<details class="wdp-more"' + (window._wdpMoreOpen ? ' open' : '') + ' ontoggle="window._wdpMoreOpen=this.open"><summary>' + t('wdp.s1.more') + '</summary>' + g.map(wdpStateMore).join('') + '</details>';
+  return res;
+}
+// "More options" per state account: own start age, withdrawal share, share while working again, divisor choice
+function wdpStateMore(a){
+  var ai = accounts.indexOf(a), by = wdpBy(), share = a.wdShare != null ? a.wdShare : 1, scope = a.delningstalScope || 'custom';
+  var seg = function(list, cur, fn){
+    return '<span class="wdp-seg">' + list.map(function(o){ return '<button type="button" class="' + (o.v === cur ? 'on' : '') + '" onclick="' + fn + '(' + ai + ',' + JSON.stringify(o.v).replace(/"/g, '\'') + ')">' + o.l + '</button>'; }).join('') + '</span>';
+  };
+  var h = '<div class="wdp-acc"><div class="wdp-acc-name">' + accDisplayName(a) + '</div>';
+  h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.from') + '</span><input class="wdp-inp" inputmode="numeric" value="' + (a.ws < 9999 ? a.ws - by : '') + '" onchange="wdpSetAccStart(' + ai + ',this)">';
+  var e = wdRuleErrors(a).ws; if(e) h += '<span class="wdp-err">' + e + '</span>';
+  h += '</div>';
+  if(a.useDelningstal && !isUnderlagAcc(a) && !a.benefit){
+    h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s1.share') + '</span>' + seg([1, 0.75, 0.5, 0.25, 0].map(function(v){ return {v:v, l:Math.round(v * 100) + ' %'}; }), share, 'setWithdrawalShare') + '</div>';
+    var wp = workPeriod();
+    if(wp && (scope === 'inkomst' || scope === 'premie')){
+      var ws2 = a.wdShareWork != null ? a.wdShareWork : share;
+      h += '<div class="wdp-row"><span class="wdp-lbl">' + t('pers.work.share') + ' ' + wp.fa + '–' + wp.ta + '</span>' + seg([1, 0.75, 0.5, 0.25, 0].map(function(v){ return {v:v, l:Math.round(v * 100) + ' %'}; }), ws2, 'setWorkShare') + '</div>';
+    }
+    if(scope === 'premie') h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s1.pp') + '</span>' + seg([{v:'fond', l:t('wdp.s1.fond')}, {v:'trad', l:t('wdp.s1.trad')}], a.delningstalMode || 'fond', 'setDelningstalMode') + '</div>';
+    if(scope === 'custom'){
+      h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s1.div') + '</span>' + seg([{v:'inkomst', l:'Ink'}, {v:'fond', l:'Fond'}, {v:'trad', l:'Trad'}, {v:'own', l:t('wdp.s1.own')}], a.delningstalMode || 'inkomst', 'setDelningstalMode');
+      if(a.delningstalMode === 'own') h += ' <input class="wdp-inp" inputmode="decimal" data-ai="' + ai + '" value="' + String(a.customDelningstal != null ? a.customDelningstal : 17.26).replace('.', ',') + '" onchange="setCustomDelningstal(this)">';
+      h += ' <button type="button" class="wdp-link" onclick="toggleDelningstal(' + ai + ')">' + t('wd.manual.wd') + '</button></div>';
+    }
+  } else if(scope === 'custom' && !isUnderlagAcc(a) && !a.benefit){
+    h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s4.amount') + '</span>' + wdInputHtml(ai, 'wd', a.wd || 0, 90)
+      + ' <button type="button" class="wdp-link" onclick="toggleDelningstal(' + ai + ')">' + t('wd.use.dt') + '</button></div>';
+  }
+  return h + '</div>';
+}
+
+function wdpStepPins(kind){
+  var list = wdpPinsAccs(kind), by = wdpBy(), retAge = wdpRetAge();
+  var res = {title:t(kind === 'occ' ? 'wdp.s2.t' : 'wdp.s3.t')};
+  if(!list.length){ res.summary = '–'; res.body = '<div class="wdp-help">' + t(kind === 'occ' ? 'wdp.s2.none' : 'wdp.s3.none') + '</div>'; return res; }
+  res.summary = list.map(function(a){
+    var n = wdpYearsOf(a), from = a.ws < 9999 ? a.ws - by : null;
+    return accDisplayName(a) + ': ' + (from == null ? t('wdp.notset')
+      : t('wdp.from.short', {age:from}) + ' · ' + (n === 0 ? t('wdp.life').toLowerCase() : n ? t('wdp.years', {n:n}) : t('wdp.notset')));
+  }).join(' · ');
+  var body = '<div class="wdp-q">' + t(kind === 'occ' ? 'wdp.s2.q' : 'wdp.s3.q') + '</div>'
+    + '<div class="wdp-help">' + t('wdp.s2.help') + (kind === 'occ' ? ' <button type="button" class="wdp-link" onclick="goTab(\'strategy\')">' + t('wdp.s2.compare') + ' →</button>' : '') + '</div>';
+  list.forEach(function(a){
+    var ai = accounts.indexOf(a), from = a.ws < 9999 ? a.ws - by : null, r = wdRule(a), errs = wdRuleErrors(a);
+    var h = '<div class="wdp-acc"><div class="wdp-acc-name">' + accDisplayName(a) + (a.scheme && OCC_SCHEMES[a.scheme] && accDisplayName(a) !== OCC_SCHEMES[a.scheme].name ? ' <span class="wdp-badge">' + OCC_SCHEMES[a.scheme].name + '</span>' : '') + '</div>';
+    var defAge = wdDefaultYear(a) - by;
+    h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.from') + '</span>'
+      + wdpChip(!!a.wsAuto && a.ws < 9999, 'wdpSetPinsAuto(' + ai + ')', t('wdp.with.ret', {age:defAge}), null, ' style="min-width:auto"')
+      + '<input class="wdp-inp" inputmode="numeric" value="' + (from != null ? from : '') + '" onchange="wdpSetAccStart(' + ai + ',this)">'
+      + (r && r.from ? '<span class="wdp-note">' + t('wdp.earliest', {age:r.from}) + '</span>' : '') + '</div>';
+    if(errs.ws) h += '<div class="wdp-err">' + errs.ws + '</div>';
+    if(a.db){
+      h += '<div class="wdp-note">' + t('wdp.db', {amt:wdpN(occDbEstimate(a) / 12)}) + '</div>';
+    } else {
+      var n = wdpYearsOf(a), opt = wdpPinsOptions(a, ai), min = r && r.min ? r.min : 0;
+      var chips = wdpChip(n === 0, 'wdpSetYears(' + ai + ',0)', t('wdp.life'), opt[0] > 0 ? wdpN(opt[0] / 12) + ' ' + t('wdp.permonth') : null);
+      [5, 10, 15, 20].forEach(function(k){
+        chips += wdpChip(n === k, 'wdpSetYears(' + ai + ',' + k + ')', t('wdp.years', {n:k}), opt[k] > 0 ? wdpN(opt[k] / 12) + ' ' + t('wdp.permonth') : null, k < min ? ' disabled title="' + wdpEsc(t('wd.err.min', {n:min})) + '"' : '');
+      });
+      var other = n && [5, 10, 15, 20].indexOf(n) < 0;
+      h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.howlong') + '</span><div class="wdp-chips" style="margin:0">' + chips
+        + '<span class="wdp-chip' + (other ? ' on' : '') + '" style="cursor:default"><b>' + t('wdp.other') + '</b><small><input class="wdp-inp" style="width:42px;padding:2px 4px;font-size:11px" inputmode="numeric" value="' + (other ? n : '') + '" onchange="wdpSetYearsInput(' + ai + ',this)"> ' + t('wdp.yrs') + '</small></span></div></div>';
+      if(errs.we) h += '<div class="wdp-err">' + errs.we + '</div>';
+      var fp = wdpFirstPay(a);
+      if(from != null && n != null) h += '<div class="wdp-note">' + (n > 0
+        ? t('wdp.first.temp', {amt:wdpN(fp / 12), to:a.we - by})
+        : t('wdp.first', {amt:wdpN(fp / 12)})) + '</div>';
+      else h += '<div class="wdp-note">' + t('wdp.pick') + '</div>';
+    }
+    body += h + '</div>';
+  });
+  res.body = body;
+  return res;
+}
+
+function wdpStep4(){
+  var list = wdpAfterAccs(), mode = wdPlan.savingsMode, by = wdpBy(), retY = Math.round(getParam('retirementYear'));
+  var res = {title:t('wdp.s4.t')};
+  var bal = list.reduce(function(s, a){ var y = wdpRow(retY), d = y && y.accDetail && y.accDetail[accounts.indexOf(a)]; return s + (d ? d.open || 0 : a.opening || 0); }, 0);
+  var out = wdpSavingsOutcome();
+  var outTxt = !out ? '' : out.age != null ? t('wdp.s4.lasts', {age:out.age}) : t('wdp.s4.left', {amt:wdpN(out.left), age:out.at});
+  res.summary = list.length ? t('wdp.s4.m.' + mode) + (outTxt ? ' · ' + outTxt : '') : '–';
+  if(!list.length){ res.body = '<div class="wdp-help">' + t('wdp.s4.empty') + '</div>'; return res; }
+  var opt = function(k){
+    var on = mode === k;
+    var h = '<div class="wdp-opt' + (on ? ' on' : '') + '"' + (on ? '' : ' onclick="wdpSetSavings(\'' + k + '\')"') + ' role="radio" aria-checked="' + on + '" tabindex="0"' + (on ? '' : ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}"') + '>'
+      + '<input type="radio" name="wdp-sav" tabindex="-1" ' + (on ? 'checked' : '') + '><div><b>' + t('wdp.s4.' + k) + '</b><span>' + t('wdp.s4.' + k + '.d') + '</span>';
+    if(on && k === 'even'){
+      var e = wdpEvenAges();
+      h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.from') + '</span><input class="wdp-inp" id="wdp-even-from" inputmode="numeric" value="' + e.from + '" onchange="wdpSetEven(\'evenFrom\',this)">'
+        + '<span class="wdp-lbl" style="min-width:auto">' + t('wdp.to') + '</span><input class="wdp-inp" id="wdp-even-to" inputmode="numeric" value="' + e.to + '" onchange="wdpSetEven(\'evenTo\',this)"></div>'
+        + '<div class="wdp-note">' + t('wdp.s4.even.amt', {amt:wdpN(list.reduce(function(s, a){ return s + (isTempTaxed(a) ? a.wd || 0 : 0); }, 0) / 12)}) + '</div>';
+    }
+    if(on && k === 'manual'){
+      h += '<div class="wdp-manual">' + list.map(function(a){
+        var ai = accounts.indexOf(a);
+        return '<div class="wdp-row"><span class="wdp-lbl" style="min-width:140px;text-transform:none;letter-spacing:0">' + accDisplayName(a) + '</span>'
+          + wdInputHtml(ai, 'wd', a.wd || 0, 90) + '<span class="wdp-note">' + t('wdp.peryear') + '</span>'
+          + '<span class="wdp-lbl" style="min-width:auto">' + t('wdp.from') + '</span>' + wdInputHtml(ai, 'ws', a.ws, 50)
+          + '<span class="wdp-lbl" style="min-width:auto">' + t('wdp.to') + '</span>' + wdInputHtml(ai, 'we', a.we, 50) + '</div>';
+      }).join('') + '</div>';
+    }
+    return h + '</div></div>';
+  };
+  res.body = '<div class="wdp-q">' + t('wdp.s4.q') + '</div>'
+    + '<div class="wdp-help">' + t('wdp.s4.help', {amt:wdpN(bal), age:wdpRetAge()}) + '</div>'
+    + ['need', 'even', 'none', 'manual'].map(opt).join('')
+    + (outTxt ? '<div class="wdp-note" style="font-weight:600;color:var(--text)">' + outTxt + '</div>' : '');
+  return res;
+}
+
+function wdpStep5(){
+  var budget = wdpBudget(), b = wdpPhaseBounds(), names = ['tile.phase.gogo', 'tile.phase.slowgo', 'tile.phase.nogo'];
+  var res = {title:t('wdp.s5.t')};
+  res.summary = !(budget > 0) ? t('wdp.s5.nobudget.short')
+    : wdPlan.phasesOn ? wdPlan.levels.map(function(l){ return Math.round(l * 100); }).join(' / ') + ' % · ' + t('wdp.s5.phases.short')
+    : wdpPct(wdPlan.flatLevel) + ' · ' + wdpN(budget * wdPlan.flatLevel / 12) + ' ' + t('wdp.permonth');
+  var stepper = function(i, lvl){
+    return '<div class="wdp-step-ctl"><button type="button" onclick="wdpStepLevel(' + i + ',-0.05)" aria-label="− 5 %">−</button>'
+      + '<input class="wdp-inp lvl" inputmode="numeric" value="' + Math.round(lvl * 100) + '" onchange="wdpSetLevel(' + i + ',this)" aria-label="' + t('wdp.s5.level') + '"><span>%</span>'
+      + '<button type="button" onclick="wdpStepLevel(' + i + ',0.05)" aria-label="+ 5 %">+</button></div>';
+  };
+  var h = '<div class="wdp-q">' + t('wdp.s5.q') + '</div>'
+    + '<div class="wdp-help">' + (budget > 0 ? t('wdp.s5.help', {amt:wdpN(budget / 12)}) : t('wdp.s5.nobudget'))
+    + ' <button type="button" class="wdp-link" onclick="goTab(\'expenses\')">' + t('wdp.s5.edit') + ' →</button></div>'
+    + '<div class="wdp-seg"><button type="button" class="' + (!wdPlan.phasesOn ? 'on' : '') + '" onclick="wdpSetPhases(false)">' + t('wdp.s5.flat') + '</button>'
+    + '<button type="button" class="' + (wdPlan.phasesOn ? 'on' : '') + '" onclick="wdpSetPhases(true)">' + t('wdp.s5.phases') + '</button></div>';
+  if(!wdPlan.phasesOn){
+    h += '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s5.level') + '</span>' + stepper(-1, wdPlan.flatLevel)
+      + '<span class="wdp-note">' + t('wdp.s5.of') + ' = ' + wdpN(budget * wdPlan.flatLevel / 12) + ' ' + t('wdp.permonth') + ' · ' + t('wdp.ages', {from:b[0].from, to:b[2].to}) + '</span></div>';
+  } else {
+    h += '<div class="wdp-phases">' + b.map(function(ph, i){
+      return '<div class="wdp-phase"><h4>' + t(names[i]) + '</h4><div class="ages">' + t('wdp.ages', {from:ph.from, to:ph.to}) + '</div>'
+        + stepper(i, wdPlan.levels[i]) + '<div class="kr">' + wdpN(budget * wdPlan.levels[i] / 12) + ' ' + t('wdp.permonth') + '</div></div>';
+    }).join('') + '</div>'
+    + '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s5.preset') + '</span>'
+    + ['even', 'moderate', 'active'].map(function(k){
+        var on = WDP_PRESETS[k].every(function(v, i){ return Math.abs(v - wdPlan.levels[i]) < 1e-9; });
+        return wdpChip(on, 'wdpPreset(\'' + k + '\')', t('wdp.preset.' + k), WDP_PRESETS[k].map(function(v){ return Math.round(v * 100); }).join('/'), ' style="min-width:auto"');
+      }).join('') + '</div>'
+    + '<div class="wdp-row"><span class="wdp-lbl">' + t('wdp.s5.split') + '</span>'
+    + '<span class="wdp-note">' + t(names[1]) + '</span><input class="wdp-inp" id="wdp-split-1" inputmode="numeric" value="' + b[1].from + '" onchange="wdpSetSplit(1,this)">'
+    + '<span class="wdp-note">' + t(names[2]) + '</span><input class="wdp-inp" id="wdp-split-2" inputmode="numeric" value="' + b[2].from + '" onchange="wdpSetSplit(2,this)">'
+    + (!wdPlan.splitAuto ? ' <button type="button" class="wdp-link" onclick="wdpSplitAuto()">' + t('wdp.s5.auto') + '</button>' : '') + '</div>';
+  }
+  res.body = h;
+  return res;
+}
+
+function wdpRender(){
+  var el = document.getElementById('wdp-steps');
+  if(!el) return;
+  var steps = [wdpStep1(), wdpStepPins('occ'), wdpStepPins('priv'), wdpStep4(), wdpStep5()];
+  el.innerHTML = '<div class="wdp-intro">' + t('wdp.intro') + '</div>' + steps.map(function(s, i){
+    var n = i + 1, open = _wdpOpen === n;
+    return '<div class="wdp-step' + (open ? ' open' : '') + '" id="wdp-step-' + n + '">'
+      + '<button type="button" class="wdp-head" onclick="wdpOpen(' + n + ')" aria-expanded="' + open + '">'
+      + '<span class="wdp-num">' + n + '</span><span class="wdp-title">' + s.title + '</span>'
+      + '<span class="wdp-sum">' + s.summary + '</span><span class="wdp-chev">' + (open ? '▾' : '▸') + '</span></button>'
+      + (open ? '<div class="wdp-body">' + s.body + '<div class="wdp-nav">'
+        + (n < 5 ? '<button type="button" class="wdp-next" onclick="wdpNext(' + (n + 1) + ')">' + t('wdp.next') + ' →</button>'
+                 : '<button type="button" class="wdp-next" onclick="wdpNext(0);var r=document.getElementById(\'wdp-result\');if(r)r.scrollIntoView({behavior:\'smooth\'})">' + t('wdp.done') + '</button>')
+        + '</div></div>' : '')
+      + '</div>';
+  }).join('');
+  wdpRenderResult();
+}
+
+// ── Result panel ──
+// Highest sustainable spending: the largest scale k of the whole spending profile with income after tax ≥ spending
+// (− 1 kr) in every retirement year up to the life year. Computed from scratch (never from the current result), so
+// asking again gives the same answer; "Use" only changes the levels when k is at least 2 % away from 1.
+var _wdpMax = {sig:'', t:null, res:null, busy:false};
+function wdpMaxSpend(){
+  var retY = Math.round(getParam('retirementYear')), lifeY = Math.round(getParam('lifeYear'));
+  var ok = function(k){
+    _wdpScale = k;
+    try{
+      var pr = runProjection();
+      return !pr.years.some(function(y){ return y.yr >= retY && y.yr <= lifeY && (y.expenses || 0) - (y.totalAfterTaxIncome || 0) > 1; });
+    } finally { _wdpScale = 1; }
+  };
+  var CAP = 8, lo = 0, hi = 1;
+  while(ok(hi)){ lo = hi; hi *= 2; if(hi > CAP) return {k:CAP, cap:true}; }
+  for(var it = 0; it < 18; it++){ var mid = (lo + hi) / 2; if(ok(mid)) lo = mid; else hi = mid; }
+  return {k:lo, cap:false};
+}
+function wdpScheduleMax(){
+  var sig = wdpSig();
+  if(sig === _wdpMax.sig) return;
+  clearTimeout(_wdpMax.t);
+  _wdpMax.t = setTimeout(function(){
+    if(_wdpMax.busy) return;
+    var wt = document.getElementById('tab-withdrawals');
+    if(!wt || !wt.classList.contains('active')) return;
+    _wdpMax.busy = true;
+    try{ _wdpMax.res = wdpMaxSpend(); _wdpMax.sig = wdpSig(); }
+    catch(e){ console.error('wdpMaxSpend', e); _wdpMax.res = null; _wdpMax.sig = sig; }
+    finally{ _wdpMax.busy = false; }
+    wdpRenderResult();
+  }, 250);
+}
+function wdpUseMax(){
+  var r = _wdpMax.res;
+  if(!r || !(r.k > 0) || (r.k >= 1 && r.k < 1.02)) return;
+  var f = function(l){ return Math.max(0.3, Math.floor(l * r.k * 100 + 1e-9) / 100); };
+  if(wdPlan.phasesOn) wdPlan.levels = wdPlan.levels.map(f); else wdPlan.flatLevel = f(wdPlan.flatLevel);
+  recalc();
+}
+function wdpRenderResult(){
+  var el = document.getElementById('wdp-result');
+  if(!el || !_projYears || !_projParams) return;
+  var budget = wdpBudget(), retY = _projParams.retirementYear;
+  var names = ['tile.phase.gogo', 'tile.phase.slowgo', 'tile.phase.nogo'];
+  // Per phase: average income after tax (pensions, savings, a salary while working again) and spending per month,
+  // and the first age where the income falls short of the spending
+  var phases = wdpPhaseBounds().map(function(b){
+    var rows = _projYears.filter(function(y){ return y.yr >= retY && y.age >= b.from && y.age <= b.to; });
+    var n = Math.max(1, rows.length), sh = rows.find(function(y){ return (y.expenses || 0) - (y.totalAfterTaxIncome || 0) > 1; });
+    return {from:b.from, to:b.to, n:rows.length,
+      inc:rows.reduce(function(s, y){ return s + (y.totalAfterTaxIncome || 0); }, 0) / n / 12,
+      exp:rows.reduce(function(s, y){ return s + (y.expenses || 0); }, 0) / n / 12,
+      short:sh ? sh.age : null};
+  });
+  var h = '<div class="card-header">' + t('wdp.res.t') + '</div><div class="wdp-res-grid">';
+  phases.forEach(function(ph, i){
+    if(!ph.n) return;
+    var cls = ph.exp > 0 ? (ph.short == null ? 'good' : 'bad') : '';
+    h += '<div class="wdp-res ' + cls + '"><h4>' + t(names[i]) + ' <span>' + t('wdp.ages', {from:ph.from, to:ph.to}) + '</span></h4>'
+      + '<div class="l">' + t('wdp.res.income') + '</div><div class="v">' + wdpN(ph.inc) + ' <small>' + t('wdp.permonth') + '</small></div>'
+      + '<div class="l">' + t('wdp.res.spend') + '</div><div class="v2">' + wdpN(ph.exp) + ' ' + t('wdp.permonth') + '</div>'
+      + (cls ? '<div class="st">' + (cls === 'good' ? '✓ ' + t('wdp.res.ok') : t('wdp.res.short', {age:ph.short})) + '</div>' : '')
+      + '</div>';
+  });
+  h += '</div>';
+  // The answer: savings outcome and the highest sustainable level
+  var lifeAge = wdpLifeAge(), ans = '', btn = '';
+  var hasSav = wdpAfterAccs().some(function(a){ return (a.opening || 0) > 0 || (a.contrib || 0) > 0; });
+  if(!(budget > 0)) ans = t('wdp.res.nobudget');
+  else {
+    var r = _wdpMax.res, fresh = _wdpMax.sig === wdpSig();
+    if(!fresh){ ans = t('wdp.res.calc'); wdpScheduleMax(); }
+    else if(r){
+      var lv = wdPlan.phasesOn ? wdPlan.levels : [wdPlan.flatLevel];
+      var list = lv.map(function(l){ return wdpN(budget * l * r.k / 12); }).join(' / ');
+      if(r.cap) ans = t('wdp.res.cap', {pct:Math.round(r.k * 100), age:lifeAge});
+      else if(r.k >= 1 && r.k < 1.02) ans = t('wdp.res.atmax', {age:lifeAge});
+      else if(r.k >= 1) ans = t(hasSav ? 'wdp.res.max' : 'wdp.res.max.nosave', {list:list, age:lifeAge});
+      else {
+        var dep = _projYears.find(function(y){ return y.yr >= _projParams.retirementYear && (y.expenses || 0) - (y.totalAfterTaxIncome || 0) > 1; });
+        ans = t('wdp.res.over', {dep:dep ? dep.age : lifeAge, list:list, age:lifeAge});
+      }
+      if(!r.cap && !(r.k >= 1 && r.k < 1.02)) btn = '<button type="button" class="wdp-next" onclick="wdpUseMax()">' + t('wdp.res.use') + '</button>';
+    }
+  }
+  if(ans) h += '<div class="wdp-answer"><div>' + ans + '</div>' + btn + '</div>';
+  el.innerHTML = h;
+}
+
+// Details per account (read-only): balance at the payout start, first-year payout, from / to (ages with a payout in
+// the projection; ∞ when still paying at the life age), what is left at the end, and the average payout per phase.
+// Every figure is read from the projection, in the selected Before / After tax mode.
+function buildWdTable(){
+  setTimeout(function(){ if(document.getElementById('tab-withdrawals').classList.contains('active')){ buildWithdrawalChart(); buildWdSummary(); } }, 100);
+  wdpRender();
+  var thead = document.getElementById('wd-acct-thead');
+  var tbody = document.getElementById('wd-acct-tbody');
+  if(!thead || !tbody || !_projYears || !_projYears.length) return;
+  var ys = _projYears, by = wdpBy(), lifeY = Math.round(getParam('lifeYear')), b = wdpPhaseBounds();
+  var TH = 'style="padding:5px 8px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border);color:var(--muted);text-align:right"';
+  var TD = 'style="padding:6px 8px;border-bottom:1px solid rgba(0,0,0,0.07);text-align:right;font-family:var(--font-m)"';
+  var TD_L = TD.replace('text-align:right', 'text-align:left');
+  thead.innerHTML = '<tr><th ' + TH.replace('text-align:right', 'text-align:left') + '>' + t('wd.col.account') + '</th>'
+    + '<th ' + TH + '>' + t('wdp.col.start') + '</th><th ' + TH + '>' + t(_wdTaxMode === 'net' ? 'wdp.col.first.net' : 'wdp.col.first') + '</th>'
+    + '<th ' + TH + '>' + t('wd.col.ws') + '</th><th ' + TH + '>' + t('wd.col.we') + '</th><th ' + TH + '>' + t('wdp.col.end') + '</th>'
+    + b.map(function(ph){ return '<th ' + TH + '>' + t('wd.col.period.prefix') + ph.from + '–' + ph.to + '</th>'; }).join('') + '</tr>';
+  var info = accounts.map(function(a, ai){
+    var paid = ys.filter(function(y){ var d = y.accDetail && y.accDetail[ai]; return d && (d.wdrl || 0) > 0.5 && y.yr <= lifeY; });
+    var first = paid[0] || null, last = paid[paid.length - 1] || null;
+    var startRow = first || (a.ws < 9999 ? wdpRow(a.ws) : null);
+    var endRow = ys.slice().reverse().find(function(y){ return y.yr <= (last && last.yr < lifeY ? last.yr : lifeY); });
+    var per = b.map(function(ph){
+      var rows = ys.filter(function(y){ return y.age >= ph.from && y.age <= ph.to; });
+      return rows.length ? rows.reduce(function(s, y){ var d = y.accDetail && y.accDetail[ai]; return s + (d ? (d.wdrl || 0) * wdTaxFactor(a, y) : 0); }, 0) / rows.length : 0;
+    });
+    return {
+      start: startRow && startRow.accDetail && startRow.accDetail[ai] ? startRow.accDetail[ai].open || 0 : 0,
+      first: first ? first.accDetail[ai].wdrl * wdTaxFactor(a, first) : 0,
+      from: first ? first.age : null,
+      to: !last ? null : (last.yr >= lifeY && (a.type === 'state' || a.db || a.useDelningstal)) ? '∞' : last.age,
+      end: endRow && endRow.accDetail && endRow.accDetail[ai] ? endRow.accDetail[ai].close || 0 : 0,
+      per: per
+    };
+  });
+  var groups = {after:{label:t('acc.group.after'), color:'#48B866', sum:'acc.sum.after'},
+                'p-ins':{label:t('acc.group.pins'), color:'#4885C4', sum:'acc.sum.pins'},
+                state:{label:t('acc.group.state'), color:'#C4B89A', sum:'acc.sum.state'}};
+  var rows = '', tot = {start:0, first:0, end:0, per:b.map(function(){ return 0; })};
+  ['after', 'p-ins', 'state'].forEach(function(type){
+    var g = groups[type], idx = [];
+    accounts.forEach(function(a, ai){ if(a.type === type) idx.push(ai); });
+    if(!idx.length) return;
+    var collapsed = !!(window._wdGroupCollapsed && window._wdGroupCollapsed[type]);
+    rows += '<tr style="background:rgba(0,0,0,0.03)"><td ' + TD_L + ' colspan="' + (6 + b.length) + '"><button onclick="toggleWdGroup(\'' + type + '\')" id="wd-grp-btn-' + type + '" title="' + t(collapsed ? 'grp.expand' : 'grp.collapse') + '" style="background:none;border:none;cursor:pointer;color:' + g.color + ';font-size:11px;margin-right:6px;padding:0 3px">' + (collapsed ? '&#9658;' : '&#9660;') + '</button>'
+      + '<span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:' + g.color + '">' + g.label + '</span></td></tr>';
+    var sub = {start:0, first:0, end:0, per:b.map(function(){ return 0; })};
+    idx.forEach(function(ai){
+      var a = accounts[ai], f = info[ai];
+      sub.start += f.start; sub.first += f.first; sub.end += f.end; f.per.forEach(function(v, k){ sub.per[k] += v; });
+      rows += '<tr data-wdgrp="' + type + '"' + (collapsed ? ' style="display:none"' : '') + '><td ' + TD_L + '><span style="font-size:12px;color:var(--text)">' + accDisplayName(a) + '</span></td>'
+        + '<td ' + TD + '>' + wdpN(f.start) + '</td><td ' + TD + '>' + (f.first ? wdpN(f.first) : '—') + '</td>'
+        + '<td ' + TD + '>' + (f.from != null ? f.from : '—') + '</td><td ' + TD + '>' + (f.to != null ? f.to : '—') + '</td>'
+        + '<td ' + TD + '>' + wdpN(f.end) + '</td>'
+        + f.per.map(function(v){ return '<td ' + TD + '>' + (v > 0.5 ? wdpN(v) : '<span style="color:var(--muted)">—</span>') + '</td>'; }).join('') + '</tr>';
+    });
+    var S = function(v){ return '<td ' + TD + '><span style="font-weight:600;color:' + g.color + '">' + wdpN(v) + '</span></td>'; };
+    rows += '<tr data-wdgrp-sub="' + type + '" style="background:rgba(0,0,0,0.05);border-top:1px solid rgba(0,0,0,0.1)"><td ' + TD_L + '><span style="font-size:11px;font-weight:700;color:' + g.color + '">' + t(g.sum) + '</span></td>'
+      + S(sub.start) + S(sub.first) + '<td></td><td></td>' + S(sub.end) + sub.per.map(S).join('') + '</tr>';
+    tot.start += sub.start; tot.first += sub.first; tot.end += sub.end; sub.per.forEach(function(v, k){ tot.per[k] += v; });
+  });
+  var T = function(v){ return '<td ' + TD + '><span style="font-weight:700;color:var(--gold)">' + wdpN(v) + '</span></td>'; };
+  rows += '<tr style="height:2px;background:var(--navy);line-height:0;font-size:0"><td colspan="' + (6 + b.length) + '" style="height:2px;padding:0;background:var(--navy)"></td></tr>'
+    + '<tr><td ' + TD_L + '><span style="font-size:11px;font-weight:700;color:var(--gold)">' + t('acc.total.value') + '</span></td>'
+    + T(tot.start) + T(tot.first) + '<td></td><td></td>' + T(tot.end) + tot.per.map(T).join('') + '</tr>';
+  tbody.innerHTML = rows;
+}
+function wdpToggleDetails(){
+  var w = document.getElementById('wd-acct-wrap'), c = document.getElementById('wd-acct-chevron');
+  if(!w) return;
+  var show = w.style.display === 'none';
+  w.style.display = show ? '' : 'none';
+  if(c) c.textContent = show ? '▼' : '▶';
+}
 
 // ─── Personal tab: ages drive the hidden year inputs ─────────────────────
 // #retirementYear / #lifeYear (hidden) stay the source of truth for the engine
@@ -9093,8 +8945,6 @@ function persApplyAges(){
   if(persRelinkAccounts() || _wsCh){ buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); }
   updateRetirementHint();
   recalc();
-  var iv = document.getElementById('exp-iv-master');
-  if(iv && iv.checked) autoCalcExpIntervals();
 }
 // Ages from the stored years (restore of older saves that only hold years).
 function persSyncFromYears(){
@@ -10241,107 +10091,6 @@ function buildIncomeWaterfall(r){
 }
 
 
-// ─── Optimize Withdrawals to Zero ───────────────────────────────────────
-// For each eligible account (non-state, valid ws/we, positive balance at ws),
-// compute the annual withdrawal that drives the account balance to exactly zero
-// by the end of the withdrawal period using the annuity present-value formula:
-//   W = PV · r · (1+r)^n / ((1+r)^n − 1)
-// where PV = projected opening balance at ws, r = estimated net annual return,
-// n = we − ws (withdrawal years). Balance at ws comes from the current
-// _projYears projection, so it already reflects contributions and growth.
-function optimizeWithdrawals(){
-  if(!_projYears || !_projYears.length) return;
-
-  var ivActive = document.getElementById('exp-iv-master') &&
-                 document.getElementById('exp-iv-master').checked;
-  if(ivActive){
-    var btnE = document.getElementById('wd-optimize-btn');
-    if(btnE){ btnE.textContent='Unavailable when intervals active'; btnE.style.color='#FF5B2E'; }
-    setTimeout(function(){ var b=document.getElementById('wd-optimize-btn');
-      if(b){ b.innerHTML='\u26a1 <span data-i18n="wd.optimize">'+t('wd.optimize')+'</span>'; b.style.color='#4885C4'; } }, 2500);
-    return;
-  }
-
-  // ── Per-account binary search using the real projection engine ──────
-  // For each eligible account we binary-search on a.wd, calling
-  // runProjection() at each step to read accDetail[ai].close at year
-  // we. This guarantees the result matches the chart exactly — no
-  // simplified simulation that can drift over 30+ year periods.
-  var changed = 0;
-
-  accounts.forEach(function(a, ai){
-    if(a.type === 'state') return;
-    if(a.useDelningstal)   return;
-    if(isTempAcc(a) || isTempTaxed(a)) return;   // Temporärt keeps its own accounts at 0
-
-    var ws = a.ws, we = a.we;
-    if(!ws || ws >= 9999 || !we || we <= ws) return;
-
-    // Verify there is actually a balance at ws to optimise from.
-    var wsRow = _projYears.find(function(y){ return y.yr === ws; });
-    if(!wsRow) return;
-    var det = wsRow.accDetail && wsRow.accDetail[ai];
-    if(!det || (det.open||0) <= 0) return;
-
-    // Helper: project with trial wd, return closing balance at we.
-    function endBal(wd){
-      a.wd = Math.round(wd);
-      var proj = runProjection();
-      var row  = proj.years.slice().reverse()
-                   .find(function(y){ return y.yr <= we; });
-      if(!row) return 0;
-      var d = row.accDetail && row.accDetail[ai];
-      return d ? (d.close || 0) : 0;
-    }
-
-    // ── Determine bounds ──────────────────────────────────────────────
-    // lo: withdrawal so low the account is fully intact at we (endBal > 0)
-    // hi: withdrawal so high the account is empty well before we (endBal <= 0)
-    var origWd = a.wd;
-    var lo = 0;
-    var hi = (det.open || 0);  // opening at ws; depletes account in year 1
-
-    // Make sure hi is high enough to produce a negative/zero end balance.
-    var safetyTries = 0;
-    while(endBal(hi) > 0 && safetyTries++ < 8) hi *= 2;
-
-    // endBal(lo)  > 0  (money left over — need more withdrawal)
-    // endBal(hi) <= 0  (depleted — need less withdrawal)
-    // Binary search until range < 1 kr.
-    for(var iter = 0; iter < 50; iter++){
-      var mid = (lo + hi) / 2;
-      if(endBal(mid) > 0) lo = mid;
-      else                hi = mid;
-      if(hi - lo < 1) break;
-    }
-
-    var optWd = Math.round((lo + hi) / 2);
-    // One final check: make sure this wd leaves <= 0 at we (never overshoot).
-    if(endBal(optWd) > 0) optWd = Math.round(hi);
-
-    if(optWd > 0 && optWd !== origWd){
-      a.wd = optWd;
-      changed++;
-    } else {
-      a.wd = origWd;  // restore if unchanged
-    }
-  });
-
-  buildWdTable();
-  recalc();
-
-  var btn = document.getElementById('wd-optimize-btn');
-  if(btn){
-    btn.textContent = changed
-      ? '\u2713 ' + changed + ' account' + (changed>1?'s':'') + ' optimized'
-      : '\u26a1 Nothing to optimize';
-    btn.style.color = changed ? '#48B866' : 'var(--muted)';
-    setTimeout(function(){
-      var b = document.getElementById('wd-optimize-btn');
-      if(b){ b.innerHTML='\u26a1 <span data-i18n="wd.optimize">'+t('wd.optimize')+'</span>'; b.style.color='#4885C4'; }
-    }, 2500);
-  }
-}
 // Data behind the "Withdrawals by account" chart and its exports: one series per account that pays anything,
 // in the selected tax mode (Before / After tax) and period (monthly / annual)
 function wdChartData(){
@@ -10420,6 +10169,13 @@ function buildWithdrawalChart(){
     return;
   }
   canvas.style.display = '';
+  // Spending (Withdrawals tab, step 5) as a dashed line in the After-tax view: what the income has to cover
+  if(_wdTaxMode === 'net'){
+    var _spDiv = _wdChartPeriod === 'monthly' ? 12 : 1, _spRet = _projParams ? _projParams.retirementYear : 0;
+    datasets.push({type:'line', label:t('wdp.chart.spend'), stack:'spend', order:-1, fill:false, pointRadius:0, borderWidth:1.5,
+      borderColor:'#FF5B2E', backgroundColor:'#FF5B2E', borderDash:[6, 4],
+      data: years.map(function(y){ return y.yr >= _spRet ? Math.round((y.expenses || 0) / _spDiv) : null; })});
+  }
 
   window._wdChart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
@@ -10447,7 +10203,7 @@ function buildWithdrawalChart(){
             return ' ' + ctx.dataset.label + ': ' + Math.round(ctx.raw).toLocaleString('sv-SE') + unit;
           },
           footer: function(items){
-            var total = items.reduce(function(s,i){ return s + (i.raw||0); }, 0);
+            var total = items.filter(function(i){ return i.dataset.type !== 'line'; }).reduce(function(s,i){ return s + (i.raw||0); }, 0);
             var unit = ' ' + (_wdChartPeriod==='monthly' ? t('dash.period.mth') : t('dash.period.yr'));
             return t('exp.legend.total')+': ' + Math.round(total).toLocaleString('sv-SE') + unit;
           }
@@ -10977,11 +10733,9 @@ function runMonteCarlo(){
       var wdAmount = portMode==='aftertax' ? (netWd||grossWd) : grossWd;
       return wdAmount > 0 ? wdAmount : annualWdrl; // fallback if projection has no withdrawal
     }
-    // age-based expense intervals (default)
-    if(typeof expAgeIntervals !== 'undefined'){
-      var iv = expAgeIntervals.find(function(x){ return age>=x.from && age<=x.to; });
-      if(iv && iv.amount>0) return iv.amount;
-    }
+    // the plan's spending (Expenses budget × the Withdrawals tab's spending phases), default
+    var _sp = spendAt(age, wdpBudget());
+    if(_sp > 0) return _sp;
     // fallback: from projection
     var yrD2 = _projYears.find(function(y){ return y.age===age; });
     return yrD2 ? ((yrD2.taxable||0)+(yrD2.taxFree||0)) || annualWdrl : annualWdrl;
@@ -11688,18 +11442,10 @@ function populateMCDefaults(){
 
 // Initial run
 incBuildMunicipalityList();
-buildExpIntervals();
 buildAccountsTable();
 recalc();
 incCalc();
 autoFillNetSalary();
-updateAccountsIvState();
-// Age-based expense intervals are on out of the box, with Withdrawal/yr
-// seeded from the dashboard's phase pensions.
-(function(){
-  var cb = document.getElementById('exp-iv-master');
-  if(cb && cb.checked) toggleExpIvMaster();
-})();
 
 // ══════════════════════════════════════════════════
 // SAVE / LOAD SYSTEM
@@ -11707,11 +11453,10 @@ updateAccountsIvState();
 
 // IDs that are display-only or dynamically generated — skip when snapshotting
 var _SAVE_SKIP = [
-  /^exp-name-input-/,/^exp-iv-(amt|wd|pct)/,/^dst-/,/^pv-/,/^wd-sum-year/,
+  /^exp-name-input-/,/^wdp-/,/^dst-/,/^pv-/,/^wd-sum-year/,
   /^e-(monthly|annual|goal)$/,/^s-/,/^sg-/,/^proj-/,
   /^inc-(breakdown|result|waterfall|summary)/,/^asset-sum/,/^accounts-tbody/,
-  /^expense-rows$/,/^exp-donut/,/^exp-chart/,/^exp-iv-tbody/,/^exp-iv-status/,
-  /^exp-iv-yrfrom/,/^exp-iv-yrto/,/^exp-iv-yrsek/,/^wb-/,/^sc-/,/^plan-preset$/
+  /^expense-rows$/,/^exp-donut/,/^exp-chart/,/^wb-/,/^sc-/,/^plan-preset$/
 ];
 
 function _skipId(id){
@@ -11776,11 +11521,12 @@ function collectPlanState(){
     ceRulesV: 1,       // saved with Contrib End following the retirement age (ceAuto) and CE_MAX
     ppFeeV: 1,         // saved with the 0,20 % premium pension default fee
     wdRulesV: 2,       // saved with Wdrl Start following the retirement age (wsAuto) and WD_RULES
+    wdPlanV: 1,        // saved with the step-by-step Withdrawals tab (wdPlan: spending phases + savings mode)
     savedAt: new Date().toISOString(),
     inputs: inputs,
     expenses: JSON.parse(JSON.stringify(expenses)),
     accounts: JSON.parse(JSON.stringify(accounts)),
-    expAgeIntervals: JSON.parse(JSON.stringify(expAgeIntervals)),
+    wdPlan: JSON.parse(JSON.stringify(wdPlan)),
     pgbItems: JSON.parse(JSON.stringify(pgbItems)),
     modes: {
       expTaxMode:   window._expTaxMode   || 'after',
@@ -11851,11 +11597,7 @@ function applyPlanState(state){
   pgbItems.length = 0;
   if(Array.isArray(state.pgbItems)) state.pgbItems.forEach(function(it){ pgbItems.push(it); });
   buildPgbSection();
-  if(Array.isArray(state.expAgeIntervals)){
-    expAgeIntervals.length = 0;
-    state.expAgeIntervals.forEach(function(iv){ expAgeIntervals.push(iv); });
-    buildExpIntervals();
-  }
+  wdpRestore(state);
 
   // 3. Restore toggle modes
   var m = state.modes || {};
@@ -11865,25 +11607,9 @@ function applyPlanState(state){
   if(m.ilsMode      && typeof setILSMode         === 'function') setILSMode(m.ilsMode);
   if(m.lang         && typeof setLang            === 'function') setLang(m.lang);
 
-  // 4. Handle exp-iv-master checkbox visual state
-  // The snapshot taken when intervals were switched on at boot describes the
-  // pre-restore accounts array, so it must not survive into this plan —
-  // toggling the feature off later would otherwise write stale schedules.
-  _savedAccountWd = null;
-  var ivMaster = document.getElementById('exp-iv-master');
-  if(ivMaster && typeof toggleExpIvMaster === 'function'){
-    var table = document.getElementById('exp-iv-table-wrap');
-    if(ivMaster.checked){
-      if(table) table.style.display = '';
-      var label = document.getElementById('exp-iv-master-label');
-      if(label){ label.textContent = t('wd.iv.hdr.active'); label.style.color = '#48B866'; }
-    } else {
-      if(table) table.style.display = 'none';
-    }
-  }
-
   // 5. Recalc everything
   if(typeof recalc === 'function') recalc();
+  if(_wdpMigrated){ _wdpMigrated = false; setTimeout(function(){ showPlanToast(t('wdp.migrated')); }, 1200); }
 
   return true;
 }
@@ -11981,10 +11707,10 @@ function planClear(){
   ].forEach(function(id){ _setInp(id, '0'); });
   accounts.length = 0;
   pgbItems.length = 0;
-  _savedAccountWd = null;
   expenses.length = 0;
   EXPENSES_INIT.forEach(function(e){ expenses.push({name:e.name, val:0}); });
-  expAgeIntervals.forEach(function(iv){ iv.amount = 0; iv.wdAmount = 0; iv.wdManual = false; });
+  wdPlan = JSON.parse(JSON.stringify(WDP_DEFAULT));
+  _wdpOpen = 1;
   _planRebuild();
 }
 function _planRebuild(){
@@ -11992,9 +11718,6 @@ function _planRebuild(){
   buildExpenseRows();
   buildAccountsTable(); setTimeout(updateAccountSubtotals, 0);
   buildPgbSection();
-  recalc();                       // refreshes the expense totals the intervals read
-  var iv = document.getElementById('exp-iv-master');
-  if(iv && iv.checked) autoCalcExpIntervals(); else buildExpIntervals();
   recalc();
 }
 
@@ -12028,7 +11751,7 @@ function goTab(id){ switchTab(id); window.scrollTo(0, 0); }
 var GUIDE_STEPS = [
   {tab:'personal',    hl:['#birthYear','#workStartAge','#retirementAge','#lifeAge','#grossSalPre66','#salaryIncrease']},
   {tab:'accounts',    hl:["#accounts-tbody button[onclick=\"addAccount('after')\"]",'#acc-add-pins','#acc-add-state','#pgb-add']},
-  {tab:'withdrawals', hl:['#exp-iv-master-label','#wd-acct-table']},
+  {tab:'withdrawals', hl:['#wdp-steps']},
   {tab:'expenses',    hl:['#exp-persona','#expense-rows']}
 ];
 var _guideStep = -1;
