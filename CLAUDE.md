@@ -357,6 +357,19 @@ published, replace the workbook and re-verify everything below.
   `guide.*` keys) Personal → Assets → Withdrawals → Expenses, highlighting key fields
   (`.guide-hl`). `goTab(id)` switches tabs from code (`switchTab` no longer needs a click event)
 
+### Temporary payout ("Temporärt", Withdrawals tab) — Retirement_Planner.html
+
+- The P-insurance toggle Planned / Lifelong (`occPayoutToggle`, `setPInsPayout`) reads **Temporary / Temporärt** / Lifelong (`occ.payout.planned`; the internal mode and `isPlannedPIns` keep their names).
+- A Temporärt account with a window (`isTempAcc`: planned, `ws` < 9999, `we` < 9998, `we` > `ws`) pays a CALCULATED yearly amount, not a typed one. Start value = balance at `ws` ÷
+  `tempPayoutDivisor` = Typfallsmodellen's temporary occupational withdrawal (`tjp_ddeltal`, `rng_Temp_Tjp_Uttag`, N = we − ws + 1 < 30: Σ (1 − m(x+i)) / (1 + r)^i ÷ (1 − m(x)), Makeham m(x) = 0,0002 +
+  0,000007·e^(0,1071x), r = the agreement's own rate `tempRate` = `schemeBasis`; checked against the engine for 36 combinations). `zeroTemporaryAccounts()` then bisects `a.wd` with `runProjection()`
+  (all accounts in the same runs) so the balance at Wdrl End is 0 (± 1 kr); the table shows "Typfallsmodellen X → adjusted Y". Runs from `recalc` (`scheduleTempZero`, debounced, only when `tempSignature()` — windows,
+  balance at `ws`, returns, intervals on/off — changed) and when the toggle is switched.
+- Taxed (after-tax) accounts with a window (`isTempTaxed`) are adjusted the same way whenever at least one account is Temporärt and the expense intervals are off. Optimize to Zero skips accounts under this control.
+- Expense intervals ON: a Temporärt account is no longer part of the interval split (`distributeIntervalWithdrawals` keeps its own window and amount; an unset window takes the intervals'); it pays its fixed amount and
+  the after-tax pool covers the rest of the interval's need (`wdIvOverride` = wdAmount × (AT% + PI%) − Σ fixed Temporärt amounts). The taxed accounts' end balance is then set by the expenses (0 only if the
+  expenses use everything up; Maximize does that by changing the expenses).
+
 ### Withdrawal strategy tab ("Uttagsstrategi") — Retirement_Planner.html
 
 The tab is NOT hand-written here: it is the "Uttagsstrategi" screen of the Typfallsmodellen web app
