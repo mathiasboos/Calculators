@@ -375,17 +375,16 @@ commit it was built from) and commit the planner. It adds about 1 MB to the file
   begin-work age, retirement age, salary (`grossSal('grossSalPre66')`, the 2026 money the engine uses), the first
   contractual scheme found in Assets (`STRATEGY_SCHEME`: itp1 2, itp2 3, saflo 4, kapkl 5, akapkr 6, pa16a2 7, pa16a1 8),
   inflation, salary increase (real growth) and the Parameters-tab occupational return (real fund yield).
-- Planner patches to the original source: `tools/strategy-patches/*.patch` are applied by `build-strategy.mjs` to the clone before bundling and removed again afterwards
-  (a patch that no longer applies stops the build; the marker comment lists them). `timeline-after-tax.patch`: "Utbetalningarnas tidslinje" follows the Före / Efter skatt toggle
-  (`payoutPhases(run, afterTax)`: each taxed part × `net / gross` of the year, savings and housing supplement as paid, so a year's parts add up to `disposable`; the note says
-  efter / före skatt). So the timeline differs from the original (which is always before tax) when "Efter skatt" is on; compare it with "Före skatt".
+- Planner patches to the original source: `tools/strategy-patches/*.patch` (none at the moment; the directory is absent) would be applied by `build-strategy.mjs` to the clone before bundling and removed again
+  afterwards (a patch that no longer applies stops the build; the marker comment lists them). The earlier `timeline-after-tax.patch` was dropped when Typfallsmodellen added the same feature
+  (timeline follows Före / Efter skatt, commit 8514462).
 - Planner look: `<style id="strategy-theme">` right after the generated block (outside the markers, so a rebuild keeps it) maps the app's colour/font
   variables to the planner's (`--font-b`, `--text`, `--muted`, `--s1`, `--border`), gives `.panel` the card padding, replaces the yellow title bars of
   `.panel > h2` / `figcaption` with the planner's card header (small green-barred caps) and styles `.export-btn` / `.panel-btn` like the planner's buttons.
 - Its intro text still mentions "Hämta från Prognos" and "Avancerat" (the original has those; the planner has neither).
 - Check after a rebuild: build the original (`npm run build` in `apps/web`, file `dist/typfallsmodellen.html`) and compare
   the text of `.pa-results` for the same inputs (the `data-setting` inputs `stBorn`, `stStartWork`, `stRetirement`, …) with the planner's
-  tab: they must be equal. Done for 4 input sets (default, born 1970 / 65, 1985 / 25 / 67, 1962 / 66) at commit 78e7809.
+  tab: they must be equal. Done for 4 input sets (default, born 1970 / 65, 1985 / 25 / 67, 1962 / 66) at commit a0b14b3 (compare case-insensitively: the planner theme upper-cases the card headings).
 
 ## Source of truth for formulas
 

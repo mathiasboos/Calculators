@@ -10,7 +10,7 @@
 //
 // Re-run it when the Typfallsmodellen project changes the strategy tab, and commit the planner.
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -36,7 +36,7 @@ if (!clone) {
 // The planner's own changes to the original source (tools/strategy-patches/*.patch), applied to the clone for the
 // build and taken out again afterwards. A patch that no longer applies stops the build.
 const patchDir = join(here, "strategy-patches");
-const patches = readdirSync(patchDir).filter((f) => f.endsWith(".patch")).sort();
+const patches = existsSync(patchDir) ? readdirSync(patchDir).filter((f) => f.endsWith(".patch")).sort() : [];
 const applied = [];
 
 try {
