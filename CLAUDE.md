@@ -212,7 +212,7 @@ published, replace the workbook and re-verify everything below.
 - Its placeholder reads "Begin here to create a plan" and pulses gold/green/blue for 5 s on load
   (`.preset-attn`, CSS only)
 - `planClear()` — zero salaries, remove all accounts and PGB items, expense categories kept
-  at 0, expense intervals reset. Birth / retirement / life-expectancy years are kept
+  at 0, withdrawal plan reset (`wdPlan` = `WDP_DEFAULT`). Birth / retirement / life-expectancy years are kept
 - `planTypical1980()` — ITP 1, born 1980, 40 000 kr/month, retirement at riktålder (68),
   life year 2075, typical pensioner expenses (`EXPENSES_INIT`, 18 400 kr/month), ITP 1 +
   Premiepension + Inkomstpension with automatic (Typfallsmodellen) openings. ITP 1 Contrib End
@@ -239,7 +239,7 @@ published, replace the workbook and re-verify everything below.
   as the workbook's forecast); the user can change it (AP7 Såfa itself charges ~0,04 %). Saves carry `ppFeeV: 1`;
   restoring an older save lifts the old 0,10 % / 0,04 % defaults on non-`ownEq` premium pension accounts to 0,20 %
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
-  restore, Optimize), Withdrawals tab shows ∞ in Wdrl End instead of an input
+  restore), the Withdrawals tab's details table shows ∞ as their end
 - Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
   balance ÷ the cohort PP divisor (`occDelningstal`, 2 from age 101), and the projection adds the
   inheritance gains (`occArvGain`, sheet "arv PP", ÷ yield^0.5) to the PP balance every year (`isPpAcc`). The
@@ -268,15 +268,15 @@ published, replace the workbook and re-verify everything below.
   years' earnedIncomePre). `repRateNet` (after-tax ratio) is still computed but not shown.
   ITP1/1980/40 000: 74,7 %, same as the port
 - Withdrawal rules (Withdrawals tab): `WD_RULES` / `wdRule(a)` / `wdRuleErrors(a)` / `wdDefaultYear(a)` give each
-  pension an earliest start age and (P-insurance, Planned mode only) a shortest withdrawal time; a broken rule shows
-  a red `.wd-err` message under the input, the typed value is kept. Verify the ages yearly.
+  pension an earliest start age and (P-insurance, Temporärt only) a shortest withdrawal time; a broken rule shows
+  a red message in the Withdrawals step (`.wdp-err`; payout periods below the minimum are disabled), the typed value is kept. Verify the ages yearly.
   ITP 1 55/5, ITP 2 55/5, SAF-LO 55/5, KAP-KL 61/10, AKAP-KR 62/10, PA16 Avd 2 61 (born ≤ 1965) or 63 /5,
   PA16 Avd 1 63/5, Individual pension account 55/5 (earliest age / min years). Premium + Income pension: earliest
   target age (riktålder) − 3; Garantipension + Inkomstpensionstillägg: target age
 - Wdrl Start of every state and P-insurance account follows the Personal-tab retirement age, raised to its earliest
   allowed age (`wdDefaultYear`). Accounts carry `wsAuto`; `wdSyncStart()` re-applies it from `persApplyAges` /
-  `onRetirementYearChange` / restore, and typing a Wdrl Start clears `wsAuto`. New schemes start lifelong (∞); the
-  Individual pension account is lifelong by default and has the Planned/Lifelong toggle. Saves carry `wdRulesV: 2`;
+  `onRetirementYearChange` / restore (a Temporärt account keeps its number of payout years), and choosing an age in the
+  Withdrawals steps clears `wsAuto`. New schemes start lifelong (∞); the Individual pension account is lifelong by default. Saves carry `wdRulesV: 2`;
   older saves flag accounts still on the retirement year (or the first version's per-scheme ages) as `wsAuto`
 - Contrib End (Assets tab) of every state and P-insurance account with a contribution window follows the Personal-tab
   retirement age (`ceAuto`, `ceSyncEnd()` from `persApplyAges` / `onRetirementYearChange` / restore), capped at the
@@ -330,14 +330,15 @@ published, replace the workbook and re-verify everything below.
   replacement rate = last 5 years before the FIRST retirement. ITP1/1980, retire 65, 20 000 kr/month at 67–70: salary tax 51 178 at 67, 33 102 at 69 (förhöjt grundavdrag from 69)
 - Dashboard top KPI row: Saving Goal (Target Portfolio) = `savingGoal` (saving multiplier × annual expenses, sub shows the multiplier), Portfolio Value After Tax at
   Retirement = `taxAdjPort`, Saving Goal Fulfilment = the second ÷ the first, Replacement Rate. The earlier Max Withdrawal Rate / Portfolio Runs Out cards (and their +/- rate
-  control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts are overridden by the expense intervals, so the cards did not reflect the plan
+  control, `applyWdrlRate`, the startup 4 % call and `maxSustainableRate`) were removed: per-account Wdrl amounts were overridden by the expense intervals, so the cards did not reflect the plan
 - Header: the plan dropdown sits to the left, right after the subtitle. The subtitle (`#hdr-sub`, `updateHeaderSub()` from `recalc`) reads "Constant Prices · Swedish Tax Rules"
   and turns into a red "Inflation x% · Swedish Tax Rules" when the Parameters-tab inflation is not 0. KPI colours: `.tile-value.good` green, `.warn` yellow (`--amber`; `--gold` is the
   brand green in this file), `.bad` red. Saving Goal Fulfilment: green ≥ 100 %, else yellow. Replacement Rate: green ≥ 70 %, yellow 50–70 %, red < 50 %
 - KPI tile frame and top bar follow the value colour: `renderMetricTiles` adds `st-good` / `st-warn` / `st-bad` from the tile's `cls` (CSS `.metric-tile.st-*`, green / yellow / red); tiles without `cls` keep the default
-- Dashboard monthly-pension cards (`buildPhaseTiles`, `computePensionPhases`): green when the AFTER-TAX pension (`afterTaxIncome`, the model's own tax) covers the expenses of the same years, red when it does not, whichever
+- Dashboard monthly-pension cards (`buildPhaseTiles`, `computePensionPhases`, phases = `wdpPhaseBounds`): green when the AFTER-TAX pension (`afterTaxIncome`, the model's own tax) covers the expenses of the same years, red when it does not, whichever
   Before/After tax view the card shows; the sub line lists both figures. Withdrawals chart (`wdChartData`, `buildWithdrawalChart`): Before/After tax buttons in the chart drive the same `_wdTaxMode` as the
-  top toggle, default Monthly + Before tax, kronor axis (`fmtKrTick`), CSV / Excel export of exactly the plotted series (`_wdChartRows`, `;` CSV with BOM, `XLSX`)
+  top toggle, default Monthly + Before tax, kronor axis (`fmtKrTick`), CSV / Excel export of exactly the plotted bars (`_wdChartRows`, `;` CSV with BOM, `XLSX`); in After tax view a dashed
+  "Spending" line (`row.expenses`, retirement years) is drawn on top (not exported, not in the tooltip total)
 - After-tax views all use the model's own pension tax (`_netFactorFor(y)` = 1 − `totalTax` / `taxable` of the year; `_ilsTaxFactor(y)`, `wdTaxFactor(a, y)`): Income vs Expenses,
   Income Sources Over Lifetime (After Tax), the Withdrawals chart/overview/table/exports and the monthly pension cards agree to the krona, and the Parameters-tab municipal / state tax
   drives them. The old flat "Tax rate" inputs (32 %) were removed (a hint "Tax per Parameters tab" replaces them). `taxAdjPort` (capital estimate) still uses the flat municipal rate. Income vs
@@ -359,16 +360,46 @@ published, replace the workbook and re-verify everything below.
 
 ### Temporary payout ("Temporärt", Withdrawals tab) — Retirement_Planner.html
 
-- The P-insurance toggle Planned / Lifelong (`occPayoutToggle`, `setPInsPayout`) reads **Temporary / Temporärt** / Lifelong (`occ.payout.planned`; the internal mode and `isPlannedPIns` keep their names).
+- Withdrawals steps 2–3 offer Lifelong | 5 | 10 | 15 | 20 years | Other (`wdpSetYears`: n = 0 lifelong, else Temporärt with `we = ws + n − 1`; the internal mode and `isPlannedPIns` keep the old
+  "planned" name; `setPInsPayout` is kept for older callers).
 - A Temporärt account with a window (`isTempAcc`: planned, `ws` < 9999, `we` < 9998, `we` > `ws`) pays a CALCULATED yearly amount, not a typed one. Start value = balance at `ws` ÷
   `tempPayoutDivisor` = Typfallsmodellen's temporary occupational withdrawal (`tjp_ddeltal`, `rng_Temp_Tjp_Uttag`, N = we − ws + 1 < 30: Σ (1 − m(x+i)) / (1 + r)^i ÷ (1 − m(x)), Makeham m(x) = 0,0002 +
   0,000007·e^(0,1071x), r = the agreement's own rate `tempRate` = `schemeBasis`; checked against the engine for 36 combinations). `zeroTemporaryAccounts()` then bisects `a.wd` with `runProjection()`
-  (all accounts in the same runs) so the balance at Wdrl End is 0 (± 1 kr); the table shows "Typfallsmodellen X → adjusted Y". Runs from `recalc` (`scheduleTempZero`, debounced, only when `tempSignature()` — windows,
-  balance at `ws`, returns, intervals on/off — changed) and when the toggle is switched.
-- Taxed (after-tax) accounts with a window (`isTempTaxed`) are adjusted the same way whenever at least one account is Temporärt and the expense intervals are off. Optimize to Zero skips accounts under this control.
-- Expense intervals ON: a Temporärt account is no longer part of the interval split (`distributeIntervalWithdrawals` keeps its own window and amount; an unset window takes the intervals'); it pays its fixed amount and
-  the after-tax pool covers the rest of the interval's need (`wdIvOverride` = wdAmount × (AT% + PI%) − Σ fixed Temporärt amounts). The taxed accounts' end balance is then set by the expenses (0 only if the
-  expenses use everything up; Maximize does that by changing the expenses).
+  (all accounts in the same runs) so the balance at Wdrl End is 0 (± 1 kr). The step's option chips show Typfallsmodellen's amount per period (balance at `ws` ÷ divisor, before
+  the adjustment, `wdpPinsOptions`); the line under them shows the projection's first-year payout. Runs from `recalc` (`scheduleTempZero`, debounced, only when `tempSignature()` — windows,
+  balance at `ws`, returns, savings mode — changed) and when the payout is switched.
+- Savings in step 4 mode "The same amount every year" (`savingsMode 'even'`, `isTempTaxed`): every after-tax account gets the window evenFrom … evenTo (`wdpApplyEven`, from `recalc`;
+  default retirement … life age) and is adjusted the same way, so each ends at 0. In the other modes after-tax accounts are not adjusted ('manual' keeps typed amounts — before the redesign
+  they were also zeroed whenever a Temporärt account existed; saved plans carry the zeroed amounts, so they load with the same numbers).
+
+### Withdrawals tab (step-by-step plan) — Retirement_Planner.html
+
+The tab is a guided plan: five numbered steps in an accordion (`wdpRender`, one open at a time, `_wdpOpen`; closed steps show a one-line summary;
+"Next →"), then a Result card (`wdpRenderResult`), the "Withdrawals by account" chart, the overview pies and a folded, read-only "Details per account"
+table (`buildWdTable`, every figure read from the projection: balance at the first payout year, first-year payout, first / last payout age or ∞, left at the end,
+average payout per spending phase, in the Before / After tax mode). Every choice writes the accounts' own fields or `wdPlan`; the projection does the rest.
+1. State pension start age (`wdpSetStateAge`): chips riktålder − 3 … riktålder + 3 plus "At my retirement age" (= `wsAuto`) and an other-age input; each chip shows the
+   first-year state pension per month before tax from one `runProjection()` per age (`wdpStateOptions`, cached by `wdpSig`; adds `row.lastRight1` as Table 1). Applies to every
+   non-work-row state account; Garantipension / IPT never before the target age. "More choices" (`wdpStateMore`): start per pension, withdrawal share, share while working
+   again, premium pension fund / traditional insurance, custom accounts' divisor or manual amount.
+2. Occupational pension (scheme rows, the occupational and salary-exchange rows: `wdpIsOcc`) and 3. private pension (the other P-insurance rows): from age (chip "At retirement"
+   = `wsAuto`, input, earliest age from `WD_RULES`) and how long — see Temporary payout below. DB rows: start age only. Link to the Withdrawal strategy tab.
+4. Savings (`wdPlan.savingsMode`): `need` (default) = cover what the pensions do not: `runProjection` settles the after-tax accounts in a deferred pass after the year's
+   pension tax and earned-income block — draw = max(0, spending − (pension − pension tax) − net salary while working again), ISK / endowment first, then cash, capped by the
+   balance, from the retirement year; `portAfterTax`, `totalPort`, `eqPct`, `taxFree`, `afterTaxIncome` are finalised after it; a surplus is not saved. `even` = same amount
+   every year (Temporary payout below). `none` = no draws. `manual` = each account's own amount and window (the old behaviour, typed in the step).
+5. Spending: `spendAt(age, budget)` = Expenses-tab budget × level (`flatLevel`, or with "More early, less later" `levels[0..2]` of the three phases `wdpPhaseBounds`: retirement
+   … life age split in thirds, or the user's boundary ages `splitAges` while `splitAuto` is false). Levels as % of the budget (stepper ± 5 %, input 30–300 %), quick picks Even
+   100/100/100, Moderate 110/100/90, Active start 120/100/80. `row.expenses` (Dashboard, Income vs Expenses, Monte Carlo default withdrawal `getWdForAge`) is `spendAt`.
+- Result: per phase the average income after tax (`totalAfterTaxIncome`: pensions, savings draws, a salary while working again) vs spending per month, green when the income
+  covers the spending in EVERY year of the phase, else "Short from age X". Then the highest sustainable level (`wdpMaxSpend`, replaces Maximize / Estimate All / Optimize to Zero):
+  bisection on a scale k of the whole spending profile (`_wdpScale`, k ≤ 8) for income ≥ spending − 1 kr in every retirement year up to the life year; computed from scratch
+  (`wdpScheduleMax`, debounced, only while the tab is open and `wdpSig` changed). "Use this level" (`wdpUseMax`) floors level × k to whole % and is offered only when k is
+  outside [1, 1,02), so pressing it again changes nothing. Without savings the sentence says what the pensions alone allow (the budget is never set to 0).
+- Planner-specific (Typfallsmodellen has no spending phases, no expense-driven drawdown and no max-spending search; its private saving is spread over the payout period, which
+  is the `even` mode). All pension amounts, divisors and the tax are Typfallsmodellen's.
+- Saves carry `wdPlan` + `wdPlanV: 1` (`wdpRestore`). Older saves: "Age-based expense intervals" on with amounts → phases with the old boundaries and levels = amount ÷ budget
+  (rounded to 5 %, 50–150 %), savings mode `need`, toast `wdp.migrated`; intervals off → `manual` (same numbers as before). New plans and presets: `need`, phases off.
 
 ### Withdrawal strategy tab ("Uttagsstrategi") — Retirement_Planner.html
 
