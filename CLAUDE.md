@@ -403,32 +403,38 @@ average payout per spending phase, in the Before / After tax mode). Every choice
 
 ### Withdrawal strategy tab ("Uttagsstrategi") — Retirement_Planner.html
 
-The tab is NOT hand-written here: it is the "Uttagsstrategi" screen of the Typfallsmodellen web app
-(github.com/mathiasboos/Typfallsmodellen, `apps/web/src/strategyPanel.ts` + `strategy.ts` and the whole engine it
-runs), compiled into the planner by `node tools/build-strategy.mjs [path to a clone with npm ci done]` (no path =
-shallow clone of `main` into a temp folder). The script bundles the panel with that project's esbuild into one classic
-script (`window.TFStrategy`: `createStrategyPanel`, `loadDeathProbabilities`, `contextFromSettings`, `defaultInput`,
-`Scheme`) and writes it, plus the app's `styles.css` with every selector scoped to `#tab-strategy` (dark mode and
-`@font-face` dropped), between `<!-- STRATEGY:BEGIN … -->` and `<!-- STRATEGY:END -->`. Never edit the generated
-block by hand; re-run the script when the Typfallsmodellen project changes the tab (the marker comment shows which
-commit it was built from) and commit the planner. It adds about 1 MB to the file.
-- Planner side (`strategyShow`, `strategyRelabel`, `strategyForecastInput`, `strategyLabelImport`): the panel is
-  created on the first visit to the tab (`switchTab('strategy')`), `setLang` relabels it, and the context is the
-  workbook's normal mode (`contextFromSettings(new Map(), {chartEarningFactor: 12})`, no Avancerat). The tab has its own
-  inputs and never changes the plan and is not saved with it. The import button ("Hämta från planen") copies born,
-  begin-work age, retirement age, salary (`grossSal('grossSalPre66')`, the 2026 money the engine uses), the first
-  contractual scheme found in Assets (`STRATEGY_SCHEME`: itp1 2, itp2 3, saflo 4, kapkl 5, akapkr 6, pa16a2 7, pa16a1 8),
-  inflation, salary increase (real growth) and the Parameters-tab occupational return (real fund yield).
-- Planner patches to the original source: `tools/strategy-patches/*.patch` (none at the moment; the directory is absent) would be applied by `build-strategy.mjs` to the clone before bundling and removed again
-  afterwards (a patch that no longer applies stops the build; the marker comment lists them). The earlier `timeline-after-tax.patch` was dropped when Typfallsmodellen added the same feature
-  (timeline follows Före / Efter skatt, commit 8514462).
-- Planner look: `<style id="strategy-theme">` right after the generated block (outside the markers, so a rebuild keeps it) maps the app's colour/font
-  variables to the planner's (`--font-b`, `--text`, `--muted`, `--s1`, `--border`), gives `.panel` the card padding, replaces the yellow title bars of
-  `.panel > h2` / `figcaption` with the planner's card header (small green-barred caps) and styles `.export-btn` / `.panel-btn` like the planner's buttons.
-- Its intro text still mentions "Hämta från Prognos" and "Avancerat" (the original has those; the planner has neither).
-- Check after a rebuild: build the original (`npm run build` in `apps/web`, file `dist/typfallsmodellen.html`) and compare
-  the text of `.pa-results` for the same inputs (the `data-setting` inputs `stBorn`, `stStartWork`, `stRetirement`, …) with the planner's
-  tab: they must be equal. Done for 4 input sets (default, born 1970 / 65, 1985 / 25 / 67, 1962 / 66) at commit a0b14b3 (compare case-insensitively: the planner theme upper-cases the card headings).
+A what-if over the plan, built in the planner (`wsRender`, `ws*` functions, texts inline via `wsSay`), on the planner's own engine
+(`runProjection`, the Typfallsmodellen port) and read with the rules of the Typfallsmodellen web app
+(github.com/mathiasboos/Typfallsmodellen, `apps/web/src/pensionLasts.ts` and `strategy.ts`; latest checked 6d13a3c). Until Nov 2026 the tab was
+that app's own panel compiled into the file (`tools/build-strategy.mjs`, ~1 MB); it was replaced because it had its own inputs, one scheme and one
+payout time for all pots. Nothing in the tab is saved with the plan.
+- Inputs are the plan's, read-only: Person (folded: Personal / Parameters), the pension and savings accounts from Assets, the spending = Expenses
+  budget × the Withdrawals spending phases (`row.expenses`). No budget field, no assumptions (Parameters tab). Ages run from the retirement age up to
+  and including the life-expectancy age.
+- The sandbox `_ws.choice` = {pins: {account index: {ws, n}}, sav: {mode, n, from}} (n = years, 0 lifelong, null = as in the plan), cloned from the plan
+  (`wsChoiceFromPlan`) on the first visit, after "Reset to my plan", and when the plan changed while nothing was edited (`_ws.planKey`). Tables:
+  pensions (state rows read-only and lifelong; occupational / private P-insurance: from age + Lifelong / 5 / 10 / 15 / 20 / other years, the agreement's
+  minimum from `WD_RULES` enforced) and private savings (one use for all: cover the gap, the same amount for N years or to the life age, untouched).
+  "Use in my plan" (`wsUseInPlan`) writes it like `wdpSetYears` + `wdPlan.savingsMode`/`evenFrom`/`evenTo`; afterwards the plan's projection equals the
+  what-if run (checked: identical yearly income).
+- `wsRun(choice)`: snapshot (`wsSnap`) → `wsApply` (windows, then the Temporärt / even amounts zero-adjusted once per account + window in `_ws.zc`,
+  `wsZero` = the bisection of `zeroTemporaryAccounts` from Typfallsmodellen's divisor; valid because an account's balance path depends only on its own
+  amount) → `runProjection` → `wsSummary` rows (`net` = totalAfterTaxIncome, `gross`, `need`, per kind wdrl `k`, `nf` = `_netFactorFor`) → restore. The
+  plan is never changed by it. `wsCompute` (debounced from `recalc` / tab switch while the tab is open, signature `wdpSig` + choice) runs the 5 uniform
+  periods, every combination occupational × private × savings over 5/10/15/20/life (≤ 125 runs), the what-if and the plan: ~30–90 ms.
+- Best payout time (KPI boxes, pensionLasts `assess` / `evaluate`): every pot over the same period (shorter boxes use an agreement's longer minimum,
+  noted); per box the average income a month during the payout, "then X" afterwards, and how long the spending is covered (✓ all the way / lasts to N /
+  x of y years); BEST = most years with income ≥ spending − 6 kr, then the most in total, a tie (± 1 kr) to the longer. Coverage is always after tax;
+  the Before / After tax switch changes the amounts shown.
+- Strategic scenarios (`wsScenario`): Balanced (all lifelong, savings spread to the life age), Your plan (`_projYears`), Optimal (`wsOptimal` =
+  `optimalCombo`: most years at/above the spending, then most in total, tie → more lifelong pots, then longer periods), Your what-if when it differs.
+  Per spending phase average, average, totals through 80 / 85 / 90 / life age, lowest month, "Balanced pays more from" (`wsOvertaken`), line chart,
+  "Try this". Payout-period table: occupational over 5/10/15/20/life with the rest lifelong. Timeline (`wsTimelineSvg`): Typfallsmodellen's Gantt incl.
+  the 6d13a3c label fix, periods = the spending phases. CSV / Excel of both tables.
+- Insights (`wsInsights`: payout, first year taxed harder, ISK tax, state tax from the what-if, savings early), tax rules (`wsTaxPicture`,
+  `WS_TAX_YEARS`) and the checklist (`wsChecklist`, `WS_JAMKNING`) follow strategy.ts. Not ported: housing supplement (bostadstillägg, not modelled) and
+  its insight / checklist step; the ISK insight uses the planner's flat yield tax. Verify every December: `WS_TAX_YEARS` (skattefri årsinkomst, ROT/RUT
+  maxima) and `WS_JAMKNING`. When the Typfallsmodellen app changes these tabs' rules or texts, port the change by hand.
 
 ## Source of truth for formulas
 
