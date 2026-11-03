@@ -1705,8 +1705,9 @@ input[type="number"]::-webkit-outer-spin-button {
 
   <div class="card">
     <div class="card-header" data-i18n="par.yieldHdr">YIELD TAXES (SCHABLONBESKATTNING)</div>
-    <div class="input-row"><div class="input-label" data-i18n="par.ytP">P-Insurance &#8212; Avkastningsskatt (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="ytP" value="0,375" step="0.001" onchange="recalc()"></div>
-    <div class="input-row"><div class="input-label" data-i18n="par.ytK">K-Insurance / ISK (schablonint&#228;kt)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="ytK" value="1,050" step="0.001" onchange="recalc()"></div>
+    <div class="input-row"><div class="input-label" data-i18n="par.slr">Statsl&#229;ner&#228;nta (SLR), assumption (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="slr" value="2,5" step="0.05" onchange="refreshYieldTaxes();recalc()"></div>
+    <div class="input-row" data-i18n-title="par.ytP.tip" title="(SLR + 1 percentage point) × 30 %. Derived from the SLR above; each account can still be given its own rate under Details on the Assets tab." style="cursor:help"><div class="input-label" data-i18n="par.ytK">K-Insurance / ISK (schablonint&#228;kt)</div><input class="inp inp-sm" type="text" id="ytK" value="1,050" style="opacity:.6;background:var(--s2);cursor:not-allowed" readonly></div>
+    <div class="input-row" data-i18n-title="par.ytP.tip2" title="SLR × 15 %. Derived from the SLR above; each account can still be given its own rate under Details on the Assets tab." style="cursor:help"><div class="input-label" data-i18n="par.ytP">P-Insurance &#8212; Avkastningsskatt (%)</div><input class="inp inp-sm" type="text" id="ytP" value="0,375" style="opacity:.6;background:var(--s2);cursor:not-allowed" readonly></div>
     <div class="input-row"><div class="input-label" data-i18n="par.mgmt">Management Fee (default)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="mgmtFee" value="0,2" step="0.05" onchange="recalc()"></div>
     <div class="input-row"><div class="input-label" data-i18n="par.occReturn" title="Typfallsmodellen">Occupational pension schemes &#8212; real return, net of fees (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="occReturn" value="1,7" step="0.1" onchange="recalc()"></div>
   </div>
@@ -2087,6 +2088,9 @@ en:{
   'sc.fixed':'Fixed',
   // ── Parameters tab extras ──
   'par.ytK':'K-Insurance / ISK (schablonintäkt)',
+  'par.slr':'Statslåneränta (SLR), assumption (%)',
+  'par.ytP.tip':'(SLR + 1 percentage point) × 30 %. Derived from the SLR above; a single account can still be given its own rate under Details on the Assets tab.',
+  'par.ytP.tip2':'SLR × 15 %. Derived from the SLR above; a single account can still be given its own rate under Details on the Assets tab.',
   'par.mgmt':'Management Fee (default)',
   'par.ibb.hdr':'INKOMSTBASBELOPP (IBB)',
   'par.ibb.year':'IBB Year',
@@ -2824,6 +2828,9 @@ sv:{
   'sc.fixed':'Fast',
   // ── Parameters tab extras ──
   'par.ytK':'Kapitalförsäkring / ISK (schablonintäkt)',
+  'par.slr':'Statslåneränta (SLR), antagande (%)',
+  'par.ytP.tip':'(SLR + 1 procentenhet) × 30 %. Räknas fram från SLR ovan; ett enskilt konto kan ändå få en egen sats under Detaljer på Tillgångar-fliken.',
+  'par.ytP.tip2':'SLR × 15 %. Räknas fram från SLR ovan; ett enskilt konto kan ändå få en egen sats under Detaljer på Tillgångar-fliken.',
   'par.mgmt':'Förvaltningsavgift (standard)',
   'par.ibb.hdr':'INKOMSTBASBELOPP (IBB)',
   'par.ibb.year':'IBB År',
@@ -3438,6 +3445,23 @@ function setLang(lang){
 }
 
 const START_YEAR = 2026;
+
+// ── Fee and yield-tax assumptions ─────────────────────────────────────────────────────────────────
+// Statslåneräntan (SLR) is the rate both Swedish yield taxes are built on. 2,5 % is Typfallsmodellen's
+// own forward assumption (VBA avkskatt, Case Else) and the value occTax() falls back to for future
+// years. The Parameters tab's SLR field drives the two rates below; each account still carries its own
+// yt, so an account can be overridden. Verify every December.
+const SLR_DEFAULT = 0.025;
+function slrNow(){ var v = getParam('slr'); return (isFinite(v) && v >= 0) ? v / 100 : SLR_DEFAULT; }
+function ytKDefault(){ return (slrNow() + 0.01) * 0.30; }   // ISK / kapitalförsäkring: (SLR + 1 pp) × 30 %
+function ytPDefault(){ return slrNow() * 0.15; }            // Pension insurance: SLR × 15 %
+// Fribelopp for ISK + kapitalförsäkring, per person, shared across the accounts (2026 level).
+// Used both by the Income tab and by the projection's schablonskatt. Verify every December.
+const ISK_FRI = 300000;
+// Management fee defaults: Typfallsmodellen's general fund fee for the rows the workbook owns
+// (1,9 % before fees → the 1,7 % it forecasts), a typical Swedish fund/platform fee for private ones.
+const MGMT_DEFAULT_TM = 0.002;
+function mgmtDefaultPrivate(){ var v = getParam('mgmtFee'); return isFinite(v) && v > 0 ? v / 100 : 0.01; }
 const _TODAY_DOY = Math.round((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
 const firstYearContribFactor  = Math.max(0, Math.min(1, (365 - _TODAY_DOY) / 365));
 const firstYearReturnFraction = Math.max(0, Math.min(1, (365 - _TODAY_DOY) / 365));
@@ -6338,8 +6362,6 @@ function runProjection(){
     stateThreshAge:    getParam('stateThreshAge')||67,
     allowance67Age:    getParam('allowance67Age')||66,
     allowanceAge:      getParam('allowanceAge')||67,
-    ytP:             getParam('ytP')/100,
-    ytK:             getParam('ytK')/100,
     retirementYear:  getParam('retirementYear'),
     birthYear:       getParam('birthYear'),
   };
@@ -7752,6 +7774,7 @@ function recalc(){
     updateProjectionTable(data);
     updateAccountSubtotals();
     refreshEqHeaders();
+    refreshYieldTaxes();
     var _expTab=document.getElementById('tab-expenses');
     var _scTab=document.getElementById('tab-scenarios'); if(_scTab&&_scTab.classList.contains('active')) buildScenariosTab(); var _mcTab=document.getElementById('tab-montecarlo'); if(_mcTab&&_mcTab.classList.contains('active')) populateMCDefaults(); if(_expTab&&_expTab.classList.contains('active')) buildExpenseChart();
     var _pvTab=document.getElementById('tab-portfolio-value'); if(_pvTab&&_pvTab.classList.contains('active')) buildPortfolioTab();
@@ -7825,6 +7848,18 @@ function setPortMode(mode){
 
 
 
+
+// The two yield taxes are derived from the SLR assumption, not typed: the fields are read-only
+// displays of ytKDefault() / ytPDefault(). The engine reads each account's own yt, which a user can
+// still override per account; these show what a NEW account gets.
+function refreshYieldTaxes(){
+  var f = function(id, v){
+    var el = document.getElementById(id);
+    if(el) el.value = (v * 100).toFixed(3).replace('.', ',');
+  };
+  f('ytK', ytKDefault());
+  f('ytP', ytPDefault());
+}
 
 function refreshEqHeaders(){
   const f1 = getParam('ageFrom1')||55;
@@ -7925,7 +7960,6 @@ const ROT_MAX    = 50000;        // ROT max per person/år
 const RUT_MAX    = 75000;        // RUT max per person/år
 const HUS_MAX    = 75000;        // gemensamt tak ROT+RUT, varav max 50 000 ROT
 const AKT_KVOT   = 0.70;         // okvittad aktieförlust kvoteras till 70 %
-const ISK_FRI    = 300000;       // fribelopp ISK/KF 2026 (per person, samlat)
 const ISK_SCHABLON = 0.0355;     // schablonränta 2026: SLR 30 nov 2025 (2,55%) + 1 pp
 const ISK_GOLV   = 0.0125;       // golv för schablonräntan
 const FAST_SATS  = 0.0075;       // kommunal fastighetsavgift 0,75 %
@@ -9651,13 +9685,13 @@ function addPInsFromMenu(sel){
 function addAccount(type, scheme){
   if(type === 'p-ins' && scheme && OCC_SCHEMES[scheme]) return addOccScheme(scheme);
   var yr = START_YEAR || new Date().getFullYear();
-  var ytDef = type==='after'?0.0105:type==='p-ins'?0.00375:0.000;
+  var ytDef = type==='after'?ytKDefault():type==='p-ins'?ytPDefault():0.000;
   var newKey = type==='after'?'acc.name.new.after':type==='p-ins'?'acc.name.new.pins':'acc.name.new.state';
   var newA = {
     name: t(newKey), nameKey: newKey,
     type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(), ceAuto: type!=='after',
     wd:0, ws:9999, we: type==='state' ? 9998 : 9999,   // state pensions are lifelong
-    eq1:0.6, eq2:0.4, eq3:0.3, mgmt:0.002, yt:ytDef,
+    eq1:0.6, eq2:0.4, eq3:0.3, mgmt:mgmtDefaultPrivate(), yt:ytDef,
     fixedRet:null, fixedRetPost:null,
     contribSalary:false, cRate1:4.5, cIBB1:7.5, cIBB2:30.0, cRate2:30,
     taxable: type!=='after',
@@ -11457,7 +11491,7 @@ var _SAVE_SKIP = [
   /^exp-name-input-/,/^wdp-/,/^dst-/,/^pv-/,/^wd-sum-year/,
   /^e-(monthly|annual|goal)$/,/^s-/,/^sg-/,/^proj-/,
   /^inc-(breakdown|result|waterfall|summary)/,/^asset-sum/,/^accounts-tbody/,
-  /^expense-rows$/,/^exp-donut/,/^exp-chart/,/^wb-/,/^sc-/,/^plan-preset$/
+  /^expense-rows$/,/^exp-donut/,/^exp-chart/,/^wb-/,/^sc-/,/^plan-preset$/,/^yt[PK]$/
 ];
 
 function _skipId(id){
