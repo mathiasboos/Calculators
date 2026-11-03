@@ -348,7 +348,10 @@ header{
 .wdp-res .l{font-size:11px;color:var(--muted)}
 .wdp-res .v{font-family:var(--font-m);font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
 .wdp-res .v small{font-size:11px;font-weight:500;color:var(--muted)}
-.wdp-res .v2{font-family:var(--font-m);font-size:13px;color:var(--text)}
+.wdp-res .v.good{color:var(--emerald)}
+.wdp-res .v.bad{color:var(--rose)}
+.wdp-res .v2{font-family:var(--font-m);font-size:13px;color:var(--text);margin-bottom:4px}
+.wdp-res .v2.strong{font-size:15px;font-weight:700}
 .wdp-res .st{font-size:11.5px;font-weight:700;margin-top:8px}
 .wdp-res.good .st{color:#28955A}
 .wdp-res.bad .st{color:#e05555}
@@ -485,6 +488,10 @@ header{
 .tile-value.warn{color:var(--amber)}   /* yellow: --gold is the brand green here */
 .tile-value.bad{color:var(--rose)}
 .tile-sub{font-size:12px;color:var(--muted);margin-top:8px;font-weight:500}
+/* Figures inside a tile sub-line, same emphasis as the Withdrawals result card (.wdp-res .v2) */
+.tile-row{margin-top:3px}
+.tile-row b{font-family:var(--font-m);font-size:15px;font-weight:700;color:var(--text)}
+.tile-row span{font-family:var(--font-m);font-size:13px;font-weight:500;color:var(--text)}
 
 /* ── CHART CONTAINERS ── */
 .chart-wrap{
@@ -2475,7 +2482,7 @@ en:{
   'tile.phase.slowgo':'Slow-go years',
   'tile.phase.nogo':'No-go years',
   'pp.hdr':'Pension by Retirement Phase',
-  'tip.phasePension':'Average monthly pension in each spending phase of the Withdrawals tab (step 5): state pension and P-insurance, plus withdrawals from savings, as in the income-sources chart. Before Tax / After Tax follows that chart (the model\'s own tax).\n\n🟢 After-tax pension covers the expenses of the period\n🔴 After-tax pension is below the expenses',
+  'tip.phasePension':'Average monthly pension in each spending phase of the Withdrawals tab (step 5): state pension and P-insurance, plus withdrawals from savings, as in the income-sources chart. Before Tax / After Tax follows that chart (the model\'s own tax).\n\n🟢 Income after tax covers the spending in every year of the period\n🔴 Income after tax falls short in at least one year',
 
 
 
@@ -3212,7 +3219,7 @@ sv:{
   'tile.phase.slowgo':'Lugnare år (slow-go)',
   'tile.phase.nogo':'Stillsamma år (no-go)',
   'pp.hdr':'Pension per pensionsfas',
-  'tip.phasePension':'Genomsnittlig pension per månad i varje utgiftsfas på Uttag-fliken (steg 5): allmän pension och P-försäkringar plus uttag från sparandet, som i diagrammet över inkomstkällor. Före / efter skatt följer diagrammet (modellens egen skatt).\n\n🟢 Pension efter skatt täcker periodens utgifter\n🔴 Pension efter skatt är lägre än utgifterna',
+  'tip.phasePension':'Genomsnittlig pension per månad i varje utgiftsfas på Uttag-fliken (steg 5): allmän pension och P-försäkringar plus uttag från sparandet, som i diagrammet över inkomstkällor. Före / efter skatt följer diagrammet (modellens egen skatt).\n\n🟢 Inkomst efter skatt täcker utgifterna varje år i perioden\n🔴 Inkomst efter skatt räcker inte något år',
 
 
 
@@ -7489,17 +7496,20 @@ function computePensionPhases(data){
     var rows = data.years.filter(function(y){
       return y.yr >= retYear && y.age >= b.from && y.age <= b.to;
     });
-    var monthly = 0, net = 0, exp = 0;
+    var monthly = 0, net = 0, exp = 0, short = null;
     if(rows.length){
       var total = rows.reduce(function(sum, y){
         return sum + (y.taxFree||0) + ((y.wdrlPIns||0) + (y.wdrlState||0)) * _ilsTaxFactor(y);
       }, 0);
       monthly = total / rows.length / 12;
-      // After-tax pension (the model's own tax) and expenses over the same years: they decide the card colour
-      net = rows.reduce(function(sum, y){ return sum + (y.afterTaxIncome||0); }, 0) / rows.length / 12;
+      // Income after tax and spending over the same years — the SAME figures and the same rule as the
+      // Withdrawals tab's result card (wdpRenderResult), so the two card rows always read alike
+      net = rows.reduce(function(sum, y){ return sum + (y.totalAfterTaxIncome||0); }, 0) / rows.length / 12;
       exp = rows.reduce(function(sum, y){ return sum + (y.expenses||0); }, 0) / rows.length / 12;
+      var sh = rows.find(function(y){ return (y.expenses||0) - (y.totalAfterTaxIncome||0) > 1; });
+      short = sh ? sh.age : null;
     }
-    return {from: b.from, to: b.to, key: PHASE_KEYS[i], monthly: monthly, net: net, exp: exp, hasRows: rows.length > 0};
+    return {from: b.from, to: b.to, key: PHASE_KEYS[i], monthly: monthly, net: net, exp: exp, short: short, hasRows: rows.length > 0};
   });
 }
 
@@ -7528,13 +7538,15 @@ function buildPhaseTiles(data){
       label: t('tile.phasePension', {from: has?ph.from:'\u2014', to: has?ph.to:'\u2014'}),
       val:   has ? fmtKr(ph.monthly) : '\u2014',
       sub:   t('tile.phase.'+PHASE_KEYS[i]) + ' \u00b7 ' + taxLbl,
-      // green when the after-tax pension covers the expenses of the period, red when it does not
-      cls:   (has && ph.hasRows && ph.exp > 0) ? (ph.net >= ph.exp ? 'good' : 'bad') : '',
+      // green when the income after tax covers the spending in EVERY year of the period, red when it does not
+      // (same rule as the Withdrawals tab's result card)
+      cls:   (has && ph.hasRows && ph.exp > 0) ? (ph.short == null ? 'good' : 'bad') : '',
       tile:  '',
-      // Same two lines, in the same order and with the same wording, as the Withdrawals tab's result card
+      // Same two lines, in the same order, with the same wording and the same emphasis as the
+      // Withdrawals tab's result card
       extra: (has && ph.hasRows && ph.exp > 0)
-        ? '<div class="tile-sub" style="margin-top:6px">' + t('wdp.res.income') + ' ' + fmt(ph.net) + ' ' + t('wdp.permonth') + '</div>'
-          + '<div class="tile-sub">' + t('wdp.res.spend') + ' ' + fmt(ph.exp) + ' ' + t('wdp.permonth') + '</div>'
+        ? '<div class="tile-sub tile-row" style="margin-top:8px">' + t('wdp.res.income') + ' <b>' + fmt(ph.net) + '</b> ' + t('wdp.permonth') + '</div>'
+          + '<div class="tile-sub tile-row">' + t('wdp.res.spend') + ' <span>' + fmt(ph.exp) + '</span> ' + t('wdp.permonth') + '</div>'
         : '',
       tip:   t('tip.phasePension')
     };
@@ -8829,8 +8841,10 @@ function wdpRenderResult(){
     if(!ph.n) return;
     var cls = ph.exp > 0 ? (ph.short == null ? 'good' : 'bad') : '';
     h += '<div class="wdp-res ' + cls + '"><h4>' + t(names[i]) + ' <span>' + t('wdp.ages', {from:ph.from, to:ph.to}) + '</span></h4>'
-      + (dash[i] && dash[i].hasRows ? '<div class="l">' + t('wdp.res.dash', {tax:dashLbl.toLowerCase()}) + '</div><div class="v2">' + wdpN(dash[i].monthly) + ' ' + t('wdp.permonth') + '</div>' : '')
-      + '<div class="l">' + t('wdp.res.income') + '</div><div class="v">' + wdpN(ph.inc) + ' <small>' + t('wdp.permonth') + '</small></div>'
+      // Same order and the same emphasis as the Dashboard's phase cards: the pension in the big figure,
+      // then income after tax, then spending
+      + (dash[i] && dash[i].hasRows ? '<div class="l">' + t('wdp.res.dash', {tax:dashLbl.toLowerCase()}) + '</div><div class="v ' + cls + '">' + wdpN(dash[i].monthly) + ' <small>' + t('wdp.permonth') + '</small></div>' : '')
+      + '<div class="l">' + t('wdp.res.income') + '</div><div class="v2 strong">' + wdpN(ph.inc) + ' ' + t('wdp.permonth') + '</div>'
       + '<div class="l">' + t('wdp.res.spend') + '</div><div class="v2">' + wdpN(ph.exp) + ' ' + t('wdp.permonth') + '</div>'
       + (cls ? '<div class="st">' + (cls === 'good' ? '✓ ' + t('wdp.res.ok') : t('wdp.res.short', {age:ph.short})) + '</div>' : '')
       + '</div>';
