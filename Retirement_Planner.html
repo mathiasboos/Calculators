@@ -2121,6 +2121,8 @@ en:{
   'acs.name.eg.1':'For example “Income pension”.','acs.name.eg.2':'For example “ITP 1 at Alecta”.','acs.name.eg.3':'For example “IPS at Avanza”.','acs.name.eg.4':'For example “ISK at Avanza”.','acs.name.eg.5':'',
   'acs.details':'Details',
   'acs.f.kind':'Account type','acs.f.save.mo':'Saving per month','acs.f.contrib':'Contribution',
+  'acs.f.fund':'Equity share',
+  'acs.eq.default':'Default fund (AP7 Såfa)','acs.eq.own':'Own age brackets',
   'acs.open.auto':'Calculated from your salary history. Type a balance to use your own, or 0 to calculate it again.',
   'acs.cs.help':'Contributions count from this age. An account you add yourself starts now — the planner never projects backwards.',
   'acs.yt.help':'ISK and kapitalförsäkring: (statslåneräntan + 1 percentage point) × 30 %. Change the assumption on the Parameters tab.',
@@ -2904,6 +2906,8 @@ sv:{
   'acs.name.eg.1':'Till exempel ”Inkomstpension”.','acs.name.eg.2':'Till exempel ”ITP 1 hos Alecta”.','acs.name.eg.3':'Till exempel ”IPS hos Avanza”.','acs.name.eg.4':'Till exempel ”ISK hos Avanza”.','acs.name.eg.5':'',
   'acs.details':'Detaljer',
   'acs.f.kind':'Kontotyp','acs.f.save.mo':'Sparande per månad','acs.f.contrib':'Insättning',
+  'acs.f.fund':'Aktieandel',
+  'acs.eq.default':'Förvalet (AP7 Såfa)','acs.eq.own':'Egna åldersintervall',
   'acs.open.auto':'Framräknat från din lönehistorik. Skriv in ett eget saldo, eller 0 för att räkna om det.',
   'acs.cs.help':'Insättningar räknas från den här åldern. Ett konto du lägger till själv börjar nu — planeraren räknar aldrig bakåt.',
   'acs.yt.help':'ISK och kapitalförsäkring: (statslåneräntan + 1 procentenhet) × 30 %. Ändra antagandet på Parametrar-fliken.',
@@ -6148,6 +6152,10 @@ function acsSetSavKind(i, kind){
   acsApplySavKind(accounts[i], kind);
   buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); recalc();
 }
+function acsSetOwnEq(i, own){
+  accounts[i].ownEq = !!own;
+  buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); recalc();
+}
 function acsSetMonthly(i, raw){
   accounts[i].contrib = (parseInt(String(raw).replace(/[^0-9]/g, '')) || 0) * 12;
   buildAccountsTable(); setTimeout(updateAccountSubtotals, 0); recalc();
@@ -6209,12 +6217,20 @@ function acsCard(a, i, step){
         + acsPctInput(i, 'eq3', a.eq3) + '<small>' + (t2 + 1) + '+</small>',
         '<button type="button" class="wdp-link" onclick="goTab(\'parameters\')">' + t('acs.eq.link') + '</button>');
     };
+    var fundSeg = function(){
+      if(a.fixedRet !== null && a.fixedRet !== undefined) return '';   // a fixed return has no equity share
+      return acsRow(t('acs.f.fund'),
+        '<span class="wdp-seg">'
+        + '<button class="' + (a.ownEq ? '' : 'on') + '" onclick="acsSetOwnEq(' + i + ',false)" title="' + wdpEsc(t('pp.glide.tip')) + '">' + t('acs.eq.default') + '</button>'
+        + '<button class="' + (a.ownEq ? 'on' : '') + '" onclick="acsSetOwnEq(' + i + ',true)">' + t('acs.eq.own') + '</button>'
+        + '</span>', a.ownEq ? '' : t('pp.glide'));
+    };
     if(isOccPremiumAcc(a) && a.ownEq){
-      det += eqRow() + acsRow(t('acc.col.mgmt'), acsPctInput(i, 'mgmt', a.mgmt)) + acsLockedNote(a);
+      det += fundSeg() + eqRow() + acsRow(t('acc.col.mgmt'), acsPctInput(i, 'mgmt', a.mgmt)) + acsLockedNote(a);
     } else if(locked){
-      det += acsLockedNote(a);
+      det += (isIpEngineAcc(a) ? '' : fundSeg()) + acsLockedNote(a);
     } else {
-      det += (isPpGlide(a) ? '<div class="wdp-note" title="' + wdpEsc(t('pp.glide.tip')) + '">' + t('pp.glide') + '</div>' : eqRow())
+      det += fundSeg() + (a.ownEq ? eqRow() : '')
         + acsRow(t('acc.col.mgmt'), acsPctInput(i, 'mgmt', a.mgmt))
         + acsRow(t('acc.col.yt'), acsPctInput(i, 'yt', a.yt), isSav ? t('acs.yt.help') : '')
         + acsRow(t('acc.col.fr'), acsPctInput(i, 'fixedRet', a.fixedRet));
@@ -6364,13 +6380,18 @@ function getParam(id){ const el=document.getElementById(id); if(!el)return 0; re
 // Premium pension default fund (AP7 Såfa): 100 % equities to age 55, then
 // linearly down to 33 % equities / 67 % bonds at 75, flat after that.
 function ppGlideEq(age){ return age <= 55 ? 1 : age >= 75 ? 0.33 : 1 - 0.67 * (age - 55) / 20; }
-function isPpGlide(a){
-  return !!(a && a.type === 'state' && a.delningstalScope === 'premie' && !a.ownEq
+// Pensionsmyndigheten's default fund is the planner's default glidepath for EVERY account that
+// has not been given its own age brackets. Three step-brackets cannot express a ramp, and the old
+// per-account defaults (ISK 0,9 / 0,4 / 0,75 — equity rising again in the last bracket) show what
+// happens when they are left to drift. An account with a fixed return has no equity share at all.
+function usesGlideEq(a){
+  return !!(a && !a.ownEq && !a.db && !a.benefit && !a.workRow
     && (a.fixedRet === null || a.fixedRet === undefined));
 }
+function isPpGlide(a){ return isPpAcc(a) && usesGlideEq(a); }   // kept for the premium-pension wording
 function calcEquityShare(acc, age){
   if(acc.fixedRet!==null && acc.fixedRet!==undefined) return 0;
-  if(isPpGlide(acc)) return ppGlideEq(age);
+  if(usesGlideEq(acc)) return ppGlideEq(age);
   const t1 = getParam('ageTo1')||63;
   const t2 = getParam('ageTo2')||73;
   if(age<=t1) return acc.eq1;
@@ -11559,7 +11580,7 @@ function populateMCDefaults(){
       if(a.nameKey === 'acc.name.income.pen') return; // exclude
       if(a.fixedRet !== null && a.fixedRet !== undefined) return; // skip fixed-return accs
       var wt = a.opening || 0;
-      if(isPpGlide(a)){ wEq1 += ppGlideEq(brT1) * wt; wEq2 += ppGlideEq(brT2) * wt; wEq3 += ppGlideEq(brT2 + 1) * wt; wTot += wt; return; }
+      if(usesGlideEq(a)){ wEq1 += ppGlideEq(brT1) * wt; wEq2 += ppGlideEq(brT2) * wt; wEq3 += ppGlideEq(brT2 + 1) * wt; wTot += wt; return; }
       wEq1 += a.eq1 * wt; wEq2 += a.eq2 * wt; wEq3 += a.eq3 * wt; wTot += wt;
     });
     if(wTot > 0){
@@ -12574,6 +12595,7 @@ function collectPlanState(){
     version: 3,
     assumptionsV: 2,   // saved with the Typfallsmodellen default assumptions (1,9 % returns)
     ceRulesV: 1,       // saved with Contrib End following the retirement age (ceAuto) and CE_MAX
+    eqRulesV: 1,       // saved with the default fund (AP7 Safa) as the equity default
     ppFeeV: 1,         // saved with the 0,20 % premium pension default fee
     wdRulesV: 2,       // saved with Wdrl Start following the retirement age (wsAuto) and WD_RULES
     wdPlanV: 1,        // saved with the step-by-step Withdrawals tab (wdPlan: spending phases + savings mode)
@@ -12635,6 +12657,14 @@ function applyPlanState(state){
       // Premium pension default fee is Typfallsmodellen's 0,20 % (1,9 % before fees → 1,7 % after); saves made before
       // ppFeeV 1 carry the older 0,10 % / 0,04 % (AP7 Såfa) defaults
       if(!(state.ppFeeV >= 1) && a.type === 'state' && a.delningstalScope === 'premie' && !a.ownEq && (a.mgmt === 0.001 || a.mgmt === 0.0004)) a.mgmt = 0.002;
+      // Saves made before the default fund became the equity default: an account still on one of the
+      // old bracket defaults follows AP7 Safa from now on, an account whose brackets were typed keeps
+      // them (ownEq). [0,0,0] is NOT an old default - someone chose all bonds - so it is kept too.
+      if(!(state.eqRulesV >= 1) && !a.ownEq && !a.db && !a.benefit && !a.workRow
+         && (a.fixedRet === null || a.fixedRet === undefined)){
+        var _oldEq = [[0.9,0.4,0.75],[0.8,0.4,0.7],[0.6,0.4,0.3]];
+        a.ownEq = !_oldEq.some(function(e){ return a.eq1 === e[0] && a.eq2 === e[1] && a.eq3 === e[2]; });
+      }
       if(a.type === 'state') a.we = 9998;   // state pensions are always lifelong
       // Older saves: pension accounts still on a default start (retirement year, or the first version of the
       // per-scheme default ages) follow the retirement age from now on
