@@ -223,21 +223,41 @@ published, replace the workbook and re-verify everything below.
   of truth (`persApplyAges` writes them, `persSyncFromYears` restores ages from older saves).
   New state accounts start contributions at the work age; schemes at max(work age, scheme
   from-age); `pgbWorkStart` = birth + work age. Gross/Net Retirement salary rows were removed
-- Assets tab contribution window defaults to Personal: Contrib Start = begin-work age (schemes:
-  max(work age, scheme from-age), `_csFor`), Contrib End = retirement age (`defaultCe`). Accounts
-  still on the old default follow Personal-tab changes (`persRelinkAccounts`, trackers set by
-  `persTrack`); edited ones stay. "End = retirement year" means no contribution in the retirement
-  year itself (fixed contributions; salary/scheme/IP ones were already gated)
-- Premium pension equity: default fund glidepath (`ppGlideEq`: 100 % equities to 55, linear to
-  33 % at 75) via `calcEquityShare`; tick "Own equity brackets" (`a.ownEq`) to use eq1–eq3.
+- Assets tab contribution window: Contrib End = retirement age (`defaultCe`). Contrib Start depends on
+  who creates the row — an account the USER adds (`addAccount`) starts at `START_YEAR`, i.e. the person's
+  age today, because it starts now; schemes (`addOccScheme`) use max(work age, scheme from-age) and state
+  rows (`addStateAccount`) the begin-work age, since their opening balances are built from the whole income
+  history. Numerically the user-added case is a display fix only: the projection starts at `START_YEAR` and
+  gates contributions on `yr >= a.cs`, so an earlier `cs` never moved money there — hence no save-version key.
+  A user-added row therefore no longer follows Personal-tab changes (`persRelinkAccounts` only moves a `cs`
+  still equal to `_csFor`); scheme and state rows still do (trackers set by `persTrack`). "End = retirement
+  year" means no contribution in the retirement year itself (fixed contributions; salary/scheme/IP ones were
+  already gated)
+- Equity share: EVERY account without its own brackets follows Pensionsmyndigheten's default fund
+  (AP7 Såfa) — `ppGlideEq` (100 % equities to 55, linear to 33 % at 75) via `usesGlideEq` in
+  `calcEquityShare`; the per-account "Equity share" control (Details) switches to eq1–eq3 (`a.ownEq`).
+  Excluded: DB, benefit and work rows, and anything with a `fixedRet` (no equity share at all).
+  `isPpGlide` = `isPpAcc && usesGlideEq`, kept for the premium-pension wording; `populateMCDefaults`
+  follows the same helper. The three bracket AGES live in ONE place, the Parameters tab's return card
+  (`ageFrom1`/`ageTo1`/`ageTo2` = 55/63/73) — until Nov 2026 that bar existed twice with the same ids
+  (Assets 65/75/85, Projection 55/63/73), so the brackets in force were not the ones the headers named
+  and a plan changed behaviour the first time it was saved and reloaded (`collectPlanState` snapshots
+  `querySelectorAll('input[id]')` last-wins). Saves carry `eqRulesV: 1`; restoring an older save sets
+  `ownEq` on any account whose brackets are NOT one of the three old defaults (0,9/0,4/0,75 · 0,8/0,4/0,7
+  · 0,6/0,4/0,3), so typed brackets — 0/0/0 included — survive.
   Typfallsmodellen itself has one fund-return assumption, no glidepath
   Contractual scheme premium rows (`isOccPremiumAcc`) have the same tick box: unticked = the
   Parameters occupational return (1,7 % net); ticked = `engineStep` runs `occStep` with the account's
   own net return (equity % brackets × eq/bond returns − Mgmt %); premiums, arv gains, yield tax and
   history stay Typfallsmodellen's
-  Default Mgmt % = Typfallsmodellen's general fund fee 0,20 % (`mgmt: 0.002`; 1,9 % before fees → 1,7 % after,
-  as the workbook's forecast); the user can change it (AP7 Såfa itself charges ~0,04 %). Saves carry `ppFeeV: 1`;
-  restoring an older save lifts the old 0,10 % / 0,04 % defaults on non-`ownEq` premium pension accounts to 0,20 %
+  Default Mgmt %: Typfallsmodellen's general fund fee 0,20 % (`MGMT_DEFAULT_TM`; 1,9 % before fees → 1,7 % after,
+  as the workbook's forecast) on the rows the workbook owns — contractual scheme rows, premium pension
+  (income pension keeps 0,10 %, inert) — and **1 %** (`mgmtDefaultPrivate`, from the Parameters `#mgmtFee`
+  field, which `addAccount` now actually reads) on private ones: ISK, endowment, private pension, the generic
+  occupational rows and salary exchange. Cash 0. `#mgmtFee` also drives the Scenarios drawdown (10450).
+  Saves carry `ppFeeV: 1` (older saves lift the old 0,10 % / 0,04 % premium pension defaults to 0,20 %) and
+  `mgmtV: 1` (older saves lift the exact literal 0,20 % to 1 % on non-workbook rows only; the guard runs
+  after the `ppFeeV` one and excludes premium pension so nothing is lifted twice). Typed fees are never moved
 - State pensions are always lifelong: `we = 9998` for every state account (defaults, new accounts,
   restore), the Withdrawals tab's details table shows ∞ as their end
 - Premium pension payout is lifelong like Typfallsmodellen (`ppkassa` + `PP_pbh`): each year
@@ -372,6 +392,68 @@ published, replace the workbook and re-verify everything below.
   default retirement … life age) and is adjusted the same way, so each ends at 0. In the other modes after-tax accounts are not adjusted ('manual' keeps typed amounts — before the redesign
   they were also zeroed whenever a Temporärt account existed; saved plans carry the zeroed amounts, so they load with the same numbers).
 
+### Assets tab (the plan in five steps) — Retirement_Planner.html
+
+`#tab-accounts`: the asset-overview pies (`buildAssetSummary`, unchanged, three slices by `a.type`), a
+totals strip (`dst-total-opening` / `dst-total-contrib`), then five numbered steps in the Withdrawals
+tab's shell — `buildAccountsTable()` keeps its name (~20 call sites) but renders `#acs-steps`.
+Until Nov 2026 the tab was one 11-column table (`accounts-tbody`) showing every expert field on every row.
+1 State pension (`a.type==='state'`, work rows included, read-only) · 2 Occupational (`p-ins && wdpIsOcc`)
+· 3 Private pension (`p-ins && !wdpIsOcc`) · 4 Savings (`after`) · 5 Other pension rights (PGB,
+`buildPgbSection` renders into step 5's body, so it only exists while that step is open — `recalc` already
+guards on `#pgb-section`).
+- One step open at a time (`_acsOpen`, `acsOpen`/`acsNext`); closed steps show `acsSumText(n)` (count ·
+  value · contribution), refreshed IN PLACE by `updateAccountSubtotals` so typing never costs a re-render.
+- A card (`acsCard`) shows at most three fields: savings get an ISK/KF-vs-bank chip (the yield tax is the
+  only thing separating them, `acsSavKind`/`acsApplySavKind`), then opening, then saving per month
+  (`acsSetMonthly`, stored ×12 in `a.contrib`). The read-only rule blocks are the SAME renderers as before
+  (`renderPInsContrib`, `renderOccDbCell`, `renderBenefitCell`), reflowed from `<td>` to `<div class="acs-cell">`.
+  Everything else — contribution window, equity share, Mgmt %, Yield Tax %, Fixed Ret %, and the account's
+  NAME (labelled, with help and an example) — sits in a per-card `<details>`. `occLockedCells`' six dash
+  cells became `acsLockedNote(a)`, one line with the same two numbers.
+- Which cards have Details open lives in `window._acsDetails`, a **WeakSet keyed by the account object**:
+  an index would point at the wrong card after `removeAccount` splices, and a WeakSet never reaches
+  `JSON.stringify(accounts)`.
+- Adding an account (`acsAddPanel`/`acsAddGo`): radio cards for what it is (`STATE_KINDS`, `OCC_SCHEME_ORDER`,
+  ISK vs bank) with a line each on who it is for, then a **pre-filled, labelled Name field** with an example —
+  the old table's unlabelled name box was the thing people could not work out. `addAccount` / `addOccScheme` /
+  `addStateAccount` keep their signatures; `acsAddGo` identity-diffs `accounts` before/after, because
+  `addOccScheme` adds TWO rows and all three splice after the last row of the same type. An untouched name
+  keeps its `nameKey` and follows the language switch.
+- Every input keeps `data-ai`/`data-field` + `updateAccountField`, and is `onchange`, never `oninput` — the
+  panel is rebuilt with `innerHTML`. i18n namespace `acs.*` (EN + SV); `_SAVE_SKIP` carries `/^acs-/`.
+  `GUIDE_STEPS`' Assets step highlights `#acs-step-1/2/4/5` and `guideShow` sets `_acsOpen = 0`.
+
+### ISK / kapitalförsäkring tax-free allowance (fribelopp) — Retirement_Planner.html
+
+`ISK_FRI` = 300 000 kr (constants block, shared with the Income tab). Schablonskatt is charged only on the
+part of the COMBINED balance of after-tax accounts **with `yt > 0`** above it — a bank account neither pays
+the tax nor consumes the allowance. Implemented in `runProjection`'s after-tax pre-pass as a per-year factor
+`_iskF = max(0, base − ISK_FRI) / base`, applied to each account's rate into `atYtEff[i]` and read at five
+places: `netRet2`, the `monthlyFV` of this year's deposits, the `yieldTaxK` accumulator and the two
+`accDetail` sites (the ordinary one and the deferred `need` settlement). A factor on the RATE, not a sum of
+kronor, because the tax sits inside each account's own net return and the factor stays right if one account
+is given a different `yt`. The base uses the unscaled rate (the dependence of this year's deposits on the
+rate the base sets is third-order). Nothing is rounded — Skatteverket floors the schablonintäkt and the
+Income tab does too, but the projection floors nothing anywhere. Held flat in today's money, like every
+other threshold in this constant-prices model. Saves carry `iskFriV: 1`; an older save gets a one-off toast
+(`toast.iskfri`) because the numbers move. Monte Carlo has its own engine and is unaffected.
+Planner-specific (Typfallsmodellen does not model private saving at all) — named in the About tab as
+`about.own.8`. Verify every December: `ISK_FRI`, and `SLR_DEFAULT` below.
+
+### Fee and yield-tax assumptions — Retirement_Planner.html
+
+Both Swedish yield taxes are built on the statslåneränta. `SLR_DEFAULT` = 2,5 % (Typfallsmodellen's own
+forward assumption, the `Case Else` in `avkskatt` and the fallback inside `occTax`), editable as `#slr` on the
+Parameters tab, and the two rate fields below it are **read-only displays** derived from it:
+`ytKDefault()` = (SLR + 1 pp) × 30 % = 1,05 % (ISK/KF) and `ytPDefault()` = SLR × 15 % = 0,375 % (pension
+insurance), both written by `refreshYieldTaxes()` from `recalc`. New accounts take their `yt` from these;
+the engine still reads each account's own `a.yt`, which Details can override. `#ytP`/`#ytK` are in
+`_SAVE_SKIP` so a restored plan recomputes them from the saved SLR. The old `params.ytP` / `params.ytK`
+were collected and read by nothing and are gone. `occTax` is a workbook formula and is NOT driven by `#slr`.
+Note the deliberate difference: the Income tab uses the ACTUAL 2026 schablonränta (`ISK_SCHABLON` = 3,55 %,
+SLR 2,55 % + 1 pp → 1,065 %), the projection the 2,5 % long-run assumption → 1,05 %.
+
 ### Withdrawals tab (step-by-step plan) — Retirement_Planner.html
 
 The tab is a guided plan: five numbered steps in an accordion (`wdpRender`, one open at a time, `_wdpOpen`; closed steps show a one-line summary;
@@ -433,7 +515,7 @@ payout time for all pots. Nothing in the tab is saved with the plan.
   the 6d13a3c label fix, periods = the spending phases. CSV / Excel of both tables.
 - Insights (`wsInsights`: payout, first year taxed harder, ISK tax, state tax from the what-if, savings early), tax rules (`wsTaxPicture`,
   `WS_TAX_YEARS`) and the checklist (`wsChecklist`, `WS_JAMKNING`) follow strategy.ts. Not ported: housing supplement (bostadstillägg, not modelled) and
-  its insight / checklist step; the ISK insight uses the planner's flat yield tax. Verify every December: `WS_TAX_YEARS` (skattefri årsinkomst, ROT/RUT
+  its insight / checklist step; the ISK insight uses the planner's yield tax, now net of the 300 000 kr fribelopp. Verify every December: `WS_TAX_YEARS` (skattefri årsinkomst, ROT/RUT
   maxima) and `WS_JAMKNING`. When the Typfallsmodellen app changes these tabs' rules or texts, port the change by hand.
 
 ## Source of truth for formulas
