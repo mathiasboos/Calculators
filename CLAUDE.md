@@ -423,6 +423,20 @@ guards on `#pgb-section`).
 - Every input keeps `data-ai`/`data-field` + `updateAccountField`, and is `onchange`, never `oninput` — the
   panel is rebuilt with `innerHTML`. i18n namespace `acs.*` (EN + SV); `_SAVE_SKIP` carries `/^acs-/`.
   `GUIDE_STEPS`' Assets step highlights `#acs-step-1/2/4/5` and `guideShow` sets `_acsOpen = 0`.
+- Under the steps, `acsSummaryTable()` (`#acs-table`) is the read-only at-a-glance view the old table
+  used to give: item · value today · in per year, grouped by the five steps and totalled, PGB included
+  (`pgbResultHtml(ctx, i).tot` as the value, a dash for the contribution). Value today, NOT a projection,
+  so it agrees with the totals strip and the pies; it follows the Before/After tax toggle via
+  `acsDispOpening` and renames its header. Built from `buildAccountsTable()` AND from
+  `updateAccountSubtotals()` (it holds no inputs, so rebuilding it cannot steal focus). Empty plan →
+  renders nothing. Keys `acs.tbl.*`.
+- Guided walkthrough: `guide.b2` must describe these five steps — it is the one place outside the tab
+  that explains it, and it was left describing the old After-tax / P-Insurance / State / PGB groups for
+  one release. The panel is draggable by its `.g-grip` (step + title); the position lives in `_guidePos`
+  and is re-applied by `guideRender` because the panel is rebuilt with `innerHTML` on every step, is
+  clamped to the viewport on move and on resize, and resets on close. Dragging is armed only above
+  767 px. The minimise button (`guideToggleMin`, `.g-collapsed`) works at every width — its rules used
+  to sit inside the mobile media query, so on desktop the button was `display:none`.
 
 ### ISK / kapitalförsäkring tax-free allowance (fribelopp) — Retirement_Planner.html
 
