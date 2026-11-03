@@ -1853,6 +1853,7 @@ input[type="number"]::-webkit-outer-spin-button {
         <li data-i18n="about.own.5">Scenarios and Monte Carlo simulation</li>
         <li data-i18n="about.own.6">Income tab (net salary according to Skatteverket's rules)</li>
         <li data-i18n="about.own.7">Plan presets, guided walkthrough, Work after retirement and the Swedish / English interface</li>
+        <li data-i18n="about.own.8">Taxation of private saving: ISK / endowment schablonskatt with the 300 000 kr tax-free allowance shared across your accounts, and the 1 % default fund fee on private accounts. Typfallsmodellen does not model private saving at all.</li>
       </ul>
     </div>
   </div>
@@ -1906,6 +1907,7 @@ en:{
   'about.own.5':'Scenarios and Monte Carlo simulation',
   'about.own.6':'Income tab (net salary according to Skatteverket\'s rules)',
   'about.own.7':'Plan presets, guided walkthrough, Work after retirement and the Swedish / English interface',
+  'about.own.8':'Taxation of private saving: ISK / endowment schablonskatt with the 300 000 kr tax-free allowance shared across your accounts, and the 1 % default fund fee on private accounts. Typfallsmodellen does not model private saving at all.',
   'about.disc':'The planner gives forecasts, not advice. The results can differ from Typfallsmodellen and from the forecast on minpension.se, for example because the premium pension follows the account\'s own funds and fees, and because some rules are not modelled.',
   'hdr.subtitle':'Constant prices · Swedish tax rules · All amounts in SEK',
   'hdr.sub.const':'Constant Prices','hdr.sub.infl':'Inflation {pct}%','hdr.sub.rest':'Swedish Tax Rules',
@@ -2125,7 +2127,7 @@ en:{
   'acs.eq.default':'Default fund (AP7 Såfa)','acs.eq.own':'Own age brackets',
   'acs.open.auto':'Calculated from your salary history. Type a balance to use your own, or 0 to calculate it again.',
   'acs.cs.help':'Contributions count from this age. An account you add yourself starts now — the planner never projects backwards.',
-  'acs.yt.help':'ISK and kapitalförsäkring: (statslåneräntan + 1 percentage point) × 30 %. Change the assumption on the Parameters tab.',
+  'acs.yt.help':'ISK and kapitalförsäkring: (statslåneräntan + 1 percentage point) × 30 %, charged only on what your ISK and endowment accounts hold above the 300 000 kr tax-free allowance together. Change the assumption on the Parameters tab.',
   'acs.eq.link':'Change the age brackets →',
   'acs.locked':'Return, fees and yield tax follow Typfallsmodellen: return {ret} %, yield tax {yt} %.',
   'acs.sav.isk':'ISK or kapitalförsäkring','acs.sav.isk.d':'Pays schablonskatt on the whole balance every year, whether it rises or falls.',
@@ -2140,6 +2142,7 @@ en:{
   'acs.state.d.tillagg':'Only for people born 1938–1953.',
   'acs.state.d.annat':'Any other pension you want to add by hand.',
   'acs.tot.open':'today','acs.tot.contrib':'in per year',
+  'toast.iskfri':'Your savings now get the 300 000 kr tax-free allowance on ISK and kapitalförsäkring, so the yield tax is lower than in the saved plan.',
   'par.slr':'Statslåneränta (SLR), assumption (%)',
   'par.ytP.tip':'(SLR + 1 percentage point) × 30 %. Derived from the SLR above; a single account can still be given its own rate under Details on the Assets tab.',
   'par.ytP.tip2':'SLR × 15 %. Derived from the SLR above; a single account can still be given its own rate under Details on the Assets tab.',
@@ -2691,6 +2694,7 @@ sv:{
   'about.own.5':'Scenarier och Monte Carlo-simulering',
   'about.own.6':'Fliken Inkomst (nettolön enligt Skatteverkets regler)',
   'about.own.7':'Planförval, guidad genomgång, Arbete efter pension och svenskt / engelskt gränssnitt',
+  'about.own.8':'Beskattning av privat sparande: schablonskatt på ISK / kapitalförsäkring med fribeloppet 300 000 kr delat mellan dina konton, och 1 % i standardavgift på privata konton. Typfallsmodellen modellerar inte privat sparande alls.',
   'about.disc':'Planeraren ger prognoser, inte rådgivning. Resultaten kan skilja sig från Typfallsmodellen och från prognosen på minpension.se, till exempel eftersom premiepensionen följer kontots egna fonder och avgifter och eftersom vissa regler inte är modellerade.',
   'hdr.subtitle':'Fasta priser · Svenska skatteregler · Alla belopp i SEK',
   'hdr.sub.const':'Fasta priser','hdr.sub.infl':'Inflation {pct}%','hdr.sub.rest':'Svenska skatteregler',
@@ -2910,7 +2914,7 @@ sv:{
   'acs.eq.default':'Förvalet (AP7 Såfa)','acs.eq.own':'Egna åldersintervall',
   'acs.open.auto':'Framräknat från din lönehistorik. Skriv in ett eget saldo, eller 0 för att räkna om det.',
   'acs.cs.help':'Insättningar räknas från den här åldern. Ett konto du lägger till själv börjar nu — planeraren räknar aldrig bakåt.',
-  'acs.yt.help':'ISK och kapitalförsäkring: (statslåneräntan + 1 procentenhet) × 30 %. Ändra antagandet på Parametrar-fliken.',
+  'acs.yt.help':'ISK och kapitalförsäkring: (statslåneräntan + 1 procentenhet) × 30 %, bara på det dina ISK- och kapitalförsäkringskonton tillsammans har över fribeloppet 300 000 kr. Ändra antagandet på Parametrar-fliken.',
   'acs.eq.link':'Ändra åldersintervallen →',
   'acs.locked':'Avkastning, avgifter och avkastningsskatt följer Typfallsmodellen: avkastning {ret} %, avkastningsskatt {yt} %.',
   'acs.sav.isk':'ISK eller kapitalförsäkring','acs.sav.isk.d':'Betalar schablonskatt på hela saldot varje år, oavsett om det går upp eller ner.',
@@ -2925,6 +2929,7 @@ sv:{
   'acs.state.d.tillagg':'Bara för dig som är född 1938–1953.',
   'acs.state.d.annat':'Någon annan pension som du vill lägga in själv.',
   'acs.tot.open':'i dag','acs.tot.contrib':'in per år',
+  'toast.iskfri':'Ditt sparande får nu fribeloppet 300 000 kr på ISK och kapitalförsäkring, så avkastningsskatten blir lägre än i den sparade planen.',
   'par.slr':'Statslåneränta (SLR), antagande (%)',
   'par.ytP.tip':'(SLR + 1 procentenhet) × 30 %. Räknas fram från SLR ovan; ett enskilt konto kan ändå få en egen sats under Detaljer på Tillgångar-fliken.',
   'par.ytP.tip2':'SLR × 15 %. Räknas fram från SLR ovan; ett enskilt konto kan ändå få en egen sats under Detaljer på Tillgångar-fliken.',
@@ -6466,6 +6471,7 @@ function wdpApplyEven(){
 }
 var _wdpOpen = 1;         // the open step of the Withdrawals tab (1–5)
 var _wdpMigrated = false;  // an older plan's expense intervals were turned into spending phases (toast once)
+var _iskFriNew = false;    // an older plan now gets the ISK/KF tax-free allowance (toast once)
 // Restore (applyPlanState, after expenses and accounts). Plans saved before the redesign (no wdPlanV) carry
 // "Age-based expense intervals" (expAgeIntervals + the #exp-iv-master tick box): with the tick box on, their
 // boundaries and levels (amount ÷ budget) become spending phases and the savings cover the gap; with it off the
@@ -6597,22 +6603,44 @@ function runProjection(){
     // in the depletion year rather than leaving Cash stranded.
     const atAvail = new Array(accounts.length).fill(0);
     const prePassContrib = new Array(accounts.length).fill(0);
+    // ── ISK / kapitalforsakring tax-free allowance (fribelopp) ──────────────────────────────────
+    // Schablonskatt is charged only on the part of the person's COMBINED ISK + kapitalforsakring
+    // capital above ISK_FRI (per person, shared across the accounts). A bank account (yt 0) neither
+    // pays the tax nor uses up the allowance. Applied as a factor on the rate rather than a sum of
+    // kronor, because the tax has to sit inside each account's own net return - and a factor stays
+    // correct if one account is given a different yt. Developed for the planner: Typfallsmodellen
+    // does not model private savings at all. Held flat in today's money, like every other threshold
+    // in this constant-prices model.
+    const atYtEff = new Array(accounts.length).fill(0);
+    let _iskBase = 0;
+    for (let i = 0; i < accounts.length; i++) {
+      const a = accounts[i];
+      if (a.taxable || !((a.yt||0) > 0)) continue;
+      const _inC = yr>=a.cs && yr<=a.ce && (yr<params.retirementYear || a.ce>params.retirementYear);
+      // the base is computed with the UNSCALED rate: the dependence of this year's deposits on the
+      // rate that the base itself sets is third-order, and iterating to a fixed point is not worth it
+      const _c = _inC ? monthlyFV((a.contrib||0), calcReturn(a, age, params), a.yt||0, a.mgmt||0) : 0;
+      _iskBase += balances[i] + _c;
+    }
+    const _iskF = _iskBase > 0 ? Math.max(0, _iskBase - ISK_FRI) / _iskBase : 1;
     let atTotalAvail = 0, atTotalSched = 0, contribAfterTax = 0, contribPreTax = 0, returnAfterTax = 0, returnPreTax = 0;
     for (let i = 0; i < accounts.length; i++) {
       const a = accounts[i];
       if (!a.taxable) {
+        const ytEff = (a.yt||0) > 0 ? (a.yt||0) * _iskF : 0;
+        atYtEff[i] = ytEff;
         const _inC2  = yr>=a.cs && yr<=a.ce && (yr<params.retirementYear || a.ce>params.retirementYear);
         const _annC2 = _inC2 ? (a.contrib||0) : 0;
         const _r2 = calcReturn(a, age, params);
         const ret2 = geoRet(_r2);
-        const netRet2 = ret2 - proRate(a.yt||0) - proRate(a.mgmt||0);
-        const contrib2 = _inC2 ? monthlyFV(_annC2, _r2, a.yt||0, a.mgmt||0) : 0;
+        const netRet2 = ret2 - proRate(ytEff) - proRate(a.mgmt||0);
+        const contrib2 = _inC2 ? monthlyFV(_annC2, _r2, ytEff, a.mgmt||0) : 0;
         prePassContrib[i] = contrib2;
         // First year: balance earns geoRet; contributions use annuity FV (already includes their return)
         const atBase2 = yr===START_YEAR ? balances[i]*(1+netRet2) + contrib2 : (balances[i]+contrib2)*(1+netRet2);
         atAvail[i] = Math.max(0, atBase2);
         returnAfterTax += (balances[i] + contrib2) * ret2;  // gross return
-        yieldTaxK    += (balances[i] + contrib2) * (a.yt||0);
+        yieldTaxK    += (balances[i] + contrib2) * ytEff;
         mgmtFeeAT    += (balances[i] + contrib2) * (a.mgmt||0);
         mgmtFeeTotal += (balances[i] + contrib2) * (a.mgmt||0);
         atTotalAvail += atAvail[i];
@@ -6887,8 +6915,8 @@ function runProjection(){
       } else {
         // After-tax: derive from pre-pass values
         var _atGross = atAvail[i] - (opening + prePassContrib[i]);
-        _grossRetSek = _atGross + proRate(a.yt||0)*(opening+_ac) + proRate(a.mgmt||0)*(opening+_ac);
-        _yt = proRate(a.yt||0)   * (opening + _ac);
+        _grossRetSek = _atGross + proRate(atYtEff[i])*(opening+_ac) + proRate(a.mgmt||0)*(opening+_ac);
+        _yt = proRate(atYtEff[i])   * (opening + _ac);
         _mf = proRate(a.mgmt||0) * (opening + _ac);
       }
       row.accDetail.push({ open:opening, contrib:_ac, wdrl:actualWd||0, grossRet:_grossRetSek, yieldTax:_yt, mgmtFee:_mf, close:closing });
@@ -6956,8 +6984,8 @@ function runProjection(){
         balances[i] = closing;
         row.accClosing[i] = closing;
         row.accDetail[i] = { open:opening, contrib:c, wdrl:_nd[i],
-          grossRet: atAvail[i] - (opening + c) + proRate(a.yt||0)*(opening + c) + proRate(a.mgmt||0)*(opening + c),
-          yieldTax: proRate(a.yt||0)*(opening + c), mgmtFee: proRate(a.mgmt||0)*(opening + c), close:closing };
+          grossRet: atAvail[i] - (opening + c) + proRate(atYtEff[i])*(opening + c) + proRate(a.mgmt||0)*(opening + c),
+          yieldTax: proRate(atYtEff[i])*(opening + c), mgmtFee: proRate(a.mgmt||0)*(opening + c), close:closing };
         const eq = calcEquityShare(a, age);
         totalEq += closing * eq; totalBd += closing * (1-eq); totalPort += closing;
       }
@@ -12602,6 +12630,7 @@ function collectPlanState(){
     version: 3,
     assumptionsV: 2,   // saved with the Typfallsmodellen default assumptions (1,9 % returns)
     ceRulesV: 1,       // saved with Contrib End following the retirement age (ceAuto) and CE_MAX
+    iskFriV: 1,        // saved with the ISK/KF tax-free allowance applied in the projection
     mgmtV: 1,          // saved with the 1 % default fee on private accounts
     eqRulesV: 1,       // saved with the default fund (AP7 Safa) as the equity default
     ppFeeV: 1,         // saved with the 0,20 % premium pension default fee
@@ -12690,6 +12719,9 @@ function applyPlanState(state){
          (a.ce === Math.round(getParam('retirementYear')) || a.ce === ceMaxYear(a))) a.ceAuto = true;
       accounts.push(a);
     });
+    // An older save was made when schablonskatt was charged on the whole ISK / endowment balance.
+    // Nothing to lift - the engine simply charges less now - but say so once, because the numbers move.
+    if(!(state.iskFriV >= 1) && accounts.some(function(a){ return a.type === 'after' && (a.yt || 0) > 0; })) _iskFriNew = true;
     wdSyncStart(); ceSyncEnd();
     buildAccountsTable();
   }
@@ -12709,6 +12741,7 @@ function applyPlanState(state){
   // 5. Recalc everything
   if(typeof recalc === 'function') recalc();
   if(_wdpMigrated){ _wdpMigrated = false; setTimeout(function(){ showPlanToast(t('wdp.migrated')); }, 1200); }
+  if(_iskFriNew){ _iskFriNew = false; setTimeout(function(){ showPlanToast(t('toast.iskfri')); }, 2000); }
 
   return true;
 }
