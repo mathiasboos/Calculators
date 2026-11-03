@@ -1599,24 +1599,6 @@ input[type="number"]::-webkit-outer-spin-button {
   </div>
   <div id="asset-summary-wrap" style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:20px;padding:18px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);flex-wrap:wrap;row-gap:16px"></div>
 
-  <!-- Age bracket controls -->
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;
-              background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px">
-    <span style="color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:10px" data-i18n="acc.eq.brackets">Equity % Age Brackets</span>
-    <span style="color:var(--muted)" data-i18n="acc.bracket1">Bracket 1:</span>
-    <input id="ageFrom1" type="text" inputmode="numeric" value="65"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted)">&#8211;</span>
-    <input id="ageTo1" type="text" inputmode="numeric" value="75"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted);margin-left:8px"><span data-i18n="acc.bracket2">Bracket 2:</span> <span id="ageFrom2-lbl" style="color:var(--gold);font-family:var(--font-m)">64</span> &#8211;</span>
-    <input id="ageTo2" type="text" inputmode="numeric" value="85"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted);margin-left:8px"><span data-i18n="acc.bracket3">Bracket 3:</span> <span id="ageFrom3-lbl" style="color:var(--gold);font-family:var(--font-m)">74</span>+</span>
-  </div>
 
   <div style="overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)">
     <table class="acc-table">
@@ -1661,6 +1643,20 @@ input[type="number"]::-webkit-outer-spin-button {
     <div class="input-row" data-i18n-title="par.ret.tip" title="The forecasting standard assumes a return of 1.7 percent. To relate the projected pension value to future income, the return is expressed as an &quot;excess return&quot;—that is, the extent to which the return on capital exceeds general wage growth. The planner deducts each account&#39;s own fee; 1.7 % after an average 0.2 % fee = 1.9 % before fees." style="cursor:help"><div class="input-label" data-i18n="par.eqRet">Real Return &#8212; Equities (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="eqReturn" value="1,9" step="0.1" onchange="recalc()"></div>
     <div class="input-row" data-i18n-title="par.ret.tip" title="The forecasting standard assumes a return of 1.7 percent. To relate the projected pension value to future income, the return is expressed as an &quot;excess return&quot;—that is, the extent to which the return on capital exceeds general wage growth. The planner deducts each account&#39;s own fee; 1.7 % after an average 0.2 % fee = 1.9 % before fees." style="cursor:help"><div class="input-label" data-i18n="par.bdRet">Real Return &#8212; Bonds (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="bdReturn" value="1,9" step="0.1" onchange="recalc()"></div>
     <div class="input-row"><div class="input-label" data-i18n="par.infl">Inflation (%)</div><input class="inp inp-sm" type="text" inputmode="decimal" id="inflation" value="0,0" step="0.1" onchange="recalc()"></div>
+    <!-- Equity % age brackets: the ONE place they are set. Only accounts with "Own age brackets"
+         ticked use them; everything else follows the default fund (AP7 Safa) glidepath. -->
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase" data-i18n="acc.eq.brackets">Equity % Age Brackets</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px">
+        <span style="color:var(--muted)" data-i18n="acc.bracket1">Bracket 1:</span>
+        <input id="ageFrom1" type="text" inputmode="numeric" value="55" style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px" onchange="recalc();refreshEqHeaders()">
+        <span style="color:var(--muted)">&#8211;</span>
+        <input id="ageTo1" type="text" inputmode="numeric" value="63" style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px" onchange="recalc();refreshEqHeaders()">
+        <span style="color:var(--muted)"><span data-i18n="acc.bracket2">Bracket 2:</span> <span id="ageFrom2-lbl" style="color:var(--gold);font-family:var(--font-m)">64</span> &#8211;</span>
+        <input id="ageTo2" type="text" inputmode="numeric" value="73" style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px" onchange="recalc();refreshEqHeaders()">
+        <span style="color:var(--muted)"><span data-i18n="acc.bracket3">Bracket 3:</span> <span id="ageFrom3-lbl" style="color:var(--gold);font-family:var(--font-m)">74</span>+</span>
+      </div>
+    </div>
     <div style="margin-top:10px;text-align:right">
       <button onclick="resetAssumptions(true)" data-i18n="par.reset" data-i18n-title="par.reset.tip"
         title="Equities 1,9 % · Bonds 1,9 % · Inflation 0 % · Occupational schemes 1,7 % · Salary increase 0 %"
@@ -1742,28 +1738,6 @@ input[type="number"]::-webkit-outer-spin-button {
     </div>
   </div>
   <div class="section-sub"><span data-i18n="proj.sub.from">Full model output from</span> <span id="proj-startyr">2026</span> <span data-i18n="proj.sub.to">to</span> <span id="proj-endyr">2070</span></div>
-  <!-- Age bracket controls -->
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px;
-              background:var(--s2);border:1px solid var(--border);border-radius:8px;
-              padding:8px 16px;font-size:12px">
-    <span style="color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:10px" data-i18n="acc.eq.brackets">Equity % Age Brackets</span>
-    <span style="color:var(--muted)" data-i18n="acc.bracket1">Bracket 1:</span>
-    <input id="ageFrom1" type="text" inputmode="numeric" value="55"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;
-             color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted)">–</span>
-    <input id="ageTo1" type="text" inputmode="numeric" value="63"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;
-             color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted);margin-left:8px"><span data-i18n="acc.bracket2">Bracket 2:</span> <span id="ageFrom2-lbl" style="color:var(--gold);font-family:var(--font-m)">64</span> –</span>
-    <input id="ageTo2" type="text" inputmode="numeric" value="73"
-      style="width:40px;background:var(--s3);border:1px solid var(--border);border-radius:4px;
-             color:var(--gold);font-family:var(--font-m);font-size:12px;text-align:center;padding:3px 5px"
-      onchange="recalc();refreshEqHeaders()">
-    <span style="color:var(--muted);margin-left:8px"><span data-i18n="acc.bracket3">Bracket 3:</span> <span id="ageFrom3-lbl" style="color:var(--gold);font-family:var(--font-m)">74</span>+</span>
-  </div>
   <div class="yr-table-wrap">
 
   <table class="yr-table">
