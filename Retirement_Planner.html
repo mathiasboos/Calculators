@@ -387,6 +387,16 @@ header{
 .acs-tot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#3a5575}
 .acs-tot input{width:110px;text-align:right;font-family:var(--font-m);font-size:13px;font-weight:700;color:#48B866;background:rgba(72,184,102,.1);border:1px solid rgba(72,184,102,.35);border-radius:4px;padding:4px 6px;pointer-events:none}
 .acs-tot small{font-size:9px;font-weight:600;color:var(--muted);margin-left:6px;text-transform:none;letter-spacing:0}
+.acs-tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r)}
+.acs-tbl{width:100%;border-collapse:collapse;font-size:13px;background:var(--s1)}
+.acs-tbl th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+.acs-tbl td{padding:7px 12px;border-bottom:1px solid var(--s2);color:var(--text)}
+.acs-tbl .n{text-align:right;font-family:var(--font-m);white-space:nowrap}
+.acs-tbl tr:last-child td{border-bottom:none}
+.acs-tbl .acs-grp td{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#3a5575;background:var(--s2);padding:6px 12px}
+.acs-tbl .acs-sum-row td{font-weight:700;border-top:2px solid rgba(72,184,102,.5);background:rgba(72,184,102,.06)}
+.acs-tbl .acs-dash{color:var(--muted)}
+#acs-table{margin-top:22px}
 @media (max-width:767px){
   .acs-money,.acs-name{width:100%}
   .acs-ctl{width:100%}
@@ -1639,6 +1649,9 @@ input[type="number"]::-webkit-outer-spin-button {
 
   <!-- The five steps (acsRender, entry point buildAccountsTable) -->
   <div id="acs-steps"></div>
+
+  <!-- Read-only summary of everything above (acsSummaryTable) -->
+  <div id="acs-table"></div>
 </div>
 
 
@@ -2145,6 +2158,7 @@ en:{
   'acs.state.d.tillagg':'Only for people born 1938–1953.',
   'acs.state.d.annat':'Any other pension you want to add by hand.',
   'acs.tot.open':'today','acs.tot.contrib':'in per year',
+  'acs.tbl.t':'Everything in this plan','acs.tbl.item':'Item','acs.tbl.contrib':'In per year','acs.tbl.total':'Total',
   'toast.iskfri':'Your savings now get the 300 000 kr tax-free allowance on ISK and kapitalförsäkring, so the yield tax is lower than in the saved plan.',
   'par.slr':'Statslåneränta (SLR), assumption (%)',
   'par.ytP.tip':'(SLR + 1 percentage point) × 30 %. Derived from the SLR above; a single account can still be given its own rate under Details on the Assets tab.',
@@ -2932,6 +2946,7 @@ sv:{
   'acs.state.d.tillagg':'Bara för dig som är född 1938–1953.',
   'acs.state.d.annat':'Någon annan pension som du vill lägga in själv.',
   'acs.tot.open':'i dag','acs.tot.contrib':'in per år',
+  'acs.tbl.t':'Allt i den här planen','acs.tbl.item':'Post','acs.tbl.contrib':'In per år','acs.tbl.total':'Totalt',
   'toast.iskfri':'Ditt sparande får nu fribeloppet 300 000 kr på ISK och kapitalförsäkring, så avkastningsskatten blir lägre än i den sparade planen.',
   'par.slr':'Statslåneränta (SLR), antagande (%)',
   'par.ytP.tip':'(SLR + 1 procentenhet) × 30 %. Räknas fram från SLR ovan; ett enskilt konto kan ändå få en egen sats under Detaljer på Tillgångar-fliken.',
@@ -6330,6 +6345,52 @@ function acsSumText(step){
   var cont = items.reduce(function(s, x){ return s + effectiveContrib(x.a); }, 0);
   return t('acs.sum', {n: items.length, amt: wdpN(open), contrib: wdpN(cont)});
 }
+// ── Read-only summary of everything entered above ────────────────────────────────────────────────
+// The five steps are good for filling in and poor for reading back, so this is the at-a-glance view
+// the old table used to give. No inputs, so it can be rebuilt from updateAccountSubtotals on every
+// recalc without ever taking a focused field with it.
+function acsSummaryTable(){
+  var el = document.getElementById('acs-table');
+  if(!el) return;
+  var rows = '', grandVal = 0, grandCon = 0, n = 0;
+  var dash = '<span class="acs-dash">\u2014</span>';
+  var money = function(v){ return v > 0 ? wdpN(v) : dash; };
+  for(var step = 1; step <= 4; step++){
+    var items = acsItems(step);
+    if(!items.length) continue;
+    rows += '<tr class="acs-grp"><td colspan="3">' + t('acs.s' + step + '.t') + '</td></tr>';
+    items.forEach(function(x){
+      var val = acsDispOpening(x.a), con = effectiveContrib(x.a);
+      grandVal += val; grandCon += con; n++;
+      rows += '<tr><td>' + wdpEsc(accDisplayName(x.a)) + '</td>'
+        + '<td class="n">' + money(val) + '</td>'
+        + '<td class="n">' + money(con) + '</td></tr>';
+    });
+  }
+  if(pgbItems.length){
+    // PGB is a pension right, not a balance and not a contribution: value only.
+    var ctx = pgbCtx(), kindN = {};
+    rows += '<tr class="acs-grp"><td colspan="3">' + t('acs.s5.t') + '</td></tr>';
+    pgbItems.forEach(function(it, i){
+      kindN[it.kind] = (kindN[it.kind] || 0) + 1;
+      var many = pgbItems.filter(function(o){ return o.kind === it.kind; }).length > 1;
+      var val = Math.round(pgbResultHtml(ctx, i).tot || 0);
+      grandVal += val; n++;
+      rows += '<tr><td>' + t('pgb.opt.' + it.kind) + (many ? ' ' + kindN[it.kind] : '') + '</td>'
+        + '<td class="n">' + money(val) + '</td><td class="n">' + dash + '</td></tr>';
+    });
+  }
+  if(!n){ el.innerHTML = ''; return; }   // empty plan: no headings over nothing
+  el.innerHTML = '<div class="card-header">' + t('acs.tbl.t') + '</div>'
+    + '<div class="acs-tbl-wrap"><table class="acs-tbl"><thead><tr>'
+    + '<th>' + t('acs.tbl.item') + '</th>'
+    + '<th class="n">' + t(acsAtMode() ? 'acc.opening.after.tax' : 'acc.col.opening') + '</th>'
+    + '<th class="n">' + t('acs.tbl.contrib') + '</th></tr></thead><tbody>' + rows
+    + '<tr class="acs-sum-row"><td>' + t('acs.tbl.total') + '</td>'
+    + '<td class="n">' + wdpN(grandVal) + '</td><td class="n">' + wdpN(grandCon) + '</td></tr>'
+    + '</tbody></table></div>';
+}
+
 function acsStepBody(step){
   if(step === 5){
     return '<div class="wdp-help">' + t('acs.s5.help') + '</div>'
@@ -6373,6 +6434,7 @@ function buildAccountsTable(){
   }
   el.innerHTML = h;
   if(_acsOpen === 5) buildPgbSection();
+  acsSummaryTable();
   setTimeout(updateAccountSubtotals, 0);
   setTimeout(buildAssetSummary, 0);
 }
@@ -7953,6 +8015,7 @@ function updateAccountSubtotals(){
   // never costs a re-render (which would take the focused input with it)
   if(typeof acsSumText === 'function'){
     for(var n = 1; n <= 5; n++) sv('acs-sum-' + n, acsSumText(n));
+    acsSummaryTable();
   }
 }
 
