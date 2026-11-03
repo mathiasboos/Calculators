@@ -2471,7 +2471,6 @@ en:{
   'tip.goalFulfil':'Calculation: After-tax retirement income ÷ Annual expenses\n\n🟢 ≥ 100% — Income fully covers expenses\n🟡 < 100% — Income falls short; gap must be bridged by portfolio drawdown','tip.repRate':'Calculation (Typfallsmodellen "kompensationsgrad"): total pension before tax in the first retirement year (state + P-insurance) ÷ final salary before tax (average of the last 5 working years) × 100.\n\nReplacement Rate: green at 70 % or more, yellow from 50 to 70 %, red below 50 %.',
   'summary.at.ret':'At retirement · ',
   'tile.phasePension':'Monthly Pension · Age {from}–{to}',
-  'tile.phase.vs':'Expenses {exp} kr/mth · after tax {net} kr/mth',
   'tile.phase.gogo':'Go-go years',
   'tile.phase.slowgo':'Slow-go years',
   'tile.phase.nogo':'No-go years',
@@ -3209,7 +3208,6 @@ sv:{
   'tip.goalFulfil':'Beräkning: Nettoinkomst efter skatt vid pension ÷ Årsutgifter\n\n🟢 ≥ 100% — Inkomsten täcker alla utgifter\n🟡 < 100% — Inkomsten täcker inte utgifterna; glapp måste täckas av portföljuttag','tip.repRate':'Beräkning (Typfallsmodellens kompensationsgrad): total pension före skatt första pensionsåret (allmän pension + P-försäkring) ÷ slutlön före skatt (snitt av de 5 sista arbetsåren) × 100.\n\nKompensationsgrad: grön vid 70 % eller mer, gul från 50 till 70 %, röd under 50 %.',
   'summary.at.ret':'Vid pension · ',
   'tile.phasePension':'Månadspension · Ålder {from}–{to}',
-  'tile.phase.vs':'Utgifter {exp} kr/mån · efter skatt {net} kr/mån',
   'tile.phase.gogo':'Aktiva år (go-go)',
   'tile.phase.slowgo':'Lugnare år (slow-go)',
   'tile.phase.nogo':'Stillsamma år (no-go)',
@@ -7533,7 +7531,11 @@ function buildPhaseTiles(data){
       // green when the after-tax pension covers the expenses of the period, red when it does not
       cls:   (has && ph.hasRows && ph.exp > 0) ? (ph.net >= ph.exp ? 'good' : 'bad') : '',
       tile:  '',
-      extra: (has && ph.hasRows && ph.exp > 0) ? '<div class="tile-sub" style="margin-top:6px">' + t('tile.phase.vs', {exp:fmt(ph.exp), net:fmt(ph.net)}) + '</div>' : '',
+      // Same two lines, in the same order and with the same wording, as the Withdrawals tab's result card
+      extra: (has && ph.hasRows && ph.exp > 0)
+        ? '<div class="tile-sub" style="margin-top:6px">' + t('wdp.res.income') + ' ' + fmt(ph.net) + ' ' + t('wdp.permonth') + '</div>'
+          + '<div class="tile-sub">' + t('wdp.res.spend') + ' ' + fmt(ph.exp) + ' ' + t('wdp.permonth') + '</div>'
+        : '',
       tip:   t('tip.phasePension')
     };
   });
