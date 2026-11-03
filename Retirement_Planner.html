@@ -9201,6 +9201,8 @@ function persRelinkAccounts(){
   var by = Math.round(getParam('birthYear')), w = workStartAge(), retY = defaultCe(), changed = false;
   accounts.forEach(function(a){
     if(!(a.cs < 9999) || a.workRow) return;
+    // An account added by the user starts at START_YEAR, which matches _csFor only by coincidence, so
+    // it stops following the Personal tab's begin-work age. That is intended: it started when it started.
     var oldCs = _csFor(a, _lastBy, _lastWorkAge), newCs = _csFor(a, by, w);
     if(a.ce === _lastRetY && a.ce !== retY){ a.ce = retY; changed = true; }
     if(a.cs === oldCs && a.cs !== newCs){ a.cs = newCs; changed = true; }
@@ -9871,7 +9873,12 @@ function addAccount(type, scheme){
   var newKey = type==='after'?'acc.name.new.after':type==='p-ins'?'acc.name.new.pins':'acc.name.new.state';
   var newA = {
     name: t(newKey), nameKey: newKey,
-    type:type, opening:0, contrib:0, cs:_csFor(null, Math.round(getParam('birthYear')), workStartAge()), ce:defaultCe(), ceAuto: type!=='after',
+    // An account you add yourself starts contributing NOW (age = START_YEAR - birth year), not at the
+    // begin-work age. That is only the right default for rows whose opening balance is built from the
+    // whole income history - the contractual schemes and the state pensions, which set their own cs in
+    // addOccScheme / addStateAccount. Numerically this is a display fix: the projection starts at
+    // START_YEAR and gates contributions on yr >= a.cs, so an earlier cs never moved any money here.
+    type:type, opening:0, contrib:0, cs:START_YEAR, ce:defaultCe(), ceAuto: type!=='after',
     wd:0, ws:9999, we: type==='state' ? 9998 : 9999,   // state pensions are lifelong
     eq1:0.6, eq2:0.4, eq3:0.3, mgmt:mgmtDefaultPrivate(), yt:ytDef,
     fixedRet:null, fixedRetPost:null,
