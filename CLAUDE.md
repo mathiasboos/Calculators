@@ -545,8 +545,9 @@ each year and premium pension follows the cohort divisor, so the public pension 
 `riktalderOf`, earliest withdrawal = riktålder − 3. Verified against Retirement_Planner (ITP1 / born 1980 / 40 000, start
 68): opening balances and payouts at 68, 69, 80 and 90 match to the krona. When the planner's engine tables change, re-copy
 the block (the extraction script is not kept; copy the same declarations by name). Manual capital mode annuitises the typed
-public capital at the cohort income-pension divisor, flat. Not changed: the occupational pension drawdown in
-`runSimulation` (balance without return after the start, as before).
+public capital at the cohort income-pension divisor, flat. The occupational balance keeps earning the 1,7 % return (minus yield tax, `pkTpStep`) while it is drawn down;
+"Jämnt fördelat" solves the yearly amount that empties it at 95. Inheritance gains (`occArvGain`) are NOT applied to the
+drawn-down balance (it is the person's own capital, not a pooled lifelong annuity); the planner applies them.
 
 ## Source of truth for formulas
 

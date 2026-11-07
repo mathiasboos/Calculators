@@ -1562,13 +1562,23 @@ function setupAmountOnly(inputId, key) {
   inp.value = fmtAmount(S[key]);
 }
 
+// Tjänstepensionssaldot under uttag: ett år av avkastning (1,7 % realt, som occStep) minus avkastningsskatt;
+// uttaget kostar uttag·y^0,5 av årets slutsaldo. Arvsvinster (occArvGain) tas inte med: saldot är den egna
+// pensionen, inte en livsvarig livränta i kollektiv
+function pkTpStep(by, tpStart, salary) {
+  const ctx = pkCtx(by, tpStart, salary);
+  return (bal, age) => {
+    const y = by + age, yv = occYieldFactor(ctx, y), pre = bal * yv * occKept(y);
+    return {avail: Math.max(0, pre - pre * occTax(y)), py: Math.sqrt(yv)};
+  };
+}
 function computeCapital(dm, age, salary, mTP, mAP, tpStart, apStart, scheme) {
   const by = START_YEAR - age;
   if (dm === 'manual') {
     const tp=+mTP||0, ap=+mAP||0;
     const dt = ipDelningstal(apStart, by, true) || 1;
     const apMo = ap / (dt * 12);
-    return {tp, ap, tpNow:tp, apNow:ap, apAt: a => a >= apStart ? apMo : 0, divisor: dt};
+    return {tp, ap, tpNow:tp, apNow:ap, apAt: a => a >= apStart ? apMo : 0, divisor: dt, tpStep: pkTpStep(by, tpStart, salary)};
   }
   const ip = pkIncomePension(by, apStart, salary), pp = pkPremiePension(by, apStart, salary);
   const oc = pkOccupational(by, tpStart, salary, scheme || 'itp1');
@@ -1578,34 +1588,46 @@ function computeCapital(dm, age, salary, mTP, mAP, tpStart, apStart, scheme) {
     tp:    Math.round(oc.cap),
     ap:    Math.round(ip.cap + pp.cap),
     apAt:  a => a >= apStart ? (ip.series[a] || 0) + (pp.series[a] || 0) : 0,
-    divisor: ip.divisor
+    divisor: ip.divisor,
+    tpStep: pkTpStep(by, tpStart, salary)
   };
 }
-function runSimulation(tpCap, apAt, tpStart, apStart, wMode, p1End, p1Amt, p2End, p2Amt, p2Life) {
+function runSimulation(tpCap, apAt, tpStart, apStart, wMode, p1End, p1Amt, p2End, p2Amt, p2Life, tpStep) {
   const MAX=95, apMo=apAt(apStart), startA=Math.min(tpStart,apStart);
+  const step = tpStep || ((b) => ({avail:b, py:1}));
+  // Jämnt fördelat: årsuttaget som gör saldot noll vid 95 år (som Typfallsmodellens tillfälliga uttag)
+  let evenYear = 0;
+  if (wMode==='even') {
+    const endBal = W => { let b=tpCap; for (let a=tpStart; a<=MAX; a++) { const g=step(b,a); b=g.avail-W*g.py; if (b<0) return b; } return b; };
+    let lo=0, hi=tpCap;
+    for (let k=0; k<50; k++) { const mid=(lo+hi)/2; if (endBal(mid)>=0) lo=mid; else hi=mid; }
+    evenYear = lo;
+  }
   let tpBal=tpCap;
   const rows=[];
   for (let a=startA; a<=MAX; a++) {
     const hasTP=a>=tpStart, hasAP=a>=apStart, apAmt=hasAP?apAt(a):0;
     let tpDraw=0;
+    const g = hasTP ? step(tpBal, a) : null;
+    const maxDraw = g ? g.avail/g.py/12 : 0;
     if (hasTP && tpBal>0) {
       if (wMode==='even') {
-        tpDraw = Math.min(tpCap/((MAX-tpStart+1)*12), tpBal/12);
+        tpDraw = Math.min(evenYear/12, maxDraw);
       } else {
         const p2e=p2Life?MAX+1:p2End;
         const inP1=a>=tpStart&&a<p1End, inP2=a>=p1End&&a<p2e;
         if (inP1||inP2) {
           const want=inP1?p1Amt:p2Amt;
-          tpDraw = Math.min(Math.max(0,want-apAmt), tpBal/12);
+          tpDraw = Math.min(Math.max(0,want-apAmt), maxDraw);
         }
       }
     }
-    tpBal = Math.max(0, tpBal-tpDraw*12);
+    if (hasTP) tpBal = Math.max(0, g.avail - tpDraw*12*g.py);
 
     // Desired monthly total for this age (for "Pengar saknas" calculation)
     let desired = apAmt; // default: only AP (P3 / Livet ut)
     if (wMode==='even' && hasTP) {
-      desired = tpCap/((MAX-tpStart+1)*12) + apAmt;
+      desired = evenYear/12 + apAmt;
     } else if (wMode==='periods') {
       const p2e=p2Life?MAX+1:p2End;
       if (a>=tpStart && a<p1End)  desired = p1Amt;
@@ -1732,7 +1754,7 @@ function doRenderChart() {
     const canvas=document.getElementById('pension-chart');
     if (!canvas) return;
     const cap=computeCapital(S.dataMode,+S.age,+S.salary,S.manualTP,S.manualAP,+S.tpStart,+S.apStart,S.scheme);
-    const sim=runSimulation(cap.tp,cap.apAt,+S.tpStart,+S.apStart,S.wMode,+S.p1End,+S.p1Amt,+S.p2End,+S.p2Amt,S.p2Life);
+    const sim=runSimulation(cap.tp,cap.apAt,+S.tpStart,+S.apStart,S.wMode,+S.p1End,+S.p1Amt,+S.p2End,+S.p2Amt,S.p2Life,cap.tpStep);
     const startA=Math.min(+S.tpStart,+S.apStart);
     const allRows = sim.rows;
     renderYearTable(allRows);
@@ -1859,7 +1881,7 @@ function update() {
 
   const cap = computeCapital(S.dataMode, age, salary, S.manualTP, S.manualAP, tpStart, apStart, S.scheme);
   const apMo = cap.apAt(apStart);
-  const sim  = runSimulation(cap.tp, cap.apAt, tpStart, apStart, S.wMode, p1End, p1Amt, p2End, p2Amt, S.p2Life);
+  const sim  = runSimulation(cap.tp, cap.apAt, tpStart, apStart, S.wMode, p1End, p1Amt, p2End, p2Amt, S.p2Life, cap.tpStep);
   const rows = sim.rows;
   const finalBal = rows.length ? rows[rows.length-1].tpBal : 0;
   const p1Row = rows.find(d=>d.age===startA) || {};
