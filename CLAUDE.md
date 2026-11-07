@@ -532,6 +532,22 @@ payout time for all pots. Nothing in the tab is saved with the plan.
   its insight / checklist step; the ISK insight uses the planner's yield tax, now net of the 300 000 kr fribelopp. Verify every December: `WS_TAX_YEARS` (skattefri årsinkomst, ROT/RUT
   maxima) and `WS_JAMKNING`. When the Typfallsmodellen app changes these tabs' rules or texts, port the change by hand.
 
+### Pensionskompassen_offline.html — Typfallsmodellen is the master
+
+All capital and payout figures in the "Uppskattat belopp" mode come from the Typfallsmodellen engine copied (unchanged)
+from Retirement_Planner.html into the block `// ═══ Typfallsmodellen-motor` (data tables + `occStep`, `occPremium`,
+`ipStep`/`ipRatt`, `ppStep`/`ppRatt`, `ipDelningstal`, `occDelningstal`, `riktalderOf` …). Pensionskompassen's own part is
+`pkIncomePension` / `pkPremiePension` / `pkOccupational` / `computeCapital` (scheme picker `#scheme-select`, `PK_SCHEMES`:
+ITP 1, SAF-LO, AKAP-KR, PA16 Avd 1 — the pure premium plans; ITP 2, KAP-KL and PA16 Avd 2 have a defined-benefit part that
+only Retirement_Planner models). Constant prices (inflation 0 %, salary growth 0 %, 1,7 % real return), salary entered in
+2025 money × `salBaseUplift`, work start age `WORK_START_AGE` 23. Income pension is indexed by the pension index ÷ 1,016
+each year and premium pension follows the cohort divisor, so the public pension varies by age (`cap.apAt(age)`). Riktålder =
+`riktalderOf`, earliest withdrawal = riktålder − 3. Verified against Retirement_Planner (ITP1 / born 1980 / 40 000, start
+68): opening balances and payouts at 68, 69, 80 and 90 match to the krona. When the planner's engine tables change, re-copy
+the block (the extraction script is not kept; copy the same declarations by name). Manual capital mode annuitises the typed
+public capital at the cohort income-pension divisor, flat. Not changed: the occupational pension drawdown in
+`runSimulation` (balance without return after the start, as before).
+
 ## Source of truth for formulas
 
 **Typfallsmodellen (`reference/Typfallsmodellen_v4.8.xlsb` + its VBA) is the first source to consult and to implement in Retirement_Planner.html** — pension rules, contributions, tax and rounding follow the workbook exactly; a planner-specific approximation is only acceptable where the workbook has no equivalent, and must be documented as such. Explanatory UI text may round or simplify (e.g. "up to 8,07 IBB"), the calculation must not.
