@@ -105,10 +105,12 @@
         <!-- N label -->
         <text x="32" y="21" text-anchor="middle" fill="white" font-size="7.5" font-weight="800"
               font-family="-apple-system,BlinkMacSystemFont,sans-serif">N</text>
+        <g id="compass-needle" style="transform-box:view-box;transform-origin:32px 32px;transition:transform 1.4s cubic-bezier(.22,1.25,.36,1)">
         <!-- Needle north (white, pointing up) -->
         <path d="M32 14 L37 32 L32 32 L27 32 Z" fill="white"/>
         <!-- Needle south (dim, pointing down) -->
         <path d="M32 50 L37 32 L32 32 L27 32 Z" fill="rgba(255,255,255,0.22)"/>
+        </g>
         <!-- Pivot -->
         <circle cx="32" cy="32" r="3.5" fill="white"/>
         <circle cx="32" cy="32" r="2"   fill="rgba(27,92,54,0.85)"/>
@@ -2010,7 +2012,23 @@ function fillSchemes() {
   Object.keys(PK_SCHEMES).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = tr(PK_SCHEMES[k].sv, PK_SCHEMES[k].en); sel.appendChild(o); });
   sel.value = S.scheme;
 }
+
+// ── Kompassnålen snurrar och pekar åt ett nytt håll när parametrar ändras ──
+let _needleDeg = 0, _needleTimer = null, _needleFirst = true;
+function spinNeedle() {
+  if (_needleFirst) { _needleFirst = false; return; }       // inte vid första uppritningen
+  clearTimeout(_needleTimer);
+  _needleTimer = setTimeout(() => {
+    const n = document.getElementById('compass-needle');
+    if (!n) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // minst ett halvt varv åt samma håll + ett slumpat nytt håll, så nålen alltid snurrar och landar någon annanstans
+    _needleDeg += 360 + 60 + Math.random() * 300;
+    n.style.transform = 'rotate(' + _needleDeg + 'deg)';
+  }, 120);
+}
 function update() {
+  spinNeedle();
   if (el('scheme-select') && (!el('scheme-select').options.length || el('scheme-select').dataset.lang !== lang)) { fillSchemes(); el('scheme-select').dataset.lang = lang; }
   const age=+S.age, salary=+S.salary;
   // Period 2 starts where period 1 ends: if period 1 now reaches or passes period 2's end, push period 2's end out
