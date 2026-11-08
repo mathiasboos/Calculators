@@ -54,7 +54,7 @@
     .save-btn:hover { border-color:#1b5c36; background:#f0faf5; color:#1b5c36; }
     .save-btn .icon { font-size:20px; line-height:1; flex-shrink:0; }
     .save-btn .desc { font-size:12px; font-weight:400; color:#888; margin-top:1px; }
-    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1b5c36; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; opacity:0; transition:all .3s; pointer-events:none; z-index:9999; }
+    #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1b5c36; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; opacity:0; transition:all .3s; pointer-events:none; z-index:9999; max-width:90vw; text-align:center; }
     #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
     /* ── Print ── */
@@ -504,7 +504,7 @@
 
     <!-- CTA buttons -->
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      <button onclick="showToast(tr('✓ Tack! Din prognos är sparad.','✓ Thank you! Your forecast is saved.'))"
+      <button onclick="finishForecast()"
         style="background:#e84a26;color:white;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
         Jag känner mig klar!
       </button>
@@ -522,7 +522,7 @@
   </div>
 
   <!-- Save prognosis -->
-  <div class="card no-print">
+  <div class="card no-print" id="save-card">
     <div class="section-title" style="margin-bottom:14px">Spara prognos</div>
     <div style="display:flex;flex-direction:column;gap:10px">
 
@@ -2163,7 +2163,9 @@ function _renderUtTid(capital, startAge, annRet) {
   const canvas = document.getElementById('ut-chart-tid');
   if (!canvas) return;
   if (_utC2) { _utC2.destroy(); _utC2=null; }
+  // Valt antal år som inte är ett av standardstaplarna (t.ex. 18) läggs in som egen, markerad stapel
   const durs=[5,10,15,20,25,30,35,40];
+  if (!durs.includes(UT.tid)) { durs.push(UT.tid); durs.sort((a,b)=>a-b); }
   _utC2 = new Chart(canvas.getContext('2d'), {
     type:'bar',
     data:{ labels:durs.map(d=>d+tr(' år',' yrs')),
@@ -2183,12 +2185,24 @@ function _renderUtTid(capital, startAge, annRet) {
 }
 
 // ── Save actions ─────────────────────────────────────────────────────────
-function showToast(msg) {
+function showToast(msg, ms) {
   const t = el('toast');
   if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), ms || 2500);
+}
+
+// "Jag känner mig klar": ingenting skickas eller lagras på en server. Prognosen finns i sidans länk (alla
+// inställningar ligger i #-delen), så vi lägger den i adressfältet, kopierar den och visar var man sparar den
+function finishForecast() {
+  window.location.hash = encodeState();
+  const url = window.location.href;
+  try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).catch(()=>{}); } catch (e) {}
+  const card = document.getElementById('save-card');
+  if (card) card.scrollIntoView({behavior:'smooth', block:'center'});
+  showToast(tr('✓ Prognosen finns i länken (kopierad). Bokmärk den eller välj hur du sparar nedan.',
+               '✓ Your forecast is stored in the page link (copied). Bookmark it or choose how to save below.'), 5000);
 }
 
 function copyLink() {
