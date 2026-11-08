@@ -1849,6 +1849,12 @@ function fillSchemes() {
 function update() {
   if (el('scheme-select') && (!el('scheme-select').options.length || el('scheme-select').dataset.lang !== lang)) { fillSchemes(); el('scheme-select').dataset.lang = lang; }
   const age=+S.age, salary=+S.salary;
+  // Period 2 starts where period 1 ends: if period 1 now reaches or passes period 2's end, push period 2's end out
+  if (!S.p2Life && +S.p2End <= +S.p1End) {
+    S.p2End = Math.min(95, +S.p1End + 1);
+    if (el('p2-end-input'))  el('p2-end-input').value  = S.p2End;
+    if (el('p2-end-slider')) el('p2-end-slider').value = S.p2End;
+  }
   const p1End=+S.p1End, p1Amt=+S.p1Amt, p2End=+S.p2End, p2Amt=+S.p2Amt;
 
   // tpStart can never be lower than current age
@@ -1924,7 +1930,7 @@ function update() {
   txt('p3-balance-amount', fmtM(finalBal));
 
   // Slider constraints
-  const p1max = S.p2Life ? 94 : p2End-1;
+  const p1max = 94;
   setAttr('p1-end-input',  'min', startA+1);
   setAttr('p1-end-input',  'max', p1max);
   setAttr('p1-end-slider', 'min', startA+1);
