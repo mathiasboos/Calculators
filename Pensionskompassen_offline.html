@@ -231,6 +231,36 @@
   </div>
 
   <!-- 3. Börja labba -->
+  <!-- Skatt -->
+  <div class="card no-print" id="tax-card">
+    <div class="section-title">Skatt</div>
+    <div style="display:flex;border:1.5px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:14px">
+      <button id="tax-before" onclick="setTaxMode('before')"
+        style="flex:1;padding:11px;border:none;background:#1b5c36;color:white;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Före skatt</button>
+      <button id="tax-after" onclick="setTaxMode('after')"
+        style="flex:1;padding:11px;border:none;background:white;color:#555;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Efter skatt</button>
+    </div>
+    <div id="tax-opts" class="hidden">
+      <div class="field-group">
+        <label class="field-label">Kommun</label>
+        <select id="tax-mun" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;background:white;margin-bottom:8px"></select>
+        <div class="row">
+          <input type="text" inputmode="decimal" id="tax-mun-rate" class="w-wide" value="32,38" />
+          <span class="muted">% kommunalskatt</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Begravnings- och kyrkoavgift</label>
+        <select id="tax-church" style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;background:white;margin-bottom:8px"></select>
+        <div class="row">
+          <input type="text" inputmode="decimal" id="tax-church-rate" class="w-wide" value="0,26" />
+          <span class="muted">% avgift</span>
+        </div>
+      </div>
+    </div>
+    <div id="tax-note" style="font-size:11px;line-height:1.5;color:#888"></div>
+  </div>
+
   <div class="card no-print" id="periods-section">
     <div class="section-title">Börja labba</div>
 
@@ -250,7 +280,7 @@
         <input type="range" id="p1-end-slider" min="26" max="95" value="66" />
       </div>
       <div>
-        <label class="field-label">Önskad pension per månad (före skatt)</label>
+        <label class="field-label">Önskad pension per månad <span class="taxsfx">(före skatt)</span></label>
         <div class="row">
           <input type="text" inputmode="numeric" id="p1-amt-input" class="w-wide" value="31 500" />
           <span class="muted">kr/mån</span>
@@ -290,7 +320,7 @@
       </div>
 
       <div>
-        <label class="field-label">Önskad pension per månad (före skatt)</label>
+        <label class="field-label">Önskad pension per månad <span class="taxsfx">(före skatt)</span></label>
         <div class="row">
           <input type="text" inputmode="numeric" id="p2-amt-input" class="w-wide" value="29 500" />
           <span class="muted">kr/mån</span>
@@ -601,11 +631,11 @@ function X(v) {
     .replace(new RegExp(' år till', 'g'), ' years to')
     .replace(new RegExp(' år' + NOT_L, 'g'), ' years');
 }
-const DICT_EN = {"din hjälp på vägen": "your help along the way", "Din information": "Your information", "Din ålder": "Your age", "år": "years", "Månadslön före skatt": "Monthly salary before tax", "kr/mån": "SEK/month", "Labba med:": "Experiment with:", "Uppskattat belopp": "Estimated amount", "Generella antaganden utifrån ålder och lön": "General assumptions based on age and salary", "Pensionskapital du fyller i själv": "Pension capital you enter yourself", "Tjänstepension (kr)": "Occupational pension (SEK)", "Allmän pension (kr)": "Public pension (SEK)", "Uppskattat pensionskapital idag": "Estimated pension capital today", "Varav": "Of which", "i tjänstepension och": "in occupational pension and", "i allmän pension": "in public pension", "Uttagsinställningar": "Withdrawal settings", "När vill du börja ta ut tjänstepension?": "When do you want to start withdrawing occupational pension?", "När vill du börja ta ut allmän pension?": "When do you want to start withdrawing public pension?", "Riktålder": "Guideline age", "⚠️ Uttag innan riktåldern (": "⚠️ Withdrawal before the guideline age (", ") ger lägre månadsbelopp livet ut": ") gives a lower monthly amount for life", "år) ger lägre månadsbelopp livet ut": "years) gives a lower monthly amount for life", "Beräknad allmän pension:": "Estimated public pension:", "(delningstal": "(annuity divisor", ")": ")", "Hur vill du ta ut din pension?": "How do you want to withdraw your pension?", "I olika uttagsperioder": "In different withdrawal periods", "Exempelvis ett högre belopp de första aktiva åren": "For example a higher amount in the first active years", "Jämnt fördelat livet ut": "Evenly distributed for life", "Samma belopp varje månad till 95 år": "The same amount every month until age 95", "Börja labba": "Start experimenting", "PERIOD 1": "PERIOD 1", "PERIOD 2": "PERIOD 2", "Från": "From", "år →": "years →", "år till": "years to", "Till vilken ålder ska perioden gälla?": "Until what age should the period apply?", "Önskad pension per månad (före skatt)": "Desired pension per month (before tax)", "Livet ut": "Lifelong", "Livet ut (till 95 år)": "Lifelong (to age 95)", "PERIOD 3 — LIVET UT": "PERIOD 3 — LIFELONG", "→ 95 år": "→ 95 years", "Allmän pension:": "Public pension:", "✅ Tjänstepensionskapital kvar: ca": "✅ Occupational pension capital left: approx.", "⚠️ Tjänstepensionskapitalet är förbrukat i period 1–2": "⚠️ The occupational pension capital is used up in periods 1–2", "För högt uttagsbelopp": "Withdrawal amount too high", "Enligt inkomstskattelagen måste tjänstepension betalas ut under minst fem år.": "According to the Swedish Income Tax Act, occupational pension must be paid out over at least five years.", "Med de val du gjort räcker inte kapitalet i fem år.": "With the choices you have made, the capital does not last five years.", "Din pensionsprognos": "Your pension forecast", "Månadsbelopp (kr) per ålder": "Monthly amount (SEK) by age", "Sammanfattning": "Summary", "Period 1": "Period 1", "Period 2": "Period 2", "Tjänstepension:": "Occupational pension:", "Period 3 – Livet ut": "Period 3 – Lifelong", "–95 år": "–95 years", "✅ Kapital kvar: ca": "✅ Capital left: approx.", "Jämnt fördelat": "Evenly distributed", "Uttagsplaneraren · Simulera pension": "Withdrawal planner · Simulate pension", "Din möjliga framtida pension": "Your possible future pension", "Totalt pensionskapital idag": "Total pension capital today", "Estimat löpande inbetalningar": "Estimated ongoing contributions", "0 kr/mån": "0 SEK/month", "Utfrån belopp": "By amount", "Utfrån tid": "By time", "Se hur olika månadsbelopp påverkar": "See how different monthly amounts affect the", "tiden": "duration", "för dina utbetalningar": "of your payouts", "Månadsbelopp (kr/mån) → ålder när kapitalet tar slut": "Monthly amount (SEK/month) → age when the capital runs out", "Se hur olika utbetalningstid påverkar": "See how different payout periods affect the", "beloppet": "amount", "Utbetalningstid (år) → månadsbelopp (kr/mån)": "Payout period (years) → monthly amount (SEK/month)", "Se hur olika avkastning under utbetalningstiden påverkar hur länge du får pensionsutbetalningar": "See how different returns during the payout period affect how long you receive pension payments", "Estimerat pensionskapital om du startar utbetalning vid": "Estimated pension capital if you start payouts at", "Jag känner mig klar!": "I feel done!", "Gör ett nytt pensionsestimat": "Make a new pension estimate", "Läs om hur du kan påverka din framtida pension": "Read about how you can influence your future pension", "Spara prognos": "Save forecast", "Kopiera delbar länk": "Copy shareable link", "Alla inställningar sparas i länken — dela eller bokmärk": "All settings are saved in the link — share or bookmark", "Ladda ned diagram (PNG)": "Download chart (PNG)", "Sparar prognos-diagrammet som bildfil": "Saves the forecast chart as an image file", "Skriv ut / Spara som PDF": "Print / Save as PDF", "Skriver ut eller sparar prognos + sammanfattning som PDF": "Prints or saves the forecast + summary as a PDF", "Beräkningarna är förenklade uppskattningar och ska inte ses som finansiell rådgivning.": "The calculations are simplified estimates and should not be regarded as financial advice.", "Beräkningarna bygger på Pensionsmyndighetens Typfallsmodellen (inkomstpension, premiepension och tjänstepension).": "The calculations are based on the Swedish Pensions Agency's Typfallsmodellen (income pension, premium pension and occupational pension).", "Tjänstepensionsplan:": "Occupational pension plan:", "Beräknas enligt Pensionsmyndighetens Typfallsmodellen i fasta priser. Lönen räknas som 2025 års lön, uppräknad med 2026 års inkomstindex. Planer med förmånsbestämd del (ITP 2, KAP-KL, PA16 avdelning 2) finns i Retirement Planner.": "Calculated according to the Swedish Pensions Agency's Typfallsmodellen in constant prices. The salary is treated as a 2025 salary, raised by the 2026 income index. Plans with a defined-benefit part (ITP 2, KAP-KL, PA16 division 2) are in Retirement Planner.", "✓ Länk kopierad!": "✓ Link copied!"};
+const DICT_EN = {"Pensionskompassen": "The Pension Compass", "Skatt": "Tax", "Före skatt": "Before tax", "Efter skatt": "After tax", "Kommun": "Municipality", "% kommunalskatt": "% municipal tax", "Begravnings- och kyrkoavgift": "Burial and church fee", "% avgift": "% fee", "Önskad pension per månad": "Desired pension per month", "din hjälp på vägen": "your help along the way", "Din information": "Your information", "Din ålder": "Your age", "år": "years", "Månadslön före skatt": "Monthly salary before tax", "kr/mån": "SEK/month", "Labba med:": "Experiment with:", "Uppskattat belopp": "Estimated amount", "Generella antaganden utifrån ålder och lön": "General assumptions based on age and salary", "Pensionskapital du fyller i själv": "Pension capital you enter yourself", "Tjänstepension (kr)": "Occupational pension (SEK)", "Allmän pension (kr)": "Public pension (SEK)", "Uppskattat pensionskapital idag": "Estimated pension capital today", "Varav": "Of which", "i tjänstepension och": "in occupational pension and", "i allmän pension": "in public pension", "Uttagsinställningar": "Withdrawal settings", "När vill du börja ta ut tjänstepension?": "When do you want to start withdrawing occupational pension?", "När vill du börja ta ut allmän pension?": "When do you want to start withdrawing public pension?", "Riktålder": "Guideline age", "⚠️ Uttag innan riktåldern (": "⚠️ Withdrawal before the guideline age (", ") ger lägre månadsbelopp livet ut": ") gives a lower monthly amount for life", "år) ger lägre månadsbelopp livet ut": "years) gives a lower monthly amount for life", "Beräknad allmän pension:": "Estimated public pension:", "(delningstal": "(annuity divisor", ")": ")", "Hur vill du ta ut din pension?": "How do you want to withdraw your pension?", "I olika uttagsperioder": "In different withdrawal periods", "Exempelvis ett högre belopp de första aktiva åren": "For example a higher amount in the first active years", "Jämnt fördelat livet ut": "Evenly distributed for life", "Samma belopp varje månad till 95 år": "The same amount every month until age 95", "Börja labba": "Start experimenting", "PERIOD 1": "PERIOD 1", "PERIOD 2": "PERIOD 2", "Från": "From", "år →": "years →", "år till": "years to", "Till vilken ålder ska perioden gälla?": "Until what age should the period apply?", "Önskad pension per månad (före skatt)": "Desired pension per month (before tax)", "Livet ut": "Lifelong", "Livet ut (till 95 år)": "Lifelong (to age 95)", "PERIOD 3 — LIVET UT": "PERIOD 3 — LIFELONG", "→ 95 år": "→ 95 years", "Allmän pension:": "Public pension:", "✅ Tjänstepensionskapital kvar: ca": "✅ Occupational pension capital left: approx.", "⚠️ Tjänstepensionskapitalet är förbrukat i period 1–2": "⚠️ The occupational pension capital is used up in periods 1–2", "För högt uttagsbelopp": "Withdrawal amount too high", "Enligt inkomstskattelagen måste tjänstepension betalas ut under minst fem år.": "According to the Swedish Income Tax Act, occupational pension must be paid out over at least five years.", "Med de val du gjort räcker inte kapitalet i fem år.": "With the choices you have made, the capital does not last five years.", "Din pensionsprognos": "Your pension forecast", "Månadsbelopp (kr) per ålder": "Monthly amount (SEK) by age", "Sammanfattning": "Summary", "Period 1": "Period 1", "Period 2": "Period 2", "Tjänstepension:": "Occupational pension:", "Period 3 – Livet ut": "Period 3 – Lifelong", "–95 år": "–95 years", "✅ Kapital kvar: ca": "✅ Capital left: approx.", "Jämnt fördelat": "Evenly distributed", "Uttagsplaneraren · Simulera pension": "Withdrawal planner · Simulate pension", "Din möjliga framtida pension": "Your possible future pension", "Totalt pensionskapital idag": "Total pension capital today", "Estimat löpande inbetalningar": "Estimated ongoing contributions", "0 kr/mån": "0 SEK/month", "Utfrån belopp": "By amount", "Utfrån tid": "By time", "Se hur olika månadsbelopp påverkar": "See how different monthly amounts affect the", "tiden": "duration", "för dina utbetalningar": "of your payouts", "Månadsbelopp (kr/mån) → ålder när kapitalet tar slut": "Monthly amount (SEK/month) → age when the capital runs out", "Se hur olika utbetalningstid påverkar": "See how different payout periods affect the", "beloppet": "amount", "Utbetalningstid (år) → månadsbelopp (kr/mån)": "Payout period (years) → monthly amount (SEK/month)", "Se hur olika avkastning under utbetalningstiden påverkar hur länge du får pensionsutbetalningar": "See how different returns during the payout period affect how long you receive pension payments", "Estimerat pensionskapital om du startar utbetalning vid": "Estimated pension capital if you start payouts at", "Jag känner mig klar!": "I feel done!", "Gör ett nytt pensionsestimat": "Make a new pension estimate", "Läs om hur du kan påverka din framtida pension": "Read about how you can influence your future pension", "Spara prognos": "Save forecast", "Kopiera delbar länk": "Copy shareable link", "Alla inställningar sparas i länken — dela eller bokmärk": "All settings are saved in the link — share or bookmark", "Ladda ned diagram (PNG)": "Download chart (PNG)", "Sparar prognos-diagrammet som bildfil": "Saves the forecast chart as an image file", "Skriv ut / Spara som PDF": "Print / Save as PDF", "Skriver ut eller sparar prognos + sammanfattning som PDF": "Prints or saves the forecast + summary as a PDF", "Beräkningarna är förenklade uppskattningar och ska inte ses som finansiell rådgivning.": "The calculations are simplified estimates and should not be regarded as financial advice.", "Beräkningarna bygger på Pensionsmyndighetens Typfallsmodellen (inkomstpension, premiepension och tjänstepension).": "The calculations are based on the Swedish Pensions Agency's Typfallsmodellen (income pension, premium pension and occupational pension).", "Tjänstepensionsplan:": "Occupational pension plan:", "Beräknas enligt Pensionsmyndighetens Typfallsmodellen i fasta priser. Lönen räknas som 2025 års lön, uppräknad med 2026 års inkomstindex. Planer med förmånsbestämd del (ITP 2, KAP-KL, PA16 avdelning 2) finns i Retirement Planner.": "Calculated according to the Swedish Pensions Agency's Typfallsmodellen in constant prices. The salary is treated as a 2025 salary, raised by the 2026 income index. Plans with a defined-benefit part (ITP 2, KAP-KL, PA16 division 2) are in Retirement Planner.", "✓ Länk kopierad!": "✓ Link copied!"};
 const SRC_T = new WeakMap();
 function applyStatic() {
   document.documentElement.lang = lang;
-  document.title = tr('Pensionskompassen', 'Pension Compass');
+  document.title = tr('Pensionskompassen', 'The Pension Compass');
   const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const nodes = [];
   while (w.nextNode()) nodes.push(w.currentNode);
@@ -1592,7 +1622,8 @@ function computeCapital(dm, age, salary, mTP, mAP, tpStart, apStart, scheme) {
     tpStep: pkTpStep(by, tpStart, salary)
   };
 }
-function runSimulation(tpCap, apAt, tpStart, apStart, wMode, p1End, p1Amt, p2End, p2Amt, p2Life, tpStep) {
+function runSimulation(tpCap, apAt, tpStart, apStart, wMode, p1End, p1Amt, p2End, p2Amt, p2Life, tpStep, netFn, grossFn) {
+  const nf = netFn || ((g)=>g), gf = grossFn || ((n)=>n);
   const MAX=95, apMo=apAt(apStart), startA=Math.min(tpStart,apStart);
   const step = tpStep || ((b) => ({avail:b, py:1}));
   // Jämnt fördelat: årsuttaget som gör saldot noll vid 95 år (som Typfallsmodellens tillfälliga uttag)
@@ -1618,24 +1649,26 @@ function runSimulation(tpCap, apAt, tpStart, apStart, wMode, p1End, p1Amt, p2End
         const inP1=a>=tpStart&&a<p1End, inP2=a>=p1End&&a<p2e;
         if (inP1||inP2) {
           const want=inP1?p1Amt:p2Amt;
-          tpDraw = Math.min(Math.max(0,want-apAmt), maxDraw);
+          tpDraw = Math.min(Math.max(0,gf(want,a)-apAmt), maxDraw);
         }
       }
     }
     if (hasTP) tpBal = Math.max(0, g.avail - tpDraw*12*g.py);
 
-    // Desired monthly total for this age (for "Pengar saknas" calculation)
-    let desired = apAmt; // default: only AP (P3 / Livet ut)
+    // Önskat totalbelopp per månad den här åldern (netto om efter skatt), för "Pengar saknas"
+    let desired = nf(apAmt, a); // default: bara allmän pension (P3 / Livet ut)
     if (wMode==='even' && hasTP) {
-      desired = evenYear/12 + apAmt;
+      desired = nf(evenYear/12 + apAmt, a);
     } else if (wMode==='periods') {
       const p2e=p2Life?MAX+1:p2End;
       if (a>=tpStart && a<p1End)  desired = p1Amt;
       else if (a>=p1End && a<p2e) desired = p2Amt;
     }
-    const missing = Math.max(0, desired - (tpDraw + apAmt));
+    // Efter skatt: visa netto, skatten fördelas proportionellt på allmän pension och tjänstepension
+    const G = tpDraw + apAmt, N = nf(G, a), ratio = G > 0 ? N / G : 1;
+    const missing = Math.max(0, desired - N);
 
-    rows.push({age:a, tp:tpDraw, ap:apAmt, tpBal, missing, desired});
+    rows.push({age:a, tp:tpDraw*ratio, ap:apAmt*ratio, tpBal, missing, desired});
   }
   return {rows, apMo};
 }
@@ -1645,8 +1678,139 @@ const S = {
   age:60, salary:60000, dataMode:'estimated',
   manualTP:2480000, manualAP:4570000,
   tpStart:61, apStart:65, wMode:'periods',
-  p1End:66, p1Amt:31500, p2End:71, p2Amt:29500, p2Life:false, scheme:'itp1'
+  p1End:66, p1Amt:31500, p2End:71, p2Amt:29500, p2Life:false, scheme:'itp1',
+  taxMode:'before', munRate:32.38, churchRate:0.26
 };
+
+
+// ── Skatt: Före / Efter skatt ────────────────────────────────────────────
+// Pensionsinkomstskatten följer Typfallsmodellen (som Retirement_Planner.html): grundavdrag efter ålder (förhöjt från
+// riktålder + 1), kommunalskatt + begravnings-/kyrkoavgift på beskattningsbar inkomst, statlig skatt över skiktgränsen
+// och 1 % allmän pensionsavgift. Inget jobbskatteavdrag. Kommunlistan är SCB 2025-12-15 (som i Typfallsmodellen).
+// Verifiera varje december: PBB, IBB, SKIKT, kommunlistan och avgifterna nedan.
+const PBB = 59200, IBB = 83400, SKIKT = 643000, STATE_RATE = 0.20;
+const PUBLIC_AVG_RATE = 0.01, PUBLIC_AVG_CAP = 1.42 * IBB;
+const CHURCH_OPTIONS = [   // begravningsavgift (inkl. ev. kyrkoavgift), % av beskattningsbar inkomst
+  {id:'rest',      rate:0.26,  sv:'Inte medlem, övriga Sverige',        en:'Not a member, rest of Sweden'},
+  {id:'member',    rate:1.32,  sv:'Medlem i Svenska kyrkan/annat trossamfund', en:'Member of the Church of Sweden/another faith community'},
+  {id:'stockholm', rate:0.07,  sv:'Inte medlem, Stockholms stad',      en:'Not a member, City of Stockholm'},
+  {id:'tranas',    rate:0.285, sv:'Inte medlem, Tranås kommun',        en:'Not a member, Tranås municipality'},
+  {id:'own',       rate:null,  sv:'— Egen sats —',                     en:'— Own rate —'}
+];
+const KOMMUNALSKATT_2026 = {
+"Ale":32.80,"Alingsås":32.84,"Alvesta":33.42,"Aneby":33.85,"Arboga":33.29,"Arjeplog":34.84,"Arvidsjaur":34.14,"Arvika":34.03,"Askersund":34.15,"Avesta":33.95,"Bengtsfors":34.40,"Berg":34.22,"Bjurholm":35.00,"Bjuv":32.17,"Boden":33.94,"Bollebygd":33.07,"Bollnäs":33.37,"Borgholm":33.44,"Borlänge":34.40,"Borås":32.79,"Botkyrka":32.23,"Boxholm":33.37,"Bromölla":33.74,"Bräcke":35.09,"Burlöv":31.27,"Båstad":31.41,"Dals-Ed":34.69,"Danderyd":30.58,"Degerfors":35.30,"Dorotea":35.65,"Eda":34.55,"Ekerö":31.45,"Eksjö":34.02,"Emmaboda":33.82,"Enköping":33.05,"Eskilstuna":32.85,"Eslöv":31.72,"Essunga":33.05,"Fagersta":32.99,"Falkenberg":32.50,"Falköping":33.43,"Falun":34.05,"Filipstad":34.55,"Finspång":33.70,"Flen":33.10,"Forshaga":34.63,"Färgelanda":34.39,"Gagnef":34.27,"Gislaved":33.75,"Gnesta":32.95,"Gnosjö":34.00,"Gotland":33.60,"Grums":34.78,"Grästorp":33.47,"Gullspång":33.97,"Gällivare":33.89,"Gävle":33.77,"Göteborg":32.60,"Götene":33.60,"Habo":33.93,"Hagfors":34.30,"Hallsberg":33.85,"Hallstahammar":32.69,"Halmstad":32.38,"Hammarö":35.05,"Haninge":31.28,"Haparanda":33.84,"Heby":34.21,"Hedemora":34.15,"Helsingborg":31.39,"Herrljunga":33.62,"Hjo":33.48,"Hofors":34.37,"Huddinge":31.71,"Hudiksvall":33.12,"Hultsfred":33.77,"Hylte":33.85,"Håbo":33.30,"Hällefors":34.35,"Härjedalen":34.17,"Härnösand":34.63,"Härryda":31.98,"Hässleholm":32.38,"Höganäs":30.91,"Högsby":34.07,"Hörby":32.26,"Höör":32.63,"Jokkmokk":34.29,"Järfälla":31.52,"Jönköping":33.40,"Kalix":33.89,"Kalmar":33.67,"Karlsborg":32.80,"Karlshamn":33.80,"Karlskoga":34.30,"Karlskrona":33.69,"Karlstad":33.55,"Katrineholm":32.95,"Kil":34.63,"Kinda":33.00,"Kiruna":34.39,"Klippan":31.93,"Knivsta":32.62,"Kramfors":34.43,"Kristianstad":32.64,"Kristinehamn":34.25,"Krokom":33.87,"Kumla":33.84,"Kungsbacka":32.58,"Kungsör":32.91,"Kungälv":32.92,"Kävlinge":29.59,"Köping":33.04,"Laholm":32.80,"Landskrona":31.42,"Laxå":35.00,"Lekeberg":33.73,"Leksand":33.80,"Lerum":32.03,"Lessebo":33.81,"Lidingö":29.67,"Lidköping":32.74,"Lilla Edet":33.85,"Lindesberg":34.60,"Linköping":31.75,"Ljungby":33.07,"Ljusdal":33.87,"Ljusnarsberg":33.80,"Lomma":30.72,"Ludvika":34.05,"Luleå":33.84,"Lund":32.42,"Lycksele":34.90,"Lysekil":33.94,"Malmö":32.42,"Malung-Sälen":34.45,"Malå":35.20,"Mariestad":32.74,"Mark":32.99,"Markaryd":33.31,"Mellerud":34.08,"Mjölby":33.45,"Mora":34.32,"Motala":33.25,"Mullsjö":34.10,"Munkedal":34.86,"Munkfors":34.30,"Mölndal":31.99,"Mönsterås":34.07,"Mörbylånga":34.07,"Nacka":30.11,"Nora":34.55,"Norberg":33.54,"Nordanstig":34.02,"Nordmaling":35.10,"Norrköping":33.30,"Norrtälje":32.05,"Norsjö":35.20,"Nybro":34.19,"Nykvarn":32.30,"Nyköping":32.25,"Nynäshamn":32.18,"Nässjö":34.30,"Ockelbo":34.27,"Olofström":33.75,"Orsa":34.30,"Orust":33.69,"Osby":33.99,"Oskarshamn":34.21,"Ovanåker":33.37,"Oxelösund":33.05,"Pajala":34.74,"Partille":31.36,"Perstorp":31.99,"Piteå":33.59,"Ragunda":34.92,"Robertsfors":35.00,"Ronneby":33.68,"Rättvik":33.80,"Sala":33.19,"Salem":32.00,"Sandviken":33.12,"Sigtuna":31.83,"Simrishamn":31.69,"Sjöbo":32.10,"Skara":33.38,"Skellefteå":34.45,"Skinnskatteberg":33.34,"Skurup":31.60,"Skövde":33.09,"Smedjebacken":34.44,"Sollefteå":34.68,"Sollentuna":30.45,"Solna":29.70,"Sorsele":35.45,"Sotenäs":33.47,"Staffanstorp":30.12,"Stenungsund":33.12,"Stockholm":30.55,"Storfors":34.98,"Storuman":34.95,"Strängnäs":32.50,"Strömstad":33.39,"Strömsund":34.92,"Sundbyberg":31.58,"Sundsvall":33.88,"Sunne":33.75,"Surahammar":33.19,"Svalöv":31.92,"Svedala":31.42,"Svenljunga":33.53,"Säffle":33.80,"Säter":34.30,"Sävsjö":33.68,"Söderhamn":33.17,"Söderköping":33.53,"Södertälje":32.38,"Sölvesborg":33.86,"Tanum":33.04,"Tibro":33.19,"Tidaholm":33.55,"Tierp":33.00,"Timrå":34.38,"Tingsryd":34.00,"Tjörn":33.19,"Tomelilla":31.79,"Torsby":34.30,"Torsås":33.79,"Tranemo":32.98,"Tranås":33.77,"Trelleborg":31.58,"Trollhättan":33.84,"Trosa":32.03,"Tyresö":31.83,"Täby":29.88,"Töreboda":33.20,"Uddevalla":33.64,"Ulricehamn":32.53,"Umeå":34.65,"Upplands Väsby":31.75,"Upplands-Bro":31.73,"Uppsala":32.85,"Uppvidinge":33.80,"Vadstena":34.35,"Vaggeryd":33.25,"Valdemarsvik":34.03,"Vallentuna":31.23,"Vansbro":34.28,"Vara":33.25,"Varberg":31.73,"Vaxholm":31.63,"Vellinge":29.68,"Vetlanda":33.77,"Vilhelmina":35.50,"Vimmerby":34.22,"Vindeln":35.20,"Vingåker":33.50,"Vårgårda":33.09,"Vänersborg":33.69,"Vännäs":35.20,"Värmdö":31.31,"Värnamo":33.28,"Västervik":33.02,"Västerås":31.24,"Växjö":32.19,"Ydre":34.10,"Ystad":31.29,"Åmål":33.94,"Ånge":34.62,"Åre":33.92,"Årjäng":34.25,"Åsele":35.45,"Åstorp":31.47,"Åtvidaberg":33.94,"Älmhult":33.86,"Älvdalen":34.77,"Älvkarleby":34.40,"Älvsbyn":33.79,"Ängelholm":31.35,"Öckerö":33.04,"Ödeshög":33.95,"Örebro":33.65,"Örkelljunga":30.24,"Örnsköldsvik":33.85,"Östersund":33.72,"Österåker":28.93,"Östhammar":33.30,"Östra Göinge":32.17,"Överkalix":34.14,"Övertorneå":33.84
+};
+const ceil100  = n => Math.ceil(n/100)*100;
+const floor100 = n => Math.floor(n/100)*100;
+function grundavdragUnder(ffi){
+  let ga;
+  if(ffi <= 0.99*PBB)       ga = 0.423*PBB;
+  else if(ffi <= 2.72*PBB)  ga = 0.423*PBB + 0.20*(ffi - 0.99*PBB);
+  else if(ffi <= 3.11*PBB)  ga = 0.77*PBB;
+  else if(ffi <= 7.88*PBB)  ga = 0.77*PBB - 0.10*(ffi - 3.11*PBB);
+  else                      ga = 0.293*PBB;
+  return ceil100(Math.min(ga, ffi));
+}
+function grundavdragOver(ffi){
+  // förhöjt grundavdrag = ordinarie grundavdrag + förhöjd del (summa avrundas upp till 100)
+  let ord;
+  if(ffi <= 0.99*PBB)       ord = 0.423*PBB;
+  else if(ffi <= 2.72*PBB)  ord = 0.423*PBB + 0.20*(ffi - 0.99*PBB);
+  else if(ffi <= 3.11*PBB)  ord = 0.77*PBB;
+  else if(ffi <= 7.88*PBB)  ord = 0.77*PBB - 0.10*(ffi - 3.11*PBB);
+  else                      ord = 0.293*PBB;
+  let f;
+  if(ffi <= 0.91*PBB)       f = 0.687*PBB;
+  else if(ffi <= 1.11*PBB)  f = 0.885*PBB - ffi*0.20;
+  else if(ffi <= 1.965*PBB) f = 0.600*PBB + ffi*0.057;
+  else if(ffi <= 2.72*PBB)  f = 0.333*PBB + ffi*0.1949;
+  else if(ffi <= 3.11*PBB)  f = ffi*0.3949 - 0.212*PBB;
+  else if(ffi <= 3.24*PBB)  f = ffi*0.4949 - 0.523*PBB;
+  else if(ffi <= 5.00*PBB)  f = ffi*0.356  - 0.073*PBB;
+  else if(ffi <= 7.88*PBB)  f = 0.017*PBB  + ffi*0.338;
+  else if(ffi <= 8.08*PBB)  f = 0.703*PBB  + ffi*0.251;
+  else if(ffi <= 11.16*PBB) f = 2.732*PBB;
+  else if(ffi <= 12.84*PBB) f = 9.651*PBB - ffi*0.62;
+  else                      f = 1.691*PBB;
+  return ceil100(Math.min(ord + f, ffi));
+}
+
+// Första åldern med förhöjt grundavdrag (Xage): 66 till 2023, 67 till 2026, 68 till 2028, därefter riktålder + 1
+function pkXAge(yr, by){
+  if (yr <= 2023) return 66;
+  if (yr <= 2026) return 67;
+  if (yr <= 2028) return 68;
+  return riktalderOf(by) + 1;
+}
+// Skatt på ett års pensionsinkomst (kr/år brutto) vid åldern `age`
+function pkTaxYear(income, age){
+  const ffi = floor100(Math.max(0, income));
+  if (ffi <= 0) return 0;
+  const by = START_YEAR - (+S.age), yr = by + age;
+  const ga   = age >= pkXAge(yr, by) ? grundavdragOver(ffi) : grundavdragUnder(ffi);
+  const besk = Math.max(0, ffi - ga);
+  const kommunal = Math.floor(besk * (+S.munRate) / 100);
+  const begrav   = Math.floor(besk * (+S.churchRate) / 100);
+  const statlig  = Math.floor(Math.max(0, besk - SKIKT) * STATE_RATE);
+  const publicAvg = Math.floor(Math.min(besk, PUBLIC_AVG_CAP) * PUBLIC_AVG_RATE + 0.5);
+  return kommunal + begrav + statlig + publicAvg;
+}
+const pkAfter = () => S.taxMode === 'after';
+// Månadsbelopp: brutto → netto, och netto → brutto (delningsmetod)
+function pkNetMonthly(gross, age){ return gross <= 0 ? 0 : gross - pkTaxYear(gross*12, age)/12; }
+function pkGrossMonthly(net, age){
+  if (net <= 0) return 0;
+  let lo = net, hi = net*3 + 20000;
+  for (let k=0; k<45; k++) { const mid=(lo+hi)/2; if (pkNetMonthly(mid, age) >= net) hi=mid; else lo=mid; }
+  return hi;
+}
+// null när före skatt, annars omvandlarna (används av runSimulation)
+function pkTaxFns(){ return pkAfter() ? [pkNetMonthly, pkGrossMonthly] : [null, null]; }
+const pkGrossIf = (n, age) => pkAfter() ? pkGrossMonthly(n, age) : n;
+const pkNetIf   = (g, age) => pkAfter() ? pkNetMonthly(g, age)   : g;
+function setTaxMode(m){ S.taxMode = m; update(); }
+function taxSuffix(){ return pkAfter() ? tr(' efter skatt',' after tax') : tr(' före skatt',' before tax'); }
+
+function fillTaxUi(){
+  const mun = el('tax-mun'), ch = el('tax-church');
+  if (!mun || !ch) return;
+  const munSel = mun.value;
+  mun.innerHTML = '<option value="">' + tr('— Välj kommun —','— Choose a municipality —') + '</option>' +
+    Object.keys(KOMMUNALSKATT_2026).sort((a,b)=>a.localeCompare(b,'sv')).map(n =>
+      '<option value="'+KOMMUNALSKATT_2026[n]+'">'+n+' ('+dec(KOMMUNALSKATT_2026[n],2)+' %)</option>').join('');
+  mun.value = munSel;
+  const chSel = ch.value || 'rest';
+  ch.innerHTML = CHURCH_OPTIONS.map(o => '<option value="'+o.id+'">'+tr(o.sv,o.en)+'</option>').join('');
+  ch.value = chSel;
+}
+function updateTaxUi(){
+  const a = pkAfter();
+  const b = el('tax-before'), c = el('tax-after');
+  if (b) { b.style.background=!a?'#1b5c36':'white'; b.style.color=!a?'white':'#555'; }
+  if (c) { c.style.background= a?'#1b5c36':'white'; c.style.color= a?'white':'#555'; }
+  vis('tax-opts', a);
+  if (el('tax-mun-rate') && document.activeElement !== el('tax-mun-rate')) el('tax-mun-rate').value = dec(+S.munRate,2);
+  if (el('tax-church-rate') && document.activeElement !== el('tax-church-rate')) el('tax-church-rate').value = dec(+S.churchRate,2);
+  document.querySelectorAll('.taxsfx').forEach(e => { e.textContent = '(' + taxSuffix().trim() + ')'; });
+  const note = el('tax-note');
+  if (note) note.textContent = a
+    ? tr('Alla belopp du anger och ser är efter skatt. Skatten räknas som på pensionsinkomst enligt Typfallsmodellen: grundavdrag efter ålder, kommunalskatt, begravnings-/kyrkoavgift, statlig skatt över skiktgränsen och allmän pensionsavgift.',
+         'All amounts you enter and see are after tax. Tax is calculated on pension income as in Typfallsmodellen: age-based basic allowance, municipal tax, burial/church fee, state tax above the threshold and the public pension fee.')
+    : tr('Alla belopp är före skatt. Välj Efter skatt för att se vad som blir kvar.',
+         'All amounts are before tax. Choose After tax to see what is left.');
+}
+function parseRate(v){ const n = parseFloat(String(v).replace(',','.').replace(/[^0-9.]/g,'')); return isNaN(n) ? 0 : clamp(n,0,60); }
+function setupTaxUi(){
+  fillTaxUi();
+  el('tax-mun').addEventListener('change', function(){ if (this.value!=='') { S.munRate = +this.value; update(); } });
+  el('tax-mun-rate').addEventListener('input', function(){ S.munRate = parseRate(this.value); el('tax-mun').value=''; update(); });
+  el('tax-church').addEventListener('change', function(){
+    const o = CHURCH_OPTIONS.find(x => x.id===this.value);
+    if (o && o.rate!==null) { S.churchRate = o.rate; update(); }
+  });
+  el('tax-church-rate').addEventListener('input', function(){ S.churchRate = parseRate(this.value); el('tax-church').value='own'; update(); });
+  const o = CHURCH_OPTIONS.find(x => x.rate===+S.churchRate); el('tax-church').value = o ? o.id : 'own';
+}
 
 // ── Chart ────────────────────────────────────────────────────────────────
 // ── År-för-år-tabell med nedladdning (CSV / Excel) ──
@@ -1754,7 +1918,7 @@ function doRenderChart() {
     const canvas=document.getElementById('pension-chart');
     if (!canvas) return;
     const cap=computeCapital(S.dataMode,+S.age,+S.salary,S.manualTP,S.manualAP,+S.tpStart,+S.apStart,S.scheme);
-    const sim=runSimulation(cap.tp,cap.apAt,+S.tpStart,+S.apStart,S.wMode,+S.p1End,+S.p1Amt,+S.p2End,+S.p2Amt,S.p2Life,cap.tpStep);
+    const sim=runSimulation(cap.tp,cap.apAt,+S.tpStart,+S.apStart,S.wMode,+S.p1End,+S.p1Amt,+S.p2End,+S.p2Amt,S.p2Life,cap.tpStep,...pkTaxFns());
     const startA=Math.min(+S.tpStart,+S.apStart);
     const allRows = sim.rows;
     renderYearTable(allRows);
@@ -1886,8 +2050,9 @@ function update() {
   const startA = Math.min(tpStart, apStart);
 
   const cap = computeCapital(S.dataMode, age, salary, S.manualTP, S.manualAP, tpStart, apStart, S.scheme);
-  const apMo = cap.apAt(apStart);
-  const sim  = runSimulation(cap.tp, cap.apAt, tpStart, apStart, S.wMode, p1End, p1Amt, p2End, p2Amt, S.p2Life, cap.tpStep);
+  const apMo = pkAfter() ? pkNetMonthly(cap.apAt(apStart), apStart) : cap.apAt(apStart);
+  updateTaxUi();
+  const sim  = runSimulation(cap.tp, cap.apAt, tpStart, apStart, S.wMode, p1End, p1Amt, p2End, p2Amt, S.p2Life, cap.tpStep, ...pkTaxFns());
   const rows = sim.rows;
   const finalBal = rows.length ? rows[rows.length-1].tpBal : 0;
   const p1Row = rows.find(d=>d.age===startA) || {};
@@ -2037,7 +2202,8 @@ function encodeState() {
     S.manualTP, S.manualAP,
     S.tpStart, S.apStart, S.wMode==='even'?1:0,
     S.p1End, S.p1Amt, S.p2End, S.p2Amt, S.p2Life?1:0,
-    Object.keys(PK_SCHEMES).indexOf(S.scheme)
+    Object.keys(PK_SCHEMES).indexOf(S.scheme),
+    S.taxMode==='after'?1:0, S.munRate, S.churchRate
   ].join('|');
   return btoa(unescape(encodeURIComponent(v)));
 }
@@ -2051,6 +2217,7 @@ function decodeState(hash) {
     S.tpStart=p[5]; S.apStart=p[6]; S.wMode=p[7]?'even':'periods';
     S.p1End=p[8]; S.p1Amt=p[9]; S.p2End=p[10]; S.p2Amt=p[11]; S.p2Life=!!p[12];
     S.scheme = Object.keys(PK_SCHEMES)[p[13]] || 'itp1';
+    if (p.length >= 17 && !isNaN(p[15]) && !isNaN(p[16])) { S.taxMode = p[14] ? 'after' : 'before'; S.munRate = p[15]; S.churchRate = p[16]; }
     return true;
   } catch(e) { return false; }
 }
@@ -2118,20 +2285,20 @@ function updateUtbetalning() {
   if (UT.tab === 'belopp') {
     const M = UT.belopp;
     if (gi('ut-belopp-val')) gi('ut-belopp-val').textContent = fmtAmount(M)+tr(' kr/mån',' SEK/month');
-    const mo     = _monthsLeft(capital, M, annRet);
+    const mo     = _monthsLeft(capital, pkGrossIf(M, startAge), annRet);
     const ageEnd = mo===Infinity ? '95+' : Math.round(startAge + mo/12);
     if (gi('ut-result-lbl')) gi('ut-result-lbl').innerHTML =
-      tr('Vid utbetalning av <strong>'+fmtAmount(M)+' kr/mån</strong> kommer pensionen räcka till du är circa<br>',
-         'With a payout of <strong>'+fmtAmount(M)+' SEK/month</strong> the pension will last until you are approximately<br>')+
+      tr('Vid utbetalning av <strong>'+fmtAmount(M)+' kr/mån</strong>'+taxSuffix()+' kommer pensionen räcka till du är circa<br>',
+         'With a payout of <strong>'+fmtAmount(M)+' SEK/month</strong>'+taxSuffix()+' the pension will last until you are approximately<br>')+
       '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+ageEnd+tr(' år',' years')+'</span>';
     _renderUtBelopp(capital, startAge, annRet);
   } else {
     const yrs = UT.tid;
     if (gi('ut-tid-val')) gi('ut-tid-val').textContent = yrs+tr(' år',' years');
-    const M = Math.round(_monthlyForYears(capital, yrs, annRet));
+    const M = Math.round(pkNetIf(_monthlyForYears(capital, yrs, annRet), startAge));
     if (gi('ut-result-lbl')) gi('ut-result-lbl').innerHTML =
-      tr('Vid utbetalning under <strong>'+yrs+' år</strong> kommer månadsbeloppet vara circa<br>',
-         'With a payout over <strong>'+yrs+' years</strong> the monthly amount will be approximately<br>')+
+      tr('Vid utbetalning under <strong>'+yrs+' år</strong> kommer månadsbeloppet'+taxSuffix()+' vara circa<br>',
+         'With a payout over <strong>'+yrs+' years</strong> the monthly amount'+taxSuffix()+' will be approximately<br>')+
       '<span style="font-size:28px;font-weight:900;color:#1b5c36">'+fmtAmount(M)+tr(' kr/mån',' SEK/month')+'</span>';
     _renderUtTid(capital, startAge, annRet);
   }
@@ -2143,13 +2310,19 @@ function _renderUtBelopp(capital, startAge, annRet) {
   if (_utC1) { _utC1.destroy(); _utC1=null; }
   const maxM = Math.max(10000, Math.min(80000, Math.round(capital/60/500)*500));
   const step  = Math.max(500, Math.round(maxM/14/500)*500);
+  // Staplar med jämna steg, men det valda beloppet är alltid en egen stapel (den enda gröna);
+  // en jämn stapel som ligger närmare än ett halvt steg släpps för att inte dubblera
+  const amounts=[];
+  for (let m=step; m<=maxM+step/2; m+=step) if (Math.abs(m-UT.belopp) >= step*0.5) amounts.push(m);
+  amounts.push(UT.belopp);
+  amounts.sort((a,b)=>a-b);
   const labels=[], ageData=[], colors=[];
-  for (let m=step; m<=maxM+step/2; m+=step) {
+  amounts.forEach(m => {
     labels.push(fmtAmount(m));
-    const mo = _monthsLeft(capital, m, annRet);
+    const mo = _monthsLeft(capital, pkGrossIf(m, startAge), annRet);
     ageData.push(Math.min(startAge+55, mo===Infinity ? startAge+55 : Math.round(startAge+mo/12)));
-    colors.push(Math.abs(m-UT.belopp)<step*0.6 ? '#1b5c36' : '#e8a0aa');
-  }
+    colors.push(m===UT.belopp ? '#1b5c36' : '#e8a0aa');
+  });
   _utC1 = new Chart(canvas.getContext('2d'), {
     type:'bar', data:{ labels, datasets:[{ data:ageData, backgroundColor:colors, borderRadius:3, barPercentage:0.85 }] },
     options:{ responsive:true, maintainAspectRatio:false,
@@ -2175,7 +2348,7 @@ function _renderUtTid(capital, startAge, annRet) {
   _utC2 = new Chart(canvas.getContext('2d'), {
     type:'bar',
     data:{ labels:durs.map(d=>d+tr(' år',' yrs')),
-      datasets:[{ data:durs.map(d=>Math.round(_monthlyForYears(capital,d,annRet))),
+      datasets:[{ data:durs.map(d=>Math.round(pkNetIf(_monthlyForYears(capital,d,annRet), startAge))),
         backgroundColor:durs.map(d=>d===UT.tid?'#1b5c36':'#e8a0aa'), borderRadius:3, barPercentage:0.8 }] },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{callbacks:{
@@ -2328,6 +2501,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   el('scheme-select').addEventListener('change', function(){ S.scheme = this.value; update(); });
+  setupTaxUi();
   el('btn-estimated').addEventListener('click', function(){ S.dataMode='estimated'; update(); });
   el('btn-manual').addEventListener('click',    function(){ S.dataMode='manual';    update(); });
   el('btn-periods').addEventListener('click',   function(){ S.wMode='periods'; update(); });
@@ -2352,6 +2526,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function setLang(l) {
     lang = l;
+    fillTaxUi();
     try { localStorage.setItem('pension-lang', l); } catch (e) {}
     applyStatic();
     update();

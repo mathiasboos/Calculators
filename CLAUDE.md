@@ -549,6 +549,12 @@ public capital at the cohort income-pension divisor, flat. The occupational bala
 "Jämnt fördelat" solves the yearly amount that empties it at 95. Inheritance gains (`occArvGain`) are NOT applied to the
 drawn-down balance (it is the person's own capital, not a pooled lifelong annuity); the planner applies them.
 
+Tax card (Före/Efter skatt, `#tax-card`): `pkTaxYear` = the planner's `pensionTax` (grundavdrag by age, kommunalskatt,
+begravnings-/kyrkoavgift, statlig skatt over SKIKT, 1 % PublicAvg); the municipality list `KOMMUNALSKATT_2026` and the
+church/burial options match Typfallsmodellen. After tax, entered and shown amounts are net (`pkGrossMonthly` /
+`pkNetMonthly`, passed to `runSimulation`; the payout tab converts at the payout start age). Verify PBB/IBB/SKIKT and the
+municipality list every December.
+
 ## Source of truth for formulas
 
 **Typfallsmodellen (`reference/Typfallsmodellen_v4.8.xlsb` + its VBA) is the first source to consult and to implement in Retirement_Planner.html** — pension rules, contributions, tax and rounding follow the workbook exactly; a planner-specific approximation is only acceptable where the workbook has no equivalent, and must be documented as such. Explanatory UI text may round or simplify (e.g. "up to 8,07 IBB"), the calculation must not.
