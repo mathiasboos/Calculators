@@ -2469,8 +2469,17 @@ function syncPair(inputId, sliderId, key, lo, hi, amtStep) {
         }
       });
     } else {
-      inp.addEventListener('input',  e => applyRaw(e.target.value));
+      // Medan man skriver får ett halvskrivet värde (t.ex. "7" på väg mot "70") inte klampas och skrivas över:
+      // bara värden inom intervallet används direkt, resten väntar tills fältet lämnas (change/Enter)
+      inp.addEventListener('input', e => {
+        const t = String(e.target.value).trim(), n = +t;
+        if (t === '' || isNaN(n) || n < lo || n > hi) return;
+        S[key] = n;
+        if (sld) sld.value = n;
+        update();
+      });
       inp.addEventListener('change', e => applyRaw(e.target.value));
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
     }
   }
   // Slider always works with raw numbers; updates formatted input when moved
