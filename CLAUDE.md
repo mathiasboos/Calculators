@@ -238,7 +238,12 @@ published, replace the workbook and re-verify everything below.
   `calcEquityShare`; the per-account "Equity share" control (Details) switches to eq1–eq3 (`a.ownEq`).
   Excluded: DB, benefit and work rows, and anything with a `fixedRet` (no equity share at all).
   `isPpGlide` = `isPpAcc && usesGlideEq`, kept for the premium-pension wording; `populateMCDefaults`
-  follows the same helper. The three bracket AGES live in ONE place, the `#acs-eq-bar` on the ASSETS
+  follows the same helper. ⚠ The UI names AP7 Såfa ONLY on the premium pension row (`isPpAcc`), where the
+  money really is in that fund: chip `acs.eq.default`, note `pp.glide`, tooltip `pp.glide.tip`. Every other
+  account gets the same curve under a neutral name — `acs.eq.auto` "Glidepath" / "Nedtrappning",
+  `acs.eq.auto.note`, `acs.eq.auto.tip` — because a state-pension fund name on an ISK reads as if the ISK
+  were invested in it. `fundSeg` in `acsCard` branches on `isPpAcc(a)`; do NOT re-unify the two sets of
+  strings. The internal names (`ppGlideEq`, `usesGlideEq`, `isPpGlide`) stay Såfa-flavoured on purpose. The three bracket AGES live in ONE place, the `#acs-eq-bar` on the ASSETS
   tab above the steps (`ageFrom1`/`ageTo1`/`ageTo2` = 55/63/73): they are edited where the accounts
   are, and the bar shows itself only while some account is on own brackets (`acsSyncEqBar`,
   `acsAnyOwnEq`); the Details link calls `acsFocusBrackets()`, which reveals, scrolls to, flashes and

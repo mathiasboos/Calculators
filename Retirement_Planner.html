@@ -2144,6 +2144,9 @@ en:{
   'acs.f.kind':'Account type','acs.f.save.mo':'Saving per month','acs.f.contrib':'Contribution',
   'acs.f.fund':'Equity share',
   'acs.eq.default':'Default fund (AP7 Såfa)','acs.eq.own':'Own age brackets',
+  'acs.eq.auto':'Glidepath',
+  'acs.eq.auto.note':'100 % equities to age 55 → 33 % at 75',
+  'acs.eq.auto.tip':'The equity share falls with age on its own: 100 % equities up to 55, then down to 33 % equities / 67 % bonds at 75, and flat after that. Same shape as the premium pension\'s default fund. Pick "Own age brackets" to set the shares yourself.',
   'acs.open.auto':'Calculated from your salary history. Type a balance to use your own, or 0 to calculate it again.',
   'acs.cs.help':'Contributions count from this age. An account you add yourself starts now — the planner never projects backwards.',
   'acs.yt.help':'ISK and kapitalförsäkring: (statslåneräntan + 1 percentage point) × 30 %, charged only on what your ISK and endowment accounts hold above the 300 000 kr tax-free allowance together. Change the assumption on the Parameters tab.',
@@ -2934,6 +2937,9 @@ sv:{
   'acs.f.kind':'Kontotyp','acs.f.save.mo':'Sparande per månad','acs.f.contrib':'Insättning',
   'acs.f.fund':'Aktieandel',
   'acs.eq.default':'Förvalet (AP7 Såfa)','acs.eq.own':'Egna åldersintervall',
+  'acs.eq.auto':'Nedtrappning',
+  'acs.eq.auto.note':'100 % aktier till 55 år → 33 % vid 75',
+  'acs.eq.auto.tip':'Aktieandelen trappas ned av sig själv: 100 % aktier till 55 år, sedan ned till 33 % aktier / 67 % räntor vid 75 år, och därefter oförändrad. Samma kurva som premiepensionens förvalsalternativ. Välj ”Egna åldersintervall” för att sätta andelarna själv.',
   'acs.open.auto':'Framräknat från din lönehistorik. Skriv in ett eget saldo, eller 0 för att räkna om det.',
   'acs.cs.help':'Insättningar räknas från den här åldern. Ett konto du lägger till själv börjar nu — planeraren räknar aldrig bakåt.',
   'acs.yt.help':'ISK och kapitalförsäkring: (statslåneräntan + 1 procentenhet) × 30 %, bara på det dina ISK- och kapitalförsäkringskonton tillsammans har över fribeloppet 300 000 kr. Ändra antagandet på Parametrar-fliken.',
@@ -6249,11 +6255,16 @@ function acsCard(a, i, step){
     };
     var fundSeg = function(){
       if(a.fixedRet !== null && a.fixedRet !== undefined) return '';   // a fixed return has no equity share
+      // AP7 Safa is the premiepension default fund, so it names this option only on the premium
+      // pension row, where the money really is in it. Everywhere else the same curve is just the
+      // glidepath: a state-pension brand has no business labelling an ISK.
+      var pp = isPpAcc(a);
       return acsRow(t('acs.f.fund'),
         '<span class="wdp-seg">'
-        + '<button class="' + (a.ownEq ? '' : 'on') + '" onclick="acsSetOwnEq(' + i + ',false)" title="' + wdpEsc(t('pp.glide.tip')) + '">' + t('acs.eq.default') + '</button>'
+        + '<button class="' + (a.ownEq ? '' : 'on') + '" onclick="acsSetOwnEq(' + i + ',false)" title="'
+          + wdpEsc(t(pp ? 'pp.glide.tip' : 'acs.eq.auto.tip')) + '">' + t(pp ? 'acs.eq.default' : 'acs.eq.auto') + '</button>'
         + '<button class="' + (a.ownEq ? 'on' : '') + '" onclick="acsSetOwnEq(' + i + ',true)">' + t('acs.eq.own') + '</button>'
-        + '</span>', a.ownEq ? '' : t('pp.glide'));
+        + '</span>', a.ownEq ? '' : t(pp ? 'pp.glide' : 'acs.eq.auto.note'));
     };
     if(isOccPremiumAcc(a) && a.ownEq){
       det += fundSeg() + eqRow() + acsRow(t('acc.col.mgmt'), acsPctInput(i, 'mgmt', a.mgmt)) + acsLockedNote(a);
