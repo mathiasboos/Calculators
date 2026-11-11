@@ -586,7 +586,10 @@ When fixing or verifying calculation logic, **treat Excel as the source of truth
 Pensionsplaneraren sync of github.com/mathiasboos/Pensionslyft right away (workflow_dispatch of its
 `pensionsplaneraren.yml`, which fetches, checks and publishes the file). Needs the repository secret
 `PENSIONSLYFT_DISPATCH_TOKEN` (fine-grained token, Pensionslyft only, Actions: Read and write); without it the step
-skips with a notice and the site's own 15-minute schedule picks the change up.
+skips with a notice and the change waits for the site's own schedule. That schedule is `2,17,32,47 * * * *`,
+but GitHub runs schedules best-effort and skips most of them — observed runs are hours apart, not 15 minutes.
+So while the secret is unset, do NOT rely on the schedule: after a merge that touches `Retirement_Planner.html`,
+dispatch `pensionsplaneraren.yml` in Pensionslyft by hand and watch it finish.
 
 ## Git workflow
 
