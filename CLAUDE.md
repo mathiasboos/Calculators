@@ -440,7 +440,17 @@ guards on `#pgb-section`).
   `acc.opening.after.tax`, `acc.col.cs` / `acc.col.ce` "Contribution start/end (age)",
   `acc.col.mgmt` "Management fee %", `acc.col.yt` "Yield tax %", `acc.col.fr` "Fixed return %",
   `acc.eq.brackets` / `acc.eq.prefix` "Equity share…", `acs.tot.contrib` / `acs.tbl.contrib`
-  "Contributed per year", `wdp.peryear` "kr per year" (also shows on the Withdrawals tab). The SV
+  "Contributed per year", `wdp.peryear` "kr per year" (also shows on the Withdrawals tab), `acs.sum`
+  (closed-step summary), `occ.db.from`, `pgb.f.terms` / `pgb.f.grant` / `pgb.f.amount`, and the EN
+  `occ.own.eq.tip` / `pp.glide.tip` tooltip texts, which named the field as "Mgmt %".
+  ⚠ When checking this rule, scan the WHOLE of `#tab-accounts` — every text node plus every `title`
+  and `placeholder` — with all five steps opened, Details open on every card and one PGB item of each
+  kind (`child`, `vpl`, `studies`, `sa`). Scanning only the label elements misses the tooltips, the
+  closed-step summary line, the defined-benefit cell and the PGB fields, which is exactly how five
+  hardcoded `' kr/yr'` strings in the contribution-rule renderers survived a "0 hits" check: they were
+  never in the i18n table at all, so Swedish showed "kr/yr" too. They now call `t('wdp.peryear')`.
+  (In a JS regex `\b` is ASCII-only, so a pattern like `/\bst\b/` matches the "st" in "i stället" —
+  do not trust ad-hoc abbreviation patterns against Swedish without checking the hits.) The SV
   `acc.col.cs/ce` moved from "Bidrag" to "Insättning", matching `acs.f.contrib`. The `acc.col.*` keys
   are now used ONLY by this tab (`acsCard`, `acsSummaryTable`), so they are safe to reword; `acc.col.contrib.yr`
   and `refreshEqHeaders`' `th-eq1/2/3` lookups are dead leftovers of the old 11-column table.
