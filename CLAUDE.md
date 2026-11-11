@@ -434,6 +434,16 @@ guards on `#pgb-section`).
   a private pension's fields, then flagged `occGroup: true`, which `wdpIsOcc` honours so it groups with
   the occupational pensions on BOTH tabs. The flag rides along in the saved plan; its absence is the
   old behaviour, so no save-version key.
+- Field labels are written out in full, no abbreviations (owner's rule, Nov 2026): `acc.col.opening`
+  "Capital today" / "Kapital i dag" (NOT "Opening"; "Portfolio value" was rejected because that is the
+  name of a whole tab showing PROJECTED values, while this field is the balance today),
+  `acc.opening.after.tax`, `acc.col.cs` / `acc.col.ce` "Contribution start/end (age)",
+  `acc.col.mgmt` "Management fee %", `acc.col.yt` "Yield tax %", `acc.col.fr` "Fixed return %",
+  `acc.eq.brackets` / `acc.eq.prefix` "Equity share…", `acs.tot.contrib` / `acs.tbl.contrib`
+  "Contributed per year", `wdp.peryear` "kr per year" (also shows on the Withdrawals tab). The SV
+  `acc.col.cs/ce` moved from "Bidrag" to "Insättning", matching `acs.f.contrib`. The `acc.col.*` keys
+  are now used ONLY by this tab (`acsCard`, `acsSummaryTable`), so they are safe to reword; `acc.col.contrib.yr`
+  and `refreshEqHeaders`' `th-eq1/2/3` lookups are dead leftovers of the old 11-column table.
 - Every input keeps `data-ai`/`data-field` + `updateAccountField`, and is `onchange`, never `oninput` — the
   panel is rebuilt with `innerHTML`. i18n namespace `acs.*` (EN + SV); `_SAVE_SKIP` carries `/^acs-/`.
   `GUIDE_STEPS`' Assets step highlights `#acs-step-1/2/4/5` and `guideShow` sets `_acsOpen = 0`.
