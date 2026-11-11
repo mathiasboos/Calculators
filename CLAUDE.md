@@ -238,8 +238,17 @@ published, replace the workbook and re-verify everything below.
   `calcEquityShare`; the per-account "Equity share" control (Details) switches to eq1–eq3 (`a.ownEq`).
   Excluded: DB, benefit and work rows, and anything with a `fixedRet` (no equity share at all).
   `isPpGlide` = `isPpAcc && usesGlideEq`, kept for the premium-pension wording; `populateMCDefaults`
-  follows the same helper. The three bracket AGES live in ONE place, the Parameters tab's return card
-  (`ageFrom1`/`ageTo1`/`ageTo2` = 55/63/73) — until Nov 2026 that bar existed twice with the same ids
+  follows the same helper. ⚠ The UI names AP7 Såfa ONLY on the premium pension row (`isPpAcc`), where the
+  money really is in that fund: chip `acs.eq.default`, note `pp.glide`, tooltip `pp.glide.tip`. Every other
+  account gets the same curve under a neutral name — `acs.eq.auto` "Glidepath" / "Nedtrappning",
+  `acs.eq.auto.note`, `acs.eq.auto.tip` — because a state-pension fund name on an ISK reads as if the ISK
+  were invested in it. `fundSeg` in `acsCard` branches on `isPpAcc(a)`; do NOT re-unify the two sets of
+  strings. The internal names (`ppGlideEq`, `usesGlideEq`, `isPpGlide`) stay Såfa-flavoured on purpose. The three bracket AGES live in ONE place, the `#acs-eq-bar` on the ASSETS
+  tab above the steps (`ageFrom1`/`ageTo1`/`ageTo2` = 55/63/73): they are edited where the accounts
+  are, and the bar shows itself only while some account is on own brackets (`acsSyncEqBar`,
+  `acsAnyOwnEq`); the Details link calls `acsFocusBrackets()`, which reveals, scrolls to, flashes and
+  focuses it instead of leaving the tab. Keep the ids unique wherever the bar lives — until Nov 2026
+  that bar existed twice with the same ids
   (Assets 65/75/85, Projection 55/63/73), so the brackets in force were not the ones the headers named
   and a plan changed behaviour the first time it was saved and reloaded (`collectPlanState` snapshots
   `querySelectorAll('input[id]')` last-wins). Saves carry `eqRulesV: 1`; restoring an older save sets
@@ -414,12 +423,17 @@ guards on `#pgb-section`).
 - Which cards have Details open lives in `window._acsDetails`, a **WeakSet keyed by the account object**:
   an index would point at the wrong card after `removeAccount` splices, and a WeakSet never reaches
   `JSON.stringify(accounts)`.
-- Adding an account (`acsAddPanel`/`acsAddGo`): radio cards for what it is (`STATE_KINDS`, `OCC_SCHEME_ORDER`,
-  ISK vs bank) with a line each on who it is for, then a **pre-filled, labelled Name field** with an example —
+- Adding an account (`acsAddPanel`/`acsAddGo`): radio cards for what it is (`STATE_KINDS`, `OCC_SCHEME_ORDER`
+  plus `individual-occ`, ISK vs bank) with a line each on who it is for, then a **pre-filled, labelled Name
+  field** with an example —
   the old table's unlabelled name box was the thing people could not work out. `addAccount` / `addOccScheme` /
   `addStateAccount` keep their signatures; `acsAddGo` identity-diffs `accounts` before/after, because
   `addOccScheme` adds TWO rows and all three splice after the last row of the same type. An untouched name
-  keeps its `nameKey` and follows the language switch.
+  keeps its `nameKey` and follows the language switch. Step 2's `individual-occ` is an occupational
+  pension outside the collective agreements: created by `addAccount('p-ins', null)`, so it has exactly
+  a private pension's fields, then flagged `occGroup: true`, which `wdpIsOcc` honours so it groups with
+  the occupational pensions on BOTH tabs. The flag rides along in the saved plan; its absence is the
+  old behaviour, so no save-version key.
 - Every input keeps `data-ai`/`data-field` + `updateAccountField`, and is `onchange`, never `oninput` — the
   panel is rebuilt with `innerHTML`. i18n namespace `acs.*` (EN + SV); `_SAVE_SKIP` carries `/^acs-/`.
   `GUIDE_STEPS`' Assets step highlights `#acs-step-1/2/4/5` and `guideShow` sets `_acsOpen = 0`.
