@@ -386,6 +386,17 @@ published, replace the workbook and re-verify everything below.
 - "New retirement plan" = `planClear()` + `guideStart()`: floating panel (`GUIDE_STEPS`,
   `guide.*` keys) Personal → Assets → Withdrawals → Expenses, highlighting key fields
   (`.guide-hl`). `goTab(id)` switches tabs from code (`switchTab` no longer needs a click event)
+  ⚠ The guide starts from an EMPTY plan, so every path it puts the user on must be able to ADD an
+  account. Two ways that broke, both fixed Nov 2026: `guideShow` set `_acsOpen = 0` on the Assets
+  step ("all five step headers visible"), but a step's BODY is what renders `acsAddPanel`, so the
+  tab showed five headers and no "+ Add" button at all — it now opens step 1. And the Withdrawals
+  empty states (`wdp.s1.none`/`s2`/`s3`/`s4.empty`) named Assets as the place to add without a way
+  to get there; they now render through `wdpNoneBody(key, step)`, whose button calls `wdpGoAdd(step)`
+  (goTab + `acsAddOpen`, which must run LAST since it sets `_acsOpen`; the guide is moved to its
+  Assets step with `guideRender`, never `guideShow`, which would reset `_acsOpen`). The button reuses
+  the existing `acs.add.{n}` labels, so it needs no new i18n keys. `.guide-hl` is outline-only and the
+  panel has no overlay — the guide never blocks clicks, so a report of "I can't press anything" means
+  the control is not being rendered.
 
 ### Temporary payout ("Temporärt", Withdrawals tab) — Retirement_Planner.html
 
