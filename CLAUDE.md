@@ -622,6 +622,11 @@ but GitHub runs schedules best-effort and skips most of them — observed runs a
 So while the secret is unset, do NOT rely on the schedule: after a merge that touches `Retirement_Planner.html`,
 dispatch `pensionsplaneraren.yml` in Pensionslyft by hand and watch it finish.
 
+`.github/workflows/notify-pensionslyft-apps.yml` does the same for `Pensionskompassen_offline.html`: a push to `main` that
+changes it dispatches `apps.yml` ("Kalkylatorer", the hourly sync of the calculators the site shows straight from this
+repo) in Pensionslyft, with the same secret. Only Pensionskompassen is wired; add another calculator's file to its `paths`
+to trigger the sync for that one too. Without the secret, dispatch `apps.yml` by hand after a merge.
+
 ## Git workflow
 
 This folder is a git repository. Commit all changes with clear, descriptive messages. Prefer separate commits for separate concerns (e.g. don't bundle a bug fix with a visual tweak). Use `git revert` rather than rewriting history when undoing changes.
