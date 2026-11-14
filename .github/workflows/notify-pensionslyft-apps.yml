@@ -1,17 +1,30 @@
-# Starts the "Kalkylatorer" sync on pensionslyft.se right away when Pensionskompassen_offline.html changes on main, so the
-# site does not wait for its own hourly schedule (GitHub skips many scheduled runs). The site's workflow
+# Starts the "Kalkylatorer" sync on pensionslyft.se right away when one of the calculators that the site shows changes on
+# main, so the site does not wait for its own hourly schedule (GitHub skips many scheduled runs). The site's workflow
 # (mathiasboos/Pensionslyft, .github/workflows/apps.yml) then fetches, checks in a browser and publishes the calculators
 # whose file is newer than the one the site has.
 #
+# `paths` is the list of files in scripts/lib/apps.mjs of mathiasboos/Pensionslyft. When a calculator is added to the site
+# there, add its file here too. Not in the list: Retirement_Planner.html (its own workflow, notify-pensionslyft.yml) and
+# Product_Calculator_offline.html (not shown on the site). The file names have spaces and must be quoted; note the space
+# before ".html" in FIRE_Calculator .html.
+#
 # Same secret as notify-pensionslyft.yml: PENSIONSLYFT_DISPATCH_TOKEN, a fine-grained personal access token with access to
 # mathiasboos/Pensionslyft only and the permission "Actions: Read and write". Without it this workflow does nothing and the
-# site still picks the change up on its own schedule. To trigger the sync for more calculators, add their files to `paths`.
+# site still picks the change up on its own schedule.
 name: Notify Pensionslyft (calculators)
 
 on:
   push:
     branches: [main]
-    paths: [Pensionskompassen_offline.html]
+    paths:
+      - "Compound Interest Calculator.html"
+      - "Pension Savings Calculator.html"
+      - "Salary_Exchange.html"
+      - "FIRE_Calculator .html"
+      - "Net_Salary.html"
+      - "Pension Overview.html"
+      - "Replacement rate goal calculator.html"
+      - "Pensionskompassen_offline.html"
   workflow_dispatch:
 
 permissions: {}
